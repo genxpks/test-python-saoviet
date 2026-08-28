@@ -24,20 +24,21 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { username, fullName, className, password, role, pin } = body;
+    const { username, fullName, phone, className, password, role, pin } = body;
 
     const db = await getDatabase();
     const collection = db.collection("users");
 
     const existing = await collection.findOne({ username: username.trim() });
     if (existing) {
-      return NextResponse.json({ success: false, message: "Tên đăng nhập đã tồn tại!" }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Tên đăng nhập / Số điện thoại đã tồn tại!" }, { status: 400 });
     }
 
     const newUser = {
       id: "u_" + Date.now(),
       username: username.trim(),
       fullName: fullName.trim(),
+      phone: phone?.trim() || "",
       class: className || "Python Nâng Cao",
       password: password?.trim() || "123456",
       role: role || "student",
@@ -55,7 +56,7 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
-    const { id, fullName, className, password, role, pin } = body;
+    const { id, fullName, phone, className, password, role, pin } = body;
     if (!id) return NextResponse.json({ success: false, message: "Missing id" }, { status: 400 });
 
     const db = await getDatabase();
@@ -63,6 +64,7 @@ export async function PUT(req: Request) {
 
     const updateDoc: any = {};
     if (fullName) updateDoc.fullName = fullName.trim();
+    if (phone !== undefined) updateDoc.phone = phone.trim();
     if (className !== undefined) updateDoc.class = className.trim();
     if (password) updateDoc.password = password.trim();
     if (role) updateDoc.role = role;

@@ -676,11 +676,12 @@ export default function AdminPage() {
                             }}
                           />
                         </th>
-                        <th>Tên Đăng Nhập</th>
+                        <th>Tài Khoản (SĐT)</th>
                         <th>Họ Và Tên</th>
+                        <th>Số Điện Thoại</th>
                         <th>Lớp Học</th>
                         <th>Vai Trò</th>
-                        <th>Mật Khẩu</th>
+                        <th>Mật Khẩu Chuẩn</th>
                         <th>Mã PIN</th>
                         <th style={{ textAlign: "right" }}>Thao Tác</th>
                       </tr>
@@ -706,6 +707,15 @@ export default function AdminPage() {
                               </code>
                             </td>
                             <td><strong>{u.fullName}</strong></td>
+                            <td>
+                              {u.phone ? (
+                                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.86rem", color: "var(--brand-emerald-dark)", fontWeight: 600 }}>
+                                  {u.phone}
+                                </span>
+                              ) : (
+                                <span style={{ color: "#94a3b8" }}>—</span>
+                              )}
+                            </td>
                             <td>{u.class || (u.role === 'teacher' ? 'Admin Trung Tâm' : 'Học Viên')}</td>
                             <td>
                               <span style={{
@@ -792,8 +802,9 @@ export default function AdminPage() {
                         </span>
                       </div>
 
-                      <div style={{ fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: "1.5" }}>
-                        Lớp: <strong>{u.class || "Chưa phân lớp"}</strong><br />
+                      <div style={{ fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: "1.6" }}>
+                        <div>SĐT: <strong style={{ color: "var(--brand-emerald-dark)", fontFamily: "var(--font-mono)" }}>{u.phone || u.username}</strong></div>
+                        <div>Lớp: <strong>{u.class || "Chưa phân lớp"}</strong></div>
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
                           <span>Mật khẩu:</span>
                           <code>{visiblePasswordIds.includes(u.id) ? u.password : "••••••••"}</code>

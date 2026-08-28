@@ -48,6 +48,7 @@ export interface User {
   password?: string;
   fullName: string;
   role: 'teacher' | 'student';
+  phone?: string;
   class?: string;
   pin?: string;
   createdDate: string;
