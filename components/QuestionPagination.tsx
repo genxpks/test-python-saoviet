@@ -1,5 +1,7 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 interface QuestionPaginationProps {
   currentPage: number;
   totalPages: number;
@@ -28,16 +30,16 @@ export default function QuestionPagination({
         alignItems: "center",
         flexWrap: "wrap",
         gap: "1rem",
-        padding: "1rem 1.2rem",
+        padding: "1.1rem 1.4rem",
         background: "#ffffff",
-        borderRadius: "var(--radius-md)",
-        border: "1px solid var(--border)",
-        marginTop: "1.5rem",
-        boxShadow: "var(--shadow-sm)"
+        borderRadius: "var(--radius-lg)",
+        border: "1px solid var(--border-light)",
+        marginTop: "1.8rem",
+        boxShadow: "var(--shadow-subtle)"
       }}
     >
-      <span style={{ fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 500 }}>
-        Hiển thị câu <strong>{startItem} – {endItem}</strong> trên tổng số <strong>{totalItems}</strong> câu
+      <span style={{ fontSize: "0.88rem", color: "var(--text-muted)", fontWeight: 600 }}>
+        Đang xem câu <strong style={{ color: "var(--text-primary)" }}>{startItem} – {endItem}</strong> trong tổng số <strong style={{ color: "var(--brand-primary)" }}>{totalItems}</strong> câu
       </span>
 
       <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
@@ -46,7 +48,8 @@ export default function QuestionPagination({
           onClick={() => onPageChange(currentPage - 1)}
           disabled={currentPage === 1}
         >
-          ◀ Trang Trước
+          <ChevronLeft size={15} />
+          <span>Trước</span>
         </button>
 
         {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
@@ -54,7 +57,12 @@ export default function QuestionPagination({
             key={pageNum}
             className={`btn btn-sm ${currentPage === pageNum ? "btn-primary" : "btn-secondary"}`}
             onClick={() => onPageChange(pageNum)}
-            style={{ minWidth: "34px", padding: "0.35rem 0.6rem" }}
+            style={{
+              minWidth: "36px",
+              height: "34px",
+              padding: "0 0.5rem",
+              fontWeight: currentPage === pageNum ? 800 : 600
+            }}
           >
             {pageNum}
           </button>
@@ -65,7 +73,8 @@ export default function QuestionPagination({
           onClick={() => onPageChange(currentPage + 1)}
           disabled={currentPage === totalPages}
         >
-          Trang Kế ▶
+          <span>Sau</span>
+          <ChevronRight size={15} />
         </button>
       </div>
     </div>

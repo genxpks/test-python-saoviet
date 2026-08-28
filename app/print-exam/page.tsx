@@ -4,6 +4,7 @@ import { useState } from "react";
 import { QUESTIONS_DATA, PRACTICAL_DATA } from "@/lib/questionsData";
 import { Question, PracticalProblem } from "@/types";
 import PrintExamSheet from "@/components/PrintExamSheet";
+import { Printer, Shuffle, FileText, KeyRound, BookOpen, CheckCircle2 } from "lucide-react";
 
 export default function PrintExamPage() {
   const [printMode, setPrintMode] = useState<"exam_student" | "exam_key" | "all_120">("exam_student");
@@ -34,47 +35,67 @@ export default function PrintExamPage() {
       <div className="filter-toolbar no-print">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
           <div>
-            <h2 style={{ fontSize: "1.25rem", fontWeight: 700 }}>🖨️ Trình Xuất Bản & In Đề Thi Chuẩn A4</h2>
-            <p style={{ color: "#64748b", fontSize: "0.88rem" }}>
-              Tối ưu cho khổ giấy A4, ngắt trang thông minh, ẩn thanh điều hướng khi bấm In.
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.2rem" }}>
+              <Printer size={22} color="var(--brand-primary)" />
+              <h2 style={{ fontSize: "1.35rem", fontWeight: 800 }}>Trình Xuất Bản & In Đề Thi Chuẩn A4</h2>
+            </div>
+            <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
+              Tối ưu hóa layout khổ giấy A4, ngắt trang thông minh, tự động ẩn giao diện web khi bấm In.
             </p>
           </div>
 
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
             <button className="btn btn-secondary" onClick={handleShuffleNewExam}>
-              🎲 Trộn Đề Mới ({examCode})
+              <Shuffle size={16} />
+              <span>Trộn Đề Mới ({examCode})</span>
             </button>
-            <button className="btn btn-primary" onClick={handlePrint}>
-              🖨️ In Đề Này Ngay (Ctrl + P)
+
+            <button className="btn btn-primary btn-lg" onClick={handlePrint}>
+              <Printer size={18} />
+              <span>In Đề Này Ngay (Ctrl + P)</span>
             </button>
           </div>
         </div>
 
         {/* Mode Selector */}
-        <div style={{ display: "flex", gap: "0.5rem", marginTop: "0.8rem", borderTop: "1px solid var(--border)", paddingTop: "0.8rem" }}>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.6rem", borderTop: "1px solid var(--border-light)", paddingTop: "0.9rem" }}>
           <button
             className={`btn btn-sm ${printMode === "exam_student" ? "btn-primary" : "btn-secondary"}`}
+            style={{ borderRadius: "var(--radius-full)" }}
             onClick={() => setPrintMode("exam_student")}
           >
-            📄 Đề Thi Học Sinh (50 TN + 4 TL)
+            <FileText size={15} />
+            <span>Đề Thi Học Sinh (50 TN + 4 TL)</span>
           </button>
+
           <button
             className={`btn btn-sm ${printMode === "exam_key" ? "btn-primary" : "btn-secondary"}`}
+            style={{ borderRadius: "var(--radius-full)" }}
             onClick={() => setPrintMode("exam_key")}
           >
-            🔑 Phiếu Đáp Án Giáo Viên
+            <KeyRound size={15} />
+            <span>Phiếu Đáp Án Cho Giáo Viên</span>
           </button>
+
           <button
             className={`btn btn-sm ${printMode === "all_120" ? "btn-primary" : "btn-secondary"}`}
+            style={{ borderRadius: "var(--radius-full)" }}
             onClick={() => setPrintMode("all_120")}
           >
-            📚 Trọn Bộ 120 Câu Ôn Tập
+            <BookOpen size={15} />
+            <span>Toàn Bộ Ngân Hàng 120 Câu Hỏi</span>
           </button>
         </div>
       </div>
 
-      {/* Printable Sheet */}
-      <div style={{ background: "#ffffff", borderRadius: "12px", border: "1px solid var(--border)", padding: "1rem", boxShadow: "var(--shadow-sm)" }}>
+      {/* Printable Sheet Viewport */}
+      <div style={{
+        background: "#ffffff",
+        borderRadius: "var(--radius-lg)",
+        border: "1px solid var(--border-light)",
+        padding: "1.5rem",
+        boxShadow: "var(--shadow-card)"
+      }}>
         {printMode === "exam_student" && (
           <PrintExamSheet
             questions={examQuestions}

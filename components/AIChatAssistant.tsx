@@ -1,17 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { Bot, Send, X, Sparkles, Terminal, Copy, Check, MessageSquare } from "lucide-react";
 
 export default function AIChatAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ role: "user" | "ai"; text: string }>>([
     {
       role: "ai",
-      text: "👋 Chào em! Thầy là **Trợ Lý AI Tin Học Sao Việt**. Thầy có thể giúp em chữa bài tập, tìm lỗi sai trong code Python hoặc giải thích kiến thức bài học. Em đang vướng chỗ nào hãy hỏi Thầy nhé!"
+      text: "👋 Chào em! Thầy là **Trợ Lý AI Tin Học Sao Việt**. Thầy có thể giúp em chữa bài tập, tìm lỗi sai trong code Python, giải thích thuật toán đệ quy, đồ họa Turtle hoặc xử lý danh sách List/Dict. Em đang vướng chỗ nào hãy nhắn cho Thầy nhé!"
     }
   ]);
   const [inputPrompt, setInputPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isOpen]);
 
   const handleSendMessage = async (customText?: string) => {
     const textToSend = customText || inputPrompt;
@@ -32,7 +42,7 @@ export default function AIChatAssistant() {
       if (data.success) {
         setMessages([...newMessages, { role: "ai", text: data.reply }]);
       } else {
-        setMessages([...newMessages, { role: "ai", text: "❌ Có chút gián đoạn kết nối AI. Em thử hỏi lại nhé!" }]);
+        setMessages([...newMessages, { role: "ai", text: "❌ Có chút gián đoạn kết nối tới AI. Em thử hỏi lại nhé!" }]);
       }
     } catch (e) {
       setMessages([...newMessages, { role: "ai", text: "❌ Không thể kết nối tới máy chủ AI." }]);
@@ -41,9 +51,15 @@ export default function AIChatAssistant() {
     }
   };
 
+  const handleCopy = (text: string, idx: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIdx(idx);
+    setTimeout(() => setCopiedIdx(null), 2000);
+  };
+
   return (
     <>
-      {/* Floating Action Button */}
+      {/* Floating Glowing Button */}
       <button
         className="no-print"
         onClick={() => setIsOpen(!isOpen)}
@@ -52,26 +68,36 @@ export default function AIChatAssistant() {
           bottom: "24px",
           right: "24px",
           zIndex: 999,
-          background: "linear-gradient(135deg, #2563eb, #8b5cf6)",
+          background: "linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #8b5cf6 100%)",
           color: "#ffffff",
-          border: "none",
-          borderRadius: "50px",
-          padding: "12px 20px",
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          borderRadius: "var(--radius-full)",
+          padding: "12px 22px",
           display: "flex",
           alignItems: "center",
-          gap: "8px",
-          fontWeight: 700,
+          gap: "10px",
+          fontWeight: 800,
           fontSize: "0.95rem",
-          boxShadow: "0 10px 25px rgba(37, 99, 235, 0.4)",
+          boxShadow: "0 10px 30px rgba(37, 99, 235, 0.45)",
           cursor: "pointer",
-          transition: "transform 0.2s ease"
+          transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)"
         }}
       >
-        <span style={{ fontSize: "1.3rem" }}>🤖</span>
-        <span>{isOpen ? "Đóng Trợ Lý AI" : "Hỏi Trợ Lý AI Sao Việt"}</span>
+        <div style={{
+          width: "28px",
+          height: "28px",
+          background: "rgba(255, 255, 255, 0.2)",
+          borderRadius: "50%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center"
+        }}>
+          <Bot size={18} />
+        </div>
+        <span>{isOpen ? "Đóng Trợ Lý AI" : "Hỏi Thầy AI Sao Việt"}</span>
       </button>
 
-      {/* Chat Drawer / Popup */}
+      {/* Floating Chat Drawer */}
       {isOpen && (
         <div
           className="no-print"
@@ -79,47 +105,66 @@ export default function AIChatAssistant() {
             position: "fixed",
             bottom: "85px",
             right: "24px",
-            width: "390px",
+            width: "410px",
             maxWidth: "calc(100vw - 48px)",
-            height: "540px",
+            height: "560px",
             maxHeight: "calc(100vh - 120px)",
             background: "#ffffff",
-            borderRadius: "16px",
-            boxShadow: "0 20px 40px rgba(15, 23, 42, 0.25)",
-            border: "1px solid #e2e8f0",
+            borderRadius: "var(--radius-xl)",
+            boxShadow: "0 25px 60px -15px rgba(15, 23, 42, 0.35)",
+            border: "1px solid var(--border-light)",
             display: "flex",
             flexDirection: "column",
             zIndex: 999,
-            overflow: "hidden"
+            overflow: "hidden",
+            animation: "slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1)"
           }}
         >
-          {/* Chat Header */}
+          {/* Header */}
           <div
             style={{
-              background: "linear-gradient(135deg, #0f172a, #1e293b)",
+              background: "linear-gradient(135deg, #090d16 0%, #0f172a 100%)",
               color: "#ffffff",
-              padding: "12px 16px",
+              padding: "14px 18px",
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center"
+              alignItems: "center",
+              borderBottom: "1px solid #1e293b"
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ fontSize: "1.3rem" }}>🤖</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #2563eb, #8b5cf6)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#ffffff"
+              }}>
+                <Bot size={20} />
+              </div>
               <div>
-                <strong style={{ fontSize: "0.92rem", display: "block" }}>Trợ Lý AI Sao Việt</strong>
-                <small style={{ fontSize: "0.72rem", color: "#38bdf8" }}>Tự động chữa bài & sửa lỗi code</small>
+                <strong style={{ fontSize: "0.95rem", display: "block", color: "#ffffff" }}>
+                  Trợ Lý AI Tin Học Sao Việt
+                </strong>
+                <small style={{ fontSize: "0.74rem", color: "#38bdf8", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Sparkles size={11} />
+                  <span>Google Gemini 2.0 Flash Engine</span>
+                </small>
               </div>
             </div>
+
             <button
               onClick={() => setIsOpen(false)}
-              style={{ background: "none", border: "none", color: "#94a3b8", fontSize: "1.3rem", cursor: "pointer" }}
+              style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", display: "flex", alignItems: "center" }}
             >
-              &times;
+              <X size={20} />
             </button>
           </div>
 
-          {/* Messages Stream */}
+          {/* Messages Feed */}
           <div
             style={{
               flex: 1,
@@ -127,8 +172,8 @@ export default function AIChatAssistant() {
               overflowY: "auto",
               display: "flex",
               flexDirection: "column",
-              gap: "10px",
-              background: "#f8fafc"
+              gap: "12px",
+              background: "var(--bg-main)"
             }}
           >
             {messages.map((m, idx) => (
@@ -136,44 +181,73 @@ export default function AIChatAssistant() {
                 key={idx}
                 style={{
                   alignSelf: m.role === "user" ? "flex-end" : "flex-start",
-                  maxWidth: "88%",
-                  background: m.role === "user" ? "#2563eb" : "#ffffff",
-                  color: m.role === "user" ? "#ffffff" : "#0f172a",
+                  maxWidth: "90%",
+                  background: m.role === "user" 
+                    ? "linear-gradient(135deg, #1d4ed8, #2563eb)" 
+                    : "#ffffff",
+                  color: m.role === "user" ? "#ffffff" : "var(--text-primary)",
                   padding: "10px 14px",
-                  borderRadius: m.role === "user" ? "14px 14px 2px 14px" : "14px 14px 14px 2px",
-                  border: m.role === "user" ? "none" : "1px solid #e2e8f0",
+                  borderRadius: m.role === "user" ? "16px 16px 2px 16px" : "16px 16px 16px 2px",
+                  border: m.role === "user" ? "none" : "1px solid var(--border-light)",
                   fontSize: "0.88rem",
-                  lineHeight: "1.5",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
-                  whiteSpace: "pre-wrap"
+                  lineHeight: "1.55",
+                  boxShadow: "0 2px 8px rgba(15, 23, 42, 0.04)",
+                  position: "relative"
                 }}
               >
-                {m.text}
+                <div style={{ whiteSpace: "pre-wrap" }}>{m.text}</div>
+                {m.role === "ai" && (
+                  <button
+                    onClick={() => handleCopy(m.text, idx)}
+                    style={{
+                      position: "absolute",
+                      bottom: "4px",
+                      right: "6px",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "#94a3b8",
+                      fontSize: "0.7rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "2px"
+                    }}
+                    title="Sao chép câu trả lời"
+                  >
+                    {copiedIdx === idx ? <Check size={11} color="green" /> : <Copy size={11} />}
+                  </button>
+                )}
               </div>
             ))}
+
             {isLoading && (
               <div
                 style={{
                   alignSelf: "flex-start",
                   background: "#ffffff",
-                  padding: "8px 12px",
-                  borderRadius: "12px",
-                  border: "1px solid #e2e8f0",
-                  fontSize: "0.82rem",
-                  color: "#64748b"
+                  padding: "10px 14px",
+                  borderRadius: "14px",
+                  border: "1px solid var(--border-light)",
+                  fontSize: "0.84rem",
+                  color: "var(--text-muted)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px"
                 }}
               >
-                ⏳ Thầy AI đang phân tích và soạn câu trả lời...
+                <Sparkles size={14} color="var(--brand-primary)" />
+                <span>Thầy AI đang đối chiếu bài học và soạn lời giảng...</span>
               </div>
             )}
+            <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Questions Suggestions */}
+          {/* Quick Prompts Chips */}
           <div
             style={{
               padding: "6px 12px",
               background: "#f1f5f9",
-              borderTop: "1px solid #e2e8f0",
+              borderTop: "1px solid var(--border-light)",
               display: "flex",
               gap: "6px",
               overflowX: "auto",
@@ -181,36 +255,37 @@ export default function AIChatAssistant() {
             }}
           >
             <button
-              className="btn-chip"
-              style={{ fontSize: "0.75rem", padding: "3px 8px" }}
-              onClick={() => handleSendMessage("Em muốn hiểu rõ cách dùng hàm len() trong Python")}
+              className="btn btn-secondary btn-sm"
+              style={{ fontSize: "0.75rem", padding: "3px 8px", borderRadius: "10px" }}
+              onClick={() => handleSendMessage("Em muốn hiểu rõ cách hoạt động của hàm len() và chỉ số âm s[-1] trong Python.")}
             >
-              len() là gì?
+              len() & chỉ số âm
             </button>
             <button
-              className="btn-chip"
-              style={{ fontSize: "0.75rem", padding: "3px 8px" }}
-              onClick={() => handleSendMessage("Giải thích cách hoạt động của Turtle penup và pendown")}
+              className="btn btn-secondary btn-sm"
+              style={{ fontSize: "0.75rem", padding: "3px 8px", borderRadius: "10px" }}
+              onClick={() => handleSendMessage("Giải thích cách dùng Turtle: penup, pendown và vòng lặp for vẽ đa giác.")}
             >
-              penup & pendown
+              Đồ họa Turtle
             </button>
             <button
-              className="btn-chip"
-              style={{ fontSize: "0.75rem", padding: "3px 8px" }}
-              onClick={() => handleSendMessage("Mẹo nhớ chỉ số âm s[-1] trong cắt chuỗi String")}
+              className="btn btn-secondary btn-sm"
+              style={{ fontSize: "0.75rem", padding: "3px 8px", borderRadius: "10px" }}
+              onClick={() => handleSendMessage("Chỉ cho em mẹo phân biệt List, Tuple, Set và Dictionary trong Python.")}
             >
-              Chỉ số s[-1]
+              List vs Dict vs Tuple
             </button>
           </div>
 
-          {/* Input Box */}
+          {/* Message Input Box */}
           <div
             style={{
-              padding: "10px",
+              padding: "10px 14px",
               background: "#ffffff",
-              borderTop: "1px solid #e2e8f0",
+              borderTop: "1px solid var(--border-light)",
               display: "flex",
-              gap: "8px"
+              gap: "8px",
+              alignItems: "center"
             }}
           >
             <input
@@ -219,16 +294,16 @@ export default function AIChatAssistant() {
               value={inputPrompt}
               onChange={(e) => setInputPrompt(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-              placeholder="Nhập câu hỏi cho Thầy AI..."
-              style={{ fontSize: "0.88rem", padding: "8px 12px" }}
+              placeholder="Nhập câu hỏi cần Thầy AI giải đáp..."
+              style={{ fontSize: "0.9rem", height: "40px" }}
             />
             <button
               className="btn btn-primary btn-sm"
               onClick={() => handleSendMessage()}
-              disabled={isLoading}
-              style={{ padding: "0 14px" }}
+              disabled={isLoading || !inputPrompt.trim()}
+              style={{ height: "40px", padding: "0 14px" }}
             >
-              Gửi
+              <Send size={15} />
             </button>
           </div>
         </div>

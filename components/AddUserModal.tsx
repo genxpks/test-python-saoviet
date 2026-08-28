@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { addUser } from "@/lib/usersData";
+import { UserPlus, X, CheckCircle2, User, Key, School } from "lucide-react";
 
 interface AddUserModalProps {
   onClose: () => void;
@@ -23,7 +24,7 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
       password
     });
     if (res.success) {
-      alert("✅ Cấp tài khoản mới thành công!");
+      alert("✅ Cấp tài khoản học viên mới thành công!");
       onUserAdded();
       onClose();
     } else {
@@ -32,24 +33,53 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-card">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
         <button
-          style={{ position: "absolute", top: "1rem", right: "1rem", background: "none", border: "none", fontSize: "1.4rem", cursor: "pointer", color: "var(--text-muted)" }}
+          style={{
+            position: "absolute",
+            top: "1.2rem",
+            right: "1.2rem",
+            background: "#f1f5f9",
+            border: "none",
+            borderRadius: "50%",
+            width: "32px",
+            height: "32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            color: "#64748b"
+          }}
           onClick={onClose}
         >
-          &times;
+          <X size={18} />
         </button>
 
-        <div style={{ textAlign: "center", marginBottom: "1.2rem" }}>
-          <div style={{ fontSize: "2.5rem", marginBottom: "0.4rem" }}>👤</div>
-          <h3 style={{ fontSize: "1.25rem", fontWeight: 800 }}>Cấp Tài Khoản Học Viên Mới</h3>
+        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+          <div style={{
+            width: "56px",
+            height: "56px",
+            background: "rgba(37, 99, 235, 0.12)",
+            color: "var(--brand-primary)",
+            borderRadius: "16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "0 auto 1rem auto"
+          }}>
+            <UserPlus size={28} />
+          </div>
+          <h3 style={{ fontSize: "1.35rem", fontWeight: 800 }}>Cấp Tài Khoản Học Viên</h3>
+          <p style={{ fontSize: "0.88rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>
+            Tạo tài khoản học viên để đăng nhập thi và theo dõi học tập
+          </p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "0.8rem" }}>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.3rem" }}>
-              Tên đăng nhập:
+          <div style={{ marginBottom: "1rem" }}>
+            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
+              Tên Đăng Nhập (Username):
             </label>
             <input
               type="text"
@@ -58,12 +88,13 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
               onChange={(e) => setUsername(e.target.value)}
               placeholder="Ví dụ: hocvien06"
               required
+              autoFocus
             />
           </div>
 
-          <div style={{ marginBottom: "0.8rem" }}>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.3rem" }}>
-              Họ và tên học viên:
+          <div style={{ marginBottom: "1rem" }}>
+            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
+              Họ Và Tên Học Viên:
             </label>
             <input
               type="text"
@@ -75,9 +106,9 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
             />
           </div>
 
-          <div style={{ marginBottom: "0.8rem" }}>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.3rem" }}>
-              Lớp học:
+          <div style={{ marginBottom: "1rem" }}>
+            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
+              Lớp Học:
             </label>
             <input
               type="text"
@@ -87,9 +118,9 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
             />
           </div>
 
-          <div style={{ marginBottom: "1.2rem" }}>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.3rem" }}>
-              Mật khẩu khởi tạo:
+          <div style={{ marginBottom: "1.5rem" }}>
+            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
+              Mật Khẩu Khởi Tạo:
             </label>
             <input
               type="text"
@@ -99,8 +130,9 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
             />
           </div>
 
-          <button type="submit" className="btn btn-primary btn-block">
-            + Lưu & Cấp Tài Khoản
+          <button type="submit" className="btn btn-primary btn-block btn-lg">
+            <CheckCircle2 size={18} />
+            <span>Lưu & Cấp Tài Khoản Này</span>
           </button>
         </form>
       </div>
