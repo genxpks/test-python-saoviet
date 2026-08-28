@@ -26,6 +26,10 @@ export default function QuestionCard({
   );
   const [pairs, setPairs] = useState<Record<string, string>>(userAnswer || {});
 
+  // AI Explanation State
+  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+  const [isAiLoading, setIsAiLoading] = useState(false);
+
   const handleSingleSelect = (idx: number) => {
     if (onAnswerChange) onAnswerChange(idx);
   };
@@ -57,6 +61,40 @@ export default function QuestionCard({
     const next = { ...pairs, [left]: right };
     setPairs(next);
     if (onAnswerChange) onAnswerChange(next);
+  };
+
+  const handleAskAIExplanation = async () => {
+    setIsAiLoading(true);
+    setAiExplanation("⏳ Thầy AI đang phân tích logic câu hỏi và soạn lời giảng chi tiết...");
+
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "explain_question",
+          prompt: "Hãy chữa chi tiết câu hỏi này, giải thích từng đáp án và chỉ cho em mẹo suy luận nhanh nhất.",
+          context: {
+            question_id: question.id,
+            question_text: question.question,
+            question_type: question.type_name,
+            options: question.options,
+            correct_answer: question.correct_answer,
+            standard_explanation: question.explanation
+          }
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAiExplanation(data.reply);
+      } else {
+        setAiExplanation("❌ Không thể kết nối tới Trợ lý AI. Em thử lại nhé!");
+      }
+    } catch (e: any) {
+      setAiExplanation("❌ Lỗi khi gửi yêu cầu tới AI: " + e.message);
+    } finally {
+      setIsAiLoading(false);
+    }
   };
 
   const qNum = index !== undefined ? index + 1 : question.id;
@@ -189,12 +227,23 @@ export default function QuestionCard({
 
       {/* Explanation Toggle (Only in Study Mode or after Exam Submit) */}
       {!isExamMode && (
-        <>
-          <button className="exp-toggle-btn" onClick={() => setShowExp(!showExp)}>
-            💡 {showExp ? "Thu gọn giải thích ▲" : "Xem đáp án & chú thích suy luận logic ▼"}
-          </button>
+        <div style={{ marginTop: "0.8rem" }}>
+          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+            <button className="exp-toggle-btn" onClick={() => setShowExp(!showExp)}>
+              💡 {showExp ? "Thu gọn giải thích ▲" : "Xem đáp án & chú thích suy luận logic ▼"}
+            </button>
+            <button
+              className="btn btn-sm"
+              style={{ background: "linear-gradient(135deg, #8b5cf6, #ec4899)", color: "#ffffff", border: "none", borderRadius: "6px", padding: "0.35rem 0.8rem", fontSize: "0.8rem", fontWeight: 600 }}
+              onClick={handleAskAIExplanation}
+              disabled={isAiLoading}
+            >
+              🤖 Thầy AI Chữa Bài Chi Tiết
+            </button>
+          </div>
+
           {showExp && (
-            <div className="exp-box">
+            <div className="exp-box" style={{ marginTop: "0.6rem" }}>
               <div style={{ fontWeight: 700, color: "#15803d", marginBottom: "0.3rem" }}>
                 {question.type === "single_choice" && `Đáp án đúng: ${["A", "B", "C", "D"][question.correct_answer]}. ${question.options?.[question.correct_answer]}`}
                 {question.type === "true_false" && `Đáp án đúng: ${question.correct_answer === 0 ? "Đúng (True)" : "Sai (False)"}`}
@@ -208,7 +257,34 @@ export default function QuestionCard({
               </div>
             </div>
           )}
-        </>
+
+          {aiExplanation && (
+            <div
+              style={{
+                background: "#fdf4ff",
+                border: "1px solid #f0abfc",
+                padding: "0.9rem",
+                borderRadius: "8px",
+                marginTop: "0.6rem",
+                fontSize: "0.86rem",
+                lineHeight: "1.6"
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+                <strong style={{ color: "#86198f", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span>🤖</span> Lời Giảng & Bí Quyết Nhớ Lâu Của Thầy AI:
+                </strong>
+                <button
+                  onClick={() => setAiExplanation(null)}
+                  style={{ background: "none", border: "none", color: "#a21caf", cursor: "pointer", fontSize: "0.8rem" }}
+                >
+                  Đóng ✕
+                </button>
+              </div>
+              <div style={{ whiteSpace: "pre-wrap", color: "#3b0764" }}>{aiExplanation}</div>
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
