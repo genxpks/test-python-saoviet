@@ -88,11 +88,24 @@ export default function Navbar() {
               <Printer size={16} />
               <span>In Đề Chuẩn A4</span>
             </Link>
-            {user?.role === "teacher" && (
+            {user?.role === "teacher" ? (
               <Link href="/admin" className={`tab-link ${pathname === "/admin" ? "active" : ""}`}>
                 <ShieldCheck size={16} />
                 <span>Quản Trị</span>
               </Link>
+            ) : (
+              <button
+                type="button"
+                className={`tab-link ${pathname === "/admin" ? "active" : ""}`}
+                style={{ background: "transparent", border: "none", cursor: "pointer", font: "inherit" }}
+                onClick={() => {
+                  quickFill("admin", "saoviet2026");
+                  setShowLoginModal(true);
+                }}
+              >
+                <ShieldCheck size={16} />
+                <span>Quản Trị</span>
+              </button>
             )}
           </nav>
 
