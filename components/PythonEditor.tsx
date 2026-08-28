@@ -23,9 +23,16 @@ interface PythonEditorProps {
   initialCode?: string;
   onCodeChange?: (code: string) => void;
   onSubmitGrade?: (grade: GradeResult) => void;
+  isExamMode?: boolean;
 }
 
-export default function PythonEditor({ problem, initialCode, onCodeChange, onSubmitGrade }: PythonEditorProps) {
+export default function PythonEditor({ 
+  problem, 
+  initialCode, 
+  onCodeChange, 
+  onSubmitGrade,
+  isExamMode = false
+}: PythonEditorProps) {
   const [code, setCode] = useState(initialCode || problem.starter_code);
   const [consoleOutput, setConsoleOutput] = useState("Sẵn sàng thực thi. Nhấn '▶️ Chạy Thử Code' để xem kết quả...");
   const [isRunning, setIsRunning] = useState(false);
@@ -149,10 +156,12 @@ export default function PythonEditor({ problem, initialCode, onCodeChange, onSub
             <span>{isRunning ? "Đang chạy..." : "Chạy Thử Code"}</span>
           </button>
 
-          <button className="btn btn-ai btn-sm" onClick={handleAskAI} disabled={isAiLoading}>
-            <Bot size={14} />
-            <span>{isAiLoading ? "AI Đang Phân Tích..." : "Nhờ AI Sửa Code"}</span>
-          </button>
+          {!isExamMode && (
+            <button className="btn btn-ai btn-sm" onClick={handleAskAI} disabled={isAiLoading}>
+              <Bot size={14} />
+              <span>{isAiLoading ? "AI Đang Phân Tích..." : "Nhờ AI Sửa Code"}</span>
+            </button>
+          )}
         </div>
 
         <button className="btn btn-success btn-sm" onClick={handleSubmit}>
@@ -162,7 +171,7 @@ export default function PythonEditor({ problem, initialCode, onCodeChange, onSub
       </div>
 
       {/* AI Feedback Panel */}
-      {aiFeedback && (
+      {!isExamMode && aiFeedback && (
         <div style={{
           background: "linear-gradient(135deg, #2e1065, #1e1b4b)",
           color: "#f5d0fe",

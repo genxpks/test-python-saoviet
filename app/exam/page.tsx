@@ -450,6 +450,7 @@ export default function ExamPage() {
                   <PythonEditor
                     problem={examPracticals[currentIndex]}
                     initialCode={userPracticalCode[examPracticals[currentIndex]?.id]}
+                    isExamMode={true}
                     onCodeChange={(code) => {
                       setUserPracticalCode((prev) => ({
                         ...prev,

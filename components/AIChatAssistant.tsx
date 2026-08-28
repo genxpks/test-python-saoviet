@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Bot, Send, X, Sparkles, Terminal, Copy, Check, MessageSquare } from "lucide-react";
 
 export default function AIChatAssistant() {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ role: "user" | "ai"; text: string }>>([
     {
@@ -22,6 +24,11 @@ export default function AIChatAssistant() {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages, isOpen]);
+
+  // Disable & Hide AI completely in Exam mode
+  if (pathname === "/exam") {
+    return null;
+  }
 
   const handleSendMessage = async (customText?: string) => {
     const textToSend = customText || inputPrompt;
