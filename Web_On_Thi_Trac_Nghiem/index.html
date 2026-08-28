@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ Thống Luyện Thi & Kiểm Tra Python Nâng Cao — Tin Học Sao Việt Thủ Đức</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- TOP NAVIGATION BAR -->
+  <header class="main-header">
+    <div class="header-container">
+      <div class="brand-box">
+        <div class="brand-logo">🐍</div>
+        <div class="brand-info">
+          <h1>TIN HỌC SAO VIỆT THỦ ĐỨC</h1>
+          <span class="sub-title">Hệ Thống Luyện Thi & Đánh Giá Năng Lực Python Nâng Cao</span>
+        </div>
+      </div>
+
+      <nav class="nav-tabs" id="navTabs">
+        <button class="tab-btn active" data-tab="study" id="tabStudyBtn">📖 Ôn Tập 120 Câu</button>
+        <button class="tab-btn" data-tab="exam" id="tabExamBtn">⏱️ Thi Cuối Khóa</button>
+        <button class="tab-btn admin-only" data-tab="admin" id="tabAdminBtn">🛡️ Quản Trị Giáo Viên</button>
+      </nav>
+
+      <div class="user-action-box" id="userActionBox">
+        <!-- Rendered by JS: Login button or User Profile -->
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="app-main" id="appMain">
+    
+    <!-- ======================================================== -->
+    <!-- VIEW 1: CHẾ ĐỘ ÔN TẬP 120 CÂU HỎI & SUY LUẬN LOGIC -->
+    <!-- ======================================================== -->
+    <section class="view-section active" id="studyView">
+      <div class="section-hero">
+        <div class="hero-text">
+          <h2>Kho 120 Câu Hỏi Ôn Tập Học Thuộc & 10 Bài Thực Hành</h2>
+          <p>Tài liệu bám sát 100% giáo trình. Hãy làm thử và bấm <strong>"Xem đáp án & suy luận logic"</strong> để hiểu sâu bản chất.</p>
+        </div>
+        <div class="stats-badge-group">
+          <span class="badge badge-primary">120 Câu Trắc Nghiệm</span>
+          <span class="badge badge-success">6 Dạng Tương Tác</span>
+          <span class="badge badge-warning">10 Bài Tự Luận</span>
+        </div>
+      </div>
+
+      <!-- Filters & Search Bar -->
+      <div class="filter-toolbar">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="studySearchInput" placeholder="Tìm kiếm câu hỏi theo từ khóa, hàm, cú pháp...">
+        </div>
+        <div class="type-chips" id="typeChips">
+          <button class="chip active" data-type="all">Tất cả (120)</button>
+          <button class="chip" data-type="single_choice">ABCD (40)</button>
+          <button class="chip" data-type="true_false">Đúng/Sai (20)</button>
+          <button class="chip" data-type="multiple_choice">Nhiều đáp án (20)</button>
+          <button class="chip" data-type="fill_blank">Điền từ (15)</button>
+          <button class="chip" data-type="sequence_order">Sắp xếp (15)</button>
+          <button class="chip" data-type="matching">Ghép cặp (10)</button>
+          <button class="chip" data-type="practical">Tự luận Code (10)</button>
+        </div>
+      </div>
+
+      <!-- Question Cards List -->
+      <div class="questions-stream" id="studyQuestionsStream">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- VIEW 2: CHẾ ĐỘ THI CUỐI KHÓA (50 CÂU TN + 4 CÂU TỰ LUẬN) -->
+    <!-- ======================================================== -->
+    <section class="view-section" id="examView">
+      
+      <!-- Exam Lobby (Before Start) -->
+      <div class="exam-lobby-card" id="examLobby">
+        <div class="lobby-icon">🏆</div>
+        <h2>BÀI THI TỐT NGHIỆP LẬP TRÌNH PYTHON NÂNG CAO</h2>
+        <p class="center-name">Trung Tâm Tin Học Sao Việt — Chi Nhánh Thủ Đức</p>
+        
+        <div class="exam-structure-grid">
+          <div class="structure-card">
+            <div class="card-num">50</div>
+            <h4>Phần 1: Trắc Nghiệm</h4>
+            <p>50 Câu ngẫu nhiên từ kho 120 câu</p>
+            <span class="time-tag">⏱️ Thời gian: 50 Phút</span>
+          </div>
+          <div class="structure-card">
+            <div class="card-num">04</div>
+            <h4>Phần 2: Tự Luận Thực Hành</h4>
+            <p>4 Bài toán viết hàm từ kho 10 bài</p>
+            <span class="time-tag">⏱️ Thời gian: 40 Phút</span>
+          </div>
+        </div>
+
+        <div class="rules-box">
+          <h4>📌 Quy Chế Thi & Lưu Ý:</h4>
+          <ul>
+            <li>Học viên làm bài độc lập, không mở tài liệu ngoài.</li>
+            <li>Có thể bấm <strong>"⏸️ Tạm Dừng Thi"</strong> khi cần ra ngoài hoặc kết thúc buổi học (Cần Giáo viên cấp mã PIN để làm tiếp).</li>
+            <li>Tại Phần Tự Luận: Bé có thể bấm <strong>"▶️ Chạy Thử Code"</strong> nhiều lần để kiểm tra trước khi bấm <strong>"💾 Nộp Bài"</strong>.</li>
+          </ul>
+        </div>
+
+        <div class="lobby-action">
+          <button class="btn btn-primary btn-lg" id="btnStartExam">🚀 BẮT ĐẦU LÀM BÀI THI NGAY</button>
+        </div>
+      </div>
+
+      <!-- Active Exam Interface -->
+      <div class="active-exam-container hidden" id="activeExamContainer">
+        
+        <!-- Exam Top Control Bar -->
+        <div class="exam-top-bar">
+          <div class="exam-info">
+            <span class="student-name-tag" id="examStudentName">Học viên: Nguyễn Bảo Nam</span>
+            <div class="part-selector">
+              <button class="part-btn active" id="btnPart1">Phần 1: Trắc Nghiệm (50 câu)</button>
+              <button class="part-btn" id="btnPart2">Phần 2: Tự Luận Code (4 câu)</button>
+            </div>
+          </div>
+
+          <div class="exam-controls">
+            <div class="timer-box" id="examTimerBox">
+              <span class="timer-icon">⏳</span>
+              <span class="timer-digits" id="timerDigits">50:00</span>
+            </div>
+            <button class="btn btn-warning btn-sm" id="btnPauseExam">⏸️ Tạm Dừng Thi</button>
+            <button class="btn btn-success btn-sm" id="btnSubmitExam">💾 Nộp Bài Thi</button>
+          </div>
+        </div>
+
+        <!-- Exam Workspace Area -->
+        <div class="exam-workspace">
+          <!-- Left Main Area: Questions / Code Editor -->
+          <div class="exam-content-area" id="examContentArea">
+            <!-- Dynamic Content loaded by JS -->
+          </div>
+
+          <!-- Right Sidebar: Question Grid Navigator -->
+          <aside class="exam-sidebar">
+            <div class="sidebar-header">
+              <h3>Bản Đồ Câu Hỏi</h3>
+              <span class="progress-text" id="examProgressText">0 / 54 Câu</span>
+            </div>
+            <div class="nav-legend">
+              <span class="legend-item"><span class="dot answered"></span> Đã làm</span>
+              <span class="legend-item"><span class="dot unanswered"></span> Chưa làm</span>
+              <span class="legend-item"><span class="dot current"></span> Đang xem</span>
+            </div>
+            
+            <div class="sidebar-part-label">Phần 1: Trắc Nghiệm (50 câu)</div>
+            <div class="question-grid" id="mcqNavGrid">
+              <!-- Rendered 1..50 by JS -->
+            </div>
+
+            <div class="sidebar-part-label">Phần 2: Tự Luận Viết Hàm (4 câu)</div>
+            <div class="question-grid practical-grid" id="practicalNavGrid">
+              <!-- Rendered 1..4 by JS -->
+            </div>
+          </aside>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- VIEW 3: KHU VỰC QUẢN TRỊ DÀNH CHO GIÁO VIÊN -->
+    <!-- ======================================================== -->
+    <section class="view-section" id="adminView">
+      <div class="section-hero">
+        <div class="hero-text">
+          <h2>Bảng Điều Khiển Quản Trị Giáo Viên</h2>
+          <p>Quản lý tài khoản học viên, mở khóa bài thi tạm dừng, thêm câu hỏi và theo dõi bảng điểm.</p>
+        </div>
+        <div class="admin-pin-badge">
+          <span>Mã PIN Mở Khóa Đề Thi: <strong>8888</strong></span>
+        </div>
+      </div>
+
+      <div class="admin-grid">
+        <!-- Sub-panel: User Accounts -->
+        <div class="admin-card">
+          <div class="card-header">
+            <h3>👥 Danh Sách Tài Khoản Học Viên</h3>
+            <button class="btn btn-primary btn-sm" id="btnOpenAddUserModal">+ Cấp Tài Khoản Mới</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table" id="usersTable">
+              <thead>
+                <tr>
+                  <th>Tên Đăng Nhập</th>
+                  <th>Họ Và Tên</th>
+                  <th>Lớp Học</th>
+                  <th>Mật Khẩu</th>
+                  <th>Hành Động</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <!-- Rendered by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Sub-panel: Paused Exams & Quick Unlock -->
+        <div class="admin-card">
+          <div class="card-header">
+            <h3>⏸️ Quản Lý Bài Thi Tạm Dừng</h3>
+            <button class="btn btn-secondary btn-sm" id="btnRefreshPaused">Làm Mới</button>
+          </div>
+          <div id="pausedExamsList">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Sub-panel: Add Custom Question -->
+        <div class="admin-card full-width">
+          <div class="card-header">
+            <h3>➕ Thêm Câu Hỏi Mới Vào Ngân Hàng</h3>
+          </div>
+          <form class="admin-form" id="addQuestionForm">
+            <div class="form-row">
+              <div class="form-group col-4">
+                <label>Dạng Câu Hỏi:</label>
+                <select id="newQType" class="form-input">
+                  <option value="single_choice">Trắc nghiệm ABCD (1 đáp án)</option>
+                  <option value="true_false">Đúng / Sai</option>
+                  <option value="fill_blank">Điền vào chỗ trống</option>
+                </select>
+              </div>
+              <div class="form-group col-8">
+                <label>Nội Dung Câu Hỏi:</label>
+                <input type="text" id="newQText" class="form-input" placeholder="Nhập nội dung câu hỏi..." required>
+              </div>
+            </div>
+            <div class="form-row" id="mcqOptionsGroup">
+              <div class="form-group col-3">
+                <label>Đáp án A:</label>
+                <input type="text" id="optA" class="form-input" placeholder="Lựa chọn A">
+              </div>
+              <div class="form-group col-3">
+                <label>Đáp án B:</label>
+                <input type="text" id="optB" class="form-input" placeholder="Lựa chọn B">
+              </div>
+              <div class="form-group col-3">
+                <label>Đáp án C:</label>
+                <input type="text" id="optC" class="form-input" placeholder="Lựa chọn C">
+              </div>
+              <div class="form-group col-3">
+                <label>Đáp án D:</label>
+                <input type="text" id="optD" class="form-input" placeholder="Lựa chọn D">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-4">
+                <label>Đáp án đúng (0: A, 1: B, 2: C, 3: D hoặc từ điền):</label>
+                <input type="text" id="newQCorrect" class="form-input" placeholder="Ví dụ: 0 hoặc 'def'" required>
+              </div>
+              <div class="form-group col-8">
+                <label>Chú thích suy luận logic:</label>
+                <input type="text" id="newQExp" class="form-input" placeholder="Giải thích vì sao đúng..." required>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-success">+ Lưu Câu Hỏi Vào Ngân Hàng</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODALS -->
+  <!-- ======================================================== -->
+
+  <!-- Modal 1: Đăng Nhập -->
+  <div class="modal-overlay hidden" id="loginModal">
+    <div class="modal-card">
+      <button class="close-modal-btn" id="btnCloseLogin">&times;</button>
+      <div class="modal-header">
+        <div class="modal-icon">🔐</div>
+        <h3>Đăng Nhập Tài Khoản</h3>
+        <p>Chọn tài khoản cấp sẵn hoặc đăng nhập quyền Giáo viên</p>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label>Tên đăng nhập:</label>
+          <input type="text" id="loginUsername" class="form-input" placeholder="Ví dụ: hocvien01 hoặc admin" required>
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu:</label>
+          <input type="password" id="loginPassword" class="form-input" placeholder="Mặc định: 123456 (Admin: saoviet2026)" required>
+        </div>
+        <div class="quick-accounts">
+          <small>Tài khoản mẫu nhanh:</small>
+          <div class="quick-btns">
+            <button type="button" class="btn-chip" onclick="quickFill('hocvien01', '123456')">Học viên 01</button>
+            <button type="button" class="btn-chip" onclick="quickFill('hocvien02', '123456')">Học viên 02</button>
+            <button type="button" class="btn-chip" onclick="quickFill('admin', 'saoviet2026')">Giáo Viên Admin</button>
+          </div>
+        </div>
+        <div class="form-error hidden" id="loginErrorMsg"></div>
+        <button type="submit" class="btn btn-primary btn-block">Đăng Nhập Ngay</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Tạm Dừng Thi & Nhập PIN Mở Khóa -->
+  <div class="modal-overlay hidden" id="pauseModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-icon">⏸️</div>
+        <h3>Bài Thi Đang Tạm Dừng</h3>
+        <p>Toàn bộ câu trả lời, code và thời gian còn lại đã được lưu an toàn.</p>
+      </div>
+      <div class="paused-info-box">
+        <p>Để tiếp tục làm bài, <strong>Thầy/Cô giáo</strong> vui lòng nhập Mã PIN phê duyệt:</p>
+      </div>
+      <form id="unlockExamForm">
+        <div class="form-group">
+          <label>Mã PIN Phê Duyệt Của Giáo Viên:</label>
+          <input type="password" id="teacherPinInput" class="form-input text-center text-lg" placeholder="Nhập PIN (Mặc định: 8888)" maxlength="8" required>
+        </div>
+        <div class="form-error hidden" id="pinErrorMsg">Mã PIN không chính xác!</div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="btnExitToStudy">Về Trang Chủ Ôn Tập</button>
+          <button type="submit" class="btn btn-success">🔓 Phê Duyệt & Tiếp Tục Thi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 3: Thêm Tài Khoản Học Viên Mới -->
+  <div class="modal-overlay hidden" id="addUserModal">
+    <div class="modal-card">
+      <button class="close-modal-btn" id="btnCloseAddUser">&times;</button>
+      <div class="modal-header">
+        <div class="modal-icon">👤</div>
+        <h3>Cấp Tài Khoản Học Viên Mới</h3>
+      </div>
+      <form id="addUserForm">
+        <div class="form-group">
+          <label>Tên đăng nhập:</label>
+          <input type="text" id="newUsername" class="form-input" placeholder="Ví dụ: hocvien03" required>
+        </div>
+        <div class="form-group">
+          <label>Họ và tên học viên:</label>
+          <input type="text" id="newFullName" class="form-input" placeholder="Ví dụ: Hoàng Tuấn Kiệt" required>
+        </div>
+        <div class="form-group">
+          <label>Lớp học:</label>
+          <input type="text" id="newClass" class="form-input" value="Python Nâng Cao K26">
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu khởi tạo:</label>
+          <input type="text" id="newPassword" class="form-input" value="123456">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">+ Tạo Tài Khoản</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 4: Bảng Điểm & Kết Quả Thi -->
+  <div class="modal-overlay hidden" id="resultModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-icon" id="resultTrophyIcon">🎉</div>
+        <h3 id="resultTitle">KẾT QUẢ BÀI THI PYTHON NÂNG CAO</h3>
+        <p id="resultSubtitle">Học viên đã hoàn thành cả 2 phần thi!</p>
+      </div>
+
+      <div class="score-summary-grid">
+        <div class="score-metric">
+          <span class="metric-label">Điểm Tổng Kết</span>
+          <span class="metric-value text-primary" id="finalTotalScore">9.5 / 10</span>
+        </div>
+        <div class="score-metric">
+          <span class="metric-label">Phần 1: Trắc Nghiệm</span>
+          <span class="metric-value" id="mcqScoreDisplay">48 / 50 Câu</span>
+        </div>
+        <div class="score-metric">
+          <span class="metric-label">Phần 2: Tự Luận Code</span>
+          <span class="metric-value" id="practicalScoreDisplay">4 / 4 Bài</span>
+        </div>
+        <div class="score-metric">
+          <span class="metric-label">Xếp Loại</span>
+          <span class="metric-value text-success" id="rankDisplay">XUẤT SẮC</span>
+        </div>
+      </div>
+
+      <div class="result-actions">
+        <button class="btn btn-secondary" id="btnCloseResult">Đóng Bảng Điểm</button>
+        <button class="btn btn-primary" onclick="window.print()">🖨️ In Phiếu Điểm / Lưu PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="questions.js"></script>
+  <script src="users.js"></script>
+  <script src="python_runner.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
