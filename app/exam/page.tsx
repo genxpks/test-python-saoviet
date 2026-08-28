@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Question, PracticalProblem, User, PausedExamState } from "@/types";
+import { Question, PracticalProblem, User, PausedExamState, ExamResult } from "@/types";
 import { QUESTIONS_DATA, PRACTICAL_DATA } from "@/lib/questionsData";
-import { getCurrentUser, savePausedExam, getPausedExam, clearPausedExam, verifyTeacherPin, saveExamResult } from "@/lib/usersData";
+import { getCurrentUser, savePausedExam, getPausedExam, clearPausedExam, saveExamResult } from "@/lib/usersData";
 import QuestionCard from "@/components/QuestionCard";
 import PythonEditor from "@/components/PythonEditor";
+import ExamNavigator from "@/components/ExamNavigator";
+import PinUnlockModal from "@/components/PinUnlockModal";
+import ExamResultModal from "@/components/ExamResultModal";
 
 export default function ExamPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isExamActive, setIsExamActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
-  const [pinInput, setPinInput] = useState("");
-  const [pinError, setPinError] = useState("");
 
   const [examQuestions, setExamQuestions] = useState<Question[]>([]);
   const [examPracticals, setExamPracticals] = useState<PracticalProblem[]>([]);
@@ -26,7 +27,7 @@ export default function ExamPage() {
 
   const [timerSeconds, setTimerSeconds] = useState(50 * 60);
   const [showResultModal, setShowResultModal] = useState(false);
-  const [finalScoreData, setFinalScoreData] = useState<any>(null);
+  const [finalScoreData, setFinalScoreData] = useState<ExamResult | null>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -68,7 +69,6 @@ export default function ExamPage() {
       return;
     }
 
-    // Shuffle and pick 50 MCQs
     const shuffledQ = [...QUESTIONS_DATA].sort(() => Math.random() - 0.5).slice(0, 50);
     const shuffledP = [...PRACTICAL_DATA].sort(() => Math.random() - 0.5).slice(0, 4);
 
@@ -103,8 +103,6 @@ export default function ExamPage() {
     };
     savePausedExam(pausedState);
     setShowPinModal(true);
-    setPinError("");
-    setPinInput("");
   };
 
   const restoreExam = (saved: PausedExamState) => {
@@ -119,16 +117,6 @@ export default function ExamPage() {
     setIsExamActive(true);
     setIsPaused(true);
     setShowPinModal(true);
-  };
-
-  const handleUnlockWithPin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (verifyTeacherPin(pinInput)) {
-      setIsPaused(false);
-      setShowPinModal(false);
-    } else {
-      setPinError("Mã PIN không chính xác! Vui lòng liên hệ Thầy/Cô.");
-    }
   };
 
   const handleAutoSubmit = () => {
@@ -189,7 +177,7 @@ export default function ExamPage() {
     else if (totalScore >= 5.0) rank = "TRUNG BÌNH ⭐";
     else rank = "CẦN RÈN LUYỆN THÊM 📚";
 
-    const resultData = {
+    const resultData: ExamResult = {
       id: "res_" + Date.now(),
       studentId: currentUser?.id || "unknown",
       studentName: currentUser?.fullName || "Học viên",
@@ -217,36 +205,40 @@ export default function ExamPage() {
     <div>
       {!isExamActive ? (
         /* Exam Lobby Card */
-        <div className="exam-lobby-card">
-          <div className="lobby-icon">🏆</div>
-          <h2>BÀI THI TỐT NGHIỆP LẬP TRÌNH PYTHON NÂNG CAO</h2>
-          <p className="center-name">Trung Tâm Tin Học Sao Việt — Chi Nhánh Thủ Đức</p>
+        <div className="q-card" style={{ maxWidth: "750px", margin: "1.5rem auto", padding: "2.5rem 2rem", textAlign: "center" }}>
+          <div style={{ fontSize: "3.5rem", marginBottom: "0.5rem" }}>🏆</div>
+          <h2 style={{ fontSize: "1.6rem", fontWeight: 800, textTransform: "uppercase", marginBottom: "0.3rem" }}>
+            BÀI THI TỐT NGHIỆP LẬP TRÌNH PYTHON NÂNG CAO
+          </h2>
+          <p style={{ color: "var(--primary)", fontWeight: 700, fontSize: "0.95rem", marginBottom: "1.5rem" }}>
+            Trung Tâm Tin Học Sao Việt — Chi Nhánh Thủ Đức
+          </p>
 
-          <div className="exam-structure-grid">
-            <div className="structure-card">
-              <div className="card-num">50</div>
-              <h4>Phần 1: Trắc Nghiệm</h4>
-              <p>50 Câu ngẫu nhiên từ kho 120 câu</p>
-              <span className="time-tag">⏱️ Thời gian: 50 Phút</span>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.5rem", textAlign: "left" }}>
+            <div style={{ background: "var(--primary-light)", border: "1px solid var(--primary-border)", padding: "1.2rem", borderRadius: "var(--radius-md)" }}>
+              <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--primary)" }}>50 CÂU</div>
+              <h4 style={{ fontWeight: 700, margin: "0.2rem 0" }}>Phần 1: Trắc Nghiệm</h4>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>50 Câu ngẫu nhiên từ kho 120 câu</p>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--primary)", display: "block", marginTop: "0.4rem" }}>⏱️ Thời gian: 50 Phút</span>
             </div>
-            <div className="structure-card">
-              <div className="card-num">04</div>
-              <h4>Phần 2: Tự Luận Thực Hành</h4>
-              <p>4 Bài toán viết hàm từ kho 10 bài</p>
-              <span className="time-tag">⏱️ Thời gian: 40 Phút</span>
+            <div style={{ background: "var(--success-light)", border: "1px solid var(--success-border)", padding: "1.2rem", borderRadius: "var(--radius-md)" }}>
+              <div style={{ fontSize: "1.6rem", fontWeight: 800, color: "var(--success-dark)" }}>04 BÀI</div>
+              <h4 style={{ fontWeight: 700, margin: "0.2rem 0" }}>Phần 2: Tự Luận Thực Hành</h4>
+              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>4 Bài toán viết hàm từ kho 10 bài</p>
+              <span style={{ fontSize: "0.8rem", fontWeight: 700, color: "var(--success-dark)", display: "block", marginTop: "0.4rem" }}>⏱️ Thời gian: 40 Phút</span>
             </div>
           </div>
 
-          <div className="rules-box">
-            <h4>📌 Quy Chế Thi & Lưu Ý:</h4>
-            <ul>
-              <li>Học viên làm bài độc lập, không mở tài liệu ngoài.</li>
-              <li>Có thể bấm <strong>"⏸️ Tạm Dừng Thi"</strong> khi kết thúc buổi học (Cần Giáo viên cấp mã PIN <code>8888</code> để làm tiếp).</li>
-              <li>Tại Phần Tự Luận: Bé có thể bấm <strong>"▶️ Chạy Thử Code"</strong> nhiều lần để kiểm tra trước khi bấm nộp bài.</li>
+          <div style={{ background: "#f8fafc", border: "1px solid var(--border)", padding: "1rem 1.2rem", borderRadius: "var(--radius-sm)", textAlign: "left", marginBottom: "1.5rem", fontSize: "0.88rem" }}>
+            <h4 style={{ fontWeight: 700, marginBottom: "0.4rem" }}>📌 Quy Chế & Hướng Dẫn Làm Bài:</h4>
+            <ul style={{ paddingLeft: "1.2rem", display: "flex", flexDirection: "column", gap: "0.3rem", color: "var(--text-muted)" }}>
+              <li>Học viên làm bài độc lập, hệ thống tự động ghi nhận thời gian và lưu kết quả.</li>
+              <li>Có thể bấm <strong>"⏸️ Tạm Dừng Thi"</strong> khi cần (Mã PIN giáo viên mở khóa: <code>8888</code>).</li>
+              <li>Tại Phần Tự Luận: Bé có thể bấm <strong>"▶️ Chạy Thử Code"</strong> và <strong>"🤖 Nhờ AI Phân Tích"</strong> trước khi nộp bài.</li>
             </ul>
           </div>
 
-          <button className="btn btn-primary btn-lg" onClick={handleStartExam}>
+          <button className="btn btn-primary btn-lg btn-block" onClick={handleStartExam}>
             🚀 BẮT ĐẦU LÀM BÀI THI NGAY
           </button>
         </div>
@@ -255,13 +247,13 @@ export default function ExamPage() {
         <div>
           {/* Top Control Bar */}
           <div className="exam-top-bar">
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-              <span className="student-name-tag">
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
+              <span style={{ fontSize: "0.9rem", fontWeight: 700, background: "#f1f5f9", padding: "0.3rem 0.8rem", borderRadius: "var(--radius-sm)" }}>
                 Học viên: {currentUser?.fullName} ({currentUser?.username})
               </span>
-              <div className="part-selector">
+              <div style={{ display: "flex", gap: "0.4rem" }}>
                 <button
-                  className={`part-btn ${currentPart === 1 ? "active" : ""}`}
+                  className={`btn btn-sm ${currentPart === 1 ? "btn-primary" : "btn-secondary"}`}
                   onClick={() => {
                     setCurrentPart(1);
                     setCurrentIndex(0);
@@ -270,7 +262,7 @@ export default function ExamPage() {
                   Phần 1: Trắc Nghiệm (50 câu)
                 </button>
                 <button
-                  className={`part-btn ${currentPart === 2 ? "active" : ""}`}
+                  className={`btn btn-sm ${currentPart === 2 ? "btn-primary" : "btn-secondary"}`}
                   onClick={() => {
                     setCurrentPart(2);
                     setCurrentIndex(0);
@@ -281,10 +273,10 @@ export default function ExamPage() {
               </div>
             </div>
 
-            <div className="exam-controls">
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
               <div className={`timer-box ${timerSeconds <= 300 ? "danger" : ""}`}>
                 <span>⏳</span>
-                <span className="timer-digits">{formatTimer(timerSeconds)}</span>
+                <span>{formatTimer(timerSeconds)}</span>
               </div>
               <button className="btn btn-warning btn-sm" onClick={handlePauseExam}>
                 ⏸️ Tạm Dừng Thi
@@ -297,8 +289,8 @@ export default function ExamPage() {
 
           {/* Exam Content Workspace */}
           <div className="exam-workspace">
-            {/* Main Question / Editor Area */}
-            <div className="exam-content-area">
+            {/* Main Area */}
+            <div>
               {currentPart === 1 ? (
                 <div>
                   <QuestionCard
@@ -314,7 +306,7 @@ export default function ExamPage() {
                     }}
                   />
 
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.5rem", paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.2rem", paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>
                     <button
                       className="btn btn-secondary"
                       onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
@@ -340,12 +332,12 @@ export default function ExamPage() {
                 <div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
                     <span className="q-badge">💻 BÀI TỰ LUẬN THỰC HÀNH {currentIndex + 1} / 4</span>
-                    <span style={{ fontSize: "0.82rem", fontWeight: 600, color: "#10b981" }}>(Điểm tối đa: 1.25đ / bài)</span>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--success-dark)" }}>(Điểm: 1.25đ / bài)</span>
                   </div>
                   <h3 style={{ fontSize: "1.15rem", fontWeight: 700, marginBottom: "0.4rem" }}>
                     {examPracticals[currentIndex]?.title}
                   </h3>
-                  <p style={{ color: "#475569", marginBottom: "1rem" }}>
+                  <p style={{ color: "var(--text-muted)", marginBottom: "1rem", fontSize: "0.92rem" }}>
                     {examPracticals[currentIndex]?.description}
                   </p>
 
@@ -366,7 +358,7 @@ export default function ExamPage() {
                     }}
                   />
 
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.5rem", paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.2rem", paddingTop: "1rem", borderTop: "1px solid var(--border)" }}>
                     <button
                       className="btn btn-secondary"
                       onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
@@ -389,168 +381,49 @@ export default function ExamPage() {
             </div>
 
             {/* Sidebar Navigator Grid */}
-            <aside className="exam-sidebar">
-              <div className="sidebar-header">
-                <h3>Bản Đồ Câu Hỏi</h3>
-                <span className="progress-text">
-                  {Object.keys(userAnswers).length + Object.keys(practicalResults).length} / 54 Câu
-                </span>
-              </div>
-
-              <div className="nav-legend">
-                <span className="legend-item"><span className="dot answered"></span> Đã làm</span>
-                <span className="legend-item"><span className="dot unanswered"></span> Chưa</span>
-                <span className="legend-item"><span className="dot current"></span> Đang xem</span>
-              </div>
-
-              <div className="sidebar-part-label">Phần 1: Trắc Nghiệm (50 câu)</div>
-              <div className="question-grid">
-                {examQuestions.map((q, idx) => {
-                  const isAnswered = userAnswers[q.id] !== undefined;
-                  const isCurrent = currentPart === 1 && currentIndex === idx;
-                  return (
-                    <button
-                      key={q.id}
-                      className={`grid-btn ${isAnswered ? "answered" : ""} ${isCurrent ? "current" : ""}`}
-                      onClick={() => {
-                        setCurrentPart(1);
-                        setCurrentIndex(idx);
-                      }}
-                    >
-                      {idx + 1}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="sidebar-part-label" style={{ marginTop: "1.2rem" }}>
-                Phần 2: Tự Luận Viết Hàm (4 câu)
-              </div>
-              <div className="question-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
-                {examPracticals.map((p, idx) => {
-                  const isGraded = practicalResults[p.id] && practicalResults[p.id].passed;
-                  const isCurrent = currentPart === 2 && currentIndex === idx;
-                  return (
-                    <button
-                      key={p.id}
-                      className={`grid-btn ${isGraded ? "answered" : ""} ${isCurrent ? "current" : ""}`}
-                      onClick={() => {
-                        setCurrentPart(2);
-                        setCurrentIndex(idx);
-                      }}
-                    >
-                      TL {idx + 1}
-                    </button>
-                  );
-                })}
-              </div>
-            </aside>
+            <ExamNavigator
+              questions={examQuestions}
+              practicals={examPracticals}
+              currentPart={currentPart}
+              currentIndex={currentIndex}
+              userAnswers={userAnswers}
+              practicalResults={practicalResults}
+              onSelectMCQ={(idx) => {
+                setCurrentPart(1);
+                setCurrentIndex(idx);
+              }}
+              onSelectPractical={(idx) => {
+                setCurrentPart(2);
+                setCurrentIndex(idx);
+              }}
+            />
           </div>
         </div>
       )}
 
       {/* PIN Unlock Modal */}
       {showPinModal && (
-        <div className="modal-overlay">
-          <div className="modal-card">
-            <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-              <div style={{ fontSize: "2.5rem" }}>⏸️</div>
-              <h3 style={{ fontSize: "1.2rem", fontWeight: 700 }}>Bài Thi Đang Tạm Dừng</h3>
-              <p style={{ fontSize: "0.85rem", color: "#64748b" }}>Toàn bộ tiến trình làm bài đã được lưu an toàn.</p>
-            </div>
-            <form onSubmit={handleUnlockWithPin}>
-              <div style={{ marginBottom: "1rem" }}>
-                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.3rem" }}>
-                  Mã PIN Phê Duyệt Của Giáo Viên:
-                </label>
-                <input
-                  type="password"
-                  className="form-input"
-                  value={pinInput}
-                  onChange={(e) => setPinInput(e.target.value)}
-                  placeholder="Nhập PIN (Mặc định: 8888)"
-                  required
-                  style={{ textAlign: "center", fontSize: "1.2rem", letterSpacing: "4px" }}
-                />
-              </div>
-              {pinError && (
-                <div style={{ color: "#ef4444", fontSize: "0.85rem", marginBottom: "1rem", background: "#fef2f2", padding: "0.5rem", borderRadius: "4px" }}>
-                  {pinError}
-                </div>
-              )}
-              <div style={{ display: "flex", gap: "0.5rem" }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => {
-                    setShowPinModal(false);
-                    setIsExamActive(false);
-                  }}
-                >
-                  Về Trang Chủ
-                </button>
-                <button type="submit" className="btn btn-success" style={{ flex: 1 }}>
-                  🔓 Mở Khóa & Tiếp Tục Thi
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <PinUnlockModal
+          onSuccess={() => {
+            setIsPaused(false);
+            setShowPinModal(false);
+          }}
+          onCancel={() => {
+            setShowPinModal(false);
+            setIsExamActive(false);
+          }}
+        />
       )}
 
       {/* Result Modal */}
       {showResultModal && finalScoreData && (
-        <div className="modal-overlay">
-          <div className="modal-card modal-lg">
-            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
-              <div style={{ fontSize: "3rem" }}>🎉</div>
-              <h3 style={{ fontSize: "1.4rem", fontWeight: 800 }}>KẾT QUẢ BÀI THI PYTHON NÂNG CAO</h3>
-              <p style={{ color: "#64748b", fontSize: "0.9rem" }}>Học viên: {finalScoreData.studentName} — Lớp: {finalScoreData.studentClass}</p>
-            </div>
-
-            <div className="score-summary-grid">
-              <div className="score-metric">
-                <span className="metric-label">Điểm Tổng Kết</span>
-                <span className="metric-value" style={{ color: "var(--primary)" }}>
-                  {finalScoreData.totalScore} / 10
-                </span>
-              </div>
-              <div className="score-metric">
-                <span className="metric-label">Phần 1: Trắc Nghiệm</span>
-                <span className="metric-value">
-                  {finalScoreData.mcqCorrect} / 50 ({finalScoreData.mcqScore}đ)
-                </span>
-              </div>
-              <div className="score-metric">
-                <span className="metric-label">Phần 2: Tự Luận Code</span>
-                <span className="metric-value">
-                  {finalScoreData.practicalScore} / 5.0đ
-                </span>
-              </div>
-              <div className="score-metric">
-                <span className="metric-label">Xếp Loại</span>
-                <span className="metric-value" style={{ color: "var(--success)" }}>
-                  {finalScoreData.rank}
-                </span>
-              </div>
-            </div>
-
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
-              <button
-                className="btn btn-secondary"
-                onClick={() => {
-                  setShowResultModal(false);
-                  setIsExamActive(false);
-                }}
-              >
-                Đóng Bảng Điểm
-              </button>
-              <button className="btn btn-primary" onClick={() => window.print()}>
-                🖨️ In Phiếu Điểm / Lưu PDF
-              </button>
-            </div>
-          </div>
-        </div>
+        <ExamResultModal
+          resultData={finalScoreData}
+          onClose={() => {
+            setShowResultModal(false);
+            setIsExamActive(false);
+          }}
+        />
       )}
     </div>
   );
