@@ -1,9 +1,16 @@
 // scripts/seed_mongodb.js - Script nạp toàn bộ 120 câu hỏi & 10 bài thực hành lên MongoDB Atlas
+// Đọc connection URI từ biến môi trường MONGODB_URI
 const { MongoClient } = require("mongodb");
 const fs = require("fs");
 const path = require("path");
 
-const uri = "mongodb+srv://genxpks_db_user:WCxt4C4P6gcbnxlD@cluster0.2w5nhw1.mongodb.net/test_python_saoviet?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGODB_URI;
+
+if (!uri) {
+  console.error("❌ Lỗi: Vui lòng thiết lập biến môi trường MONGODB_URI trước khi chạy script này.");
+  console.log("👉 Ví dụ: MONGODB_URI=\"mongodb+srv://...\" node scripts/seed_mongodb.js");
+  process.exit(1);
+}
 
 async function seedDatabase() {
   console.log("🚀 Đang kết nối tới MongoDB Atlas...");

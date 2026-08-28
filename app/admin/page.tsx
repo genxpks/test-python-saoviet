@@ -55,7 +55,9 @@ import {
   FileSpreadsheet,
   CheckSquare,
   Square,
-  Bot
+  Bot,
+  Eye,
+  EyeOff
 } from "lucide-react";
 
 type AdminTab = "users" | "questions" | "practicals" | "exams_monitor" | "results" | "settings";
@@ -65,10 +67,18 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<AdminTab>("users");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
-  // Auth form inside admin page if not logged in
-  const [loginUsername, setLoginUsername] = useState("admin");
-  const [loginPassword, setLoginPassword] = useState("saoviet2026");
+  // Auth form inside admin page if not logged in (empty by default for security)
+  const [loginUsername, setLoginUsername] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
+
+  // Password visibility toggle per user ID
+  const [visiblePasswordIds, setVisiblePasswordIds] = useState<string[]>([]);
+  const togglePasswordVisibility = (id: string) => {
+    setVisiblePasswordIds((prev) => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
 
   // Data states
   const [users, setUsers] = useState<User[]>([]);
@@ -554,7 +564,7 @@ export default function AdminPage() {
               </div>
               <div style={{ overflow: "hidden" }}>
                 <div style={{ fontSize: "0.82rem", fontWeight: 700, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{currentUser.fullName}</div>
-                <div style={{ fontSize: "0.74rem", color: "var(--text-muted)" }}>PIN: <strong>{currentUser.pin || "8888"}</strong></div>
+                <div style={{ fontSize: "0.74rem", color: "var(--text-muted)" }}>Quyền Quản Trị Hệ Thống</div>
               </div>
             </div>
           </div>
@@ -710,12 +720,28 @@ export default function AdminPage() {
                               </span>
                             </td>
                             <td>
-                              <code style={{ background: "#f8fafc", padding: "2px 6px", borderRadius: "4px" }}>
-                                {u.password}
-                              </code>
+                              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
+                                <code style={{ background: "#f8fafc", padding: "2px 6px", borderRadius: "4px", fontFamily: "var(--font-mono)", fontSize: "0.85rem" }}>
+                                  {visiblePasswordIds.includes(u.id) ? u.password : "••••••••"}
+                                </code>
+                                <button
+                                  type="button"
+                                  onClick={() => togglePasswordVisibility(u.id)}
+                                  style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: "2px", display: "flex", alignItems: "center" }}
+                                  title={visiblePasswordIds.includes(u.id) ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                                >
+                                  {visiblePasswordIds.includes(u.id) ? <EyeOff size={13} /> : <Eye size={13} />}
+                                </button>
+                              </div>
                             </td>
                             <td>
-                              {u.role === "teacher" ? <strong>{u.pin || "8888"}</strong> : <span style={{ color: "#94a3b8" }}>—</span>}
+                              {u.role === "teacher" ? (
+                                <span style={{ fontFamily: "var(--font-mono)" }}>
+                                  {visiblePasswordIds.includes(u.id) ? <strong>{u.pin || "8888"}</strong> : "••••"}
+                                </span>
+                              ) : (
+                                <span style={{ color: "#94a3b8" }}>—</span>
+                              )}
                             </td>
                             <td style={{ textAlign: "right" }}>
                               <div style={{ display: "inline-flex", gap: "0.4rem" }}>
@@ -768,7 +794,17 @@ export default function AdminPage() {
 
                       <div style={{ fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: "1.5" }}>
                         Lớp: <strong>{u.class || "Chưa phân lớp"}</strong><br />
-                        Mật khẩu: <code>{u.password}</code>
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
+                          <span>Mật khẩu:</span>
+                          <code>{visiblePasswordIds.includes(u.id) ? u.password : "••••••••"}</code>
+                          <button
+                            type="button"
+                            onClick={() => togglePasswordVisibility(u.id)}
+                            style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: "2px" }}
+                          >
+                            {visiblePasswordIds.includes(u.id) ? <EyeOff size={12} /> : <Eye size={12} />}
+                          </button>
+                        </div>
                       </div>
 
                       <div style={{ display: "flex", gap: "0.4rem", borderTop: "1px solid var(--border-light)", paddingTop: "0.8rem" }}>

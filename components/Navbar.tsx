@@ -99,7 +99,8 @@ export default function Navbar() {
                 className={`tab-link ${pathname === "/admin" ? "active" : ""}`}
                 style={{ background: "transparent", border: "none", cursor: "pointer", font: "inherit" }}
                 onClick={() => {
-                  quickFill("admin", "saoviet2026");
+                  setUsername("admin");
+                  setPassword("");
                   setShowLoginModal(true);
                 }}
               >
@@ -229,7 +230,7 @@ export default function Navbar() {
                   <button type="button" className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => quickFill("hocvien02", "123456")}>
                     Học Viên 02
                   </button>
-                  <button type="button" className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => quickFill("admin", "saoviet2026")}>
+                  <button type="button" className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => { setUsername("admin"); setPassword(""); }}>
                     Giáo Viên
                   </button>
                 </div>

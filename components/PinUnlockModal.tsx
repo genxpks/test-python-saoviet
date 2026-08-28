@@ -101,7 +101,7 @@ export default function PinUnlockModal({ onSuccess, onCancel }: PinUnlockModalPr
             color: "var(--text-muted)",
             textAlign: "center"
           }}>
-            <span>Mã PIN giáo viên mặc định: <strong>8888</strong> hoặc <strong>saoviet2026</strong></span>
+            <span>🔒 Vui lòng giơ tay gọi Thầy/Cô giám thị nhập mã PIN để mở khóa tiếp tục bài thi.</span>
           </div>
 
           <div style={{ display: "flex", gap: "0.65rem" }}>
