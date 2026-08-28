@@ -16,8 +16,10 @@ import {
   User as UserIcon,
   X, 
   Sparkles,
-  CheckCircle2,
-  KeyRound
+  CheckCircle2, 
+  KeyRound,
+  Eye,
+  EyeOff
 } from "lucide-react";
 
 export default function Navbar() {
@@ -26,6 +28,7 @@ export default function Navbar() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
@@ -38,6 +41,8 @@ export default function Navbar() {
     if (res.success && res.user) {
       setUser(res.user);
       setShowLoginModal(false);
+      setUsername("");
+      setPassword("");
       setLoginError("");
     } else {
       setLoginError(res.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản!");
@@ -47,12 +52,6 @@ export default function Navbar() {
   const handleLogout = () => {
     logoutUser();
     setUser(null);
-  };
-
-  const quickFill = (u: string, p: string) => {
-    setUsername(u);
-    setPassword(p);
-    setLoginError("");
   };
 
   return (
@@ -99,7 +98,7 @@ export default function Navbar() {
                 className={`tab-link ${pathname === "/admin" ? "active" : ""}`}
                 style={{ background: "transparent", border: "none", cursor: "pointer", font: "inherit" }}
                 onClick={() => {
-                  setUsername("admin");
+                  setUsername("");
                   setPassword("");
                   setShowLoginModal(true);
                 }}
@@ -127,7 +126,12 @@ export default function Navbar() {
                 </button>
               </>
             ) : (
-              <button className="btn btn-primary btn-sm" onClick={() => setShowLoginModal(true)}>
+              <button className="btn btn-primary btn-sm" onClick={() => {
+                setUsername("");
+                setPassword("");
+                setLoginError("");
+                setShowLoginModal(true);
+              }}>
                 <LogIn size={15} />
                 <span>Đăng Nhập</span>
               </button>
@@ -136,7 +140,7 @@ export default function Navbar() {
         </div>
       </header>
 
-      {/* Modern Login Modal */}
+      {/* Modern Secure Login Modal */}
       {showLoginModal && (
         <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
           <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
@@ -191,47 +195,43 @@ export default function Navbar() {
                   className="form-input"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Ví dụ: hocvien01 hoặc admin"
+                  placeholder="Nhập tên đăng nhập..."
                   required
                   autoFocus
                 />
               </div>
 
-              <div style={{ marginBottom: "1.2rem" }}>
+              <div style={{ marginBottom: "1.4rem" }}>
                 <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
                   Mật Khẩu:
                 </label>
-                <input
-                  type="password"
-                  className="form-input"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu..."
-                  required
-                />
-              </div>
-
-              {/* Quick Fill Suggestions */}
-              <div style={{
-                background: "var(--surface-subtle)",
-                padding: "0.85rem",
-                borderRadius: "var(--radius-sm)",
-                marginBottom: "1.2rem",
-                border: "1px solid var(--border-light)"
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.78rem", fontWeight: 700, color: "var(--text-muted)", marginBottom: "0.5rem" }}>
-                  <Sparkles size={14} color="var(--brand-primary)" />
-                  <span>Chọn nhanh tài khoản mẫu:</span>
-                </div>
-                <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
-                  <button type="button" className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => quickFill("hocvien01", "123456")}>
-                    Học Viên 01
-                  </button>
-                  <button type="button" className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => quickFill("hocvien02", "123456")}>
-                    Học Viên 02
-                  </button>
-                  <button type="button" className="btn btn-secondary btn-sm" style={{ flex: 1 }} onClick={() => { setUsername("admin"); setPassword(""); }}>
-                    Giáo Viên
+                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    className="form-input"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Nhập mật khẩu..."
+                    required
+                    style={{ paddingRight: "40px" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: "absolute",
+                      right: "10px",
+                      background: "none",
+                      border: "none",
+                      cursor: "pointer",
+                      color: "#64748b",
+                      padding: "4px",
+                      display: "flex",
+                      alignItems: "center"
+                    }}
+                    title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
