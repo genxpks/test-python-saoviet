@@ -29,3 +29,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    const db = await getDatabase();
+    const collection = db.collection("exam_results");
+
+    if (id) {
+      await collection.deleteOne({ id });
+    } else {
+      await collection.deleteMany({});
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  }
+}

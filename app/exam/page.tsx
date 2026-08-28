@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Question, PracticalProblem, User, PausedExamState, ExamResult } from "@/types";
-import { QUESTIONS_DATA, PRACTICAL_DATA } from "@/lib/questionsData";
+import { getQuestionsData, getPracticalsData } from "@/lib/questionsData";
 import { getCurrentUser, savePausedExam, getPausedExam, clearPausedExam, saveExamResult } from "@/lib/usersData";
 import QuestionCard from "@/components/QuestionCard";
 import PythonEditor from "@/components/PythonEditor";
@@ -84,8 +84,11 @@ export default function ExamPage() {
       return;
     }
 
-    const shuffledQ = [...QUESTIONS_DATA].sort(() => Math.random() - 0.5).slice(0, 50);
-    const shuffledP = [...PRACTICAL_DATA].sort(() => Math.random() - 0.5).slice(0, 4);
+    const allQ = getQuestionsData();
+    const allP = getPracticalsData();
+
+    const shuffledQ = [...allQ].sort(() => Math.random() - 0.5).slice(0, Math.min(50, allQ.length));
+    const shuffledP = [...allP].sort(() => Math.random() - 0.5).slice(0, Math.min(4, allP.length));
 
     setExamQuestions(shuffledQ);
     setExamPracticals(shuffledP);

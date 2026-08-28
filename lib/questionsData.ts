@@ -2122,3 +2122,103 @@ export const PRACTICAL_DATA: PracticalProblem[] = [
     ]
   }
 ];
+
+const CUSTOM_QUESTIONS_KEY = "NEXT_SAOVIET_CUSTOM_QUESTIONS";
+const CUSTOM_PRACTICALS_KEY = "NEXT_SAOVIET_CUSTOM_PRACTICALS";
+
+export function getQuestionsData(): Question[] {
+  if (typeof window === "undefined") return QUESTIONS_DATA;
+  try {
+    const raw = localStorage.getItem(CUSTOM_QUESTIONS_KEY);
+    if (!raw) {
+      localStorage.setItem(CUSTOM_QUESTIONS_KEY, JSON.stringify(QUESTIONS_DATA));
+      return QUESTIONS_DATA;
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    return QUESTIONS_DATA;
+  }
+}
+
+export function saveAllQuestions(questions: Question[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(CUSTOM_QUESTIONS_KEY, JSON.stringify(questions));
+}
+
+export function addQuestionData(q: Omit<Question, "id"> & { id?: number }): Question {
+  const list = getQuestionsData();
+  const newQ: Question = {
+    ...q,
+    id: q.id || (list.length > 0 ? Math.max(...list.map(x => x.id)) + 1 : 1)
+  };
+  list.push(newQ);
+  saveAllQuestions(list);
+  return newQ;
+}
+
+export function updateQuestionData(id: number, updated: Partial<Question>): boolean {
+  let list = getQuestionsData();
+  const idx = list.findIndex(x => x.id === id);
+  if (idx === -1) return false;
+  list[idx] = { ...list[idx], ...updated };
+  saveAllQuestions(list);
+  return true;
+}
+
+export function deleteQuestionData(id: number): boolean {
+  let list = getQuestionsData();
+  const initialLen = list.length;
+  list = list.filter(x => x.id !== id);
+  if (list.length === initialLen) return false;
+  saveAllQuestions(list);
+  return true;
+}
+
+export function getPracticalsData(): PracticalProblem[] {
+  if (typeof window === "undefined") return PRACTICAL_DATA;
+  try {
+    const raw = localStorage.getItem(CUSTOM_PRACTICALS_KEY);
+    if (!raw) {
+      localStorage.setItem(CUSTOM_PRACTICALS_KEY, JSON.stringify(PRACTICAL_DATA));
+      return PRACTICAL_DATA;
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    return PRACTICAL_DATA;
+  }
+}
+
+export function saveAllPracticals(practicals: PracticalProblem[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(CUSTOM_PRACTICALS_KEY, JSON.stringify(practicals));
+}
+
+export function addPracticalData(p: Omit<PracticalProblem, "id"> & { id?: number }): PracticalProblem {
+  const list = getPracticalsData();
+  const newP: PracticalProblem = {
+    ...p,
+    id: p.id || (list.length > 0 ? Math.max(...list.map(x => x.id)) + 1 : 1)
+  };
+  list.push(newP);
+  saveAllPracticals(list);
+  return newP;
+}
+
+export function updatePracticalData(id: number, updated: Partial<PracticalProblem>): boolean {
+  let list = getPracticalsData();
+  const idx = list.findIndex(x => x.id === id);
+  if (idx === -1) return false;
+  list[idx] = { ...list[idx], ...updated };
+  saveAllPracticals(list);
+  return true;
+}
+
+export function deletePracticalData(id: number): boolean {
+  let list = getPracticalsData();
+  const initialLen = list.length;
+  list = list.filter(x => x.id !== id);
+  if (list.length === initialLen) return false;
+  saveAllPracticals(list);
+  return true;
+}
+

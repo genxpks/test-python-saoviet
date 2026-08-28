@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { QUESTIONS_DATA, PRACTICAL_DATA } from "@/lib/questionsData";
+import { getQuestionsData, getPracticalsData } from "@/lib/questionsData";
 import { Question, PracticalProblem } from "@/types";
 import PrintExamSheet from "@/components/PrintExamSheet";
 import { Printer, Shuffle, FileText, KeyRound, BookOpen, CheckCircle2 } from "lucide-react";
@@ -9,16 +9,18 @@ import { Printer, Shuffle, FileText, KeyRound, BookOpen, CheckCircle2 } from "lu
 export default function PrintExamPage() {
   const [printMode, setPrintMode] = useState<"exam_student" | "exam_key" | "all_120">("exam_student");
   const [examQuestions, setExamQuestions] = useState<Question[]>(() => {
-    return [...QUESTIONS_DATA].slice(0, 50);
+    return [...getQuestionsData()].slice(0, 50);
   });
   const [examPracticals, setExamPracticals] = useState<PracticalProblem[]>(() => {
-    return [...PRACTICAL_DATA].slice(0, 4);
+    return [...getPracticalsData()].slice(0, 4);
   });
   const [examCode, setExamCode] = useState("MÃ ĐỀ 101");
 
   const handleShuffleNewExam = () => {
-    const shuffledQ = [...QUESTIONS_DATA].sort(() => Math.random() - 0.5).slice(0, 50);
-    const shuffledP = [...PRACTICAL_DATA].sort(() => Math.random() - 0.5).slice(0, 4);
+    const allQ = getQuestionsData();
+    const allP = getPracticalsData();
+    const shuffledQ = [...allQ].sort(() => Math.random() - 0.5).slice(0, Math.min(50, allQ.length));
+    const shuffledP = [...allP].sort(() => Math.random() - 0.5).slice(0, Math.min(4, allP.length));
     const randCode = "MÃ ĐỀ " + Math.floor(100 + Math.random() * 900);
     setExamQuestions(shuffledQ);
     setExamPracticals(shuffledP);
@@ -116,8 +118,8 @@ export default function PrintExamPage() {
 
         {printMode === "all_120" && (
           <PrintExamSheet
-            questions={QUESTIONS_DATA}
-            practicals={PRACTICAL_DATA}
+            questions={getQuestionsData()}
+            practicals={getPracticalsData()}
             showAnswers={true}
             title="NGÂN HÀNG TOÀN DIỆN 120 CÂU HỎI & 10 BÀI THỰC HÀNH PYTHON NÂNG CAO"
           />

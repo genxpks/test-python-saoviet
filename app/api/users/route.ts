@@ -24,7 +24,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { username, fullName, className, password, role } = body;
+    const { username, fullName, className, password, role, pin } = body;
 
     const db = await getDatabase();
     const collection = db.collection("users");
@@ -41,11 +41,37 @@ export async function POST(req: Request) {
       class: className || "Python Nâng Cao",
       password: password?.trim() || "123456",
       role: role || "student",
+      pin: pin?.trim() || (role === "teacher" ? "8888" : undefined),
       createdDate: new Date().toISOString().split("T")[0]
     };
 
     await collection.insertOne(newUser);
     return NextResponse.json({ success: true, user: newUser });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+  }
+}
+
+export async function PUT(req: Request) {
+  try {
+    const body = await req.json();
+    const { id, fullName, className, password, role, pin } = body;
+    if (!id) return NextResponse.json({ success: false, message: "Missing id" }, { status: 400 });
+
+    const db = await getDatabase();
+    const collection = db.collection("users");
+
+    const updateDoc: any = {};
+    if (fullName) updateDoc.fullName = fullName.trim();
+    if (className !== undefined) updateDoc.class = className.trim();
+    if (password) updateDoc.password = password.trim();
+    if (role) updateDoc.role = role;
+    if (pin) updateDoc.pin = pin.trim();
+
+    await collection.updateOne({ id }, { $set: updateDoc });
+
+    const updatedUser = await collection.findOne({ id });
+    return NextResponse.json({ success: true, user: updatedUser });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }

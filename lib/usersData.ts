@@ -111,7 +111,7 @@ export function logoutUser() {
   localStorage.removeItem(SESSION_KEY);
 }
 
-export function addUser(userData: { username: string; fullName: string; role?: 'teacher' | 'student'; class?: string; password?: string }) {
+export function addUser(userData: { username: string; fullName: string; role?: 'teacher' | 'student'; class?: string; password?: string; pin?: string }) {
   const users = getUsers();
   if (users.some(u => u.username.toLowerCase() === userData.username.trim().toLowerCase())) {
     return { success: false, message: "Tên đăng nhập đã tồn tại!" };
@@ -123,11 +123,32 @@ export function addUser(userData: { username: string; fullName: string; role?: '
     role: userData.role || "student",
     class: userData.class || "Python Nâng Cao",
     password: userData.password?.trim() || "123456",
+    pin: userData.pin?.trim() || (userData.role === "teacher" ? "8888" : undefined),
     createdDate: new Date().toISOString().split("T")[0]
   };
   users.push(newUser);
   saveUsers(users);
   return { success: true, user: newUser };
+}
+
+export function updateUser(userId: string, updateData: Partial<User>) {
+  let users = getUsers();
+  const index = users.findIndex(u => u.id === userId);
+  if (index === -1) return { success: false, message: "Không tìm thấy tài khoản!" };
+
+  users[index] = {
+    ...users[index],
+    ...updateData
+  };
+  saveUsers(users);
+
+  // If current user is updated, update session as well
+  const current = getCurrentUser();
+  if (current && current.id === userId) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(users[index]));
+  }
+
+  return { success: true, user: users[index] };
 }
 
 export function deleteUser(userId: string) {
@@ -164,6 +185,17 @@ export function verifyTeacherPin(pin: string): boolean {
   return pin.trim() === validPin || pin.trim() === "saoviet2026";
 }
 
+export function updateTeacherPin(newPin: string) {
+  let users = getUsers();
+  const admin = users.find(u => u.role === "teacher");
+  if (admin) {
+    admin.pin = newPin.trim();
+    saveUsers(users);
+    return { success: true };
+  }
+  return { success: false, message: "Không tìm thấy tài khoản giáo viên!" };
+}
+
 export function saveExamResult(result: ExamResult) {
   if (typeof window === "undefined") return;
   try {
@@ -182,4 +214,18 @@ export function getExamResults(): ExamResult[] {
   } catch (e) {
     return [];
   }
+}
+
+export function deleteExamResult(id: string) {
+  if (typeof window === "undefined") return;
+  try {
+    let list = getExamResults();
+    list = list.filter(r => r.id !== id);
+    localStorage.setItem(RESULTS_KEY, JSON.stringify(list));
+  } catch (e) {}
+}
+
+export function clearExamResults() {
+  if (typeof window === "undefined") return;
+  localStorage.removeItem(RESULTS_KEY);
 }
