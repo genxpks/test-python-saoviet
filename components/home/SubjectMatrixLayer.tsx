@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import TiltCard3D from "./TiltCard3D";
 import { 
   FileCode2, 
   Terminal, 
@@ -101,18 +102,18 @@ const TRACKS: SubjectTrack[] = [
     icon: Cpu,
     color: "#d97706",
     bgGradient: "linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05))",
-    runtime: "Java 17 (JDK)",
-    modulesCount: 6,
+    runtime: "Java 21 / OpenJDK",
+    modulesCount: 7,
     highlightTopics: [
-      "Module 1: Cú pháp Java, JVM, JRE và cấu trúc lớp Main",
-      "Module 2: Đóng gói (Encapsulation) & Access Modifiers",
-      "Module 3: Kế thừa (Inheritance) & Ghi đè phương thức Override",
-      "Module 4: Đa hình (Polymorphism) & Lớp trừu tượng Abstract",
-      "Module 5: Interface, Lambda Expressions & Exception Handling",
-      "Module 6: Java Collections Framework (ArrayList, HashMap, Set)"
+      "Chương 1: Cú pháp Java, JVM, JRE & Garbage Collection",
+      "Chương 2: Lớp (Class), Đối tượng (Object) & Constructor",
+      "Chương 3: Đóng gói (Encapsulation) & Kế thừa (Inheritance)",
+      "Chương 4: Đa hình (Polymorphism) & Trừu tượng (Abstraction)",
+      "Chương 5: Java Collections Framework (ArrayList, HashMap, Set)",
+      "Chương 6: Xử lý ngoại lệ Exception & Đọc ghi tệp tin I/O"
     ],
-    sampleQuestion: "Từ khóa nào trong Java dùng để kế thừa một lớp cha?",
-    sampleCode: "public class Student extends Person {\n  private String studentId;\n  public Student() { super(); }\n}"
+    sampleQuestion: "Từ khóa nào trong Java dùng để ngăn cản một class bị kế thừa?",
+    sampleCode: "public final class SecurityConfig {\n    // Không thể kế thừa\n}"
   }
 ];
 
@@ -120,16 +121,16 @@ export default function SubjectMatrixLayer() {
   const [selectedTrack, setSelectedTrack] = useState<SubjectTrack>(TRACKS[0]);
 
   return (
-    <section style={{ marginBottom: "3.5rem" }}>
+    <section style={{ marginBottom: "4rem" }}>
       {/* Section Header */}
-      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+      <div style={{ textAlign: "center", marginBottom: "2.2rem" }}>
         <div style={{
           display: "inline-flex",
           alignItems: "center",
           gap: "0.5rem",
           background: "rgba(37, 99, 235, 0.08)",
           color: "var(--brand-primary)",
-          padding: "0.3rem 0.8rem",
+          padding: "0.3rem 0.85rem",
           borderRadius: "var(--radius-full)",
           fontSize: "0.8rem",
           fontWeight: 800,
@@ -139,7 +140,7 @@ export default function SubjectMatrixLayer() {
           <span>DANH MỤC KHÓA HỌC CHUẨN ĐẦU RA</span>
         </div>
 
-        <h2 style={{ fontSize: "1.85rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
+        <h2 style={{ fontSize: "1.9rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
           Ma Trận Đào Tạo 4 Bộ Môn Lập Trình Trọng Điểm
         </h2>
         <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
@@ -148,7 +149,10 @@ export default function SubjectMatrixLayer() {
       </div>
 
       {/* Main Grid: Left track selector & Right curriculum inspector */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.3fr", gap: "1.5rem", alignItems: "stretch" }}>
+      <div 
+        className="hero-grid-responsive"
+        style={{ display: "grid", gridTemplateColumns: "1fr 1.3fr", gap: "1.5rem", alignItems: "stretch" }}
+      >
         {/* Left Column: 4 Subject Selector Cards */}
         <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
           {TRACKS.map((track) => {
@@ -156,144 +160,144 @@ export default function SubjectMatrixLayer() {
             const isSelected = selectedTrack.id === track.id;
 
             return (
-              <div
-                key={track.id}
-                onClick={() => setSelectedTrack(track)}
-                className="q-card"
-                style={{
-                  cursor: "pointer",
-                  padding: "1.2rem 1.4rem",
-                  border: isSelected ? `2px solid ${track.color}` : "1px solid var(--border-light)",
-                  background: isSelected ? track.bgGradient : "var(--surface-card)",
-                  boxShadow: isSelected ? `0 10px 25px -5px rgba(0, 0, 0, 0.08)` : "var(--shadow-subtle)",
-                  transform: isSelected ? "translateX(6px)" : "translateX(0)",
-                  transition: "all 0.25s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between"
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                  <div style={{
-                    width: "44px",
-                    height: "44px",
-                    borderRadius: "12px",
-                    background: isSelected ? track.color : "var(--bg-light)",
-                    color: isSelected ? "#ffffff" : track.color,
+              <TiltCard3D key={track.id} maxTilt={6} scale={1.01}>
+                <div
+                  onClick={() => setSelectedTrack(track)}
+                  className="q-card"
+                  style={{
+                    cursor: "pointer",
+                    padding: "1.2rem 1.4rem",
+                    border: isSelected ? `2px solid ${track.color}` : "1px solid var(--border-light)",
+                    background: isSelected ? track.bgGradient : "var(--surface-card)",
+                    boxShadow: isSelected ? `0 10px 25px -5px rgba(0, 0, 0, 0.08)` : "var(--shadow-subtle)",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
-                    transition: "all 0.25s ease"
-                  }}>
-                    <Icon size={22} />
-                  </div>
-
-                  <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                      <span style={{ fontSize: "0.72rem", fontWeight: 800, color: track.color, background: "rgba(0,0,0,0.04)", padding: "1px 6px", borderRadius: "4px" }}>
-                        {track.code}
-                      </span>
-                      <h3 style={{ fontSize: "1.05rem", fontWeight: 800, margin: 0 }}>{track.name}</h3>
+                    justifyContent: "space-between",
+                    borderRadius: "var(--radius-md)"
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{
+                      width: "44px",
+                      height: "44px",
+                      borderRadius: "12px",
+                      background: isSelected ? track.color : "var(--surface-subtle)",
+                      color: isSelected ? "#ffffff" : track.color,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "all 0.25s ease"
+                    }}>
+                      <Icon size={22} />
                     </div>
-                    <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: "0.2rem 0 0" }}>
-                      {track.modulesCount} chương học • {track.runtime}
-                    </p>
-                  </div>
-                </div>
 
-                <ChevronRight size={18} color={isSelected ? track.color : "#94a3b8"} />
-              </div>
+                    <div>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <span style={{ fontSize: "0.72rem", fontWeight: 800, color: track.color, background: "rgba(0,0,0,0.04)", padding: "1px 6px", borderRadius: "4px" }}>
+                          {track.code}
+                        </span>
+                        <h3 style={{ fontSize: "1.05rem", fontWeight: 800, margin: 0 }}>{track.name}</h3>
+                      </div>
+                      <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: "0.2rem 0 0" }}>
+                        {track.modulesCount} chương học • {track.runtime}
+                      </p>
+                    </div>
+                  </div>
+
+                  <ChevronRight size={18} color={isSelected ? track.color : "#94a3b8"} />
+                </div>
+              </TiltCard3D>
             );
           })}
         </div>
 
         {/* Right Column: Detailed Interactive Syllabus Card */}
-        <div className="q-card" style={{
-          padding: "2rem",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-          borderTop: `4px solid ${selectedTrack.color}`,
-          background: "var(--surface-card)"
-        }}>
-          <div>
-            {/* Header info */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem" }}>
-              <div>
-                <span style={{ fontSize: "0.75rem", fontWeight: 800, color: selectedTrack.color, textTransform: "uppercase" }}>
-                  CHI TIẾT CHƯƠNG TRÌNH HỌC & ĐỀ THI
-                </span>
-                <h3 style={{ fontSize: "1.35rem", fontWeight: 900, margin: "0.2rem 0 0" }}>
-                  {selectedTrack.name}
-                </h3>
+        <TiltCard3D maxTilt={5} scale={1.01}>
+          <div className="q-card" style={{
+            padding: "2rem",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
+            borderTop: `4px solid ${selectedTrack.color}`,
+            background: "var(--surface-card)",
+            height: "100%",
+            borderRadius: "var(--radius-lg)"
+          }}>
+            <div>
+              {/* Header info */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.2rem" }}>
+                <div>
+                  <span style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 800,
+                    color: selectedTrack.color,
+                    background: `${selectedTrack.color}15`,
+                    padding: "0.2rem 0.6rem",
+                    borderRadius: "var(--radius-full)",
+                    display: "inline-block",
+                    marginBottom: "0.4rem"
+                  }}>
+                    CHI TIẾT CHƯƠNG TRÌNH ĐÀO TẠO
+                  </span>
+                  <h3 style={{ fontSize: "1.35rem", fontWeight: 900, color: "var(--text-primary)" }}>
+                    {selectedTrack.name}
+                  </h3>
+                  <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
+                    {selectedTrack.tagline}
+                  </p>
+                </div>
               </div>
 
-              <span className="badge badge-primary" style={{ fontSize: "0.75rem" }}>
-                {selectedTrack.runtime}
-              </span>
-            </div>
+              {/* Module Topics Checklist */}
+              <div style={{ marginBottom: "1.5rem" }}>
+                <h4 style={{ fontSize: "0.85rem", fontWeight: 800, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.6rem", letterSpacing: "0.04em" }}>
+                  Lộ Trình Các Chương Trọng Điểm:
+                </h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+                  {selectedTrack.highlightTopics.map((topic, idx) => (
+                    <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: "0.6rem", fontSize: "0.88rem", color: "var(--text-secondary)" }}>
+                      <CheckCircle2 size={16} color={selectedTrack.color} style={{ minWidth: "16px", marginTop: "3px" }} />
+                      <span>{topic}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginBottom: "1.2rem" }}>
-              {selectedTrack.tagline}
-            </p>
-
-            {/* Modules Bullet Points */}
-            <div style={{ marginBottom: "1.4rem" }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.5rem" }}>
-                📋 CÁC MODULE KIẾN THỨC TRỌNG TÂM:
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
-                {selectedTrack.highlightTopics.map((topic, i) => (
-                  <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.84rem", color: "var(--text-secondary)" }}>
-                    <CheckCircle2 size={15} color={selectedTrack.color} style={{ flexShrink: 0, marginTop: "2px" }} />
-                    <span>{topic}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Sample Exam Question Box */}
-            <div style={{
-              background: "var(--bg-light)",
-              border: "1px solid var(--border-light)",
-              borderRadius: "var(--radius-md)",
-              padding: "0.9rem 1.1rem",
-              marginBottom: "1.2rem"
-            }}>
-              <div style={{ fontSize: "0.78rem", fontWeight: 800, color: "var(--brand-primary)", marginBottom: "0.3rem" }}>
-                💡 CÂU HỎI THI MẪU:
-              </div>
-              <div style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.5rem" }}>
-                {selectedTrack.sampleQuestion}
-              </div>
-              <pre style={{
-                background: "#0f172a",
-                color: "#38bdf8",
-                padding: "0.6rem 0.8rem",
-                borderRadius: "6px",
-                fontSize: "0.78rem",
+              {/* Sample Code Preview */}
+              <div style={{
+                background: "#070d19",
+                border: "1px solid #1e293b",
+                borderRadius: "var(--radius-md)",
+                padding: "0.9rem 1.1rem",
                 fontFamily: "var(--font-mono)",
-                margin: 0,
-                overflowX: "auto"
+                fontSize: "0.82rem",
+                marginBottom: "1.5rem"
               }}>
-                <code>{selectedTrack.sampleCode}</code>
-              </pre>
+                <div style={{ display: "flex", justifyContent: "space-between", color: "#94a3b8", fontSize: "0.72rem", marginBottom: "0.3rem" }}>
+                  <span># Câu hỏi trích đoạn mẫu:</span>
+                  <span style={{ color: selectedTrack.color }}>{selectedTrack.runtime}</span>
+                </div>
+                <div style={{ color: "#f8fafc", marginBottom: "0.4rem", fontWeight: 600 }}>
+                  Q: {selectedTrack.sampleQuestion}
+                </div>
+                <pre style={{ margin: 0, color: "#38bdf8", overflowX: "auto" }}>
+                  {selectedTrack.sampleCode}
+                </pre>
+              </div>
+            </div>
+
+            {/* Bottom CTA to study page */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "1rem", borderTop: "1px solid var(--border-light)" }}>
+              <div style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
+                Chứng nhận cấp bởi <strong>Tin Học Sao Việt</strong>
+              </div>
+              <Link href="/study" className="btn btn-primary btn-sm" style={{ gap: "0.4rem" }}>
+                <span>Vào Ôn Luyện Bộ Môn Này</span>
+                <ArrowRight size={14} />
+              </Link>
             </div>
           </div>
-
-          {/* Action Link */}
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.8rem", borderTop: "1px solid var(--border-light)", paddingTop: "1rem" }}>
-            <Link href="/study" className="btn btn-secondary btn-sm">
-              <BookOpen size={14} />
-              <span>Xem Ngân Hàng Câu Hỏi</span>
-            </Link>
-
-            <Link href="/exam" className="btn btn-primary btn-sm" style={{ background: selectedTrack.color }}>
-              <span>Vào Làm Bài Thi</span>
-              <ArrowRight size={14} />
-            </Link>
-          </div>
-        </div>
+        </TiltCard3D>
       </div>
     </section>
   );

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
+import TiltCard3D from "./TiltCard3D";
 import { 
   Sparkles, 
   Terminal, 
@@ -15,9 +16,11 @@ import {
   Layers, 
   Bot, 
   Cpu, 
-  ChevronRight, 
   Copy, 
-  Check 
+  Check,
+  ShieldCheck,
+  Zap,
+  Globe
 } from "lucide-react";
 
 const CODE_SNIPPETS = {
@@ -25,21 +28,22 @@ const CODE_SNIPPETS = {
     title: "python_curriculum_master.py",
     language: "Python 3.12",
     code: `# Tin Học Sao Việt — Đào tạo Python Nâng Cao
-def calculate_scholarship(scores: list[float]) -> dict:
+def evaluate_student(scores: list[float]) -> dict:
     avg = sum(scores) / len(scores)
     rank = "Xuất Sắc" if avg >= 9.0 else "Giỏi" if avg >= 8.0 else "Khá"
     return {
         "average": round(avg, 2),
         "rank": rank,
-        "certificate": "SaoViet_Gold_Cert_2026"
+        "certificate": "SaoViet_Gold_Cert_2026",
+        "eligible_exam": True
     }
 
-# Chạy thử nghiệm với điểm số học viên
-results = calculate_scholarship([9.5, 9.0, 9.2, 9.8])
-print(f"🎓 Kết quả: {results['rank']} | Điểm TB: {results['average']}")`,
+# Chạy kiểm thử tự động
+results = evaluate_student([9.5, 9.0, 9.2, 9.8])
+print(f"🎓 Xếp loại: {results['rank']} | Điểm TB: {results['average']}")`,
     output: `>>> Executing python_curriculum_master.py ...
 [OK] Sandbox Python Engine v3.12.2 Initialized
-🎓 Kết quả: Xuất Sắc | Điểm TB: 9.38
+🎓 Xếp loại: Xuất Sắc | Điểm TB: 9.38
 🏆 Đạt chuẩn Chứng Chỉ Tốt Nghiệp Tin Học Sao Việt!`
   },
   cpp: {
@@ -63,18 +67,18 @@ int main() {
 [Execution time: 0.002s — Memory: 2.1MB]`
   },
   web: {
-    title: "InteractiveCanvas.tsx",
+    title: "InteractiveCanvas3D.tsx",
     language: "Next.js / TypeScript",
     code: `// Frontend Modern Web Studio
-export default function CyberMatrix() {
+export default function CyberMatrix3D() {
   return (
     <div className="cyber-studio-glow">
       <h1>Tin Học Sao Việt Web Tech</h1>
-      <p>HTML5 Semantics • CSS3 3D Keyframes • React</p>
+      <p>3D Perspective Canvas • GPU Acceleration</p>
     </div>
   );
 }`,
-    output: `>>> Fast Refresh loaded in 42ms
+    output: `>>> Fast Refresh loaded in 38ms
 [Vite/Next.js] 19 route modules optimized
 ✨ Rendering 3D interactive layout smoothly!`
   }
@@ -92,7 +96,7 @@ export default function HeroLayer3D() {
     setTimeout(() => {
       setIsRunning(false);
       setShowOutput(true);
-    }, 600);
+    }, 550);
   };
 
   const handleCopyCode = () => {
@@ -102,277 +106,331 @@ export default function HeroLayer3D() {
   };
 
   return (
-    <section style={{ position: "relative", marginBottom: "3.5rem", perspective: "1200px" }}>
-      {/* Background Ambient Glows */}
+    <section style={{ position: "relative", marginBottom: "4rem", perspective: "1200px" }}>
+      {/* Dynamic Aurora Glow Backdrops */}
       <div style={{
         position: "absolute",
-        top: "-80px",
-        left: "10%",
-        width: "350px",
-        height: "350px",
-        background: "radial-gradient(circle, rgba(37, 99, 235, 0.22) 0%, transparent 70%)",
-        filter: "blur(60px)",
+        top: "-100px",
+        left: "5%",
+        width: "420px",
+        height: "420px",
+        background: "radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, transparent 70%)",
+        filter: "blur(70px)",
         pointerEvents: "none",
         zIndex: 0
       }} />
 
       <div style={{
         position: "absolute",
-        top: "20%",
+        top: "10%",
         right: "5%",
-        width: "320px",
-        height: "320px",
-        background: "radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, transparent 70%)",
-        filter: "blur(55px)",
+        width: "380px",
+        height: "380px",
+        background: "radial-gradient(circle, rgba(5, 150, 105, 0.2) 0%, transparent 70%)",
+        filter: "blur(65px)",
         pointerEvents: "none",
         zIndex: 0
       }} />
 
-      {/* Hero Grid Content */}
+      {/* Hero Grid Layout */}
       <div 
         className="hero-grid-responsive"
         style={{
           position: "relative",
           zIndex: 1,
           display: "grid",
-          gridTemplateColumns: "1.1fr 0.9fr",
+          gridTemplateColumns: "1.08fr 0.92fr",
           gap: "2.5rem",
-          alignItems: "center",
-          background: "linear-gradient(145deg, rgba(255, 255, 255, 0.92) 0%, rgba(248, 250, 252, 0.98) 100%)",
-          border: "1px solid rgba(226, 232, 240, 0.9)",
-          borderRadius: "var(--radius-xl)",
-          padding: "3rem 2.5rem",
-          boxShadow: "0 20px 45px -10px rgba(15, 23, 42, 0.08), 0 1px 3px rgba(0,0,0,0.02)",
-          backdropFilter: "blur(12px)"
+          alignItems: "center"
         }}
       >
-        {/* Left Column: Typography & CTAs */}
+        {/* Left Column: Thesis Statement & Value Prop */}
         <div>
-          {/* Badge */}
+          {/* Eyebrow Pill */}
           <div style={{
             display: "inline-flex",
             alignItems: "center",
             gap: "0.5rem",
-            background: "linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(16, 185, 129, 0.1))",
-            border: "1px solid rgba(37, 99, 235, 0.25)",
-            padding: "0.4rem 0.9rem",
+            padding: "0.35rem 0.9rem",
             borderRadius: "var(--radius-full)",
+            background: "linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(6, 182, 212, 0.1))",
+            border: "1px solid rgba(37, 99, 235, 0.25)",
+            color: "var(--brand-primary)",
             fontSize: "0.82rem",
             fontWeight: 800,
-            color: "var(--brand-primary)",
             marginBottom: "1.2rem",
-            boxShadow: "0 2px 8px rgba(37, 99, 235, 0.08)"
+            boxShadow: "0 2px 10px rgba(37, 99, 235, 0.1)"
           }}>
-            <Sparkles size={14} className="spin-slow" />
-            <span>HỆ THỐNG ĐÀO TẠO & KHẢO THÍ CHUẨN QUỐC TẾ 2026</span>
+            <Sparkles size={15} />
+            <span>NỀN TẢNG KHẢO THÍ & ĐÀO TẠO CHUẨN DOANH NGHIỆP 2026</span>
           </div>
 
           <h1 style={{
-            fontSize: "clamp(2rem, 3.5vw, 2.75rem)",
+            fontSize: "clamp(2.2rem, 4.2vw, 3.4rem)",
             fontWeight: 900,
             lineHeight: 1.15,
-            letterSpacing: "-0.035em",
-            marginBottom: "1.1rem",
+            marginBottom: "1.2rem",
+            letterSpacing: "-0.04em",
             color: "#0f172a"
           }}>
-            Luyện Thi Lập Trình <br />
+            Hệ Thống Đào Tạo & <br />
             <span style={{
-              background: "linear-gradient(135deg, #2563eb 0%, #06b6d4 50%, #10b981 100%)",
+              background: "linear-gradient(135deg, #1d4ed8 0%, #06b6d4 50%, #10b981 100%)",
               WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent"
+              WebkitTextFillColor: "transparent",
+              display: "inline-block"
             }}>
-              Đa Ngôn Ngữ & Đa Cơ Sở
+              Khảo Thí Lập Trình 3D
             </span>
           </h1>
 
           <p style={{
-            fontSize: "1rem",
-            color: "#475569",
+            fontSize: "1.05rem",
+            color: "var(--text-secondary)",
             lineHeight: 1.65,
-            marginBottom: "1.8rem",
-            maxWidth: "520px"
+            marginBottom: "2rem",
+            maxWidth: "580px"
           }}>
-            Học viện công nghệ <strong>Tin Học Sao Việt</strong>: Ôn luyện 120 câu hỏi 6 dạng tương tác, viết code trực tiếp trên Sandbox IDE, thi trực tuyến bấm giờ và cấp chứng nhận năng lực theo chuẩn giáo trình.
+            Trải nghiệm học tập và khảo sát năng lực trực quan với <strong>120+ câu hỏi đa dạng 6 archetype</strong>, 
+            trình giả lập <strong>Python Live Sandbox</strong> trực tiếp trên trình duyệt, đồng hồ kiểm soát phiên 3 giờ và cấp chứng chỉ chuẩn hóa Tin Học Sao Việt.
           </p>
 
-          {/* Action Buttons */}
-          <div style={{ display: "flex", gap: "0.85rem", flexWrap: "wrap", marginBottom: "2rem" }}>
-            <Link 
-              href="/study" 
-              className="btn btn-primary btn-lg"
-              style={{
-                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-                boxShadow: "0 8px 20px -4px rgba(37, 99, 235, 0.4)",
-                padding: "0.8rem 1.6rem",
-                borderRadius: "var(--radius-md)"
-              }}
-            >
+          {/* Action CTAs */}
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", marginBottom: "2.2rem" }}>
+            <Link href="/study" className="btn btn-primary btn-lg" style={{ gap: "0.6rem" }}>
               <BookOpen size={18} />
-              <span>Bắt Đầu Ôn Tập</span>
+              <span>Bắt Đầu Ôn Tập 120 Câu</span>
               <ArrowRight size={16} />
             </Link>
 
-            <Link 
-              href="/exam" 
-              className="btn btn-success btn-lg"
-              style={{
-                background: "linear-gradient(135deg, #10b981, #047857)",
-                boxShadow: "0 8px 20px -4px rgba(16, 185, 129, 0.35)",
-                padding: "0.8rem 1.6rem",
-                borderRadius: "var(--radius-md)"
-              }}
-            >
-              <Clock size={18} />
-              <span>Vào Thi Online 50 Phút</span>
+            <Link href="/exam" className="btn btn-secondary btn-lg" style={{ gap: "0.6rem" }}>
+              <Clock size={18} color="var(--brand-primary)" />
+              <span>Vào Phòng Thi Online 50P</span>
             </Link>
           </div>
 
-          {/* Micro Stats Grid */}
+          {/* Live Feature Badges */}
           <div style={{
             display: "grid",
             gridTemplateColumns: "repeat(3, 1fr)",
             gap: "0.8rem",
-            borderTop: "1px solid var(--border-light)",
-            paddingTop: "1.2rem"
+            paddingTop: "1.5rem",
+            borderTop: "1px solid var(--border-light)"
           }}>
-            <div>
-              <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "var(--brand-primary)" }}>120+</div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>Câu Hỏi Phân Loại</div>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(37, 99, 235, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-primary)" }}>
+                <Code2 size={18} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: "0.88rem" }}>120+ Câu Hỏi</div>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>6 Archetype chuẩn</div>
+              </div>
             </div>
-            <div>
-              <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "var(--brand-emerald)" }}>06 Dạng</div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>Tương Tác Logic</div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(5, 150, 105, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-emerald)" }}>
+                <Award size={18} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: "0.88rem" }}>Chứng Chỉ Vàng</div>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Sao Việt Cert A4</div>
+              </div>
             </div>
-            <div>
-              <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "var(--brand-violet)" }}>04 Cơ Sở</div>
-              <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 600 }}>TP.HCM Phủ Rộng</div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(124, 58, 237, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-violet)" }}>
+                <Bot size={18} />
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: "0.88rem" }}>Gemini 2.0 AI</div>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>Sư phạm tự động</div>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Right Column: 3D Interactive Terminal Window */}
-        <div style={{
-          transform: "rotateY(-4deg) rotateX(2deg)",
-          transition: "transform 0.4s ease, box-shadow 0.4s ease",
-          boxShadow: "0 25px 50px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.1)",
-          borderRadius: "var(--radius-lg)",
-          overflow: "hidden",
-          background: "#0b1120"
-        }}>
-          {/* Terminal Header */}
-          <div style={{
-            background: "#070d19",
-            padding: "0.75rem 1rem",
-            borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center"
-          }}>
-            {/* Window Traffic Dots */}
-            <div style={{ display: "flex", gap: "6px" }}>
-              <div style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#ef4444" }} />
-              <div style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#f59e0b" }} />
-              <div style={{ width: "11px", height: "11px", borderRadius: "50%", background: "#10b981" }} />
-            </div>
+        {/* Right Column: 3D Perspective Live Terminal Sandbox */}
+        <div style={{ position: "relative" }}>
+          <TiltCard3D maxTilt={10} perspective={1200} scale={1.02} glowColor="rgba(37, 99, 235, 0.2)">
+            <div style={{
+              background: "#070d19",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              borderRadius: "var(--radius-xl)",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 35px rgba(37, 99, 235, 0.2)",
+              overflow: "hidden"
+            }}>
+              {/* Terminal Window Top Bar */}
+              <div style={{
+                background: "#0d1527",
+                padding: "0.8rem 1.25rem",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderBottom: "1px solid #1e293b"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <div className="terminal-dots">
+                    <span className="dot dot-red" />
+                    <span className="dot dot-yellow" />
+                    <span className="dot dot-green" />
+                  </div>
+                  <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.82rem", color: "#94a3b8", fontWeight: 600 }}>
+                    {CODE_SNIPPETS[activeTab].title}
+                  </span>
+                </div>
 
-            {/* Language Switcher Tabs */}
-            <div style={{ display: "flex", gap: "4px", background: "rgba(255, 255, 255, 0.06)", padding: "2px", borderRadius: "6px" }}>
-              {(["python", "cpp", "web"] as const).map((lang) => (
-                <button
-                  key={lang}
-                  onClick={() => setActiveTab(lang)}
-                  style={{
-                    padding: "3px 10px",
-                    fontSize: "0.74rem",
-                    fontWeight: 700,
-                    border: "none",
-                    borderRadius: "4px",
-                    background: activeTab === lang ? "var(--brand-primary)" : "transparent",
-                    color: activeTab === lang ? "#ffffff" : "#94a3b8",
-                    cursor: "pointer",
-                    transition: "all 0.15s ease"
-                  }}
-                >
-                  {lang.toUpperCase()}
-                </button>
-              ))}
-            </div>
-
-            {/* Action buttons */}
-            <div style={{ display: "flex", gap: "0.4rem" }}>
-              <button
-                onClick={handleCopyCode}
-                title="Sao chép mã"
-                style={{
-                  background: "transparent",
-                  border: "none",
-                  color: copied ? "#10b981" : "#94a3b8",
-                  cursor: "pointer",
-                  padding: "4px"
-                }}
-              >
-                {copied ? <Check size={14} /> : <Copy size={14} />}
-              </button>
-              <button
-                onClick={handleRunCode}
-                disabled={isRunning}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "4px",
-                  background: "linear-gradient(135deg, #10b981, #059669)",
-                  border: "none",
-                  borderRadius: "4px",
-                  color: "#ffffff",
-                  fontSize: "0.72rem",
-                  fontWeight: 700,
-                  padding: "3px 8px",
-                  cursor: "pointer"
-                }}
-              >
-                <Play size={11} fill="#ffffff" />
-                <span>{isRunning ? "Running..." : "Run Code"}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Code Editor Body */}
-          <div style={{
-            padding: "1rem 1.2rem",
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.82rem",
-            lineHeight: 1.6,
-            color: "#e2e8f0",
-            maxHeight: "240px",
-            overflowY: "auto",
-            background: "#0b1120"
-          }}>
-            <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-              <code>{CODE_SNIPPETS[activeTab].code}</code>
-            </pre>
-          </div>
-
-          {/* Live Terminal Output Console */}
-          <div style={{
-            borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-            background: "#050811",
-            padding: "0.8rem 1.2rem",
-            fontFamily: "var(--font-mono)",
-            fontSize: "0.78rem"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--brand-cyan)", marginBottom: "0.3rem", fontWeight: 700 }}>
-              <Terminal size={12} />
-              <span>TERMINAL OUTPUT</span>
-            </div>
-            {isRunning ? (
-              <div style={{ color: "var(--brand-amber)", display: "flex", alignItems: "center", gap: "6px" }}>
-                <span className="dot-pulse">●</span> Đang biên dịch mã nguồn qua Sandbox Engine...
+                {/* Language Switcher Tabs */}
+                <div style={{ display: "flex", gap: "0.3rem", background: "rgba(15, 23, 42, 0.8)", padding: "2px", borderRadius: "6px" }}>
+                  <button
+                    onClick={() => setActiveTab("python")}
+                    style={{
+                      background: activeTab === "python" ? "var(--brand-primary)" : "transparent",
+                      color: "#ffffff",
+                      border: "none",
+                      borderRadius: "4px",
+                      padding: "0.2rem 0.55rem",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
+                  >
+                    Python
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("cpp")}
+                    style={{
+                      background: activeTab === "cpp" ? "var(--brand-primary)" : "transparent",
+                      color: "#ffffff",
+                      border: "none",
+                      borderRadius: "4px",
+                      padding: "0.2rem 0.55rem",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
+                  >
+                    C++
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("web")}
+                    style={{
+                      background: activeTab === "web" ? "var(--brand-primary)" : "transparent",
+                      color: "#ffffff",
+                      border: "none",
+                      borderRadius: "4px",
+                      padding: "0.2rem 0.55rem",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      cursor: "pointer"
+                    }}
+                  >
+                    TypeScript
+                  </button>
+                </div>
               </div>
-            ) : showOutput ? (
-              <pre style={{ margin: 0, color: "#4ade80", whiteSpace: "pre-wrap" }}>
-                {CODE_SNIPPETS[activeTab].output}
-              </pre>
-            ) : null}
+
+              {/* Code Editor Body */}
+              <div style={{ padding: "1.25rem 1.4rem", maxHeight: "250px", overflowY: "auto", fontFamily: "var(--font-mono)", fontSize: "0.88rem", lineHeight: "1.6" }}>
+                <pre style={{ margin: 0, color: "#38bdf8", overflowX: "auto" }}>
+                  {CODE_SNIPPETS[activeTab].code}
+                </pre>
+              </div>
+
+              {/* Terminal Bottom Controls */}
+              <div style={{
+                background: "#090f1d",
+                padding: "0.75rem 1.25rem",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                borderTop: "1px solid #1e293b"
+              }}>
+                <button
+                  onClick={handleCopyCode}
+                  style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px", fontSize: "0.78rem" }}
+                >
+                  {copied ? <Check size={14} color="#10b981" /> : <Copy size={14} />}
+                  <span>{copied ? "Đã sao chép" : "Sao chép code"}</span>
+                </button>
+
+                <button
+                  onClick={handleRunCode}
+                  disabled={isRunning}
+                  className="btn btn-success btn-sm"
+                  style={{ padding: "0.35rem 1rem", fontSize: "0.82rem", borderRadius: "6px" }}
+                >
+                  <Play size={14} />
+                  <span>{isRunning ? "Đang chạy..." : "Chạy Sandbox"}</span>
+                </button>
+              </div>
+
+              {/* Terminal Output Console */}
+              {showOutput && (
+                <div style={{
+                  background: "#040711",
+                  borderTop: "1px solid #1e293b",
+                  padding: "0.9rem 1.25rem",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.8rem",
+                  color: "#10b981",
+                  lineHeight: "1.5"
+                }}>
+                  <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>{CODE_SNIPPETS[activeTab].output}</pre>
+                </div>
+              )}
+            </div>
+          </TiltCard3D>
+
+          {/* Floating 3D Widget 1: Sao Viet Cert Gold */}
+          <div style={{
+            position: "absolute",
+            top: "-25px",
+            right: "-20px",
+            background: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(226, 232, 240, 0.9)",
+            borderRadius: "var(--radius-md)",
+            padding: "0.6rem 1rem",
+            boxShadow: "0 14px 28px rgba(15, 23, 42, 0.12)",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            zIndex: 20,
+            transform: "translateZ(30px)"
+          }}>
+            <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Award size={18} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: "0.82rem", color: "#0f172a" }}>Chứng Nhận Sao Việt</div>
+              <div style={{ fontSize: "0.7rem", color: "#10b981", fontWeight: 700 }}>Đạt chuẩn ISO Khảo Thí</div>
+            </div>
+          </div>
+
+          {/* Floating 3D Widget 2: Live AI Gemini */}
+          <div style={{
+            position: "absolute",
+            bottom: "-20px",
+            left: "-20px",
+            background: "rgba(255, 255, 255, 0.95)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(226, 232, 240, 0.9)",
+            borderRadius: "var(--radius-md)",
+            padding: "0.6rem 1rem",
+            boxShadow: "0 14px 28px rgba(15, 23, 42, 0.12)",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            zIndex: 20,
+            transform: "translateZ(30px)"
+          }}>
+            <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #8b5cf6, #3b82f6)", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Bot size={18} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: "0.82rem", color: "#0f172a" }}>AI Sư Phạm 2.0</div>
+              <div style={{ fontSize: "0.7rem", color: "#64748b" }}>Giải thích logic tức thì</div>
+            </div>
           </div>
         </div>
       </div>

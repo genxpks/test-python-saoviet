@@ -2,12 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import TiltCard3D from "./TiltCard3D";
 import { 
   Sparkles, 
   CheckCircle2, 
   HelpCircle, 
   Layers, 
-  MoveRight, 
   Check, 
   X, 
   RefreshCw, 
@@ -43,16 +43,16 @@ export default function InteractiveEngine3D() {
   };
 
   return (
-    <section style={{ marginBottom: "3.5rem" }}>
+    <section style={{ marginBottom: "4rem" }}>
       {/* Section Header */}
-      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+      <div style={{ textAlign: "center", marginBottom: "2.2rem" }}>
         <div style={{
           display: "inline-flex",
           alignItems: "center",
           gap: "0.5rem",
           background: "rgba(16, 185, 129, 0.08)",
           color: "var(--brand-emerald-dark)",
-          padding: "0.3rem 0.8rem",
+          padding: "0.3rem 0.85rem",
           borderRadius: "var(--radius-full)",
           fontSize: "0.8rem",
           fontWeight: 800,
@@ -62,7 +62,7 @@ export default function InteractiveEngine3D() {
           <span>CÔNG NGHỆ KHẢO THÍ TƯƠNG TÁC THẾ HỆ MỚI</span>
         </div>
 
-        <h2 style={{ fontSize: "1.85rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
+        <h2 style={{ fontSize: "1.9rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
           Trải Nghiệm Trực Tiếp 6 Dạng Khảo Thí Thông Minh
         </h2>
         <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "680px", margin: "0 auto" }}>
@@ -90,312 +90,354 @@ export default function InteractiveEngine3D() {
             key={tab.id}
             onClick={() => setActiveArchetype(tab.id as Archetype)}
             className={`btn btn-sm ${activeArchetype === tab.id ? "btn-primary" : "btn-secondary"}`}
-            style={{
-              borderRadius: "var(--radius-full)",
-              fontWeight: 700,
-              fontSize: "0.82rem",
-              padding: "0.45rem 1rem"
-            }}
+            style={{ borderRadius: "var(--radius-full)", padding: "0.4rem 0.95rem" }}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      {/* Interactive Simulator Stage Card */}
-      <div className="q-card" style={{
-        maxWidth: "840px",
-        margin: "0 auto",
-        padding: "2.2rem",
-        boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.07)",
-        border: "1px solid var(--border-light)",
-        position: "relative"
-      }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.8rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <MousePointerClick size={18} color="var(--brand-primary)" />
-            <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "var(--text-secondary)" }}>
-              THỬ NGHIỆM TƯƠNG TÁC TRỰC TIẾP
-            </span>
-          </div>
+      {/* Interactive 3D Card Simulation Box */}
+      <TiltCard3D maxTilt={4} scale={1.01}>
+        <div className="q-card" style={{ maxWidth: "840px", margin: "0 auto", padding: "2.2rem", background: "var(--surface-card)", borderRadius: "var(--radius-lg)" }}>
+          {/* ARCHETYPE 1: SINGLE CHOICE */}
+          {activeArchetype === "single_choice" && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.8rem" }}>
+                <span className="q-badge" style={{ background: "rgba(37, 99, 235, 0.1)", color: "var(--brand-primary)" }}>
+                  DẠNG 1: SINGLE CHOICE
+                </span>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Chọn 1 đáp án chính xác nhất</span>
+              </div>
 
-          <button
-            onClick={() => {
-              setSingleChoiceAnswer(null);
-              setTrueFalseAnswer(null);
-              setMultiChoiceAnswers([]);
-              setFillBlankInput("");
-              setOrderItems(["print(total)", "total = a + b", "a = 10", "b = 20"]);
-            }}
-            className="btn btn-secondary btn-sm"
-            style={{ padding: "0.25rem 0.6rem", fontSize: "0.75rem" }}
-          >
-            <RefreshCw size={12} />
-            <span>Làm Lại</span>
-          </button>
-        </div>
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "0.6rem" }}>
+                Trong Python, kết quả của biểu thức <code>type(3.14)</code> là gì?
+              </h3>
 
-        {/* 1. SINGLE CHOICE */}
-        {activeArchetype === "single_choice" && (
-          <div>
-            <h4 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.4rem" }}>
-              Kết quả xuất ra màn hình của đoạn code Python sau là gì?
-            </h4>
-            <pre style={{ background: "#0f172a", color: "#38bdf8", padding: "0.75rem 1rem", borderRadius: "8px", fontSize: "0.84rem", fontFamily: "var(--font-mono)", marginBottom: "1rem" }}>
-              <code>{`text = "TinHocSaoViet"\nprint(len(text))`}</code>
-            </pre>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", margin: "1.2rem 0" }}>
+                {["<class 'int'>", "<class 'str'>", "<class 'float'>", "<class 'double'>"].map((opt, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => setSingleChoiceAnswer(idx)}
+                    className={`option-item ${singleChoiceAnswer === idx ? "selected" : ""}`}
+                  >
+                    <div className="option-letter">{String.fromCharCode(65 + idx)}</div>
+                    <div style={{ flex: 1, fontSize: "0.92rem", fontWeight: 600 }}>{opt}</div>
+                    {singleChoiceAnswer === idx && (
+                      idx === 2 ? <CheckCircle2 size={18} color="#10b981" /> : <X size={18} color="#ef4444" />
+                    )}
+                  </div>
+                ))}
+              </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem", marginBottom: "1rem" }}>
-              {["A. 10", "B. 12", "C. 13", "D. 15"].map((opt, idx) => (
+              {singleChoiceAnswer !== null && (
+                <div style={{
+                  padding: "0.8rem 1rem",
+                  borderRadius: "var(--radius-md)",
+                  background: isSingleCorrect ? "#ecfdf5" : "#fef2f2",
+                  border: isSingleCorrect ? "1px solid #a7f3d0" : "1px solid #fecaca",
+                  color: isSingleCorrect ? "#047857" : "#b91c1c",
+                  fontSize: "0.88rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.6rem"
+                }}>
+                  {isSingleCorrect ? <CheckCircle2 size={18} /> : <X size={18} />}
+                  <span>
+                    {isSingleCorrect 
+                      ? "Chính xác! Trong Python, số thực có dấu chấm thập phân thuộc kiểu float." 
+                      : "Chưa chính xác! Python không có kiểu double, số thực luôn là float. Em hãy chọn lại câu C nhé!"}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ARCHETYPE 2: TRUE / FALSE */}
+          {activeArchetype === "true_false" && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.8rem" }}>
+                <span className="q-badge" style={{ background: "rgba(6, 182, 212, 0.1)", color: "var(--brand-cyan)" }}>
+                  DẠNG 2: TRUE / FALSE
+                </span>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Khẳng định Đúng hoặc Sai</span>
+              </div>
+
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "0.6rem" }}>
+                "Trong Python, kiểu dữ liệu Tuple cho phép thay đổi giá trị của các phần tử sau khi đã tạo (Mutable)."
+              </h3>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", margin: "1.5rem 0" }}>
                 <button
-                  key={idx}
-                  onClick={() => setSingleChoiceAnswer(idx)}
-                  className="q-option-btn"
-                  style={{
-                    padding: "0.8rem 1rem",
-                    borderRadius: "var(--radius-md)",
-                    border: singleChoiceAnswer === idx ? (idx === 2 ? "2px solid #10b981" : "2px solid #ef4444") : "1px solid var(--border-light)",
-                    background: singleChoiceAnswer === idx ? (idx === 2 ? "#ecfdf5" : "#fef2f2") : "var(--bg-light)",
-                    fontWeight: 700,
-                    textAlign: "left",
-                    cursor: "pointer",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center"
-                  }}
+                  onClick={() => setTrueFalseAnswer(true)}
+                  className={`btn ${trueFalseAnswer === true ? "btn-primary" : "btn-secondary"}`}
+                  style={{ height: "54px", fontSize: "1rem" }}
                 >
-                  <span>{opt}</span>
-                  {singleChoiceAnswer === idx && (
-                    idx === 2 ? <Check size={16} color="#10b981" /> : <X size={16} color="#ef4444" />
-                  )}
+                  ĐÚNG (TRUE)
                 </button>
-              ))}
-            </div>
-
-            {singleChoiceAnswer !== null && (
-              <div style={{ padding: "0.8rem", borderRadius: "8px", background: isSingleCorrect ? "#ecfdf5" : "#fef2f2", color: isSingleCorrect ? "#065f46" : "#991b1b", fontSize: "0.85rem" }}>
-                {isSingleCorrect ? "🎉 Chính xác! Chuỗi 'TinHocSaoViet' có đúng 13 ký tự." : "❌ Chưa chính xác. Đếm từng ký tự trong chuỗi (3 + 3 + 7 = 13 ký tự)."}
+                <button
+                  onClick={() => setTrueFalseAnswer(false)}
+                  className={`btn ${trueFalseAnswer === false ? "btn-primary" : "btn-secondary"}`}
+                  style={{ height: "54px", fontSize: "1rem" }}
+                >
+                  SAI (FALSE)
+                </button>
               </div>
-            )}
-          </div>
-        )}
 
-        {/* 2. TRUE / FALSE */}
-        {activeArchetype === "true_false" && (
-          <div>
-            <h4 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.4rem" }}>
-              Phát biểu sau đây là Đúng hay Sai?
-            </h4>
-            <div style={{ background: "var(--bg-light)", padding: "1rem", borderRadius: "8px", fontSize: "0.92rem", fontWeight: 600, marginBottom: "1.2rem", borderLeft: "4px solid var(--brand-primary)" }}>
-              "Trong Python, kiểu dữ liệu <code>tuple</code> cho phép thay đổi, thêm hoặc xóa phần tử sau khi đã khởi tạo."
+              {trueFalseAnswer !== null && (
+                <div style={{
+                  padding: "0.8rem 1rem",
+                  borderRadius: "var(--radius-md)",
+                  background: isTFCorrect ? "#ecfdf5" : "#fef2f2",
+                  border: isTFCorrect ? "1px solid #a7f3d0" : "1px solid #fecaca",
+                  color: isTFCorrect ? "#047857" : "#b91c1c",
+                  fontSize: "0.88rem"
+                }}>
+                  {isTFCorrect 
+                    ? "🎉 Xuất sắc! Tuple là kiểu dữ liệu bất biến (Immutable), không thể sửa hay thêm bớt phần tử." 
+                    : "Chưa đúng! Tuple là Immutable, chỉ có List mới là Mutable."}
+                </div>
+              )}
             </div>
+          )}
 
-            <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
-              <button
-                onClick={() => setTrueFalseAnswer(true)}
-                className="btn btn-lg"
-                style={{
-                  flex: 1,
-                  background: trueFalseAnswer === true ? "#fef2f2" : "var(--bg-light)",
-                  border: trueFalseAnswer === true ? "2px solid #ef4444" : "1px solid var(--border-light)",
-                  color: "#0f172a"
-                }}
-              >
-                Đúng (True)
-              </button>
-
-              <button
-                onClick={() => setTrueFalseAnswer(false)}
-                className="btn btn-lg"
-                style={{
-                  flex: 1,
-                  background: trueFalseAnswer === false ? "#ecfdf5" : "var(--bg-light)",
-                  border: trueFalseAnswer === false ? "2px solid #10b981" : "1px solid var(--border-light)",
-                  color: "#0f172a"
-                }}
-              >
-                Sai (False)
-              </button>
-            </div>
-
-            {trueFalseAnswer !== null && (
-              <div style={{ padding: "0.8rem", borderRadius: "8px", background: isTFCorrect ? "#ecfdf5" : "#fef2f2", color: isTFCorrect ? "#065f46" : "#991b1b", fontSize: "0.85rem" }}>
-                {isTFCorrect ? "🎉 Chính xác! Tuple trong Python là kiểu bất biến (Immutable), không thể sửa đổi sau khi tạo." : "❌ Sai rồi! Tuple là kiểu dữ liệu bất biến (Immutable)."}
+          {/* ARCHETYPE 3: MULTIPLE CHOICE */}
+          {activeArchetype === "multiple_choice" && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.8rem" }}>
+                <span className="q-badge" style={{ background: "rgba(139, 92, 246, 0.1)", color: "var(--brand-violet)" }}>
+                  DẠNG 3: MULTIPLE CHOICE
+                </span>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Chọn tất cả các phương án đúng</span>
               </div>
-            )}
-          </div>
-        )}
 
-        {/* 3. MULTIPLE CHOICE */}
-        {activeArchetype === "multiple_choice" && (
-          <div>
-            <h4 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.4rem" }}>
-              Chọn tất cả các kiểu dữ liệu có thể thay đổi (Mutable) trong Python:
-            </h4>
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginBottom: "1rem" }}>
-              {[
-                { id: 0, label: "A. List (Danh sách)" },
-                { id: 1, label: "B. Dictionary (Từ điển)" },
-                { id: 2, label: "C. Tuple (Bộ dữ liệu)" },
-                { id: 3, label: "D. String (Chuỗi ký tự)" }
-              ].map((item) => {
-                const isChecked = multiChoiceAnswers.includes(item.id);
-                return (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setMultiChoiceAnswers(prev => 
-                        isChecked ? prev.filter(x => x !== item.id) : [...prev, item.id]
-                      );
-                    }}
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "0.6rem" }}>
+                Các phương thức nào sau đây thuộc cấu trúc dữ liệu List trong Python? (Chọn 2 đáp án)
+              </h3>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", margin: "1.2rem 0" }}>
+                {["append(x) — Thêm phần tử vào cuối", "pop() — Xóa và lấy phần tử cuối", "push_back(x) — Thêm vào đuôi vector"].map((opt, idx) => {
+                  const isChecked = multiChoiceAnswers.includes(idx);
+                  return (
+                    <div
+                      key={idx}
+                      onClick={() => {
+                        if (isChecked) setMultiChoiceAnswers(multiChoiceAnswers.filter(x => x !== idx));
+                        else setMultiChoiceAnswers([...multiChoiceAnswers, idx]);
+                      }}
+                      className={`option-item ${isChecked ? "selected" : ""}`}
+                    >
+                      <div style={{
+                        width: "20px",
+                        height: "20px",
+                        borderRadius: "4px",
+                        border: isChecked ? "2px solid var(--brand-violet)" : "1.5px solid var(--border-medium)",
+                        background: isChecked ? "var(--brand-violet)" : "#ffffff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "#ffffff"
+                      }}>
+                        {isChecked && <Check size={14} />}
+                      </div>
+                      <div style={{ flex: 1, fontSize: "0.92rem" }}>{opt}</div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {multiChoiceAnswers.length > 0 && (
+                <div style={{
+                  padding: "0.8rem 1rem",
+                  borderRadius: "var(--radius-md)",
+                  background: isMultiCorrect ? "#ecfdf5" : "#fef2f2",
+                  border: isMultiCorrect ? "1px solid #a7f3d0" : "1px solid #fecaca",
+                  color: isMultiCorrect ? "#047857" : "#b91c1c",
+                  fontSize: "0.88rem"
+                }}>
+                  {isMultiCorrect 
+                    ? "Tuyệt vời! `append` và `pop` là phương thức chuẩn của List. `push_back` là của C++ std::vector." 
+                    : "Em hãy chọn đúng 2 phương thức của Python List (append và pop) nhé!"}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ARCHETYPE 4: FILL IN BLANK */}
+          {activeArchetype === "fill_blank" && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.8rem" }}>
+                <span className="q-badge" style={{ background: "rgba(245, 158, 11, 0.1)", color: "var(--brand-amber)" }}>
+                  DẠNG 4: FILL IN BLANK
+                </span>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Gõ từ khóa định nghĩa</span>
+              </div>
+
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "0.6rem" }}>
+                Điền từ khóa còn thiếu để định nghĩa hàm tính tổng trong Python:
+              </h3>
+
+              <div style={{
+                background: "#070d19",
+                padding: "1rem 1.25rem",
+                borderRadius: "var(--radius-md)",
+                fontFamily: "var(--font-mono)",
+                color: "#38bdf8",
+                fontSize: "0.95rem",
+                marginBottom: "1rem"
+              }}>
+                <span style={{ color: "#f59e0b", fontWeight: 800 }}>_____</span> calculate_sum(a, b):<br />
+                &nbsp;&nbsp;&nbsp;&nbsp;return a + b
+              </div>
+
+              <div style={{ display: "flex", gap: "0.8rem", marginBottom: "1rem" }}>
+                <input
+                  type="text"
+                  placeholder="Gõ từ khóa vào đây (VD: def, function, fn...)"
+                  className="form-input"
+                  style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}
+                  value={fillBlankInput}
+                  onChange={(e) => setFillBlankInput(e.target.value)}
+                />
+              </div>
+
+              {fillBlankInput && (
+                <div style={{
+                  padding: "0.8rem 1rem",
+                  borderRadius: "var(--radius-md)",
+                  background: isFillCorrect ? "#ecfdf5" : "#fef2f2",
+                  border: isFillCorrect ? "1px solid #a7f3d0" : "1px solid #fecaca",
+                  color: isFillCorrect ? "#047857" : "#b91c1c",
+                  fontSize: "0.88rem"
+                }}>
+                  {isFillCorrect 
+                    ? "Chính xác 100%! Từ khóa `def` (viết tắt của define) dùng để định nghĩa hàm trong Python." 
+                    : "Chưa đúng. Gợi ý: từ khóa gồm 3 ký tự bắt đầu bằng chữ 'd'."}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ARCHETYPE 5: SEQUENCE ORDER */}
+          {activeArchetype === "sequence_order" && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.8rem" }}>
+                <span className="q-badge" style={{ background: "rgba(16, 185, 129, 0.1)", color: "var(--brand-emerald-dark)" }}>
+                  DẠNG 5: SEQUENCE ORDERING
+                </span>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Sắp xếp các dòng lệnh theo logic</span>
+              </div>
+
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "0.6rem" }}>
+                Kéo thả hoặc bấm nút để xếp lại đúng trình tự khai báo và tính toán:
+              </h3>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", margin: "1rem 0" }}>
+                {orderItems.map((item, idx) => (
+                  <div
+                    key={idx}
                     style={{
-                      padding: "0.75rem 1rem",
-                      borderRadius: "8px",
-                      border: isChecked ? "2px solid var(--brand-primary)" : "1px solid var(--border-light)",
-                      background: isChecked ? "rgba(37, 99, 235, 0.08)" : "var(--bg-light)",
-                      fontWeight: 600,
-                      textAlign: "left",
-                      cursor: "pointer",
                       display: "flex",
-                      justifyContent: "space-between"
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "0.75rem 1rem",
+                      background: "var(--surface-subtle)",
+                      border: "1px solid var(--border-light)",
+                      borderRadius: "var(--radius-sm)",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.9rem"
                     }}
                   >
-                    <span>{item.label}</span>
-                    <span>{isChecked ? "☑️" : "⬜"}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            {multiChoiceAnswers.length > 0 && (
-              <div style={{ padding: "0.8rem", borderRadius: "8px", background: isMultiCorrect ? "#ecfdf5" : "rgba(245, 158, 11, 0.1)", color: isMultiCorrect ? "#065f46" : "#b45309", fontSize: "0.85rem" }}>
-                {isMultiCorrect ? "🎉 Xuất sắc! Cả List và Dictionary đều là Mutable types." : "💡 Gợi ý: Hãy chọn cả List và Dictionary, không chọn Tuple/String."}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* 4. FILL IN THE BLANK */}
-        {activeArchetype === "fill_blank" && (
-          <div>
-            <h4 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.4rem" }}>
-              Điền từ khóa thích hợp vào chỗ trống để định nghĩa hàm trong Python:
-            </h4>
-            <div style={{ background: "#0f172a", padding: "1rem", borderRadius: "8px", marginBottom: "1rem", fontFamily: "var(--font-mono)", fontSize: "0.9rem", color: "#e2e8f0" }}>
-              <span style={{ color: "#f59e0b" }}>________</span> tinh_tong(a, b):<br />
-              &nbsp;&nbsp;&nbsp;&nbsp;return a + b
-            </div>
-
-            <div style={{ display: "flex", gap: "0.6rem", marginBottom: "1rem" }}>
-              <input
-                type="text"
-                value={fillBlankInput}
-                onChange={(e) => setFillBlankInput(e.target.value)}
-                placeholder="Nhập từ khóa (VD: def, function...)"
-                className="input"
-                style={{ flex: 1, fontFamily: "var(--font-mono)", fontWeight: 700 }}
-              />
-            </div>
-
-            {fillBlankInput && (
-              <div style={{ padding: "0.8rem", borderRadius: "8px", background: isFillCorrect ? "#ecfdf5" : "#fef2f2", color: isFillCorrect ? "#065f46" : "#991b1b", fontSize: "0.85rem" }}>
-                {isFillCorrect ? "🎉 Tuyệt vời! Từ khóa 'def' được dùng để khai báo hàm trong Python." : "❌ Chưa đúng. Từ khóa gồm 3 chữ cái bắt đầu bằng chữ 'd'."}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* 5. SEQUENCE ORDER */}
-        {activeArchetype === "sequence_order" && (
-          <div>
-            <h4 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.4rem" }}>
-              Sắp xếp các dòng lệnh sau theo đúng thứ tự thực thi hợp lệ:
-            </h4>
-            <p style={{ fontSize: "0.84rem", color: "var(--text-muted)", marginBottom: "0.8rem" }}>
-              Bấm nút mũi tên ⬆️ / ⬇️ để di chuyển dòng lệnh lên xuống.
-            </p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem", marginBottom: "1rem" }}>
-              {orderItems.map((item, idx) => (
-                <div
-                  key={idx}
-                  style={{
-                    background: "var(--bg-light)",
-                    border: "1px solid var(--border-light)",
-                    padding: "0.65rem 0.9rem",
-                    borderRadius: "6px",
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "0.85rem"
-                  }}
-                >
-                  <span><strong>{idx + 1}.</strong> {item}</span>
-                  <div style={{ display: "flex", gap: "4px" }}>
-                    <button
-                      disabled={idx === 0}
-                      onClick={() => moveOrderItem(idx, idx - 1)}
-                      style={{ background: "#ffffff", border: "1px solid var(--border-light)", borderRadius: "4px", padding: "2px 8px", cursor: "pointer" }}
-                    >
-                      ⬆️
-                    </button>
-                    <button
-                      disabled={idx === orderItems.length - 1}
-                      onClick={() => moveOrderItem(idx, idx + 1)}
-                      style={{ background: "#ffffff", border: "1px solid var(--border-light)", borderRadius: "4px", padding: "2px 8px", cursor: "pointer" }}
-                    >
-                      ⬇️
-                    </button>
+                    <span style={{ color: "var(--brand-primary)", fontWeight: 800 }}>#{idx + 1}&nbsp;&nbsp;{item}</span>
+                    <div style={{ display: "flex", gap: "0.3rem" }}>
+                      <button
+                        disabled={idx === 0}
+                        onClick={() => moveOrderItem(idx, idx - 1)}
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: "0.2rem 0.5rem" }}
+                      >
+                        ▲ Lên
+                      </button>
+                      <button
+                        disabled={idx === orderItems.length - 1}
+                        onClick={() => moveOrderItem(idx, idx + 1)}
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: "0.2rem 0.5rem" }}
+                      >
+                        ▼ Xuống
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{ padding: "0.8rem", borderRadius: "8px", background: isOrderCorrect ? "#ecfdf5" : "rgba(37, 99, 235, 0.06)", color: isOrderCorrect ? "#065f46" : "var(--brand-primary)", fontSize: "0.85rem" }}>
-              {isOrderCorrect ? "🎉 Hoàn hảo! Biến phải được gán giá trị trước khi tính tổng và in ra." : "💡 Hãy đưa dòng 'a = 10' và 'b = 20' lên đầu tiên."}
-            </div>
-          </div>
-        )}
-
-        {/* 6. MATCHING */}
-        {activeArchetype === "matching" && (
-          <div>
-            <h4 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.4rem" }}>
-              Ghép nối khái niệm ở cột Trái với mô tả chính xác ở cột Phải:
-            </h4>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem", fontSize: "0.84rem" }}>
-              <div style={{ background: "var(--bg-light)", padding: "0.8rem", borderRadius: "8px" }}>
-                <strong>Cột A (Khái Niệm):</strong>
-                <div style={{ marginTop: "0.4rem" }}>• <strong>1.</strong> <code>random.randint(a, b)</code></div>
-                <div style={{ marginTop: "0.4rem" }}>• <strong>2.</strong> <code>math.sqrt(x)</code></div>
-                <div style={{ marginTop: "0.4rem" }}>• <strong>3.</strong> <code>turtle.forward(d)</code></div>
+                ))}
               </div>
-              <div style={{ background: "var(--bg-light)", padding: "0.8rem", borderRadius: "8px" }}>
-                <strong>Cột B (Ý Nghĩa):</strong>
-                <div style={{ marginTop: "0.4rem" }}>• <strong>A.</strong> Tính căn bậc hai của số dương</div>
-                <div style={{ marginTop: "0.4rem" }}>• <strong>B.</strong> Điều khiển rùa di chuyển tiến về trước</div>
-                <div style={{ marginTop: "0.4rem" }}>• <strong>C.</strong> Sinh số nguyên ngẫu nhiên trong đoạn [a, b]</div>
+
+              <div style={{
+                padding: "0.8rem 1rem",
+                borderRadius: "var(--radius-md)",
+                background: isOrderCorrect ? "#ecfdf5" : "var(--surface-subtle)",
+                border: isOrderCorrect ? "1px solid #a7f3d0" : "1px solid var(--border-light)",
+                color: isOrderCorrect ? "#047857" : "var(--text-secondary)",
+                fontSize: "0.88rem"
+              }}>
+                {isOrderCorrect 
+                  ? "🎉 Logic hoàn hảo: `a = 10` -> `b = 20` -> `total = a + b` -> `print(total)`!" 
+                  : "Chưa đúng thứ tự logic. Biến cần được khởi tạo trước khi cộng và in ra màn hình."}
               </div>
             </div>
+          )}
 
-            <div style={{ padding: "0.8rem", borderRadius: "8px", background: "#ecfdf5", color: "#065f46", fontSize: "0.85rem" }}>
-              ✅ Đáp án ghép nối chuẩn: <strong>1 - C | 2 - A | 3 - B</strong>
+          {/* ARCHETYPE 6: MATCHING PAIRS */}
+          {activeArchetype === "matching" && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.8rem" }}>
+                <span className="q-badge" style={{ background: "rgba(225, 29, 72, 0.1)", color: "var(--brand-rose)" }}>
+                  DẠNG 6: MATCHING PAIRS
+                </span>
+                <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Ghép nối thuật ngữ với ý nghĩa</span>
+              </div>
+
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "0.6rem" }}>
+                Ghép nối các hàm tích hợp sẵn của Python với công dụng tương ứng:
+              </h3>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", margin: "1.2rem 0" }}>
+                {[
+                  { key: "len()", label: "Đếm số lượng phần tử của đối tượng" },
+                  { key: "type()", label: "Kiểm tra kiểu dữ liệu của biến" },
+                  { key: "range()", label: "Tạo dãy số nguyên liên tiếp" }
+                ].map((pair, idx) => (
+                  <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: "1rem", alignItems: "center" }}>
+                    <div style={{ padding: "0.65rem 0.9rem", background: "#f8fafc", border: "1px solid var(--border-light)", borderRadius: "var(--radius-sm)", fontWeight: 800, fontFamily: "var(--font-mono)", color: "var(--brand-primary)" }}>
+                      {pair.key}
+                    </div>
+                    <select
+                      className="form-select"
+                      value={matchedPairs[pair.key] || ""}
+                      onChange={(e) => setMatchedPairs({ ...matchedPairs, [pair.key]: e.target.value })}
+                    >
+                      <option value="">-- Chọn ý nghĩa tương ứng --</option>
+                      <option value="Đếm số lượng phần tử của đối tượng">Đếm số lượng phần tử của đối tượng</option>
+                      <option value="Kiểm tra kiểu dữ liệu của biến">Kiểm tra kiểu dữ liệu của biến</option>
+                      <option value="Tạo dãy số nguyên liên tiếp">Tạo dãy số nguyên liên tiếp</option>
+                    </select>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Bottom Call to Action */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1.4rem", borderTop: "1px solid var(--border-light)", paddingTop: "1rem" }}>
-          <span style={{ fontSize: "0.84rem", color: "var(--text-muted)" }}>
-            Ngân hàng chứa <strong>120 câu hỏi</strong> thuộc 6 dạng tương tác này.
-          </span>
-          <Link href="/study" className="btn btn-primary btn-sm">
-            <span>Truy Cập Kho 120 Câu</span>
-            <ArrowRight size={14} />
-          </Link>
+          {/* Bottom Callout */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "1.5rem", paddingTop: "1rem", borderTop: "1px solid var(--border-light)" }}>
+            <span style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}>
+              Hệ thống lưu trữ <strong>120 câu hỏi</strong> tương tác với giải thích chi tiết.
+            </span>
+            <Link href="/study" className="btn btn-primary btn-sm" style={{ gap: "0.4rem" }}>
+              <span>Luyện Tập Đầy Đủ 120 Câu</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
         </div>
-      </div>
+      </TiltCard3D>
     </section>
   );
 }

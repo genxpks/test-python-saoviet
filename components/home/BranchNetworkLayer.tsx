@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import TiltCard3D from "./TiltCard3D";
 import { 
   Building2, 
   MapPin, 
   Phone, 
   UserCheck, 
-  ShieldCheck, 
-  KeyRound, 
-  ExternalLink,
   Sparkles
 } from "lucide-react";
 
@@ -31,7 +29,7 @@ const BRANCHES: BranchItem[] = [
     address: "Số 15, Đường Số 9, P. Linh Tây, TP. Thủ Đức, TP.HCM",
     phone: "0901.888.666",
     manager: "ThS. Nguyễn Văn A",
-    rooms: "04 Phòng máy chuyên dụng (Máy tính cấu hình Core i7, 32GB RAM)",
+    rooms: "04 Phòng máy chuyên dụng (Core i7, 32GB RAM)",
     pin: "8888"
   },
   {
@@ -70,16 +68,16 @@ export default function BranchNetworkLayer() {
   const [activeBranch, setActiveBranch] = useState(BRANCHES[0]);
 
   return (
-    <section style={{ marginBottom: "3.5rem" }}>
+    <section style={{ marginBottom: "4rem" }}>
       {/* Section Header */}
-      <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+      <div style={{ textAlign: "center", marginBottom: "2.2rem" }}>
         <div style={{
           display: "inline-flex",
           alignItems: "center",
           gap: "0.5rem",
           background: "rgba(37, 99, 235, 0.08)",
           color: "var(--brand-primary)",
-          padding: "0.3rem 0.8rem",
+          padding: "0.3rem 0.85rem",
           borderRadius: "var(--radius-full)",
           fontSize: "0.8rem",
           fontWeight: 800,
@@ -89,7 +87,7 @@ export default function BranchNetworkLayer() {
           <span>MẠNG LƯỚI CHI NHÁNH ĐÀO TẠO</span>
         </div>
 
-        <h2 style={{ fontSize: "1.85rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
+        <h2 style={{ fontSize: "1.9rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
           Hệ Thống 4 Cơ Sở Đào Tạo Chuẩn Phòng Lab Tại TP.HCM
         </h2>
         <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
@@ -103,65 +101,75 @@ export default function BranchNetworkLayer() {
           const isSelected = activeBranch.code === b.code;
 
           return (
-            <div
-              key={b.code}
-              onClick={() => setActiveBranch(b)}
-              className="q-card"
-              style={{
-                cursor: "pointer",
-                padding: "1.5rem",
-                border: isSelected ? "2px solid var(--brand-primary)" : "1px solid var(--border-light)",
-                background: isSelected ? "linear-gradient(145deg, rgba(37, 99, 235, 0.04), rgba(255, 255, 255, 0.9))" : "var(--surface-card)",
-                boxShadow: isSelected ? "0 14px 30px -8px rgba(37, 99, 235, 0.15)" : "var(--shadow-subtle)",
-                transition: "all 0.25s ease",
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "space-between"
-              }}
-            >
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
-                  <span className="badge badge-primary" style={{ fontSize: "0.72rem" }}>
-                    {b.district}
-                  </span>
-                  <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--text-muted)" }}>
-                    MÃ: {b.code}
-                  </span>
+            <TiltCard3D key={b.code} maxTilt={6} scale={1.015}>
+              <div
+                onClick={() => setActiveBranch(b)}
+                className="q-card"
+                style={{
+                  cursor: "pointer",
+                  padding: "1.5rem",
+                  border: isSelected ? "2px solid var(--brand-primary)" : "1px solid var(--border-light)",
+                  background: isSelected ? "linear-gradient(145deg, rgba(37, 99, 235, 0.04), rgba(255, 255, 255, 0.95))" : "var(--surface-card)",
+                  boxShadow: isSelected ? "0 14px 30px -8px rgba(37, 99, 235, 0.15)" : "var(--shadow-subtle)",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
+                  height: "100%",
+                  borderRadius: "var(--radius-md)"
+                }}
+              >
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
+                    <span style={{
+                      fontSize: "0.72rem",
+                      fontWeight: 800,
+                      color: "var(--brand-primary)",
+                      background: "var(--brand-primary-light)",
+                      padding: "0.2rem 0.6rem",
+                      borderRadius: "var(--radius-full)",
+                      border: "1px solid rgba(37, 99, 235, 0.2)"
+                    }}>
+                      {b.district}
+                    </span>
+                    <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--text-muted)" }}>
+                      MÃ: {b.code}
+                    </span>
+                  </div>
+
+                  <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.6rem", color: "var(--text-primary)" }}>
+                    {b.name}
+                  </h3>
+
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.4rem" }}>
+                    <MapPin size={15} color="var(--brand-primary)" style={{ flexShrink: 0, marginTop: "2px" }} />
+                    <span>{b.address}</span>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.4rem" }}>
+                    <Phone size={15} color="var(--brand-emerald)" />
+                    <span>Hotline: <strong>{b.phone}</strong></span>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.8rem" }}>
+                    <UserCheck size={15} color="var(--brand-violet)" />
+                    <span>Phụ trách: <strong>{b.manager}</strong></span>
+                  </div>
                 </div>
 
-                <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.6rem" }}>
-                  {b.name}
-                </h3>
-
-                <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.4rem" }}>
-                  <MapPin size={15} color="var(--brand-primary)" style={{ flexShrink: 0, marginTop: "2px" }} />
-                  <span>{b.address}</span>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.4rem" }}>
-                  <Phone size={15} color="var(--brand-emerald)" />
-                  <span>Hotline: <strong>{b.phone}</strong></span>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.8rem" }}>
-                  <UserCheck size={15} color="var(--brand-violet)" />
-                  <span>Phụ trách: <strong>{b.manager}</strong></span>
+                <div style={{
+                  background: "var(--surface-subtle)",
+                  padding: "0.6rem 0.8rem",
+                  borderRadius: "var(--radius-sm)",
+                  fontSize: "0.78rem",
+                  color: "var(--text-muted)",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center"
+                }}>
+                  <span>{b.rooms}</span>
                 </div>
               </div>
-
-              <div style={{
-                background: "var(--bg-light)",
-                padding: "0.6rem 0.8rem",
-                borderRadius: "var(--radius-sm)",
-                fontSize: "0.78rem",
-                color: "var(--text-muted)",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
-              }}>
-                <span>{b.rooms}</span>
-              </div>
-            </div>
+            </TiltCard3D>
           );
         })}
       </div>
