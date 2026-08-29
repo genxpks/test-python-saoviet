@@ -155,32 +155,34 @@ export default function Navbar() {
                   display: "flex",
                   alignItems: "center",
                   gap: "0.5rem",
-                  background: "var(--surface-subtle)",
+                  background: "rgba(15, 23, 42, 0.8)",
                   padding: "0.35rem 0.75rem",
                   borderRadius: "var(--radius-full)",
-                  border: "1px solid var(--border-light)",
-                  fontSize: "0.82rem"
+                  border: "1px solid rgba(0, 245, 200, 0.2)",
+                  fontSize: "0.82rem",
+                  backdropFilter: "blur(12px)"
                 }}>
                   <div style={{
-                    width: "24px",
-                    height: "24px",
+                    width: "26px",
+                    height: "26px",
                     borderRadius: "50%",
-                    background: user.role === "admin" ? "var(--brand-rose)" : user.role === "branch_manager" ? "var(--brand-violet)" : "var(--brand-primary)",
+                    background: user.role === "admin" ? "linear-gradient(135deg, #f43f5e, #be123c)" : user.role === "branch_manager" ? "linear-gradient(135deg, #8b5cf6, #6d28d9)" : "linear-gradient(135deg, #00f5c8, #0ea5e9)",
                     color: "#ffffff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    fontSize: "0.75rem",
-                    fontWeight: 800
+                    fontSize: "0.7rem",
+                    fontWeight: 900,
+                    boxShadow: user.role === "admin" ? "0 0 10px rgba(244,63,94,0.4)" : user.role === "branch_manager" ? "0 0 10px rgba(139,92,246,0.4)" : "0 0 10px rgba(0,245,200,0.4)"
                   }}>
                     {user.role === "admin" ? "AD" : user.role === "branch_manager" ? "QL" : "HV"}
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
-                    <span style={{ fontWeight: 800, color: "var(--text-primary)" }}>
+                    <span style={{ fontWeight: 800, color: "#f1f5f9" }}>
                       {user.fullName}
                     </span>
-                    <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span style={{ fontSize: "0.7rem", color: "#94a3b8", display: "flex", alignItems: "center", gap: "4px" }}>
                       <Building2 size={10} />
                       <span>{user.branchName || "Chi Nhánh Thủ Đức"}</span>
                     </span>
@@ -216,13 +218,20 @@ export default function Navbar() {
               </div>
             ) : (
               <button 
-                onClick={() => setShowLoginModal(true)}
-                className="btn btn-primary btn-sm"
-                style={{ gap: "0.4rem" }}
-              >
-                <LogIn size={15} />
-                <span>Đăng Nhập</span>
-              </button>
+                  onClick={() => setShowLoginModal(true)}
+                  className="btn btn-sm"
+                  style={{
+                    gap: "0.4rem",
+                    background: "rgba(0, 245, 200, 0.1)",
+                    color: "#00f5c8",
+                    border: "1px solid rgba(0, 245, 200, 0.3)",
+                    boxShadow: "0 0 15px rgba(0, 245, 200, 0.1)",
+                    backdropFilter: "blur(4px)"
+                  }}
+                >
+                  <LogIn size={15} />
+                  <span>Đăng Nhập</span>
+                </button>
             )}
           </div>
         </div>
@@ -240,7 +249,7 @@ export default function Navbar() {
           zIndex: 1000,
           padding: "1rem"
         }}>
-          <div className="q-card" style={{ maxWidth: "460px", width: "100%", padding: "2rem", position: "relative" }}>
+          <div className="q-card" style={{ maxWidth: "460px", width: "100%", padding: "2rem", position: "relative", background: "rgba(10, 16, 32, 0.95)", border: "1px solid rgba(0,245,200,0.15)" }}>
             <button
               onClick={() => setShowLoginModal(false)}
               style={{
@@ -258,34 +267,36 @@ export default function Navbar() {
 
             <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
               <div style={{
-                width: "52px",
-                height: "52px",
-                borderRadius: "14px",
-                background: "rgba(37, 99, 235, 0.1)",
-                color: "var(--brand-primary)",
+                width: "56px",
+                height: "56px",
+                borderRadius: "16px",
+                background: "rgba(0, 245, 200, 0.08)",
+                border: "1px solid rgba(0, 245, 200, 0.2)",
+                color: "#00f5c8",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                margin: "0 auto 0.8rem"
+                margin: "0 auto 0.8rem",
+                boxShadow: "0 0 20px rgba(0,245,200,0.1)"
               }}>
                 <UserIcon size={26} />
               </div>
               <h3 style={{ fontSize: "1.3rem", fontWeight: 900, marginBottom: "0.2rem" }}>
                 Đăng Nhập Khóa Học
               </h3>
-              <p style={{ fontSize: "0.84rem", color: "var(--text-muted)" }}>
+              <p style={{ fontSize: "0.84rem", color: "#94a3b8" }}>
                 Học viên đăng nhập bằng SĐT được Quản lý chi nhánh cấp
               </p>
             </div>
 
             <div style={{
-              background: "rgba(37, 99, 235, 0.05)",
-              border: "1px solid rgba(37, 99, 235, 0.15)",
+              background: "rgba(0, 245, 200, 0.04)",
+              border: "1px solid rgba(0, 245, 200, 0.12)",
               borderRadius: "var(--radius-sm)",
               padding: "0.65rem 0.85rem",
               marginBottom: "1.2rem",
               fontSize: "0.78rem",
-              color: "var(--text-secondary)"
+              color: "#cbd5e1"
             }}>
               <div>• <strong>Tên đăng nhập:</strong> Số điện thoại học viên (VD: <code>0937482673</code>)</div>
               <div>• <strong>Mật khẩu:</strong> Tên + SĐT (VD: <code>Thien0937482673</code>)</div>

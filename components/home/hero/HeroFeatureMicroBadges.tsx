@@ -2,71 +2,73 @@
 
 import { Code2, Award, Bot } from "lucide-react";
 
+const badges = [
+  {
+    icon: <Code2 size={16} />,
+    iconBg: "rgba(0, 245, 200, 0.12)",
+    iconColor: "#00f5c8",
+    title: "120+ Câu",
+    sub: "6 Archetype"
+  },
+  {
+    icon: <Award size={16} />,
+    iconBg: "rgba(59, 130, 246, 0.12)",
+    iconColor: "#60a5fa",
+    title: "Chứng Chỉ",
+    sub: "Chuẩn Sao Việt"
+  },
+  {
+    icon: <Bot size={16} />,
+    iconBg: "rgba(139, 92, 246, 0.12)",
+    iconColor: "#a78bfa",
+    title: "Gemini AI",
+    sub: "Hỗ trợ 24/7"
+  }
+];
+
 export default function HeroFeatureMicroBadges() {
   return (
     <div style={{
       display: "grid",
       gridTemplateColumns: "repeat(3, 1fr)",
-      gap: "0.8rem",
-      paddingTop: "1.4rem",
-      borderTop: "1px solid var(--border-light)"
+      gap: "0.75rem",
+      paddingTop: "1.5rem",
+      borderTop: "1px solid rgba(255,255,255,0.06)"
     }}>
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "0.6rem",
-        background: "rgba(255, 255, 255, 0.6)",
-        padding: "0.6rem 0.75rem",
-        borderRadius: "var(--radius-sm)",
-        border: "1px solid rgba(226, 232, 240, 0.7)",
-        backdropFilter: "blur(8px)"
-      }}>
-        <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(37, 99, 235, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-primary)", flexShrink: 0 }}>
-          <Code2 size={16} />
+      {badges.map((b, i) => (
+        <div
+          key={i}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.6rem",
+            background: "rgba(15, 23, 42, 0.7)",
+            padding: "0.65rem 0.75rem",
+            borderRadius: "var(--radius-sm)",
+            border: "1px solid rgba(255,255,255,0.07)",
+            backdropFilter: "blur(12px)",
+            transition: "all 0.2s ease"
+          }}
+        >
+          <div style={{
+            width: "32px",
+            height: "32px",
+            borderRadius: "8px",
+            background: b.iconBg,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: b.iconColor,
+            flexShrink: 0
+          }}>
+            {b.icon}
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: "0.84rem", color: "#f1f5f9" }}>{b.title}</div>
+            <div style={{ fontSize: "0.69rem", color: "var(--text-muted)" }}>{b.sub}</div>
+          </div>
         </div>
-        <div>
-          <div style={{ fontWeight: 800, fontSize: "0.84rem", color: "var(--text-primary)" }}>120+ Câu</div>
-          <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>6 Archetype</div>
-        </div>
-      </div>
-
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "0.6rem",
-        background: "rgba(255, 255, 255, 0.6)",
-        padding: "0.6rem 0.75rem",
-        borderRadius: "var(--radius-sm)",
-        border: "1px solid rgba(226, 232, 240, 0.7)",
-        backdropFilter: "blur(8px)"
-      }}>
-        <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(5, 150, 105, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-emerald)", flexShrink: 0 }}>
-          <Award size={16} />
-        </div>
-        <div>
-          <div style={{ fontWeight: 800, fontSize: "0.84rem", color: "var(--text-primary)" }}>Chứng Chỉ</div>
-          <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Chuẩn Sao Việt</div>
-        </div>
-      </div>
-
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "0.6rem",
-        background: "rgba(255, 255, 255, 0.6)",
-        padding: "0.6rem 0.75rem",
-        borderRadius: "var(--radius-sm)",
-        border: "1px solid rgba(226, 232, 240, 0.7)",
-        backdropFilter: "blur(8px)"
-      }}>
-        <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "rgba(124, 58, 237, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-violet)", flexShrink: 0 }}>
-          <Bot size={16} />
-        </div>
-        <div>
-          <div style={{ fontWeight: 800, fontSize: "0.84rem", color: "var(--text-primary)" }}>Gemini AI</div>
-          <div style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>Hỗ trợ 24/7</div>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }

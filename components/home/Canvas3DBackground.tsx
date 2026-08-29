@@ -46,16 +46,15 @@ export default function Canvas3DBackground() {
     };
     window.addEventListener("mousemove", handleMouseMove);
 
-    // Color palette for subtle glowing particles
     const colors = [
-      "rgba(37, 99, 235,",    // Brand Blue
-      "rgba(6, 182, 212,",    // Cyan
-      "rgba(16, 185, 129,",   // Emerald
-      "rgba(124, 58, 237,"    // Violet
+      "rgba(0, 245, 200,",
+      "rgba(59, 130, 246,",
+      "rgba(34, 211, 238,",
+      "rgba(139, 92, 246,"
     ];
 
     // Generate 3D Particles
-    const PARTICLE_COUNT = 45;
+    const PARTICLE_COUNT = 60;
     const particles: Particle3D[] = [];
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
@@ -67,7 +66,7 @@ export default function Canvas3DBackground() {
         vy: (Math.random() - 0.5) * 0.4,
         vz: (Math.random() - 0.5) * 0.3,
         size: Math.random() * 2.5 + 1.5,
-        baseAlpha: Math.random() * 0.35 + 0.15,
+        baseAlpha: Math.random() * 0.55 + 0.25,
         color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
@@ -145,12 +144,12 @@ export default function Canvas3DBackground() {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < maxDistance) {
-            const lineAlpha = (1 - dist / maxDistance) * Math.min(p1.alpha, p2.alpha) * 0.4;
+            const lineAlpha = (1 - dist / maxDistance) * Math.min(p1.alpha, p2.alpha) * 0.55;
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(37, 99, 235, ${lineAlpha})`;
-            ctx.lineWidth = 0.8;
+            ctx.strokeStyle = `rgba(0, 245, 200, ${lineAlpha})`;
+            ctx.lineWidth = 0.9;
             ctx.stroke();
           }
         }
