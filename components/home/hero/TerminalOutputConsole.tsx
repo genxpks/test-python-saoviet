@@ -8,10 +8,10 @@ export default function TerminalOutputConsole({ output }: TerminalOutputConsoleP
   return (
     <div style={{
       background: "#040711",
-      borderTop: "1px solid #1e293b",
-      padding: "0.9rem 1.25rem",
+      borderTop: "1px solid rgba(255, 255, 255, 0.06)",
+      padding: "0.85rem 1.1rem",
       fontFamily: "var(--font-mono)",
-      fontSize: "0.8rem",
+      fontSize: "0.78rem",
       color: "#10b981",
       lineHeight: "1.5"
     }}>

@@ -3,14 +3,14 @@
 export default function HeroValueProposition() {
   return (
     <p style={{
-      fontSize: "1.05rem",
+      fontSize: "1.02rem",
       color: "var(--text-secondary)",
-      lineHeight: 1.65,
-      marginBottom: "2rem",
-      maxWidth: "580px"
+      lineHeight: 1.68,
+      marginBottom: "1.8rem",
+      maxWidth: "540px"
     }}>
-      Trải nghiệm học tập và khảo sát năng lực trực quan với <strong>120+ câu hỏi đa dạng 6 archetype</strong>, 
-      trình giả lập <strong>Python Live Sandbox</strong> trực tiếp trên trình duyệt, đồng hồ kiểm soát phiên 3 giờ và cấp chứng chỉ chuẩn hóa Tin Học Sao Việt.
+      Nền tảng đào tạo lập trình thực chiến kết hợp hệ thống khảo thí <strong>120+ câu hỏi đa dạng 6 archetype</strong>,
+      trình giả lập <strong>Live Sandbox trực tuyến</strong> và cơ chế cấp chứng chỉ đạt chuẩn Tin Học Sao Việt.
     </p>
   );
 }

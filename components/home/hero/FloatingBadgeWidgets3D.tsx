@@ -1,61 +1,81 @@
 "use client";
 
-import { Award, Bot, ShieldCheck } from "lucide-react";
+import { Award, Bot, Sparkles, CheckCircle2 } from "lucide-react";
 
 export default function FloatingBadgeWidgets3D() {
   return (
-    <>
-      {/* Floating 3D Widget 1: Sao Viet Cert Gold */}
+    <div style={{
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr",
+      gap: "0.8rem",
+      marginTop: "1rem"
+    }}>
+      {/* Docked Card 1: Sao Viet Cert Gold */}
       <div style={{
-        position: "absolute",
-        top: "-25px",
-        right: "-20px",
-        background: "rgba(255, 255, 255, 0.95)",
+        background: "rgba(255, 255, 255, 0.85)",
         backdropFilter: "blur(12px)",
-        border: "1px solid rgba(226, 232, 240, 0.9)",
+        border: "1px solid rgba(226, 232, 240, 0.8)",
         borderRadius: "var(--radius-md)",
-        padding: "0.6rem 1rem",
-        boxShadow: "0 14px 28px rgba(15, 23, 42, 0.12)",
+        padding: "0.75rem 0.95rem",
+        boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.06)",
         display: "flex",
         alignItems: "center",
-        gap: "0.6rem",
-        zIndex: 20,
-        transform: "translateZ(30px)"
+        gap: "0.7rem"
       }}>
-        <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #f59e0b, #d97706)", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{
+          width: "34px",
+          height: "34px",
+          borderRadius: "10px",
+          background: "linear-gradient(135deg, #f59e0b, #d97706)",
+          color: "#ffffff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          boxShadow: "0 4px 10px rgba(217, 119, 6, 0.25)"
+        }}>
           <Award size={18} />
         </div>
         <div>
-          <div style={{ fontWeight: 800, fontSize: "0.82rem", color: "#0f172a" }}>Chứng Nhận Sao Việt</div>
-          <div style={{ fontSize: "0.7rem", color: "#10b981", fontWeight: 700 }}>Đạt chuẩn ISO Khảo Thí</div>
+          <div style={{ fontWeight: 800, fontSize: "0.82rem", color: "#0f172a" }}>Chứng Nhận Chuẩn Hóa</div>
+          <div style={{ fontSize: "0.72rem", color: "#059669", fontWeight: 700, display: "flex", alignItems: "center", gap: "3px" }}>
+            <CheckCircle2 size={11} />
+            <span>Tin Học Sao Việt Khổ A4</span>
+          </div>
         </div>
       </div>
 
-      {/* Floating 3D Widget 2: Live AI Gemini */}
+      {/* Docked Card 2: Live AI Gemini */}
       <div style={{
-        position: "absolute",
-        bottom: "-20px",
-        left: "-20px",
-        background: "rgba(255, 255, 255, 0.95)",
+        background: "rgba(255, 255, 255, 0.85)",
         backdropFilter: "blur(12px)",
-        border: "1px solid rgba(226, 232, 240, 0.9)",
+        border: "1px solid rgba(226, 232, 240, 0.8)",
         borderRadius: "var(--radius-md)",
-        padding: "0.6rem 1rem",
-        boxShadow: "0 14px 28px rgba(15, 23, 42, 0.12)",
+        padding: "0.75rem 0.95rem",
+        boxShadow: "0 4px 16px -2px rgba(15, 23, 42, 0.06)",
         display: "flex",
         alignItems: "center",
-        gap: "0.6rem",
-        zIndex: 20,
-        transform: "translateZ(30px)"
+        gap: "0.7rem"
       }}>
-        <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #8b5cf6, #3b82f6)", color: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{
+          width: "34px",
+          height: "34px",
+          borderRadius: "10px",
+          background: "linear-gradient(135deg, #8b5cf6, #3b82f6)",
+          color: "#ffffff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          boxShadow: "0 4px 10px rgba(124, 58, 237, 0.25)"
+        }}>
           <Bot size={18} />
         </div>
         <div>
           <div style={{ fontWeight: 800, fontSize: "0.82rem", color: "#0f172a" }}>AI Sư Phạm 2.0</div>
-          <div style={{ fontSize: "0.7rem", color: "#64748b" }}>Giải thích logic tức thì</div>
+          <div style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: 600 }}>Giải thích logic & thuật toán</div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

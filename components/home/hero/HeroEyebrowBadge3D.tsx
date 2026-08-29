@@ -7,20 +7,28 @@ export default function HeroEyebrowBadge3D() {
     <div style={{
       display: "inline-flex",
       alignItems: "center",
-      gap: "0.5rem",
-      padding: "0.35rem 0.95rem",
+      gap: "0.6rem",
+      padding: "0.35rem 0.9rem",
       borderRadius: "var(--radius-full)",
-      background: "linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(6, 182, 212, 0.12))",
-      border: "1px solid rgba(37, 99, 235, 0.25)",
+      background: "rgba(37, 99, 235, 0.06)",
+      border: "1px solid rgba(37, 99, 235, 0.2)",
       color: "var(--brand-primary)",
-      fontSize: "0.82rem",
+      fontSize: "0.78rem",
       fontWeight: 800,
       marginBottom: "1.2rem",
-      boxShadow: "0 2px 12px rgba(37, 99, 235, 0.1)",
-      letterSpacing: "0.02em"
+      backdropFilter: "blur(8px)",
+      boxShadow: "0 2px 10px rgba(37, 99, 235, 0.08)",
+      letterSpacing: "0.03em"
     }}>
-      <Sparkles size={15} />
-      <span>NỀN TẢNG KHẢO THÍ & ĐÀO TẠO CHUẨN DOANH NGHIỆP 2026</span>
+      <span style={{
+        display: "inline-block",
+        width: "7px",
+        height: "7px",
+        borderRadius: "50%",
+        background: "#10b981",
+        boxShadow: "0 0 8px #10b981"
+      }} />
+      <span style={{ textTransform: "uppercase" }}>Nền Tảng Khảo Thí & Đào Tạo Chuẩn 2026</span>
     </div>
   );
 }

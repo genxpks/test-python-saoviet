@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
-interface Particle {
+interface Particle3D {
   x: number;
   y: number;
   z: number;
@@ -10,21 +10,12 @@ interface Particle {
   vy: number;
   vz: number;
   size: number;
-  text?: string;
+  baseAlpha: number;
   color: string;
 }
 
-const CODE_SYMBOLS = ["def", "class", "import", "{}", "=>", "async", "0x1F", "print()", "return", "lambda", "</>", "int", "str", "True", "False"];
-const PALETTE = [
-  "rgba(37, 99, 235, 0.45)",   // Cyber blue
-  "rgba(8, 145, 178, 0.45)",   // Cyan
-  "rgba(124, 58, 237, 0.45)",  // Violet
-  "rgba(5, 150, 105, 0.4)",    // Emerald
-  "rgba(217, 119, 6, 0.35)"    // Amber
-];
-
 export default function Canvas3DBackground() {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -32,135 +23,146 @@ export default function Canvas3DBackground() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let animId: number;
+    let animationFrameId: number;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
-
-    // Mouse coordinates in 3D space
-    let mouseX = width / 2;
-    let mouseY = height / 2;
-    let targetMouseX = mouseX;
-    let targetMouseY = mouseY;
 
     const handleResize = () => {
       if (!canvas) return;
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
     };
+    window.addEventListener("resize", handleResize);
+
+    // Mouse coordinates in centered space
+    let mouseX = 0;
+    let mouseY = 0;
+    let targetMouseX = 0;
+    let targetMouseY = 0;
 
     const handleMouseMove = (e: MouseEvent) => {
-      targetMouseX = e.clientX;
-      targetMouseY = e.clientY;
+      targetMouseX = (e.clientX - width / 2) * 0.4;
+      targetMouseY = (e.clientY - height / 2) * 0.4;
     };
-
-    window.addEventListener("resize", handleResize);
     window.addEventListener("mousemove", handleMouseMove);
 
-    // Initialize 3D particles
-    const particleCount = Math.min(55, Math.floor(width / 30));
-    const particles: Particle[] = [];
+    // Color palette for subtle glowing particles
+    const colors = [
+      "rgba(37, 99, 235,",    // Brand Blue
+      "rgba(6, 182, 212,",    // Cyan
+      "rgba(16, 185, 129,",   // Emerald
+      "rgba(124, 58, 237,"    // Violet
+    ];
 
-    for (let i = 0; i < particleCount; i++) {
+    // Generate 3D Particles
+    const PARTICLE_COUNT = 45;
+    const particles: Particle3D[] = [];
+
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
       particles.push({
-        x: (Math.random() - 0.5) * width * 1.2,
-        y: (Math.random() - 0.5) * height * 1.2,
-        z: Math.random() * 800 + 200,
-        vx: (Math.random() - 0.5) * 0.6,
-        vy: (Math.random() - 0.5) * 0.6,
-        vz: (Math.random() - 0.5) * 0.8,
-        size: Math.random() * 2 + 1.5,
-        text: i % 2 === 0 ? CODE_SYMBOLS[Math.floor(Math.random() * CODE_SYMBOLS.length)] : undefined,
-        color: PALETTE[Math.floor(Math.random() * PALETTE.length)]
+        x: (Math.random() - 0.5) * width * 1.5,
+        y: (Math.random() - 0.5) * height * 1.5,
+        z: Math.random() * 800 + 100,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        vz: (Math.random() - 0.5) * 0.3,
+        size: Math.random() * 2.5 + 1.5,
+        baseAlpha: Math.random() * 0.35 + 0.15,
+        color: colors[Math.floor(Math.random() * colors.length)]
       });
     }
 
-    const fov = 400; // Field of view
+    const fov = 450;
 
+    // Render loop
     const render = () => {
-      // Smooth mouse easing
+      // Smooth camera interpolation
       mouseX += (targetMouseX - mouseX) * 0.05;
       mouseY += (targetMouseY - mouseY) * 0.05;
 
-      const offsetX = (mouseX - width / 2) * 0.15;
-      const offsetY = (mouseY - height / 2) * 0.15;
-
       ctx.clearRect(0, 0, width, height);
 
-      // Render & Project 3D particles
-      const projected: { px: number; py: number; scale: number; p: Particle }[] = [];
+      const cx = width / 2;
+      const cy = height / 2;
+
+      // Projected 2D particles list for line connections
+      const projected: { x: number; y: number; alpha: number; color: string; size: number }[] = [];
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
-        // Move particle in 3D
+        // Move particles in 3D
         p.x += p.vx;
         p.y += p.vy;
         p.z += p.vz;
 
-        // Wrap around boundaries
-        if (p.z <= 50) p.z = 950;
-        if (p.z > 1000) p.z = 60;
-        if (p.x < -width) p.x = width;
-        if (p.x > width) p.x = -width;
-        if (p.y < -height) p.y = height;
-        if (p.y > height) p.y = -height;
+        // Wrap around 3D bounds
+        const boundX = width * 0.9;
+        const boundY = height * 0.9;
+        if (p.x < -boundX) p.x = boundX;
+        if (p.x > boundX) p.x = -boundX;
+        if (p.y < -boundY) p.y = boundY;
+        if (p.y > boundY) p.y = -boundY;
+        if (p.z < 80) p.z = 900;
+        if (p.z > 900) p.z = 80;
 
-        // 3D Perspective Projection formula
+        // Perspective projection with camera tilt
+        const adjX = p.x - mouseX * (1 - p.z / 1000);
+        const adjY = p.y - mouseY * (1 - p.z / 1000);
         const scale = fov / (fov + p.z);
-        const px = (p.x - offsetX) * scale + width / 2;
-        const py = (p.y - offsetY) * scale + height / 2;
 
-        if (px >= 0 && px <= width && py >= 0 && py <= height) {
-          projected.push({ px, py, scale, p });
-        }
+        const px = cx + adjX * scale;
+        const py = cy + adjY * scale;
+
+        // Alpha based on depth
+        const depthAlpha = Math.max(0, Math.min(1, 1 - p.z / 950)) * p.baseAlpha;
+        const renderSize = p.size * scale * 1.8;
+
+        projected.push({ x: px, y: py, alpha: depthAlpha, color: p.color, size: renderSize });
+
+        // Draw glowing particle dot
+        ctx.beginPath();
+        ctx.arc(px, py, Math.max(1, renderSize), 0, Math.PI * 2);
+        ctx.fillStyle = `${p.color} ${depthAlpha})`;
+        ctx.fill();
+
+        // Subtle soft outer glow
+        ctx.beginPath();
+        ctx.arc(px, py, Math.max(2, renderSize * 2.5), 0, Math.PI * 2);
+        ctx.fillStyle = `${p.color} ${depthAlpha * 0.25})`;
+        ctx.fill();
       }
 
-      // Draw 3D network lines between nearby projected particles
+      // Draw subtle connecting constellation lines
+      const maxDistance = 140;
       for (let i = 0; i < projected.length; i++) {
         for (let j = i + 1; j < projected.length; j++) {
-          const a = projected[i];
-          const b = projected[j];
-          const dx = a.px - b.px;
-          const dy = a.py - b.py;
+          const p1 = projected[i];
+          const p2 = projected[j];
+
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist < 110) {
-            const alpha = (1 - dist / 110) * 0.22 * Math.min(a.scale, b.scale);
-            ctx.strokeStyle = `rgba(37, 99, 235, ${alpha})`;
-            ctx.lineWidth = Math.max(0.5, 1.2 * a.scale);
+          if (dist < maxDistance) {
+            const lineAlpha = (1 - dist / maxDistance) * Math.min(p1.alpha, p2.alpha) * 0.4;
             ctx.beginPath();
-            ctx.moveTo(a.px, a.py);
-            ctx.lineTo(b.px, b.py);
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(37, 99, 235, ${lineAlpha})`;
+            ctx.lineWidth = 0.8;
             ctx.stroke();
           }
         }
       }
 
-      // Draw 3D glowing nodes / code tokens
-      for (let i = 0; i < projected.length; i++) {
-        const { px, py, scale, p } = projected[i];
-
-        if (p.text) {
-          // Render 3D Code Token
-          ctx.font = `${Math.max(9, Math.floor(13 * scale))}px 'JetBrains Mono', monospace`;
-          ctx.fillStyle = p.color;
-          ctx.fillText(p.text, px, py);
-        } else {
-          // Render Glowing 3D Node
-          ctx.fillStyle = p.color;
-          ctx.beginPath();
-          ctx.arc(px, py, p.size * scale, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-
-      animId = requestAnimationFrame(render);
+      animationFrameId = requestAnimationFrame(render);
     };
 
     render();
 
     return () => {
-      cancelAnimationFrame(animId);
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", handleMouseMove);
     };

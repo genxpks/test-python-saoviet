@@ -22,15 +22,12 @@ const CODE_SNIPPETS = {
     code: `# Tin Học Sao Việt — Đào tạo Python Nâng Cao
 def evaluate_student(scores: list[float]) -> dict:
     avg = sum(scores) / len(scores)
-    rank = "Xuất Sắc" if avg >= 9.0 else "Giỏi" if avg >= 8.0 else "Khá"
     return {
         "average": round(avg, 2),
-        "rank": rank,
-        "certificate": "SaoViet_Gold_Cert_2026",
-        "eligible_exam": True
+        "rank": "Xuất Sắc" if avg >= 9.0 else "Giỏi",
+        "certificate": "SaoViet_Gold_Cert_2026"
     }
 
-# Chạy kiểm thử tự động
 results = evaluate_student([9.5, 9.0, 9.2, 9.8])
 print(f"🎓 Xếp loại: {results['rank']} | Điểm TB: {results['average']}")`,
     output: `>>> Executing python_curriculum_master.py ...
@@ -88,7 +85,7 @@ export default function HeroLayer3D() {
     setTimeout(() => {
       setIsRunning(false);
       setShowOutput(true);
-    }, 550);
+    }, 450);
   };
 
   const handleCopyCode = () => {
@@ -98,16 +95,16 @@ export default function HeroLayer3D() {
   };
 
   return (
-    <section style={{ position: "relative", marginBottom: "4rem", perspective: "1200px" }}>
+    <section style={{ position: "relative", marginBottom: "3.5rem", perspective: "1200px" }}>
       {/* Aurora Ambient Glows */}
       <div style={{
         position: "absolute",
-        top: "-100px",
+        top: "-80px",
         left: "5%",
-        width: "420px",
-        height: "420px",
-        background: "radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, transparent 70%)",
-        filter: "blur(70px)",
+        width: "400px",
+        height: "400px",
+        background: "radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, transparent 70%)",
+        filter: "blur(60px)",
         pointerEvents: "none",
         zIndex: 0
       }} />
@@ -116,10 +113,10 @@ export default function HeroLayer3D() {
         position: "absolute",
         top: "10%",
         right: "5%",
-        width: "380px",
-        height: "380px",
-        background: "radial-gradient(circle, rgba(5, 150, 105, 0.2) 0%, transparent 70%)",
-        filter: "blur(65px)",
+        width: "350px",
+        height: "350px",
+        background: "radial-gradient(circle, rgba(5, 150, 105, 0.15) 0%, transparent 70%)",
+        filter: "blur(55px)",
         pointerEvents: "none",
         zIndex: 0
       }} />
@@ -130,7 +127,7 @@ export default function HeroLayer3D() {
           position: "relative",
           zIndex: 1,
           display: "grid",
-          gridTemplateColumns: "1.08fr 0.92fr",
+          gridTemplateColumns: "1.05fr 0.95fr",
           gap: "2.5rem",
           alignItems: "center"
         }}
@@ -144,14 +141,14 @@ export default function HeroLayer3D() {
           <HeroFeatureMicroBadges />
         </div>
 
-        {/* Right Column: Composed of Terminal Sandbox & Floating 3D Widgets */}
-        <div style={{ position: "relative" }}>
-          <TiltCard3D maxTilt={10} perspective={1200} scale={1.02} glowColor="rgba(37, 99, 235, 0.2)">
+        {/* Right Column: Composed of Terminal Sandbox & Docked Badges */}
+        <div>
+          <TiltCard3D maxTilt={6} perspective={1200} scale={1.015} glowColor="rgba(37, 99, 235, 0.15)">
             <div style={{
               background: "#070d19",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
               borderRadius: "var(--radius-xl)",
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 35px rgba(37, 99, 235, 0.2)",
+              boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.4), 0 0 25px rgba(37, 99, 235, 0.12)",
               overflow: "hidden"
             }}>
               <TerminalTopBar
@@ -172,7 +169,7 @@ export default function HeroLayer3D() {
             </div>
           </TiltCard3D>
 
-          {/* Floating 3D Badges */}
+          {/* Cleanly Docked Feature Badges Below Terminal (No Overlap) */}
           <FloatingBadgeWidgets3D />
         </div>
       </div>
