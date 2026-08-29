@@ -74,12 +74,12 @@ export default function Navbar() {
       setLoginError("");
       setSessionRemainingSec(getSessionRemainingSeconds());
 
-      // Auto redirect based on user role
+      // Auto redirect based on user role (Rock-solid browser navigation)
       if (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher") {
-        router.push("/admin");
+        window.location.href = "/admin";
       } else if (res.user.role === "student") {
         if (pathname === "/") {
-          router.push("/study");
+          window.location.href = "/study";
         } else {
           window.location.reload();
         }
