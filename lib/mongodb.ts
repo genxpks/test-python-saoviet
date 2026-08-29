@@ -1,18 +1,16 @@
 import { MongoClient, Db } from "mongodb";
 
-const DEFAULT_URI = "mongodb+srv://genxpks_db_user:WCxt4C4P6gcbnxlD@cluster0.2w5nhw1.mongodb.net/test_python_saoviet?retryWrites=true&w=majority&appName=Cluster0";
+const DEFAULT_URI = "mongodb+srv://genxpks_db_user:WCxt4C4P6gcbnxlD@cluster0.2w5nhw1.mongodb.net/test_python_saoviet?retryWrites=true&w=majority";
 const uri = process.env.MONGODB_URI || DEFAULT_URI;
 
 const options = {
   maxPoolSize: 10,
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
+  minPoolSize: 1,
+  serverSelectionTimeoutMS: 8000,
   connectTimeoutMS: 10000,
-  retryWrites: true,
-  retryReads: true,
+  socketTimeoutMS: 45000,
 };
 
-let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
 declare global {
@@ -20,7 +18,7 @@ declare global {
 }
 
 if (!global._mongoClientPromise) {
-  client = new MongoClient(uri, options);
+  const client = new MongoClient(uri, options);
   global._mongoClientPromise = client.connect();
 }
 clientPromise = global._mongoClientPromise;
