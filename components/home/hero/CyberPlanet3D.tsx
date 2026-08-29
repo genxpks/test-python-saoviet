@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { Sparkles, Orbit, Code2, RotateCw } from "lucide-react";
+import { Sparkles, RotateCw } from "lucide-react";
 
 export default function CyberPlanet3D() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -12,14 +12,14 @@ export default function CyberPlanet3D() {
     const container = containerRef.current;
     if (!container) return;
 
-    let width = container.clientWidth || 500;
-    let height = container.clientHeight || 460;
+    let width = container.clientWidth || 580;
+    let height = container.clientHeight || 520;
 
     // Scene, Camera, Renderer
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.z = 8.5;
-    camera.position.y = 0.5;
+    const camera = new THREE.PerspectiveCamera(42, width / height, 0.1, 1000);
+    camera.position.z = 8.2;
+    camera.position.y = 0.2;
 
     const renderer = new THREE.WebGLRenderer({
       alpha: true,
@@ -29,79 +29,92 @@ export default function CyberPlanet3D() {
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.2;
+    renderer.toneMappingExposure = 1.35;
     container.appendChild(renderer.domElement);
 
-    // Root Group for smooth tilt and rotation
+    // Root Group
     const rootGroup = new THREE.Group();
     scene.add(rootGroup);
 
     // -------------------------------------------------------------
-    // 1. Procedural High-Tech Planet Texture Generation
+    // 1. Procedural Swirling Fluid/Cyber Marble Texture (Like Mockup)
     // -------------------------------------------------------------
     const createPlanetTexture = () => {
       const canvas = document.createElement("canvas");
-      canvas.width = 1024;
-      canvas.height = 512;
+      canvas.width = 2048;
+      canvas.height = 1024;
       const ctx = canvas.getContext("2d");
       if (!ctx) return new THREE.CanvasTexture(canvas);
 
-      // Deep space base
-      const grad = ctx.createLinearGradient(0, 0, 1024, 512);
-      grad.addColorStop(0, "#030c1e");
-      grad.addColorStop(0.5, "#061838");
-      grad.addColorStop(1, "#020712");
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, 1024, 512);
+      // Deep cosmic ocean navy base
+      const bgGrad = ctx.createLinearGradient(0, 0, 2048, 1024);
+      bgGrad.addColorStop(0, "#010818");
+      bgGrad.addColorStop(0.3, "#041432");
+      bgGrad.addColorStop(0.7, "#02203c");
+      bgGrad.addColorStop(1, "#010714");
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, 2048, 1024);
 
-      // Swirling Aurora & Cyber Continents
-      for (let i = 0; i < 28; i++) {
+      // Swirling Emerald-Teal & Cyan Gas Clouds (Organic Fluid Bands)
+      for (let i = 0; i < 45; i++) {
         ctx.beginPath();
-        const x = Math.random() * 1024;
-        const y = Math.random() * 512;
-        const r = Math.random() * 160 + 60;
-        const swirlGrad = ctx.createRadialGradient(x, y, 10, x, y, r);
-        swirlGrad.addColorStop(0, "rgba(0, 245, 200, 0.45)");
-        swirlGrad.addColorStop(0.4, "rgba(14, 165, 233, 0.25)");
-        swirlGrad.addColorStop(0.8, "rgba(99, 102, 241, 0.12)");
+        const x = Math.random() * 2048;
+        const y = Math.random() * 1024;
+        const radiusX = Math.random() * 380 + 120;
+        const radiusY = Math.random() * 140 + 40;
+        const rotation = Math.random() * Math.PI * 2;
+
+        const swirlGrad = ctx.createRadialGradient(x, y, 10, x, y, radiusX);
+        swirlGrad.addColorStop(0, "rgba(0, 245, 200, 0.75)");
+        swirlGrad.addColorStop(0.35, "rgba(6, 182, 212, 0.45)");
+        swirlGrad.addColorStop(0.7, "rgba(14, 80, 180, 0.2)");
         swirlGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(rotation);
         ctx.fillStyle = swirlGrad;
-        ctx.arc(x, y, r, 0, Math.PI * 2);
+        ctx.beginPath();
+        ctx.ellipse(0, 0, radiusX, radiusY, 0, 0, Math.PI * 2);
         ctx.fill();
+        ctx.restore();
       }
 
-      // Latitude / Longitude Glowing Grid Lines
-      ctx.strokeStyle = "rgba(0, 245, 200, 0.18)";
-      ctx.lineWidth = 1.2;
-      for (let y = 30; y < 512; y += 45) {
+      // High-contrast bright glowing cyan streaks (Like in Mockup)
+      for (let i = 0; i < 20; i++) {
         ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(1024, y);
-        ctx.stroke();
-      }
-      for (let x = 30; x < 1024; x += 65) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, 512);
+        const startX = Math.random() * 2048;
+        const startY = Math.random() * 1024;
+        ctx.moveTo(startX, startY);
+        ctx.bezierCurveTo(
+          startX + 200, startY - 80,
+          startX + 400, startY + 120,
+          startX + 700, startY + 20
+        );
+        ctx.strokeStyle = "rgba(0, 255, 220, 0.38)";
+        ctx.lineWidth = Math.random() * 6 + 2;
+        ctx.shadowColor = "#00f5c8";
+        ctx.shadowBlur = 18;
         ctx.stroke();
       }
 
-      // Digital Binary / Code Stream Overlay on Texture
-      ctx.fillStyle = "rgba(255, 255, 255, 0.35)";
-      ctx.font = "bold 10px monospace";
-      const codeLines = [
-        "10100101011001",
-        "def evaluate_code():",
-        "import * as SaoViet",
-        "01001011010110",
-        "std::vector<int>",
-        "matrix[x][y] = 2026",
-        "const AI_SYS = true",
-        "SELECT * FROM STARS"
+      // Cyber Binary & Code Annotations
+      ctx.shadowBlur = 0;
+      ctx.fillStyle = "rgba(200, 250, 255, 0.4)";
+      ctx.font = "bold 13px 'Courier New', monospace";
+      const codeSnippets = [
+        "101100101101001010101101",
+        "def init_cyber_matrix():",
+        "SELECT * FROM STARS_2026",
+        "010101101010010101101011",
+        "const SYSTEM = 'TinHocSaoViet'",
+        "matrix[x][y] = 0x00F5C8",
+        "import tensorflow as tf",
+        "class HologramEngine3D:"
       ];
-      for (let i = 0; i < 40; i++) {
-        const text = codeLines[Math.floor(Math.random() * codeLines.length)];
-        ctx.fillText(text, Math.random() * 950, Math.random() * 500);
+      for (let i = 0; i < 50; i++) {
+        const text = codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+        ctx.fillText(text, Math.random() * 1900, Math.random() * 980);
       }
 
       const texture = new THREE.CanvasTexture(canvas);
@@ -113,148 +126,126 @@ export default function CyberPlanet3D() {
     const planetTexture = createPlanetTexture();
 
     // -------------------------------------------------------------
-    // 2. Planet Core Sphere
+    // 2. Planet Core Sphere (Rich Shading)
     // -------------------------------------------------------------
-    const planetGeometry = new THREE.SphereGeometry(2.3, 64, 64);
+    const planetGeometry = new THREE.SphereGeometry(2.35, 64, 64);
     const planetMaterial = new THREE.MeshStandardMaterial({
       map: planetTexture,
-      roughness: 0.35,
-      metalness: 0.65,
-      emissive: new THREE.Color("#003844"),
-      emissiveIntensity: 0.6
+      roughness: 0.28,
+      metalness: 0.72,
+      emissive: new THREE.Color("#00333d"),
+      emissiveIntensity: 0.75
     });
     const planetMesh = new THREE.Mesh(planetGeometry, planetMaterial);
     rootGroup.add(planetMesh);
 
     // -------------------------------------------------------------
-    // 3. Atmosphere Glow Shell (Fresnel Rim Lighting)
+    // 3. Holographic Atmosphere Glow (Fresnel Shell)
     // -------------------------------------------------------------
-    const atmosphereGeometry = new THREE.SphereGeometry(2.45, 48, 48);
+    const atmosphereGeometry = new THREE.SphereGeometry(2.48, 64, 64);
     const atmosphereMaterial = new THREE.MeshBasicMaterial({
       color: new THREE.Color("#00f5c8"),
       transparent: true,
-      opacity: 0.22,
+      opacity: 0.28,
       blending: THREE.AdditiveBlending,
       side: THREE.BackSide
     });
     const atmosphereMesh = new THREE.Mesh(atmosphereGeometry, atmosphereMaterial);
     rootGroup.add(atmosphereMesh);
 
-    // Subtle Outer Cloud / Aura Sphere
-    const cloudGeometry = new THREE.SphereGeometry(2.34, 48, 48);
-    const cloudMaterial = new THREE.MeshStandardMaterial({
-      color: new THREE.Color("#38bdf8"),
-      transparent: true,
-      opacity: 0.28,
-      blending: THREE.AdditiveBlending,
-      roughness: 0.1
-    });
-    const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
-    rootGroup.add(cloudMesh);
-
     // -------------------------------------------------------------
-    // 4. Glowing Cyber Orbital Rings (Vòng Quỹ Đạo Đa Chiều)
+    // 4. Multiple 3D Holographic Code Orbital Rings (Matching Mockup)
     // -------------------------------------------------------------
-    const orbitalRings: THREE.Group[] = [];
+    const orbitalRings: { group: THREE.Group; speed: number }[] = [];
 
-    // Helper: Create Glowing Ring with Code & Dash Markers
-    const createOrbitalRing = (
-      radiusX: number,
-      radiusY: number,
+    const createCyberOrbitalRing = (
+      rx: number,
+      ry: number,
       rotX: number,
       rotY: number,
       rotZ: number,
       colorHex: string,
       particleCount: number,
-      speedMultiplier: number
+      speed: number
     ) => {
       const ringGroup = new THREE.Group();
-      ringGroup.rotation.x = rotX;
-      ringGroup.rotation.y = rotY;
-      ringGroup.rotation.z = rotZ;
+      ringGroup.rotation.set(rotX, rotY, rotZ);
 
-      // Elliptical curve
-      const curve = new THREE.EllipseCurve(
-        0, 0,
-        radiusX, radiusY,
-        0, 2 * Math.PI,
-        false,
-        0
-      );
-
-      const points = curve.getPoints(160);
-      const ringGeometry = new THREE.BufferGeometry().setFromPoints(
+      // Smooth elliptical curve
+      const curve = new THREE.EllipseCurve(0, 0, rx, ry, 0, 2 * Math.PI, false, 0);
+      const points = curve.getPoints(240);
+      const ringGeo = new THREE.BufferGeometry().setFromPoints(
         points.map(p => new THREE.Vector3(p.x, p.y, 0))
       );
 
-      // Line Ring
-      const lineMaterial = new THREE.LineBasicMaterial({
+      // 1. Solid glowing core line
+      const lineMat = new THREE.LineBasicMaterial({
         color: new THREE.Color(colorHex),
         transparent: true,
-        opacity: 0.65,
+        opacity: 0.75,
         blending: THREE.AdditiveBlending
       });
-      const ringLine = new THREE.Line(ringGeometry, lineMaterial);
+      const ringLine = new THREE.Line(ringGeo, lineMat);
       ringGroup.add(ringLine);
 
-      // Orbiting Neon Particles along track
+      // 2. High-density Orbiting Cyber Particles
       const particlePositions = new Float32Array(particleCount * 3);
       for (let i = 0; i < particleCount; i++) {
         const pt = curve.getPoint(i / particleCount);
         particlePositions[i * 3] = pt.x;
         particlePositions[i * 3 + 1] = pt.y;
-        particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
+        particlePositions[i * 3 + 2] = (Math.random() - 0.5) * 0.08;
       }
       const particleGeo = new THREE.BufferGeometry();
       particleGeo.setAttribute("position", new THREE.BufferAttribute(particlePositions, 3));
 
       const particleMat = new THREE.PointsMaterial({
         color: new THREE.Color(colorHex),
-        size: 0.12,
+        size: 0.14,
         transparent: true,
-        opacity: 0.9,
+        opacity: 0.95,
         blending: THREE.AdditiveBlending
       });
-      const ringParticles = new THREE.Points(particleGeo, particleMat);
-      ringGroup.add(ringParticles);
+      const particles = new THREE.Points(particleGeo, particleMat);
+      ringGroup.add(particles);
 
       rootGroup.add(ringGroup);
-
-      return {
-        group: ringGroup,
-        speed: speedMultiplier
-      };
+      orbitalRings.push({ group: ringGroup, speed });
     };
 
-    // 3 Unique Tilted Concentric Orbits
-    const ring1 = createOrbitalRing(3.5, 3.2, Math.PI * 0.38, Math.PI * 0.15, Math.PI * 0.2, "#00f5c8", 45, 0.006);
-    const ring2 = createOrbitalRing(4.1, 3.8, -Math.PI * 0.28, Math.PI * 0.35, -Math.PI * 0.1, "#38bdf8", 60, -0.0045);
-    const ring3 = createOrbitalRing(4.7, 4.4, Math.PI * 0.55, -Math.PI * 0.22, Math.PI * 0.45, "#818cf8", 75, 0.0035);
+    // 4 Distinct 3D Rings at Tilted Angles (Exact Mockup Alignment)
+    createCyberOrbitalRing(3.4, 3.1, Math.PI * 0.38, Math.PI * 0.15, Math.PI * 0.22, "#00f5c8", 65, 0.0055);
+    createCyberOrbitalRing(3.9, 3.6, -Math.PI * 0.32, Math.PI * 0.28, -Math.PI * 0.15, "#38bdf8", 80, -0.004);
+    createCyberOrbitalRing(4.4, 4.0, Math.PI * 0.52, -Math.PI * 0.18, Math.PI * 0.42, "#00f5c8", 95, 0.0032);
+    createCyberOrbitalRing(4.8, 4.3, -Math.PI * 0.15, Math.PI * 0.45, Math.PI * 0.1, "#818cf8", 60, -0.0028);
 
     // -------------------------------------------------------------
-    // 5. Lighting Setup
+    // 5. Directional Lights & Specular Highlights
     // -------------------------------------------------------------
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
-    scene.add(ambientLight);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.85);
+    scene.add(ambient);
 
-    const mainDirectional = new THREE.DirectionalLight(0x00f5c8, 2.8);
-    mainDirectional.position.set(6, 4, 5);
-    scene.add(mainDirectional);
+    // Bright cyan key light (top-right specular glow)
+    const keyLight = new THREE.DirectionalLight(0x00f5c8, 3.5);
+    keyLight.position.set(7, 5, 6);
+    scene.add(keyLight);
 
-    const blueBackLight = new THREE.DirectionalLight(0x3b82f6, 2.2);
-    blueBackLight.position.set(-6, -3, -4);
-    scene.add(blueBackLight);
+    // Deep blue fill light
+    const fillLight = new THREE.DirectionalLight(0x0284c7, 2.5);
+    fillLight.position.set(-7, -4, -3);
+    scene.add(fillLight);
 
-    const violetRimLight = new THREE.PointLight(0xa855f7, 3.5, 20);
-    violetRimLight.position.set(0, 5, -2);
-    scene.add(violetRimLight);
+    // Violet rim accent
+    const rimLight = new THREE.PointLight(0xa855f7, 4.0, 25);
+    rimLight.position.set(0, 6, -3);
+    scene.add(rimLight);
 
     // -------------------------------------------------------------
     // 6. Interactive Drag & Mouse Tilt Physics
     // -------------------------------------------------------------
     let isDragging = false;
     let previousMousePosition = { x: 0, y: 0 };
-    let targetRotationX = 0.15;
+    let targetRotationX = 0.12;
     let targetRotationY = 0;
     let mouseTiltX = 0;
     let mouseTiltY = 0;
@@ -268,8 +259,8 @@ export default function CyberPlanet3D() {
       const rect = container.getBoundingClientRect();
       const relX = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
       const relY = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
-      mouseTiltX = relX * 0.35;
-      mouseTiltY = relY * 0.35;
+      mouseTiltX = relX * 0.3;
+      mouseTiltY = relY * 0.3;
 
       if (!isDragging) return;
       const deltaX = e.clientX - previousMousePosition.x;
@@ -334,25 +325,22 @@ export default function CyberPlanet3D() {
       const elapsedTime = clock.getElapsedTime();
 
       // Continuous Planet Self-Rotation
-      planetMesh.rotation.y += 0.0035;
-      cloudMesh.rotation.y += 0.0055;
-      cloudMesh.rotation.x = Math.sin(elapsedTime * 0.4) * 0.05;
+      planetMesh.rotation.y += 0.0038;
 
       // Orbit rotations
-      ring1.group.rotation.z += ring1.speed;
-      ring2.group.rotation.z += ring2.speed;
-      ring3.group.rotation.z += ring3.speed;
+      orbitalRings.forEach(r => {
+        r.group.rotation.z += r.speed;
+      });
 
-      // Levitation floating motion
-      rootGroup.position.y = Math.sin(elapsedTime * 1.4) * 0.18;
+      // Smooth levitation
+      rootGroup.position.y = Math.sin(elapsedTime * 1.5) * 0.15;
 
-      // Smooth mouse interpolation & drag rotation
+      // Mouse drag & tilt interpolation
       rootGroup.rotation.y += (targetRotationY + mouseTiltX - rootGroup.rotation.y) * 0.08;
       rootGroup.rotation.x += (targetRotationX + mouseTiltY - rootGroup.rotation.x) * 0.08;
 
-      // Idle slow spin if not dragging
       if (!isDragging) {
-        targetRotationY += 0.0015;
+        targetRotationY += 0.0018;
       }
 
       renderer.render(scene, camera);
@@ -375,8 +363,6 @@ export default function CyberPlanet3D() {
       planetMaterial.dispose();
       atmosphereGeometry.dispose();
       atmosphereMaterial.dispose();
-      cloudGeometry.dispose();
-      cloudMaterial.dispose();
       planetTexture.dispose();
       renderer.dispose();
       if (container.contains(domEl)) {
@@ -390,10 +376,11 @@ export default function CyberPlanet3D() {
       style={{
         position: "relative",
         width: "100%",
-        height: "480px",
+        height: "520px",
         display: "flex",
         alignItems: "center",
-        justifyContent: "center"
+        justifyContent: "center",
+        overflow: "visible"
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -405,10 +392,10 @@ export default function CyberPlanet3D() {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "360px",
-          height: "360px",
-          background: "radial-gradient(circle, rgba(0, 245, 200, 0.16) 0%, rgba(14, 165, 233, 0.1) 45%, transparent 70%)",
-          filter: "blur(40px)",
+          width: "480px",
+          height: "480px",
+          background: "radial-gradient(circle, rgba(0, 245, 200, 0.22) 0%, rgba(14, 165, 233, 0.12) 45%, transparent 70%)",
+          filter: "blur(55px)",
           borderRadius: "50%",
           pointerEvents: "none",
           zIndex: 0
@@ -419,20 +406,20 @@ export default function CyberPlanet3D() {
       <div
         style={{
           position: "absolute",
-          bottom: "4%",
+          bottom: "2%",
           left: "50%",
           transform: "translateX(-50%) rotateX(75deg)",
-          width: "320px",
-          height: "320px",
+          width: "420px",
+          height: "420px",
           borderRadius: "50%",
-          border: "2px dashed rgba(0, 245, 200, 0.25)",
-          boxShadow: "0 0 25px rgba(0, 245, 200, 0.2), inset 0 0 20px rgba(0, 245, 200, 0.15)",
+          border: "2px dashed rgba(0, 245, 200, 0.3)",
+          boxShadow: "0 0 35px rgba(0, 245, 200, 0.25), inset 0 0 30px rgba(0, 245, 200, 0.18)",
           pointerEvents: "none",
           zIndex: 0
         }}
       />
 
-      {/* Three.js Canvas Container */}
+      {/* Three.js Canvas Container (Borderless, Floating freely) */}
       <div
         ref={containerRef}
         style={{
@@ -448,19 +435,19 @@ export default function CyberPlanet3D() {
       <div
         style={{
           position: "absolute",
-          bottom: "12px",
-          right: "16px",
+          bottom: "10px",
+          right: "20px",
           zIndex: 2,
           display: "inline-flex",
           alignItems: "center",
           gap: "0.45rem",
-          padding: "0.35rem 0.85rem",
+          padding: "0.4rem 0.95rem",
           borderRadius: "var(--radius-full)",
-          background: "rgba(3, 10, 26, 0.8)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(0, 245, 200, 0.25)",
-          boxShadow: "0 4px 15px rgba(0,0,0,0.4), 0 0 12px rgba(0,245,200,0.15)",
-          fontSize: "0.75rem",
+          background: "rgba(3, 10, 26, 0.75)",
+          backdropFilter: "blur(16px)",
+          border: "1px solid rgba(0, 245, 200, 0.35)",
+          boxShadow: "0 4px 20px rgba(0,0,0,0.5), 0 0 15px rgba(0,245,200,0.2)",
+          fontSize: "0.78rem",
           fontWeight: 700,
           color: "#00f5c8",
           letterSpacing: "0.02em",
@@ -469,34 +456,8 @@ export default function CyberPlanet3D() {
           opacity: isHovered ? 1 : 0.85
         }}
       >
-        <RotateCw size={12} className="animate-spin-slow" />
+        <RotateCw size={13} className="animate-spin-slow" />
         <span>Hành Tinh Lập Trình 3D • Kéo Để Xoay</span>
-      </div>
-
-      {/* Floating Orbital Stats Pill */}
-      <div
-        style={{
-          position: "absolute",
-          top: "16px",
-          left: "16px",
-          zIndex: 2,
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          padding: "0.35rem 0.85rem",
-          borderRadius: "var(--radius-full)",
-          background: "rgba(3, 10, 26, 0.8)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(56, 189, 248, 0.25)",
-          boxShadow: "0 4px 15px rgba(0,0,0,0.4)",
-          fontSize: "0.75rem",
-          fontWeight: 700,
-          color: "#38bdf8",
-          pointerEvents: "none"
-        }}
-      >
-        <Orbit size={13} />
-        <span>Vũ Trụ Khảo Thí 2026</span>
       </div>
     </div>
   );

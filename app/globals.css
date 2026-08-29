@@ -864,10 +864,22 @@ h1, h2, h3, h4, h5, h6 {
   animation: spinSlow 12s linear infinite;
 }
 
-.cosmic-subject-card:hover {
-  transform: translateY(-5px) scale(1.015);
-  border-color: rgba(0, 245, 200, 0.45) !important;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 245, 200, 0.25), inset 0 0 25px rgba(0, 245, 200, 0.08) !important;
+.mockup-subject-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: rgba(0, 245, 200, 0.7) !important;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.8), 0 0 40px rgba(0, 245, 200, 0.35), inset 0 0 25px rgba(0, 245, 200, 0.12) !important;
+}
+
+.mockup-btn-primary:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 32px rgba(0, 245, 200, 0.6), 0 0 25px rgba(0, 245, 200, 0.4) !important;
+}
+
+.mockup-btn-secondary:hover {
+  transform: translateY(-2px) scale(1.02);
+  background: rgba(0, 245, 200, 0.15) !important;
+  border-color: rgba(0, 245, 200, 0.6) !important;
+  box-shadow: 0 0 25px rgba(0, 245, 200, 0.3) !important;
 }
 
 @media print {

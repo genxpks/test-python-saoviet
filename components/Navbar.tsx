@@ -95,12 +95,16 @@ export default function Navbar() {
       <header className="main-header no-print">
         <div className="container header-content">
           <Link href="/" className="logo-section">
-            <div className="logo-icon-wrap">
-              <Terminal size={22} color="#ffffff" />
+            <div className="logo-icon-wrap" style={{
+              background: "linear-gradient(135deg, rgba(0, 245, 200, 0.25), rgba(14, 165, 233, 0.25))",
+              border: "1px solid rgba(0, 245, 200, 0.4)",
+              boxShadow: "0 0 15px rgba(0, 245, 200, 0.3)"
+            }}>
+              <Sparkles size={20} color="#00f5c8" />
             </div>
             <div>
-              <div className="brand-title">TIN HỌC SAO VIỆT</div>
-              <div className="brand-subtitle">Hệ Thống Đào Tạo & Khảo Thí Lập Trình</div>
+              <div className="brand-title" style={{ fontSize: "1.05rem", letterSpacing: "-0.3px" }}>TIN HỌC SAO VIỆT</div>
+              <div className="brand-subtitle" style={{ color: "#94a3b8" }}>Hệ Thống Đào Tạo & Khảo Thí Lập Trình 3D</div>
             </div>
           </Link>
 
