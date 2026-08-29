@@ -152,6 +152,20 @@ export const DEFAULT_USERS: User[] = [
   },
   // 3. STUDENTS
   {
+    id: "hv_demo",
+    username: "hocvien",
+    password: "saoviet2026",
+    fullName: "Nguyễn Văn Học Viên",
+    role: "student",
+    branchId: "branch_thuduc",
+    branchName: "Chi Nhánh TP. Thủ Đức",
+    phone: "0901888999",
+    class: "Python Nâng Cao K26",
+    status: "active",
+    totalStudySeconds: 4200,
+    createdDate: "2026-08-29"
+  },
+  {
     id: "hv01",
     username: "0912345671",
     password: "Nam0912345671",
