@@ -133,7 +133,7 @@ export default function HeroLayer3D() {
         }}
       >
         {/* Left Column: Composed of 5 Micro-Components */}
-        <div>
+        <div className="animate-left">
           <HeroEyebrowBadge3D />
           <HeroTitleDisplay />
           <HeroValueProposition />
@@ -142,7 +142,7 @@ export default function HeroLayer3D() {
         </div>
 
         {/* Right Column: Composed of Terminal Sandbox & Docked Badges */}
-        <div>
+        <div className="animate-right">
           <TiltCard3D maxTilt={6} perspective={1200} scale={1.015} glowColor="rgba(37, 99, 235, 0.15)">
             <div style={{
               background: "#070d19",
