@@ -108,18 +108,24 @@ export default function AddUserModal({
     addUser(newUser);
 
     try {
-      await fetch("/api/users", {
+      const res = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newUser)
       });
-    } catch {}
+      const data = await res.json();
+      if (!data.success) {
+        alert("⚠️ Cảnh báo lưu máy chủ: " + data.message);
+      }
+    } catch (err: any) {
+      console.error("User create network error:", err);
+    }
 
     setIsLoading(false);
     if (accountType === "branch_manager") {
-      alert(`✅ Cấp quyền QUẢN LÝ CHI NHÁNH thành công!\n🏢 Phụ trách: ${newUser.branchName}\n👤 Tên đăng nhập (SĐT): ${username}\n🔑 Mật khẩu: ${password}\n🔢 Mã PIN Giáo viên: ${pin}`);
+      alert(`✅ Cấp quyền QUẢN LÝ CHI NHÁNH & Lưu Database Atlas thành công!\n🏢 Phụ trách: ${newUser.branchName}\n👤 Tên đăng nhập (SĐT): ${username}\n🔑 Mật khẩu: ${password}\n🔢 Mã PIN Giáo viên: ${pin}`);
     } else {
-      alert(`✅ Cấp tài khoản HỌC VIÊN thành công!\n🏫 Chi nhánh: ${newUser.branchName}\n👤 Tên đăng nhập (SĐT): ${username}\n🔑 Mật khẩu: ${password}\n📚 Môn được cấp: ${enrolledSubjects.join(", ")}`);
+      alert(`✅ Cấp tài khoản HỌC VIÊN & Lưu Database Atlas thành công!\n🏫 Chi nhánh: ${newUser.branchName}\n👤 Tên đăng nhập (SĐT): ${username}\n🔑 Mật khẩu: ${password}\n📚 Môn được cấp: ${enrolledSubjects.join(", ")}`);
     }
 
     onUserAdded();

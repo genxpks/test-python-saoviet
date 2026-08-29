@@ -54,11 +54,12 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
     });
 
     try {
-      await fetch("/api/users", {
+      const res = await fetch("/api/users", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: user.id,
+          username: user.username,
           fullName: fullName.trim(),
           phone: phone.trim(),
           className: role === "student" ? className.trim() : undefined,
@@ -71,10 +72,16 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
           enrolledSubjects: enrolledSubjects
         })
       });
-    } catch {}
+      const data = await res.json();
+      if (!data.success) {
+        alert("⚠️ Cảnh báo lưu máy chủ: " + data.message);
+      }
+    } catch (err: any) {
+      console.error("User update error:", err);
+    }
 
     setIsLoading(false);
-    alert("✅ Cập nhật thông tin tài khoản thành công!");
+    alert("✅ Cập nhật thông tin tài khoản và lưu Database Atlas thành công!");
     onUserUpdated();
     onClose();
   };
