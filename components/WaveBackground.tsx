@@ -1,5 +1,63 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
+function StarField() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    const STAR_COUNT = 220;
+    const stars = Array.from({ length: STAR_COUNT }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.4 + 0.2,
+      alpha: Math.random() * 0.6 + 0.2,
+      speed: Math.random() * 0.4 + 0.05,
+      twinkleDir: Math.random() > 0.5 ? 1 : -1,
+      twinkleSpeed: Math.random() * 0.006 + 0.002
+    }));
+
+    let animId: number;
+    const draw = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(s => {
+        s.alpha += s.twinkleDir * s.twinkleSpeed;
+        if (s.alpha >= 0.85 || s.alpha <= 0.1) s.twinkleDir *= -1;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(200, 230, 255, ${s.alpha})`;
+        ctx.fill();
+      });
+      animId = requestAnimationFrame(draw);
+    };
+    draw();
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
+    />
+  );
+}
+
 export default function WaveBackground() {
   return (
     <div
@@ -8,152 +66,80 @@ export default function WaveBackground() {
         inset: 0,
         pointerEvents: "none",
         zIndex: 0,
-        overflow: "hidden"
+        overflow: "hidden",
+        background: "#030612"
       }}
       aria-hidden="true"
     >
-      {/* Ambient radial teal glows top */}
+      {/* Star field canvas */}
+      <StarField />
+
+      {/* Nebula cloud — purple top-right */}
       <div style={{
         position: "absolute",
-        top: "-10%",
-        left: "15%",
+        top: "-5%",
+        right: "-5%",
+        width: "65vw",
+        height: "65vh",
+        background: "radial-gradient(ellipse, rgba(100,40,200,0.22) 0%, rgba(60,10,140,0.1) 40%, transparent 70%)",
+        filter: "blur(60px)",
+        borderRadius: "50%"
+      }} />
+
+      {/* Nebula cloud — deep blue left */}
+      <div style={{
+        position: "absolute",
+        top: "20%",
+        left: "-10%",
         width: "55vw",
         height: "55vh",
-        background: "radial-gradient(ellipse, rgba(64,180,220,0.055) 0%, transparent 65%)",
-        filter: "blur(40px)"
+        background: "radial-gradient(ellipse, rgba(0,60,200,0.2) 0%, rgba(0,20,120,0.08) 45%, transparent 70%)",
+        filter: "blur(70px)",
+        borderRadius: "50%"
       }} />
+
+      {/* Nebula cloud — teal bottom-center */}
       <div style={{
         position: "absolute",
-        top: "5%",
+        bottom: "0%",
+        left: "25%",
+        width: "60vw",
+        height: "45vh",
+        background: "radial-gradient(ellipse, rgba(0,190,160,0.18) 0%, rgba(0,100,120,0.08) 45%, transparent 70%)",
+        filter: "blur(65px)",
+        borderRadius: "50%"
+      }} />
+
+      {/* Nebula accent — blue mid-right */}
+      <div style={{
+        position: "absolute",
+        top: "45%",
         right: "5%",
         width: "40vw",
         height: "40vh",
-        background: "radial-gradient(ellipse, rgba(0,245,200,0.04) 0%, transparent 65%)",
-        filter: "blur(50px)"
+        background: "radial-gradient(ellipse, rgba(30,100,220,0.14) 0%, transparent 65%)",
+        filter: "blur(55px)",
+        borderRadius: "50%"
       }} />
 
-      {/* Wave layer 1 — slowest, largest, deepest */}
-      <svg
-        className="wave wave-1"
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: "-10%",
-          width: "120%",
-          height: "38vh",
-          minHeight: 220
-        }}
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill="rgba(64,160,210,0.065)"
-          d="M0,210 C200,150 380,280 580,230 C780,180 980,120 1180,170 C1320,205 1400,240 1440,250 L1440,320 L0,320 Z"
-        />
-      </svg>
-
-      {/* Wave layer 2 — medium speed */}
-      <svg
-        className="wave wave-2"
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: "-10%",
-          width: "120%",
-          height: "32vh",
-          minHeight: 180
-        }}
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill="rgba(40,140,200,0.05)"
-          d="M0,240 C240,195 460,285 700,255 C900,228 1100,185 1300,210 C1390,222 1430,245 1440,260 L1440,320 L0,320 Z"
-        />
-      </svg>
-
-      {/* Wave layer 3 — fastest, most visible */}
-      <svg
-        className="wave wave-3"
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: "-10%",
-          width: "120%",
-          height: "26vh",
-          minHeight: 140
-        }}
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill="rgba(0,220,180,0.045)"
-          d="M0,270 C300,240 600,290 900,265 C1100,248 1280,255 1440,270 L1440,320 L0,320 Z"
-        />
-      </svg>
-
-      {/* Wave layer 4 — teal accent */}
-      <svg
-        className="wave wave-4"
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: "-10%",
-          width: "120%",
-          height: "20vh",
-          minHeight: 110
-        }}
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill="rgba(0,245,200,0.038)"
-          d="M0,285 C200,268 440,295 680,280 C900,267 1150,275 1440,285 L1440,320 L0,320 Z"
-        />
-      </svg>
-
-      {/* Wave layer 5 — subtle top-page mid-tone */}
-      <svg
-        className="wave wave-5"
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: "-10%",
-          width: "120%",
-          height: "14vh",
-          minHeight: 70
-        }}
-        viewBox="0 0 1440 320"
-        preserveAspectRatio="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          fill="rgba(80,175,225,0.05)"
-          d="M0,295 C360,282 720,305 1080,292 C1260,286 1380,292 1440,298 L1440,320 L0,320 Z"
-        />
-      </svg>
-
-      {/* Subtle mid-page horizontal glows for depth */}
+      {/* Cosmic horizon glow at bottom */}
       <div style={{
         position: "absolute",
-        bottom: "15%",
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: "30vh",
+        background: "linear-gradient(to top, rgba(0,140,130,0.1) 0%, transparent 100%)"
+      }} />
+
+      {/* Horizon line shimmer */}
+      <div style={{
+        position: "absolute",
+        bottom: "28%",
         left: 0,
         right: 0,
         height: "1px",
-        background: "linear-gradient(90deg, transparent 5%, rgba(64,180,220,0.12) 30%, rgba(0,245,200,0.09) 50%, rgba(64,180,220,0.12) 70%, transparent 95%)",
-        filter: "blur(2px)"
-      }} />
-      <div style={{
-        position: "absolute",
-        bottom: "8%",
-        left: 0,
-        right: 0,
-        height: "1px",
-        background: "linear-gradient(90deg, transparent 10%, rgba(0,245,200,0.08) 40%, rgba(64,180,220,0.06) 60%, transparent 90%)",
+        background: "linear-gradient(90deg, transparent 5%, rgba(0,245,200,0.15) 30%, rgba(100,180,255,0.12) 50%, rgba(0,245,200,0.15) 70%, transparent 95%)",
         filter: "blur(1px)"
       }} />
     </div>

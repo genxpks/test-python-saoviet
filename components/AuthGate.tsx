@@ -86,60 +86,84 @@ export default function AuthGate({
   }
 
   return (
-    <div style={{ maxWidth: "520px", margin: "3rem auto", padding: "0 1rem" }}>
-      <div className="q-card" style={{ padding: "2.5rem 2rem", textAlign: "center" }}>
+    <div style={{
+      maxWidth: "480px",
+      margin: "3rem auto",
+      padding: "0 1rem"
+    }}>
+      <div style={{
+        background: "rgba(4, 10, 26, 0.88)",
+        backdropFilter: "blur(24px)",
+        WebkitBackdropFilter: "blur(24px)",
+        border: "1px solid rgba(0, 200, 180, 0.2)",
+        borderRadius: "20px",
+        padding: "2.8rem 2.2rem",
+        textAlign: "center",
+        boxShadow: "0 0 60px rgba(0, 100, 200, 0.15), 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,200,180,0.1)",
+        position: "relative",
+        overflow: "hidden"
+      }}>
+        {/* Top accent line */}
         <div style={{
-          width: "68px",
-          height: "68px",
-          borderRadius: "20px",
-          background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(6, 182, 212, 0.15))",
-          color: "var(--brand-primary)",
+          position: "absolute", top: 0, left: 0, right: 0, height: "2px",
+          background: "linear-gradient(90deg, transparent, rgba(0,245,200,0.6), rgba(80,160,255,0.4), transparent)"
+        }} />
+
+        {/* Logo */}
+        <div style={{
+          width: "72px",
+          height: "72px",
+          borderRadius: "18px",
+          background: "linear-gradient(135deg, rgba(0, 200, 160, 0.18), rgba(0, 80, 200, 0.18))",
+          border: "1px solid rgba(0, 245, 200, 0.35)",
+          boxShadow: "0 0 24px rgba(0, 200, 180, 0.2)",
+          color: "#00f5c8",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          margin: "0 auto 1.2rem"
+          margin: "0 auto 1.4rem"
         }}>
           <Lock size={32} />
         </div>
 
-        <h2 style={{ fontSize: "1.45rem", fontWeight: 900, marginBottom: "0.4rem", letterSpacing: "-0.5px" }}>
+        <h2 style={{ fontSize: "1.5rem", fontWeight: 900, marginBottom: "0.4rem", letterSpacing: "-0.5px", color: "#f1f5f9" }}>
           {pageTitle}
         </h2>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", marginBottom: "1.5rem", lineHeight: "1.5" }}>
+        <p style={{ color: "#64748b", fontSize: "0.88rem", marginBottom: "1.6rem", lineHeight: "1.5" }}>
           {pageDescription}
         </p>
 
         <div style={{
-          background: "rgba(37, 99, 235, 0.05)",
-          border: "1px solid rgba(37, 99, 235, 0.15)",
-          borderRadius: "var(--radius-sm)",
-          padding: "0.8rem 1rem",
+          background: "rgba(0, 40, 60, 0.5)",
+          border: "1px solid rgba(0, 200, 180, 0.2)",
+          borderRadius: "10px",
+          padding: "0.85rem 1rem",
           marginBottom: "1.5rem",
           fontSize: "0.82rem",
-          color: "var(--text-secondary)",
+          color: "#94a3b8",
           textAlign: "left",
-          lineHeight: "1.5"
+          lineHeight: "1.6"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, color: "var(--brand-primary)", marginBottom: "0.25rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, color: "#00f5c8", marginBottom: "0.3rem" }}>
             <Sparkles size={14} />
             <span>Quy định tài khoản học viên Sao Việt:</span>
           </div>
-          <div>• <strong>Tên đăng nhập:</strong> Số điện thoại học viên (VD: <code>0937482673</code>)</div>
-          <div>• <strong>Mật khẩu chuẩn:</strong> Tên + SĐT (VD: <code>Thien0937482673</code>)</div>
-          <div style={{ marginTop: "0.3rem", fontSize: "0.78rem", color: "var(--text-muted)" }}>
-            ⏱️ Phiên học sẽ tự động hết hạn và bảo vệ sau 3 giờ học liên tục.
+          <div>• <strong>Tên đăng nhập:</strong> Số điện thoại học viên (VD: <code style={{ background: "rgba(0,200,180,0.1)", padding: "1px 5px", borderRadius: "4px", color: "#00f5c8" }}>0937482673</code>)</div>
+          <div>• <strong>Mật khẩu chuẩn:</strong> Tên + SĐT (VD: <code style={{ background: "rgba(0,200,180,0.1)", padding: "1px 5px", borderRadius: "4px", color: "#00f5c8" }}>Thien0937482673</code>)</div>
+          <div style={{ marginTop: "0.3rem", fontSize: "0.78rem", color: "#475569" }}>
+            ⏱️ Phiên học tự động hết hạn sau 3 giờ học liên tục.
           </div>
         </div>
 
         <form onSubmit={handleInlineLogin} style={{ display: "flex", flexDirection: "column", gap: "1rem", textAlign: "left" }}>
           {loginError && (
             <div style={{
-              color: "#b91c1c",
+              color: "#fb7185",
               fontSize: "0.85rem",
-              background: "#fef2f2",
-              border: "1px solid #fecaca",
+              background: "rgba(244, 63, 94, 0.1)",
+              border: "1px solid rgba(244, 63, 94, 0.25)",
               padding: "0.75rem 1rem",
-              borderRadius: "var(--radius-md)",
+              borderRadius: "10px",
               display: "flex",
               alignItems: "center",
               gap: "0.5rem"
@@ -150,7 +174,7 @@ export default function AuthGate({
           )}
 
           <div>
-            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.35rem" }}>
+            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.35rem", color: "#94a3b8" }}>
               Tên Đăng Nhập / SĐT:
             </label>
             <input
@@ -166,7 +190,7 @@ export default function AuthGate({
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.35rem" }}>
+            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.35rem", color: "#94a3b8" }}>
               Mật Khẩu:
             </label>
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
@@ -175,7 +199,7 @@ export default function AuthGate({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Nhập mật khẩu (VD: Thien0937482673)..."
+                placeholder="VD: Thien0937482673..."
                 className="input"
                 style={{ width: "100%", paddingRight: "40px" }}
               />
@@ -188,7 +212,7 @@ export default function AuthGate({
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  color: "var(--text-muted)",
+                  color: "#00f5c8",
                   padding: "4px"
                 }}
               >
@@ -206,3 +230,4 @@ export default function AuthGate({
     </div>
   );
 }
+
