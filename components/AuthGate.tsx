@@ -65,7 +65,11 @@ export default function AuthGate({
     if (res.success && res.user) {
       setCurrentUser(res.user);
       setLoginError("");
-      window.location.reload();
+      if (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher") {
+        window.location.href = "/admin";
+      } else {
+        window.location.reload();
+      }
     } else {
       setLoginError(res.message || "Sai tên đăng nhập hoặc mật khẩu!");
     }

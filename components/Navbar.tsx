@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { User } from "@/types";
 import { 
@@ -31,6 +31,7 @@ import {
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [sessionRemainingSec, setSessionRemainingSec] = useState<number>(0);
@@ -72,6 +73,17 @@ export default function Navbar() {
       setPassword("");
       setLoginError("");
       setSessionRemainingSec(getSessionRemainingSeconds());
+
+      // Auto redirect based on user role
+      if (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher") {
+        router.push("/admin");
+      } else if (res.user.role === "student") {
+        if (pathname === "/") {
+          router.push("/study");
+        } else {
+          window.location.reload();
+        }
+      }
     } else {
       setLoginError(res.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản!");
     }
