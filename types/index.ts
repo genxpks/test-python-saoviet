@@ -1,6 +1,3 @@
-// types/index.ts - TypeScript Interfaces cho Hệ Thống Luyện Thi & In Đề Đa Môn, Đa Chi Nhánh
-// Đơn vị: TRUNG TÂM TIN HỌC SAO VIỆT
-
 export type UserRole = 'admin' | 'branch_manager' | 'student' | 'teacher';
 
 export interface Branch {
@@ -14,7 +11,7 @@ export interface Branch {
   createdDate: string;
 }
 
-export type ProgrammingRuntime = 'python3' | 'cpp' | 'java' | 'javascript' | 'html_css';
+export type ProgrammingRuntime = 'python3' | 'c' | 'cpp' | 'csharp' | 'java' | 'typescript' | 'html_css';
 
 export interface Subject {
   id: string;
@@ -43,17 +40,17 @@ export interface MatchingPair {
 
 export interface Question {
   id: number;
-  subjectId?: string;       // Default: "python_advanced"
-  branchId?: string;        // "all" or specific branch id
-  moduleId?: number;        // Chapter/Module 1..5
+  subjectId?: string;
+  branchId?: string;
+  moduleId?: number;
   type: QuestionType;
   type_name: string;
   question: string;
   options?: string[];
-  correct_answer?: any;     // number | number[] | string
-  items?: string[];         // for sequence_order
-  correct_order?: number[]; // for sequence_order
-  pairs?: MatchingPair[];   // for matching
+  correct_answer?: any;
+  items?: string[];
+  correct_order?: number[];
+  pairs?: MatchingPair[];
   left_items?: string[];
   right_items?: string[];
   code?: string;
@@ -70,7 +67,7 @@ export interface PracticalTestCase {
 
 export interface PracticalProblem {
   id: number;
-  subjectId?: string;       // Default: "python_advanced"
+  subjectId?: string;
   title: string;
   description: string;
   starter_code: string;
@@ -86,80 +83,67 @@ export interface User {
   password?: string;
   fullName: string;
   role: UserRole;
-  branchId?: string;        // Branch ID
+  branchId?: string;
   branchName?: string;
-  class?: string;           // Class name (e.g. "Python K26")
+  class?: string;
   phone?: string;
   email?: string;
-  pin?: string;             // Teacher PIN
+  pin?: string;
   status?: 'active' | 'locked';
   totalStudySeconds?: number;
   lastStudyDate?: string;
+  enrolledSubjects?: string[];
   createdDate: string;
 }
 
 export interface UserSessionData {
   user: User;
+  token: string;
+  expiresAt: number;
   loginTimestamp: number;
-  expiresAt: number; // loginTimestamp + 3 * 3600 * 1000
+}
+
+export interface PausedExamState {
+  examId: string;
+  userId: string;
+  subjectId: string;
+  branchId: string;
+  currentQuestionIndex: number;
+  userAnswers: Record<number, any>;
+  remainingSeconds: number;
+  pausedAt: string;
+  pausedBy: 'student' | 'teacher';
+  reason: string;
+  isUnlocked: boolean;
+}
+
+export interface ExamResult {
+  id: string;
+  userId: string;
+  userName: string;
+  studentName?: string;
+  studentClass?: string;
+  branchId: string;
+  subjectId: string;
+  score: number;
+  totalScore?: number;
+  totalQuestions: number;
+  correctCount: number;
+  mcqCorrect?: number;
+  mcqScore?: number;
+  practicalScore?: number;
+  rank?: string;
+  timeSpentSeconds: number;
+  passed: boolean;
+  certificateCode?: string;
+  completedDate: string;
 }
 
 export interface StudySessionLog {
   id: string;
   userId: string;
-  username: string;
-  studentName: string;
-  branchId?: string;
-  subjectId?: string;
-  durationSeconds: number;
-  date: string; // YYYY-MM-DD
-  startTime: string;
-  lastUpdatedTime: string;
+  subjectId: string;
   mode: 'study' | 'exam' | 'practice';
-}
-
-export interface PausedExamState {
-  userId: string;
-  userName: string;
-  branchId?: string;
-  subjectId?: string;
-  examQuestions: Question[];
-  examPracticalProblems: PracticalProblem[];
-  currentQuestionIndex: number;
-  examPart: 1 | 2;
-  userAnswers: Record<number, any>;
-  userPracticalCode: Record<number, string>;
-  practicalResults: Record<number, { passed: boolean; score: number; feedback: string }>;
-  timerSeconds: number;
+  durationSeconds: number;
   timestamp: string;
-}
-
-export interface ExamResult {
-  id: string;
-  studentId: string;
-  studentName: string;
-  studentClass: string;
-  branchId?: string;
-  subjectId?: string;
-  mcqCorrect: number;
-  mcqScore: number;
-  practicalScore: number;
-  totalScore: number;
-  rank: string;
-  submittedAt: string;
-}
-
-export interface ExcelQuestionImportRow {
-  stt?: number | string;
-  subject_code?: string;
-  question_type: string;
-  question_content: string;
-  option_a?: string;
-  option_b?: string;
-  option_c?: string;
-  option_d?: string;
-  correct_answer: string;
-  explanation: string;
-  difficulty?: string;
-  module_number?: number | string;
 }

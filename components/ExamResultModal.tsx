@@ -1,7 +1,7 @@
 "use client";
 
 import { ExamResult } from "@/types";
-import { Award, CheckCircle2, Printer, X, Sparkles, Trophy, BookCheck, Terminal } from "lucide-react";
+import { Award, Printer, X, Trophy } from "lucide-react";
 
 interface ExamResultModalProps {
   resultData: ExamResult;
@@ -9,12 +9,29 @@ interface ExamResultModalProps {
 }
 
 export default function ExamResultModal({ resultData, onClose }: ExamResultModalProps) {
-  const isPassed = resultData.totalScore >= 5.0;
+  const finalScore = resultData.score ?? 0;
+  const isPassed = resultData.passed ?? (finalScore >= 5.0);
+
+  const getRankName = (sc: number) => {
+    if (sc >= 8.5) return "Xuất Sắc (Certificate of Distinction)";
+    if (sc >= 7.0) return "Giỏi (Certificate of Merit)";
+    if (sc >= 5.0) return "Đạt Chuẩn (Passed)";
+    return "Chưa Đạt (Retake Required)";
+  };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-dialog modal-lg">
-        {/* Close Button */}
+    <div style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(15, 23, 42, 0.65)",
+      backdropFilter: "blur(6px)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000,
+      padding: "1rem"
+    }}>
+      <div className="q-card" style={{ maxWidth: "600px", width: "100%", padding: "2.2rem", position: "relative" }}>
         <button
           onClick={onClose}
           style={{
@@ -36,7 +53,6 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
           <X size={18} />
         </button>
 
-        {/* Certificate / Result Header */}
         <div style={{ textAlign: "center", marginBottom: "1.8rem" }}>
           <div style={{
             width: "64px",
@@ -60,26 +76,24 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
             textTransform: "uppercase",
             letterSpacing: "0.08em",
             color: "var(--brand-primary)",
-            background: "var(--brand-primary-light)",
+            background: "rgba(37, 99, 235, 0.1)",
             padding: "0.25rem 0.8rem",
             borderRadius: "var(--radius-full)",
             border: "1px solid rgba(37, 99, 235, 0.2)"
           }}>
-            KẾT QUẢ ĐÁNH GIÁ TỐT NGHIỆP
+            KẾT QUẢ ĐÁNH GIÁ CHUẨN ĐẦU RA
           </span>
 
-          <h2 style={{ fontSize: "1.6rem", fontWeight: 900, marginTop: "0.6rem", marginBottom: "0.2rem" }}>
-            BÀI THI LẬP TRÌNH PYTHON NÂNG CAO
+          <h2 style={{ fontSize: "1.5rem", fontWeight: 900, marginTop: "0.6rem", marginBottom: "0.2rem" }}>
+            BÀI THI LẬP TRÌNH SAO VIỆT
           </h2>
 
           <p style={{ color: "var(--text-muted)", fontSize: "0.92rem" }}>
-            Học viên: <strong style={{ color: "var(--text-primary)" }}>{resultData.studentName}</strong> • Lớp: <strong>{resultData.studentClass}</strong>
+            Học viên: <strong style={{ color: "var(--text-primary)" }}>{resultData.userName}</strong>
           </p>
         </div>
 
-        {/* Metric Cards Grid */}
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "1rem", marginBottom: "1.8rem" }}>
-          {/* Total Score */}
           <div style={{
             background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
             border: "1px solid #bfdbfe",
@@ -87,16 +101,15 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
             borderRadius: "var(--radius-md)",
             textAlign: "center"
           }}>
-            <span style={{ fontSize: "0.74rem", color: "var(--brand-primary)", fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.04em", display: "block" }}>
+            <span style={{ fontSize: "0.74rem", color: "var(--brand-primary)", fontWeight: 800, textTransform: "uppercase", display: "block" }}>
               TỔNG ĐIỂM
             </span>
-            <span style={{ fontSize: "2.1rem", fontWeight: 900, color: "#1e40af", fontFamily: "var(--font-heading)", lineHeight: "1.2", margin: "0.2rem 0", display: "block" }}>
-              {resultData.totalScore}
+            <span style={{ fontSize: "2.1rem", fontWeight: 900, color: "#1e40af", lineHeight: "1.2", margin: "0.2rem 0", display: "block" }}>
+              {finalScore}
             </span>
             <span style={{ fontSize: "0.75rem", color: "#3b82f6", fontWeight: 700 }}>Thang 10.0</span>
           </div>
 
-          {/* MCQ Score */}
           <div style={{
             background: "var(--surface-subtle)",
             border: "1px solid var(--border-light)",
@@ -105,32 +118,14 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
             textAlign: "center"
           }}>
             <span style={{ fontSize: "0.74rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase", display: "block" }}>
-              TRẮC NGHIỆM (50c)
+              TRẮC NGHIỆM ĐÚNG
             </span>
             <span style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--text-primary)", margin: "0.3rem 0", display: "block" }}>
-              {resultData.mcqCorrect}/50
+              {resultData.correctCount || 0} câu
             </span>
-            <span style={{ fontSize: "0.75rem", color: "var(--brand-primary)", fontWeight: 700 }}>{resultData.mcqScore} / 5.0đ</span>
+            <span style={{ fontSize: "0.75rem", color: "var(--brand-primary)", fontWeight: 700 }}>Đã chấm tự động</span>
           </div>
 
-          {/* Practical Score */}
-          <div style={{
-            background: "var(--surface-subtle)",
-            border: "1px solid var(--border-light)",
-            padding: "1.2rem 1rem",
-            borderRadius: "var(--radius-md)",
-            textAlign: "center"
-          }}>
-            <span style={{ fontSize: "0.74rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase", display: "block" }}>
-              TỰ LUẬN (4 bài)
-            </span>
-            <span style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--text-primary)", margin: "0.3rem 0", display: "block" }}>
-              {resultData.practicalScore}/5.0
-            </span>
-            <span style={{ fontSize: "0.75rem", color: "var(--brand-emerald-dark)", fontWeight: 700 }}>Điểm code IDE</span>
-          </div>
-
-          {/* Rank */}
           <div style={{
             background: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
             border: "1px solid #a7f3d0",
@@ -141,14 +136,28 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
             <span style={{ fontSize: "0.74rem", color: "var(--brand-emerald-dark)", fontWeight: 800, textTransform: "uppercase", display: "block" }}>
               XẾP LOẠI
             </span>
-            <span style={{ fontSize: "1.05rem", fontWeight: 900, color: "#065f46", margin: "0.4rem 0", display: "block", lineHeight: "1.3" }}>
-              {resultData.rank}
+            <span style={{ fontSize: "1rem", fontWeight: 900, color: "#065f46", margin: "0.4rem 0", display: "block", lineHeight: "1.3" }}>
+              {getRankName(finalScore)}
             </span>
             <span style={{ fontSize: "0.72rem", color: "#059669", fontWeight: 600 }}>{isPassed ? "Đạt Tiêu Chuẩn" : "Cần Ôn Thêm"}</span>
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {resultData.certificateCode && (
+          <div style={{
+            background: "var(--surface-subtle)",
+            padding: "0.75rem 1rem",
+            borderRadius: "var(--radius-sm)",
+            border: "1px solid var(--border-light)",
+            marginBottom: "1.5rem",
+            textAlign: "center",
+            fontSize: "0.85rem"
+          }}>
+            <span>Mã Chứng Chỉ Tốt Nghiệp: </span>
+            <code style={{ fontWeight: 800, color: "var(--brand-primary)" }}>{resultData.certificateCode}</code>
+          </div>
+        )}
+
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
           <button className="btn btn-secondary" onClick={onClose}>
             Đóng Bảng Điểm

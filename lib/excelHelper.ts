@@ -1,7 +1,7 @@
 // lib/excelHelper.ts - Tiện ích xử lý Excel (.xlsx / .csv) cho Ngân hàng Câu hỏi
 // Đơn vị: TRUNG TÂM TIN HỌC SAO VIỆT
 import * as XLSX from "xlsx";
-import { Question, QuestionType, ExcelQuestionImportRow } from "@/types";
+import { Question, QuestionType } from "@/types";
 
 export interface ParseResult {
   success: boolean;

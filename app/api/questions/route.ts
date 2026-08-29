@@ -11,7 +11,6 @@ export async function GET() {
     let questions = await qCol.find({}).toArray();
     let practicals = await pCol.find({}).toArray();
 
-    // Auto-seed if empty
     if (questions.length === 0) {
       await qCol.insertMany(QUESTIONS_DATA as any);
       questions = await qCol.find({}).toArray();
@@ -29,7 +28,6 @@ export async function GET() {
       practical_problems: practicals
     });
   } catch (error: any) {
-    console.error("MongoDB GET questions error:", error);
     return NextResponse.json({
       success: false,
       questions: QUESTIONS_DATA,
@@ -42,7 +40,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { target } = body; // 'question' or 'practical'
+    const { target } = body;
     const db = await getDatabase();
 
     if (target === "practical") {
@@ -65,31 +63,27 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, question: newQuestion });
     }
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
-    const { target, data } = body;
-    if (!data || !data.id) return NextResponse.json({ success: false, message: "Missing item id" }, { status: 400 });
-
+    const { id, target, data } = body;
     const db = await getDatabase();
 
     if (target === "practical") {
       const pCol = db.collection("practical_problems");
-      await pCol.updateOne({ id: data.id }, { $set: { ...data, updatedAt: new Date() } });
-      const updated = await pCol.findOne({ id: data.id });
-      return NextResponse.json({ success: true, practical: updated });
+      await pCol.updateOne({ id: Number(id) }, { $set: data });
+      return NextResponse.json({ success: true });
     } else {
       const qCol = db.collection("questions");
-      await qCol.updateOne({ id: data.id }, { $set: { ...data, updatedAt: new Date() } });
-      const updated = await qCol.findOne({ id: data.id });
-      return NextResponse.json({ success: true, question: updated });
+      await qCol.updateOne({ id: Number(id) }, { $set: data });
+      return NextResponse.json({ success: true });
     }
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
@@ -97,22 +91,19 @@ export async function DELETE(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
-    const target = searchParams.get("target") || "question";
-    if (!id) return NextResponse.json({ success: false, message: "Missing id" }, { status: 400 });
-
+    const target = searchParams.get("target");
     const db = await getDatabase();
-    const numericId = isNaN(Number(id)) ? id : Number(id);
 
     if (target === "practical") {
       const pCol = db.collection("practical_problems");
-      await pCol.deleteOne({ id: numericId });
+      await pCol.deleteOne({ id: Number(id) });
+      return NextResponse.json({ success: true });
     } else {
       const qCol = db.collection("questions");
-      await qCol.deleteOne({ id: numericId });
+      await qCol.deleteOne({ id: Number(id) });
+      return NextResponse.json({ success: true });
     }
-
-    return NextResponse.json({ success: true });
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

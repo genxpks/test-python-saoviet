@@ -1,16 +1,21 @@
-// app/api/subjects/route.ts - Quản lý Danh mục Môn học / Ngôn ngữ lập trình
 import { NextResponse } from "next/server";
 import { getDatabase } from "@/lib/mongodb";
 import { Subject } from "@/types";
+import { DEFAULT_SUBJECTS } from "@/lib/usersData";
 
 export async function GET() {
   try {
     const db = await getDatabase();
     const sCol = db.collection("subjects");
+    
+    for (const sub of DEFAULT_SUBJECTS) {
+      await sCol.updateOne({ id: sub.id }, { $set: sub }, { upsert: true });
+    }
+
     const subjects = await sCol.find({}).sort({ createdDate: 1 }).toArray();
     return NextResponse.json({ success: true, subjects });
   } catch (error: any) {
-    return NextResponse.json({ success: false, subjects: [], error: error.message });
+    return NextResponse.json({ success: false, subjects: DEFAULT_SUBJECTS, error: error.message });
   }
 }
 
@@ -59,9 +64,8 @@ export async function DELETE(req: Request) {
 
     const db = await getDatabase();
     const sCol = db.collection("subjects");
-
     await sCol.deleteOne({ id });
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: "Deleted" });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }

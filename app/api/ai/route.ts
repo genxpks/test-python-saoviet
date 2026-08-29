@@ -19,17 +19,17 @@ export async function POST(req: Request) {
 
     const model = process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
 
-    let systemInstruction = `Bạn là "Trợ Lý AI Tin Học Sao Việt" — một giáo viên dạy lập trình Python cực kỳ tận tâm, thông minh và thân thiện của Trung Tâm Tin Học Sao Việt Thủ Đức.
-Phong cách giảng dạy của bạn:
-- Xưng hô thân thiện: "Thầy/Cô chào em", "Chào bạn nhỏ", "Em làm rất tốt!", "Hãy cùng xem lỗi này nhé!"
-- Giải thích cực kỳ trực quan, dễ hiểu, dùng ví dụ đời thường, hình tượng sinh động.
-- Không chỉ đưa ra đáp án, mà chỉ ra "Vì sao sai", "Cách tư duy logic đúng", "Mẹo tránh bẫy lần sau".
-- Trả lời bằng tiếng Việt chuẩn mực, định dạng Markdown rõ ràng, có tô đậm từ khóa và khối mã nguồn code đẹp mắt.`;
+    let systemInstruction = `Bạn là Trợ Lý AI Tin Học Sao Việt — giáo viên dạy lập trình tận tâm, thông minh và thân thiện của Hệ Thống Đào Tạo Tin Học Sao Việt.
+Phong cách giảng dạy:
+- Xưng hô thân thiện, truyền cảm hứng.
+- Giải thích cực kỳ trực quan, dễ hiểu, dùng ví dụ đời thường.
+- Không chỉ đưa ra đáp án, mà chỉ ra nguyên nhân và cách tư duy logic đúng.
+- Trả lời bằng tiếng Việt chuẩn mực, định dạng Markdown rõ ràng.`;
 
     if (mode === "fix_code") {
-      systemInstruction += `\nNhiệm vụ: Bạn đang giúp học viên sửa lỗi code Python. Hãy phân tích đoạn code học sinh viết, phát hiện lỗi cú pháp hoặc logic, giải thích nguyên nhân và đưa ra đoạn code sửa chuẩn xác.`;
+      systemInstruction += `\nNhiệm vụ: Bạn đang giúp học viên sửa lỗi code. Hãy phân tích đoạn code học sinh viết, phát hiện lỗi cú pháp hoặc logic, giải thích nguyên nhân và đưa ra đoạn code sửa chuẩn xác.`;
     } else if (mode === "explain_question") {
-      systemInstruction += `\nNhiệm vụ: Bạn đang chữa một câu hỏi trắc nghiệm hoặc bài tập lý thuyết Python. Hãy giải thích cặn kẽ tại sao đáp án đó là đúng, vì sao các phương án khác sai, và bí quyết ghi nhớ kiến thức.`;
+      systemInstruction += `\nNhiệm vụ: Bạn đang chữa câu hỏi trắc nghiệm hoặc bài tập lý thuyết. Hãy giải thích cặn kẽ tại sao đáp án đó là đúng, vì sao các phương án khác sai, và bí quyết ghi nhớ kiến thức.`;
     } else if (mode === "review_exam") {
       systemInstruction += `\nNhiệm vụ: Bạn đang tổng kết và nhận xét toàn bộ kết quả bài thi của học sinh, động viên và chỉ ra các chủ đề cần ôn tập thêm.`;
     }
@@ -55,26 +55,23 @@ Phong cách giảng dạy của bạn:
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error("OpenRouter API error:", errText);
       return NextResponse.json({
         success: false,
-        message: "Lỗi kết nối AI từ OpenRouter",
-        detail: errText
+        message: "Lỗi kết nối AI Gateway: " + errText
       }, { status: response.status });
     }
 
     const data = await response.json();
-    const reply = data.choices?.[0]?.message?.content || "Không nhận được phản hồi từ AI.";
+    const replyText = data.choices?.[0]?.message?.content || "Không có phản hồi từ AI Tutor.";
 
     return NextResponse.json({
       success: true,
-      reply
+      reply: replyText
     });
   } catch (error: any) {
-    console.error("AI Route Exception:", error);
     return NextResponse.json({
       success: false,
-      message: error.message || "Lỗi máy chủ nội bộ khi gọi AI"
+      message: error.message || "Internal Server Error"
     }, { status: 500 });
   }
 }

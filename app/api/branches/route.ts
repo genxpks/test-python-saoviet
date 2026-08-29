@@ -1,16 +1,20 @@
-// app/api/branches/route.ts - Quản lý Chi nhánh
 import { NextResponse } from "next/server";
 import { getDatabase } from "@/lib/mongodb";
 import { Branch } from "@/types";
+import { DEFAULT_BRANCHES } from "@/lib/usersData";
 
 export async function GET() {
   try {
     const db = await getDatabase();
     const bCol = db.collection("branches");
-    const branches = await bCol.find({}).sort({ createdDate: -1 }).toArray();
+    let branches = await bCol.find({}).sort({ createdDate: 1 }).toArray();
+    if (branches.length === 0) {
+      await bCol.insertMany(DEFAULT_BRANCHES as any);
+      branches = await bCol.find({}).toArray();
+    }
     return NextResponse.json({ success: true, branches });
   } catch (error: any) {
-    return NextResponse.json({ success: false, branches: [], error: error.message });
+    return NextResponse.json({ success: false, branches: DEFAULT_BRANCHES, error: error.message });
   }
 }
 
@@ -58,9 +62,8 @@ export async function DELETE(req: Request) {
 
     const db = await getDatabase();
     const bCol = db.collection("branches");
-
     await bCol.deleteOne({ id });
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, message: "Deleted" });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }

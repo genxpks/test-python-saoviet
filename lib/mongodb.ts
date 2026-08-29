@@ -1,6 +1,3 @@
-// lib/mongodb.ts - Kết nối MongoDB Atlas Singleton cho Next.js & Vercel Serverless
-// Đơn vị: TIN HỌC SAO VIỆT THỦ ĐỨC
-
 import { MongoClient, Db } from "mongodb";
 
 const uri = process.env.MONGODB_URI || "";
@@ -13,9 +10,7 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
-if (!uri) {
-  console.warn("⚠️ Cảnh báo: Biến môi trường MONGODB_URI chưa được thiết lập trong .env.local.");
-}
+if (!uri) {}
 
 if (process.env.NODE_ENV === "development") {
   if (!global._mongoClientPromise) {
@@ -32,7 +27,7 @@ export default clientPromise;
 
 export async function getDatabase(dbName: string = "test_python_saoviet"): Promise<Db> {
   if (!uri) {
-    throw new Error("MONGODB_URI is not defined");
+    throw new Error("Database connection uri not set");
   }
   const client = await clientPromise;
   return client.db(dbName);

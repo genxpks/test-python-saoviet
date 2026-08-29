@@ -3,31 +3,28 @@
 import { useState, useEffect, useRef } from "react";
 import { Question, PracticalProblem, User, PausedExamState, ExamResult } from "@/types";
 import { getQuestionsData, getPracticalsData } from "@/lib/questionsData";
-import { getCurrentUser, savePausedExam, getPausedExam, clearPausedExam, saveExamResult } from "@/lib/usersData";
+import { getCurrentUser, DEFAULT_SUBJECTS } from "@/lib/usersData";
 import QuestionCard from "@/components/QuestionCard";
 import PythonEditor from "@/components/PythonEditor";
 import ExamNavigator from "@/components/ExamNavigator";
 import PinUnlockModal from "@/components/PinUnlockModal";
 import ExamResultModal from "@/components/ExamResultModal";
 import AuthGate from "@/components/AuthGate";
+import SubjectAccessGate from "@/components/SubjectAccessGate";
 import { 
-  Trophy, 
   Clock, 
   BookOpen, 
   Terminal, 
   AlertCircle, 
   Pause, 
-  Save, 
   ChevronLeft, 
   ChevronRight, 
-  ShieldAlert, 
-  Sparkles,
-  Award,
-  Layers
+  Code2
 } from "lucide-react";
 
 export default function ExamPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>("python");
   const [isExamActive, setIsExamActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [showPinModal, setShowPinModal] = useState(false);
@@ -50,13 +47,6 @@ export default function ExamPage() {
   useEffect(() => {
     const user = getCurrentUser();
     setCurrentUser(user);
-
-    const paused = getPausedExam();
-    if (paused && user && paused.userId === user.id) {
-      if (confirm(`Chào ${user.fullName}, em có bài thi đang tạm dừng lúc ${paused.timestamp}. Em có muốn tiếp tục làm bài không?`)) {
-        restoreExam(paused);
-      }
-    }
   }, []);
 
   useEffect(() => {
@@ -81,7 +71,7 @@ export default function ExamPage() {
 
   const handleStartExam = () => {
     if (!currentUser) {
-      alert("Vui lòng đăng nhập tài khoản học viên (ở góc trên thanh menu) trước khi bắt đầu làm bài thi!");
+      alert("Vui lòng đăng nhập tài khoản học viên trước khi bắt đầu thi!");
       return;
     }
 
@@ -106,45 +96,16 @@ export default function ExamPage() {
   const handlePauseExam = () => {
     if (!isExamActive || !currentUser) return;
     setIsPaused(true);
-
-    const pausedState: PausedExamState = {
-      userId: currentUser.id,
-      userName: currentUser.fullName,
-      examQuestions,
-      examPracticalProblems: examPracticals,
-      currentQuestionIndex: currentIndex,
-      examPart: currentPart,
-      userAnswers,
-      userPracticalCode,
-      practicalResults,
-      timerSeconds,
-      timestamp: new Date().toLocaleString()
-    };
-    savePausedExam(pausedState);
-    setShowPinModal(true);
-  };
-
-  const restoreExam = (saved: PausedExamState) => {
-    setExamQuestions(saved.examQuestions);
-    setExamPracticals(saved.examPracticalProblems);
-    setCurrentIndex(saved.currentQuestionIndex);
-    setCurrentPart(saved.examPart);
-    setUserAnswers(saved.userAnswers);
-    setUserPracticalCode(saved.userPracticalCode);
-    setPracticalResults(saved.practicalResults);
-    setTimerSeconds(saved.timerSeconds);
-    setIsExamActive(true);
-    setIsPaused(true);
     setShowPinModal(true);
   };
 
   const handleAutoSubmit = () => {
-    alert("⏱️ Đã hết giờ làm bài! Hệ thống tự động chấm điểm bài thi của em.");
+    alert("Đã hết giờ làm bài! Hệ thống tự động chấm điểm bài thi.");
     calculateAndShowScore();
   };
 
   const handleManualSubmit = () => {
-    if (confirm("Em có chắc chắn muốn hoàn thành và nộp toàn bộ bài thi tốt nghiệp không?")) {
+    if (confirm("Em có chắc chắn muốn nộp toàn bộ bài thi không?")) {
       calculateAndShowScore();
     }
   };
@@ -152,387 +113,382 @@ export default function ExamPage() {
   const calculateAndShowScore = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     setIsExamActive(false);
-    clearPausedExam();
 
-    // Grade MCQ
     let mcqCorrect = 0;
     examQuestions.forEach((q) => {
-      const userAns = userAnswers[q.id];
-      if (userAns !== undefined) {
+      const uAns = userAnswers[q.id];
+      if (uAns !== undefined) {
         if (q.type === "single_choice" || q.type === "true_false") {
-          if (userAns === q.correct_answer) mcqCorrect++;
+          if (uAns === q.correct_answer) mcqCorrect++;
         } else if (q.type === "multiple_choice") {
-          if (Array.isArray(userAns) && JSON.stringify(userAns.sort()) === JSON.stringify(q.correct_answer.sort())) mcqCorrect++;
+          if (Array.isArray(uAns) && Array.isArray(q.correct_answer)) {
+            const sortedU = [...uAns].sort().join(",");
+            const sortedC = [...q.correct_answer].sort().join(",");
+            if (sortedU === sortedC) mcqCorrect++;
+          }
         } else if (q.type === "fill_blank") {
-          if (typeof userAns === "string" && userAns.toLowerCase() === q.correct_answer.toLowerCase()) mcqCorrect++;
+          if (String(uAns).trim().toLowerCase() === String(q.correct_answer).trim().toLowerCase()) {
+            mcqCorrect++;
+          }
         } else if (q.type === "sequence_order") {
-          if (Array.isArray(userAns) && JSON.stringify(userAns) === JSON.stringify(q.correct_order)) mcqCorrect++;
-        } else if (q.type === "matching") {
-          let ok = true;
-          q.pairs?.forEach((p) => {
-            if (userAns[p.left] !== p.right) ok = false;
-          });
-          if (ok) mcqCorrect++;
+          if (Array.isArray(uAns) && Array.isArray(q.correct_order)) {
+            if (uAns.join(",") === q.correct_order.join(",")) mcqCorrect++;
+          }
         }
       }
     });
 
-    const mcqScore = (mcqCorrect / 50) * 5.0;
+    const mcqScore = examQuestions.length > 0 ? (mcqCorrect / examQuestions.length) * 7.0 : 0;
 
-    // Grade Practical
     let practicalScore = 0;
     examPracticals.forEach((p) => {
-      const res = practicalResults[p.id];
-      if (res && res.passed) {
-        practicalScore += (res.score / 10) * 1.25;
+      const pRes = practicalResults[p.id];
+      if (pRes && pRes.passed) {
+        practicalScore += 3.0 / Math.max(1, examPracticals.length);
       }
     });
 
-    const totalScore = parseFloat((mcqScore + practicalScore).toFixed(1));
-    let rank = "ĐẠT";
-    if (totalScore >= 9.0) rank = "XUẤT SẮC 🏆";
-    else if (totalScore >= 8.0) rank = "GIỎI ⭐⭐⭐";
-    else if (totalScore >= 6.5) rank = "KHÁ ⭐⭐";
-    else if (totalScore >= 5.0) rank = "TRUNG BÌNH ⭐";
-    else rank = "CẦN RÈN LUYỆN THÊM 📚";
+    const totalFinalScore = Number(Math.min(10, mcqScore + practicalScore).toFixed(2));
+    const isPass = totalFinalScore >= 5.0;
 
-    const resultData: ExamResult = {
-      id: "res_" + Date.now(),
-      studentId: currentUser?.id || "unknown",
-      studentName: currentUser?.fullName || "Học viên",
-      studentClass: currentUser?.class || "Python Nâng Cao",
-      mcqCorrect,
-      mcqScore: parseFloat(mcqScore.toFixed(1)),
-      practicalScore: parseFloat(practicalScore.toFixed(1)),
-      totalScore,
-      rank,
-      submittedAt: new Date().toLocaleString()
+    const certCode = isPass
+      ? `SV-${currentUser?.branchId === "branch_thuduc" ? "TD" : currentUser?.branchId === "branch_quan1" ? "Q1" : "HCM"}-${Math.floor(100000 + Math.random() * 900000)}`
+      : undefined;
+
+    const resData: ExamResult = {
+      id: `exam_${Date.now()}`,
+      userId: currentUser?.id || "anonymous",
+      userName: currentUser?.fullName || "Học Viên",
+      branchId: currentUser?.branchId || "branch_thuduc",
+      subjectId: selectedSubjectId,
+      score: totalFinalScore,
+      totalQuestions: examQuestions.length + examPracticals.length,
+      correctCount: mcqCorrect,
+      timeSpentSeconds: 50 * 60 - timerSeconds,
+      passed: isPass,
+      certificateCode: certCode,
+      completedDate: new Date().toLocaleDateString("vi-VN")
     };
 
-    saveExamResult(resultData);
-    setFinalScoreData(resultData);
+    setFinalScoreData(resData);
     setShowResultModal(true);
   };
 
-  const formatTimer = (sec: number) => {
-    const m = Math.floor(sec / 60);
-    const s = sec % 60;
+  const formatTimer = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
     return `${m.toString().padStart(2, "0")}:${s.toString().padStart(2, "0")}`;
   };
+
+  const currentSubject = DEFAULT_SUBJECTS.find(s => s.id === selectedSubjectId) || DEFAULT_SUBJECTS[0];
 
   return (
     <AuthGate
       mode="exam"
-      pageTitle="Phòng Khảo Thí Trực Tuyến Tin Học Sao Việt"
-      pageDescription="Học viên vui lòng đăng nhập để bắt đầu làm bài thi chính thức, tính giờ và lưu kết quả."
+      subjectId={selectedSubjectId}
+      pageTitle="Phòng Thi Trực Tuyến 50 Phút"
+      pageDescription="Học viên vui lòng đăng nhập bằng SĐT và Mật khẩu (Tên+SĐT) để làm bài thi có giám sát."
     >
-      <div>
+      <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "1rem 0.5rem" }}>
         {!isExamActive ? (
-        /* Exam Lobby Card */
-        <div className="q-card" style={{ maxWidth: "800px", margin: "1.5rem auto", padding: "2.8rem 2.2rem", textAlign: "center" }}>
-          <div style={{
-            width: "68px",
-            height: "68px",
-            background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(6, 182, 212, 0.15))",
-            color: "var(--brand-primary)",
-            borderRadius: "22px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 1.2rem auto"
-          }}>
-            <Trophy size={36} />
-          </div>
-
-          <h2 style={{ fontSize: "1.75rem", fontWeight: 900, textTransform: "uppercase", marginBottom: "0.4rem", letterSpacing: "-0.02em" }}>
-            BÀI THI TỐT NGHIỆP PYTHON NÂNG CAO
-          </h2>
-
-          <p style={{ color: "var(--brand-primary)", fontWeight: 700, fontSize: "0.95rem", marginBottom: "2rem" }}>
-            Trung Tâm Tin Học Sao Việt — Chi Nhánh TP. Thủ Đức
-          </p>
-
-          {/* Syllabus Split Cards */}
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "1.2rem", marginBottom: "2rem", textAlign: "left" }}>
-            {/* Part 1 */}
+          <div>
             <div style={{
-              background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
-              border: "1px solid #bfdbfe",
-              padding: "1.4rem",
+              background: "var(--surface-card)",
+              padding: "0.85rem 1.1rem",
               borderRadius: "var(--radius-md)",
-              position: "relative"
+              border: "1px solid var(--border-light)",
+              marginBottom: "1.5rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              overflowX: "auto"
             }}>
-              <span style={{ fontSize: "1.8rem", fontWeight: 900, color: "var(--brand-primary)", fontFamily: "var(--font-heading)" }}>
-                50 CÂU
-              </span>
-              <h4 style={{ fontWeight: 800, margin: "0.2rem 0", color: "#1e40af" }}>Phần 1: Trắc Nghiệm</h4>
-              <p style={{ fontSize: "0.85rem", color: "#475569" }}>50 câu trắc nghiệm ngẫu nhiên từ kho 120 câu</p>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.82rem", fontWeight: 700, color: "var(--brand-primary)", marginTop: "0.6rem" }}>
-                <Clock size={14} />
-                <span>Thời gian: 50 Phút (5.0 điểm)</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.82rem", fontWeight: 800, color: "var(--text-muted)", marginRight: "0.5rem", whiteSpace: "nowrap" }}>
+                <Code2 size={16} color="var(--brand-primary)" />
+                <span>CHỌN MÔN THI:</span>
               </div>
-            </div>
-
-            {/* Part 2 */}
-            <div style={{
-              background: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
-              border: "1px solid #a7f3d0",
-              padding: "1.4rem",
-              borderRadius: "var(--radius-md)",
-              position: "relative"
-            }}>
-              <span style={{ fontSize: "1.8rem", fontWeight: 900, color: "var(--brand-emerald-dark)", fontFamily: "var(--font-heading)" }}>
-                04 BÀI
-              </span>
-              <h4 style={{ fontWeight: 800, margin: "0.2rem 0", color: "#065f46" }}>Phần 2: Tự Luận Code IDE</h4>
-              <p style={{ fontSize: "0.85rem", color: "#475569" }}>4 bài toán viết hàm thuật toán từ kho 10 bài</p>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.82rem", fontWeight: 700, color: "var(--brand-emerald-dark)", marginTop: "0.6rem" }}>
-                <Clock size={14} />
-                <span>Thời gian: 40 Phút (5.0 điểm)</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Exam Regulations Notice */}
-          <div style={{
-            background: "var(--surface-subtle)",
-            border: "1px solid var(--border-light)",
-            padding: "1.2rem 1.4rem",
-            borderRadius: "var(--radius-md)",
-            textAlign: "left",
-            marginBottom: "2rem",
-            fontSize: "0.88rem"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, marginBottom: "0.6rem", color: "var(--text-primary)" }}>
-              <ShieldAlert size={16} color="var(--brand-primary)" />
-              <span>Quy Chế & Hướng Dẫn Phòng Thi Trực Tuyến:</span>
-            </div>
-            <ul style={{ paddingLeft: "1.2rem", display: "flex", flexDirection: "column", gap: "0.4rem", color: "var(--text-secondary)", lineHeight: "1.5" }}>
-              <li>Học viên làm bài độc lập; hệ thống tự động ghi nhận thời gian và lưu bài thi tự động.</li>
-              <li>Học viên có thể bấm <strong>"Tạm Dừng Thi"</strong> khi cần ra ngoài (Giáo viên nhập mã PIN: <code>8888</code> để mở khóa).</li>
-              <li>Tại Phần Tự Luận: Bé có thể bấm <strong>"▶️ Chạy Thử Code"</strong> và <strong>"🤖 Nhờ AI Phân Tích"</strong> trước khi nộp bài.</li>
-            </ul>
-          </div>
-
-          {currentUser ? (
-            <button className="btn btn-primary btn-lg btn-block" onClick={handleStartExam}>
-              <Sparkles size={18} />
-              <span>BẮT ĐẦU LÀM BÀI THI NGAY ({currentUser.fullName})</span>
-            </button>
-          ) : (
-            <div style={{ background: "#fff1f2", border: "1px solid #fecdd3", padding: "1rem", borderRadius: "var(--radius-md)" }}>
-              <p style={{ color: "#e11d48", fontWeight: 700, fontSize: "0.9rem", marginBottom: "0.5rem" }}>
-                ⚠️ Em chưa đăng nhập tài khoản học viên!
-              </p>
-              <p style={{ color: "#475569", fontSize: "0.85rem" }}>
-                Hãy bấm nút <strong>"Đăng Nhập"</strong> ở góc trên bên phải để bắt đầu làm bài.
-              </p>
-            </div>
-          )}
-        </div>
-      ) : (
-        /* Active Exam Workspace */
-        <div>
-          {/* Top Control Cockpit Bar */}
-          <div className="exam-cockpit-bar">
-            <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
-              <span style={{
-                fontSize: "0.86rem",
-                fontWeight: 700,
-                background: "var(--surface-subtle)",
-                padding: "0.4rem 0.9rem",
-                borderRadius: "var(--radius-full)",
-                border: "1px solid var(--border-light)"
-              }}>
-                Thí sinh: <strong style={{ color: "var(--brand-primary)" }}>{currentUser?.fullName}</strong> ({currentUser?.username})
-              </span>
 
               <div style={{ display: "flex", gap: "0.4rem" }}>
+                {DEFAULT_SUBJECTS.map((subj) => {
+                  const isActive = selectedSubjectId === subj.id;
+                  return (
+                    <button
+                      key={subj.id}
+                      onClick={() => setSelectedSubjectId(subj.id)}
+                      className={`btn btn-sm ${isActive ? "btn-primary" : "btn-secondary"}`}
+                      style={{
+                        borderRadius: "var(--radius-full)",
+                        padding: "0.35rem 0.85rem",
+                        fontSize: "0.78rem",
+                        whiteSpace: "nowrap"
+                      }}
+                    >
+                      <span>{subj.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <SubjectAccessGate subjectId={selectedSubjectId}>
+              <div className="q-card" style={{ padding: "3rem 2rem", textAlign: "center", maxWidth: "750px", margin: "0 auto" }}>
+                <div style={{
+                  width: "72px",
+                  height: "72px",
+                  borderRadius: "20px",
+                  background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(6, 182, 212, 0.15))",
+                  color: "var(--brand-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 1.5rem"
+                }}>
+                  <Clock size={36} />
+                </div>
+
+                <h1 style={{ fontSize: "1.85rem", fontWeight: 900, marginBottom: "0.5rem" }}>
+                  Kỳ Thi Đánh Giá Chuẩn Đầu Ra: {currentSubject.name}
+                </h1>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", marginBottom: "1.8rem", lineHeight: "1.6" }}>
+                  Đề thi gồm <strong>50 câu trắc nghiệm</strong> (7.0 điểm) và <strong>4 bài tập tự luận code</strong> (3.0 điểm). 
+                  Thời gian làm bài: <strong>50 phút</strong>. Đạt từ 5.0 điểm trở lên được cấp Chứng chỉ Sao Việt.
+                </p>
+
+                <div style={{
+                  background: "var(--surface-subtle)",
+                  border: "1px solid var(--border-light)",
+                  borderRadius: "var(--radius-md)",
+                  padding: "1.2rem",
+                  marginBottom: "2rem",
+                  textAlign: "left",
+                  fontSize: "0.88rem"
+                }}>
+                  <div style={{ fontWeight: 800, color: "var(--text-primary)", marginBottom: "0.5rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                    <AlertCircle size={16} color="var(--brand-primary)" />
+                    <span>Quy Định Phòng Thi Nghiêm Túc:</span>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", color: "var(--text-secondary)" }}>
+                    <div>• Không chuyển tab hoặc mở tài liệu ngoài phạm vi cho phép.</div>
+                    <div>• Nếu gặp sự cố phòng máy, chọn <strong>Tạm Dừng Thi</strong> để Giáo viên nhập mã PIN mở khóa.</div>
+                    <div>• Hết 50 phút hệ thống sẽ tự động thu bài và chấm điểm tức thời.</div>
+                  </div>
+                </div>
+
                 <button
-                  className={`btn btn-sm ${currentPart === 1 ? "btn-primary" : "btn-secondary"}`}
-                  onClick={() => {
-                    setCurrentPart(1);
-                    setCurrentIndex(0);
-                  }}
+                  onClick={handleStartExam}
+                  className="btn btn-primary btn-lg"
+                  style={{ padding: "0.85rem 2.5rem", fontSize: "1.05rem" }}
                 >
-                  <BookOpen size={14} />
-                  <span>Phần 1: Trắc Nghiệm (50 câu)</span>
+                  <BookOpen size={20} />
+                  <span>Bắt Đầu Làm Bài Thi Ngay</span>
+                </button>
+              </div>
+            </SubjectAccessGate>
+          </div>
+        ) : (
+          <div>
+            <div style={{
+              background: "var(--surface-card)",
+              border: "1px solid var(--border-light)",
+              borderRadius: "var(--radius-md)",
+              padding: "0.8rem 1.4rem",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "1.5rem",
+              position: "sticky",
+              top: "70px",
+              zIndex: 30,
+              boxShadow: "var(--shadow-card)"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                <span style={{ fontWeight: 800, fontSize: "1.05rem", color: "var(--text-primary)" }}>
+                  {currentSubject.name}
+                </span>
+                <span style={{
+                  fontSize: "0.78rem",
+                  fontWeight: 700,
+                  color: currentPart === 1 ? "var(--brand-primary)" : "var(--brand-emerald)",
+                  background: currentPart === 1 ? "var(--brand-primary-light)" : "var(--brand-emerald-light)",
+                  padding: "0.2rem 0.6rem",
+                  borderRadius: "var(--radius-full)"
+                }}>
+                  {currentPart === 1 ? `Phần 1: Trắc Nghiệm (${currentIndex + 1}/50)` : `Phần 2: Tự Luận (${currentIndex + 1}/4)`}
+                </span>
+              </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "1.2rem" }}>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: 900,
+                  fontSize: "1.25rem",
+                  color: timerSeconds < 300 ? "var(--brand-rose)" : "var(--brand-primary)"
+                }}>
+                  <Clock size={20} />
+                  <span>{formatTimer(timerSeconds)}</span>
+                </div>
+
+                <button
+                  onClick={handlePauseExam}
+                  className="btn btn-secondary btn-sm"
+                  style={{ gap: "0.3rem" }}
+                  title="Tạm dừng làm bài để gọi giáo viên"
+                >
+                  <Pause size={14} />
+                  <span>Tạm Dừng</span>
                 </button>
 
                 <button
-                  className={`btn btn-sm ${currentPart === 2 ? "btn-primary" : "btn-secondary"}`}
-                  onClick={() => {
-                    setCurrentPart(2);
-                    setCurrentIndex(0);
-                  }}
+                  onClick={handleManualSubmit}
+                  className="btn btn-primary btn-sm"
+                  style={{ gap: "0.3rem" }}
                 >
-                  <Terminal size={14} />
-                  <span>Phần 2: Tự Luận Code (4 câu)</span>
+                  <span>Nộp Bài</span>
                 </button>
               </div>
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-              <div className={`timer-pill ${timerSeconds <= 300 ? "danger" : ""}`}>
-                <Clock size={18} />
-                <span>{formatTimer(timerSeconds)}</span>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: "1.5rem", alignItems: "start" }}>
+              <div>
+                {currentPart === 1 && examQuestions[currentIndex] && (
+                  <div>
+                    <QuestionCard
+                      question={examQuestions[currentIndex]}
+                      index={currentIndex}
+                      userAnswer={userAnswers[examQuestions[currentIndex].id]}
+                      isExamMode={true}
+                      onAnswerChange={(ans) => {
+                        setUserAnswers((prev) => ({
+                          ...prev,
+                          [examQuestions[currentIndex].id]: ans
+                        }));
+                      }}
+                    />
+
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.2rem" }}>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
+                        disabled={currentIndex === 0}
+                      >
+                        <ChevronLeft size={16} />
+                        <span>Câu Trước</span>
+                      </button>
+
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => {
+                          if (currentIndex < examQuestions.length - 1) {
+                            setCurrentIndex((prev) => prev + 1);
+                          } else {
+                            setCurrentPart(2);
+                            setCurrentIndex(0);
+                          }
+                        }}
+                      >
+                        <span>{currentIndex === examQuestions.length - 1 ? "Sang Phần Tự Luận Code" : "Câu Tiếp Theo"}</span>
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {currentPart === 2 && examPracticals[currentIndex] && (
+                  <div className="q-card" style={{ padding: "1.5rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.6rem" }}>
+                      <span className="q-badge" style={{ background: "rgba(5, 150, 105, 0.1)", color: "var(--brand-emerald)" }}>
+                        TỰ LUẬN BÀI {currentIndex + 1} / 4
+                      </span>
+                      <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Điểm tối đa: 0.75 điểm / bài</span>
+                    </div>
+
+                    <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "0.6rem" }}>
+                      {examPracticals[currentIndex]?.title}
+                    </h3>
+
+                    <p style={{ color: "var(--text-secondary)", marginBottom: "1.2rem", fontSize: "0.92rem", lineHeight: "1.6" }}>
+                      {examPracticals[currentIndex]?.description}
+                    </p>
+
+                    <PythonEditor
+                      problem={examPracticals[currentIndex]}
+                      initialCode={userPracticalCode[examPracticals[currentIndex]?.id]}
+                      isExamMode={true}
+                      onCodeChange={(code) => {
+                        setUserPracticalCode((prev) => ({
+                          ...prev,
+                          [examPracticals[currentIndex].id]: code
+                        }));
+                      }}
+                      onSubmitGrade={(grade) => {
+                        setPracticalResults((prev) => ({
+                          ...prev,
+                          [examPracticals[currentIndex].id]: grade
+                        }));
+                      }}
+                    />
+
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.4rem", paddingTop: "1.2rem", borderTop: "1px solid var(--border-light)" }}>
+                      <button
+                        className="btn btn-secondary"
+                        onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
+                        disabled={currentIndex === 0}
+                      >
+                        <ChevronLeft size={16} />
+                        <span>Bài Trước</span>
+                      </button>
+
+                      <button
+                        className="btn btn-primary"
+                        onClick={() => {
+                          if (currentIndex < examPracticals.length - 1) setCurrentIndex((prev) => prev + 1);
+                          else handleManualSubmit();
+                        }}
+                      >
+                        <span>{currentIndex === examPracticals.length - 1 ? "Hoàn Thành & Nộp Bài" : "Bài Kế Tiếp"}</span>
+                        <ChevronRight size={16} />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <button className="btn btn-warning btn-sm" onClick={handlePauseExam}>
-                <Pause size={14} />
-                <span>Tạm Dừng</span>
-              </button>
-
-              <button className="btn btn-success btn-sm" onClick={handleManualSubmit}>
-                <Save size={14} />
-                <span>Nộp Toàn Bộ Bài</span>
-              </button>
+              <ExamNavigator
+                questions={examQuestions}
+                practicals={examPracticals}
+                currentPart={currentPart}
+                currentIndex={currentIndex}
+                userAnswers={userAnswers}
+                practicalResults={practicalResults}
+                onSelectMCQ={(idx) => {
+                  setCurrentPart(1);
+                  setCurrentIndex(idx);
+                }}
+                onSelectPractical={(idx) => {
+                  setCurrentPart(2);
+                  setCurrentIndex(idx);
+                }}
+              />
             </div>
           </div>
+        )}
 
-          {/* Exam Content Workspace */}
-          <div className="exam-workspace-layout">
-            {/* Main Area */}
-            <div>
-              {currentPart === 1 ? (
-                <div>
-                  <QuestionCard
-                    question={examQuestions[currentIndex]}
-                    index={currentIndex}
-                    isExamMode={true}
-                    userAnswer={userAnswers[examQuestions[currentIndex]?.id]}
-                    onAnswerChange={(ans) => {
-                      setUserAnswers((prev) => ({
-                        ...prev,
-                        [examQuestions[currentIndex].id]: ans
-                      }));
-                    }}
-                  />
+        {showPinModal && (
+          <PinUnlockModal
+            onSuccess={() => {
+              setIsPaused(false);
+              setShowPinModal(false);
+            }}
+            onCancel={() => {
+              setShowPinModal(false);
+              setIsExamActive(false);
+            }}
+          />
+        )}
 
-                  {/* MCQ Navigation Footer */}
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.4rem", paddingTop: "1.2rem", borderTop: "1px solid var(--border-light)" }}>
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                      disabled={currentIndex === 0}
-                    >
-                      <ChevronLeft size={16} />
-                      <span>Câu Trước</span>
-                    </button>
-
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => {
-                        if (currentIndex < 49) setCurrentIndex((prev) => prev + 1);
-                        else {
-                          setCurrentPart(2);
-                          setCurrentIndex(0);
-                        }
-                      }}
-                    >
-                      <span>{currentIndex === 49 ? "Sang Phần Tự Luận" : "Câu Kế Tiếp"}</span>
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
-                    <span className="q-badge" style={{ background: "rgba(16, 185, 129, 0.1)", color: "var(--brand-emerald-dark)", borderColor: "rgba(16, 185, 129, 0.25)" }}>
-                      <Terminal size={14} />
-                      <span>BÀI TỰ LUẬN THỰC HÀNH {currentIndex + 1} / 4</span>
-                    </span>
-                    <span style={{ fontSize: "0.85rem", fontWeight: 800, color: "var(--brand-emerald-dark)" }}>(Điểm: 1.25đ / bài)</span>
-                  </div>
-
-                  <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "0.4rem" }}>
-                    {examPracticals[currentIndex]?.title}
-                  </h3>
-
-                  <p style={{ color: "var(--text-secondary)", marginBottom: "1.2rem", fontSize: "0.92rem", lineHeight: "1.6" }}>
-                    {examPracticals[currentIndex]?.description}
-                  </p>
-
-                  <PythonEditor
-                    problem={examPracticals[currentIndex]}
-                    initialCode={userPracticalCode[examPracticals[currentIndex]?.id]}
-                    isExamMode={true}
-                    onCodeChange={(code) => {
-                      setUserPracticalCode((prev) => ({
-                        ...prev,
-                        [examPracticals[currentIndex].id]: code
-                      }));
-                    }}
-                    onSubmitGrade={(grade) => {
-                      setPracticalResults((prev) => ({
-                        ...prev,
-                        [examPracticals[currentIndex].id]: grade
-                      }));
-                    }}
-                  />
-
-                  {/* Practical Navigation Footer */}
-                  <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.4rem", paddingTop: "1.2rem", borderTop: "1px solid var(--border-light)" }}>
-                    <button
-                      className="btn btn-secondary"
-                      onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                      disabled={currentIndex === 0}
-                    >
-                      <ChevronLeft size={16} />
-                      <span>Bài Trước</span>
-                    </button>
-
-                    <button
-                      className="btn btn-primary"
-                      onClick={() => {
-                        if (currentIndex < 3) setCurrentIndex((prev) => prev + 1);
-                        else handleManualSubmit();
-                      }}
-                    >
-                      <span>{currentIndex === 3 ? "Hoàn Thành & Nộp Bài" : "Bài Kế Tiếp"}</span>
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Sidebar Navigator Grid */}
-            <ExamNavigator
-              questions={examQuestions}
-              practicals={examPracticals}
-              currentPart={currentPart}
-              currentIndex={currentIndex}
-              userAnswers={userAnswers}
-              practicalResults={practicalResults}
-              onSelectMCQ={(idx) => {
-                setCurrentPart(1);
-                setCurrentIndex(idx);
-              }}
-              onSelectPractical={(idx) => {
-                setCurrentPart(2);
-                setCurrentIndex(idx);
-              }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* PIN Unlock Modal */}
-      {showPinModal && (
-        <PinUnlockModal
-          onSuccess={() => {
-            setIsPaused(false);
-            setShowPinModal(false);
-          }}
-          onCancel={() => {
-            setShowPinModal(false);
-            setIsExamActive(false);
-          }}
-        />
-      )}
-
-        {/* Result Modal */}
         {showResultModal && finalScoreData && (
           <ExamResultModal
             resultData={finalScoreData}

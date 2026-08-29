@@ -3,11 +3,14 @@
 import { useState } from "react";
 import { getQuestionsData, getPracticalsData } from "@/lib/questionsData";
 import { Question, PracticalProblem } from "@/types";
+import { DEFAULT_SUBJECTS } from "@/lib/usersData";
 import PrintExamSheet from "@/components/PrintExamSheet";
 import AuthGate from "@/components/AuthGate";
-import { Printer, Shuffle, FileText, KeyRound, BookOpen, CheckCircle2 } from "lucide-react";
+import SubjectAccessGate from "@/components/SubjectAccessGate";
+import { Printer, Shuffle, FileText, KeyRound, BookOpen, Code2 } from "lucide-react";
 
 export default function PrintExamPage() {
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>("python");
   const [printMode, setPrintMode] = useState<"exam_student" | "exam_key" | "all_120">("exam_student");
   const [examQuestions, setExamQuestions] = useState<Question[]>(() => {
     return [...getQuestionsData()].slice(0, 50);
@@ -32,23 +35,25 @@ export default function PrintExamPage() {
     window.print();
   };
 
+  const currentSubject = DEFAULT_SUBJECTS.find(s => s.id === selectedSubjectId) || DEFAULT_SUBJECTS[0];
+
   return (
     <AuthGate
       mode="practice"
+      subjectId={selectedSubjectId}
       pageTitle="Trình Xuất Bản & In Đề Thi Chuẩn A4"
-      pageDescription="Vui lòng đăng nhập tài khoản để tạo và xuất bản đề thi chuẩn khảo thí."
+      pageDescription="Vui lòng đăng nhập tài khoản học viên để tạo và xuất bản đề thi chuẩn khảo thí."
     >
       <div>
-        {/* Print Control Toolbar (Hidden in Print Mode) */}
         <div className="filter-toolbar no-print">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem", marginBottom: "1rem" }}>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.2rem" }}>
                 <Printer size={22} color="var(--brand-primary)" />
                 <h2 style={{ fontSize: "1.35rem", fontWeight: 800 }}>Trình Xuất Bản & In Đề Thi Chuẩn A4</h2>
               </div>
               <p style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
-                Tối ưu hóa layout khổ giấy A4, ngắt trang thông minh, tự động ẩn giao diện web khi bấm In.
+                Môn học: <strong>{currentSubject.name}</strong> • Layout tối ưu khổ giấy A4.
               </p>
             </div>
 
@@ -58,79 +63,77 @@ export default function PrintExamPage() {
                 <span>Trộn Đề Mới ({examCode})</span>
               </button>
 
-              <button className="btn btn-primary btn-lg" onClick={handlePrint}>
-                <Printer size={18} />
-                <span>In Đề Này Ngay (Ctrl + P)</span>
+              <button className="btn btn-primary" onClick={handlePrint}>
+                <Printer size={16} />
+                <span>In Bản Chuẩn Ngay (Ctrl + P)</span>
               </button>
             </div>
           </div>
 
-          {/* Mode Selector */}
-          <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", marginTop: "0.6rem", borderTop: "1px solid var(--border-light)", paddingTop: "0.9rem" }}>
-            <button
-              className={`btn btn-sm ${printMode === "exam_student" ? "btn-primary" : "btn-secondary"}`}
-              style={{ borderRadius: "var(--radius-full)" }}
-              onClick={() => setPrintMode("exam_student")}
-            >
-              <FileText size={15} />
-              <span>Đề Thi Học Sinh (50 TN + 4 TL)</span>
-            </button>
+          <div style={{
+            background: "var(--surface-subtle)",
+            padding: "0.75rem 1rem",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border-light)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "0.8rem"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", overflowX: "auto" }}>
+              <Code2 size={16} color="var(--brand-primary)" />
+              <span style={{ fontSize: "0.82rem", fontWeight: 800, color: "var(--text-muted)", marginRight: "0.3rem" }}>MÔN THI:</span>
+              {DEFAULT_SUBJECTS.map((subj) => (
+                <button
+                  key={subj.id}
+                  onClick={() => setSelectedSubjectId(subj.id)}
+                  className={`btn btn-sm ${selectedSubjectId === subj.id ? "btn-primary" : "btn-secondary"}`}
+                  style={{ borderRadius: "var(--radius-full)", padding: "0.3rem 0.75rem", fontSize: "0.75rem" }}
+                >
+                  {subj.name}
+                </button>
+              ))}
+            </div>
 
-            <button
-              className={`btn btn-sm ${printMode === "exam_key" ? "btn-primary" : "btn-secondary"}`}
-              style={{ borderRadius: "var(--radius-full)" }}
-              onClick={() => setPrintMode("exam_key")}
-            >
-              <KeyRound size={15} />
-              <span>Phiếu Đáp Án Cho Giáo Viên</span>
-            </button>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button
+                className={`filter-chip ${printMode === "exam_student" ? "active" : ""}`}
+                onClick={() => setPrintMode("exam_student")}
+              >
+                <FileText size={14} />
+                <span>Đề Thi Cho Học Viên</span>
+              </button>
 
-            <button
-              className={`btn btn-sm ${printMode === "all_120" ? "btn-primary" : "btn-secondary"}`}
-              style={{ borderRadius: "var(--radius-full)" }}
-              onClick={() => setPrintMode("all_120")}
-            >
-              <BookOpen size={15} />
-              <span>Toàn Bộ Ngân Hàng 120 Câu Hỏi</span>
-            </button>
+              <button
+                className={`filter-chip ${printMode === "exam_key" ? "active" : ""}`}
+                onClick={() => setPrintMode("exam_key")}
+              >
+                <KeyRound size={14} />
+                <span>Đề Kèm Đáp Án & Barem</span>
+              </button>
+
+              <button
+                className={`filter-chip ${printMode === "all_120" ? "active" : ""}`}
+                onClick={() => setPrintMode("all_120")}
+              >
+                <BookOpen size={14} />
+                <span>Tài Liệu Toàn Bộ Câu Hỏi</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Printable Sheet Viewport */}
-        <div style={{
-          background: "#ffffff",
-          borderRadius: "var(--radius-lg)",
-          border: "1px solid var(--border-light)",
-          padding: "1.5rem",
-          boxShadow: "var(--shadow-card)"
-        }}>
-          {printMode === "exam_student" && (
+        <SubjectAccessGate subjectId={selectedSubjectId}>
+          <div className="print-canvas">
             <PrintExamSheet
-              questions={examQuestions}
-              practicals={examPracticals}
-              showAnswers={false}
-              title={`ĐỀ THI TỐT NGHIỆP PYTHON NÂNG CAO — ${examCode}`}
+              questions={printMode === "all_120" ? getQuestionsData() : examQuestions}
+              practicals={printMode === "all_120" ? getPracticalsData() : examPracticals}
+              showAnswers={printMode === "exam_key" || printMode === "all_120"}
+              title={`ĐỀ THI TỐT NGHIỆP: ${currentSubject.name.toUpperCase()} (${examCode})`}
             />
-          )}
-
-          {printMode === "exam_key" && (
-            <PrintExamSheet
-              questions={examQuestions}
-              practicals={examPracticals}
-              showAnswers={true}
-              title={`PHIẾU ĐÁP ÁN & SUY LUẬN LOGIC — ${examCode}`}
-            />
-          )}
-
-          {printMode === "all_120" && (
-            <PrintExamSheet
-              questions={getQuestionsData()}
-              practicals={getPracticalsData()}
-              showAnswers={true}
-              title="NGÂN HÀNG TOÀN DIỆN 120 CÂU HỎI & 10 BÀI THỰC HÀNH PYTHON NÂNG CAO"
-            />
-          )}
-        </div>
+          </div>
+        </SubjectAccessGate>
       </div>
     </AuthGate>
   );

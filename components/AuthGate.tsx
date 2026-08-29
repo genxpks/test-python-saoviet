@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { User } from "@/types";
-import { getCurrentUser, loginUser, logStudyTime, getSessionRemainingSeconds, formatStudyDuration } from "@/lib/usersData";
-import { Lock, LogIn, Sparkles, CheckCircle2, Eye, EyeOff, Clock, BookOpen, ShieldAlert } from "lucide-react";
+import { getCurrentUser, loginUser, logStudyTime } from "@/lib/usersData";
+import { Lock, LogIn, Sparkles, Eye, EyeOff } from "lucide-react";
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -18,18 +18,15 @@ export default function AuthGate({
   pageTitle = "Khu Vực Học Tập & Khảo Thí", 
   pageDescription = "Vui lòng đăng nhập bằng tài khoản học viên do Trung tâm cấp để tiếp tục.",
   mode = "study",
-  subjectId = "python_advanced"
+  subjectId = "python"
 }: AuthGateProps) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isChecking, setIsChecking] = useState(true);
-
-  // Login form states
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
 
-  // Study time tracking timer
   const activeSecondsRef = useRef(0);
 
   useEffect(() => {
@@ -37,7 +34,6 @@ export default function AuthGate({
     setCurrentUser(user);
     setIsChecking(false);
 
-    // If logged in, start tracking study time every second
     const trackInterval = setInterval(() => {
       const liveUser = getCurrentUser();
       if (!liveUser) {
@@ -46,7 +42,6 @@ export default function AuthGate({
       }
       activeSecondsRef.current += 1;
 
-      // Every 60s, persist study duration
       if (activeSecondsRef.current > 0 && activeSecondsRef.current % 60 === 0) {
         logStudyTime(liveUser.id, 60, mode, subjectId);
       }
@@ -54,7 +49,6 @@ export default function AuthGate({
 
     return () => {
       clearInterval(trackInterval);
-      // Log remainder on unmount
       const remainingSeconds = activeSecondsRef.current % 60;
       if (remainingSeconds > 10) {
         const u = getCurrentUser();
@@ -71,7 +65,7 @@ export default function AuthGate({
     if (res.success && res.user) {
       setCurrentUser(res.user);
       setLoginError("");
-      window.location.reload(); // Refresh to update all session headers
+      window.location.reload();
     } else {
       setLoginError(res.message || "Sai tên đăng nhập hoặc mật khẩu!");
     }
@@ -87,12 +81,10 @@ export default function AuthGate({
     );
   }
 
-  // If user is authenticated, render protected content
   if (currentUser) {
     return <>{children}</>;
   }
 
-  // Otherwise, render modern Authentication Barrier
   return (
     <div style={{ maxWidth: "520px", margin: "3rem auto", padding: "0 1rem" }}>
       <div className="q-card" style={{ padding: "2.5rem 2rem", textAlign: "center" }}>
@@ -117,7 +109,6 @@ export default function AuthGate({
           {pageDescription}
         </p>
 
-        {/* Thông báo quy định cấp tài khoản */}
         <div style={{
           background: "rgba(37, 99, 235, 0.05)",
           border: "1px solid rgba(37, 99, 235, 0.15)",
@@ -133,8 +124,8 @@ export default function AuthGate({
             <Sparkles size={14} />
             <span>Quy định tài khoản học viên Sao Việt:</span>
           </div>
-          <div>• <strong>Tên đăng nhập:</strong> Số điện thoại học viên (VD: <code>0912345671</code>)</div>
-          <div>• <strong>Mật khẩu chuẩn:</strong> Tên không dấu + SĐT (VD: <code>Nam0912345671</code>)</div>
+          <div>• <strong>Tên đăng nhập:</strong> Số điện thoại học viên (VD: <code>0937482673</code>)</div>
+          <div>• <strong>Mật khẩu chuẩn:</strong> Tên + SĐT (VD: <code>Thien0937482673</code>)</div>
           <div style={{ marginTop: "0.3rem", fontSize: "0.78rem", color: "var(--text-muted)" }}>
             ⏱️ Phiên học sẽ tự động hết hạn và bảo vệ sau 3 giờ học liên tục.
           </div>
@@ -167,7 +158,7 @@ export default function AuthGate({
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="VD: 0912345671 hoặc admin"
+              placeholder="VD: 0937482673 hoặc admin"
               className="input"
               style={{ width: "100%" }}
               autoFocus
@@ -184,7 +175,7 @@ export default function AuthGate({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Nhập mật khẩu..."
+                placeholder="Nhập mật khẩu (VD: Thien0937482673)..."
                 className="input"
                 style={{ width: "100%", paddingRight: "40px" }}
               />
