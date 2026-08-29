@@ -1,13 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
 export default function WaveBackground() {
-  const containerRef = useRef<HTMLDivElement>(null);
-
   return (
     <div
-      ref={containerRef}
       style={{
         position: "fixed",
         inset: 0,
@@ -17,81 +12,150 @@ export default function WaveBackground() {
       }}
       aria-hidden="true"
     >
-      <div className="wave-layer-wrap">
-        <svg
-          className="wave wave-1"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill="rgba(100,180,220,0.045)"
-            d="M0,128 C180,200 360,40 540,100 C720,160 900,240 1080,180 C1260,120 1350,60 1440,80 L1440,320 L0,320 Z"
-          />
-        </svg>
+      {/* Ambient radial teal glows top */}
+      <div style={{
+        position: "absolute",
+        top: "-10%",
+        left: "15%",
+        width: "55vw",
+        height: "55vh",
+        background: "radial-gradient(ellipse, rgba(64,180,220,0.055) 0%, transparent 65%)",
+        filter: "blur(40px)"
+      }} />
+      <div style={{
+        position: "absolute",
+        top: "5%",
+        right: "5%",
+        width: "40vw",
+        height: "40vh",
+        background: "radial-gradient(ellipse, rgba(0,245,200,0.04) 0%, transparent 65%)",
+        filter: "blur(50px)"
+      }} />
 
-        <svg
-          className="wave wave-2"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill="rgba(80,160,210,0.035)"
-            d="M0,200 C200,140 400,260 600,200 C800,140 1000,100 1200,160 C1320,200 1400,220 1440,210 L1440,320 L0,320 Z"
-          />
-        </svg>
-
-        <svg
-          className="wave wave-3"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill="rgba(60,140,200,0.025)"
-            d="M0,240 C240,180 480,280 720,240 C960,200 1200,150 1440,190 L1440,320 L0,320 Z"
-          />
-        </svg>
-
-        <svg
-          className="wave wave-4"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill="rgba(0,245,200,0.02)"
-            d="M0,160 C160,100 320,220 480,180 C640,140 800,80 960,120 C1120,160 1300,200 1440,160 L1440,320 L0,320 Z"
-          />
-        </svg>
-
-        <svg
-          className="wave wave-5"
-          viewBox="0 0 1440 320"
-          preserveAspectRatio="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <path
-            fill="rgba(100,190,230,0.03)"
-            d="M0,280 C300,240 600,300 900,260 C1100,230 1300,240 1440,250 L1440,320 L0,320 Z"
-          />
-        </svg>
-      </div>
-
-      <div
+      {/* Wave layer 1 — slowest, largest, deepest */}
+      <svg
+        className="wave wave-1"
         style={{
           position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
           bottom: 0,
-          background: `
-            radial-gradient(ellipse 60% 40% at 10% 80%, rgba(80,160,220,0.07) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 35% at 90% 70%, rgba(0,245,200,0.05) 0%, transparent 55%)
-          `
+          left: "-10%",
+          width: "120%",
+          height: "38vh",
+          minHeight: 220
         }}
-      />
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill="rgba(64,160,210,0.065)"
+          d="M0,210 C200,150 380,280 580,230 C780,180 980,120 1180,170 C1320,205 1400,240 1440,250 L1440,320 L0,320 Z"
+        />
+      </svg>
+
+      {/* Wave layer 2 — medium speed */}
+      <svg
+        className="wave wave-2"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: "-10%",
+          width: "120%",
+          height: "32vh",
+          minHeight: 180
+        }}
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill="rgba(40,140,200,0.05)"
+          d="M0,240 C240,195 460,285 700,255 C900,228 1100,185 1300,210 C1390,222 1430,245 1440,260 L1440,320 L0,320 Z"
+        />
+      </svg>
+
+      {/* Wave layer 3 — fastest, most visible */}
+      <svg
+        className="wave wave-3"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: "-10%",
+          width: "120%",
+          height: "26vh",
+          minHeight: 140
+        }}
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill="rgba(0,220,180,0.045)"
+          d="M0,270 C300,240 600,290 900,265 C1100,248 1280,255 1440,270 L1440,320 L0,320 Z"
+        />
+      </svg>
+
+      {/* Wave layer 4 — teal accent */}
+      <svg
+        className="wave wave-4"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: "-10%",
+          width: "120%",
+          height: "20vh",
+          minHeight: 110
+        }}
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill="rgba(0,245,200,0.038)"
+          d="M0,285 C200,268 440,295 680,280 C900,267 1150,275 1440,285 L1440,320 L0,320 Z"
+        />
+      </svg>
+
+      {/* Wave layer 5 — subtle top-page mid-tone */}
+      <svg
+        className="wave wave-5"
+        style={{
+          position: "absolute",
+          bottom: 0,
+          left: "-10%",
+          width: "120%",
+          height: "14vh",
+          minHeight: 70
+        }}
+        viewBox="0 0 1440 320"
+        preserveAspectRatio="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          fill="rgba(80,175,225,0.05)"
+          d="M0,295 C360,282 720,305 1080,292 C1260,286 1380,292 1440,298 L1440,320 L0,320 Z"
+        />
+      </svg>
+
+      {/* Subtle mid-page horizontal glows for depth */}
+      <div style={{
+        position: "absolute",
+        bottom: "15%",
+        left: 0,
+        right: 0,
+        height: "1px",
+        background: "linear-gradient(90deg, transparent 5%, rgba(64,180,220,0.12) 30%, rgba(0,245,200,0.09) 50%, rgba(64,180,220,0.12) 70%, transparent 95%)",
+        filter: "blur(2px)"
+      }} />
+      <div style={{
+        position: "absolute",
+        bottom: "8%",
+        left: 0,
+        right: 0,
+        height: "1px",
+        background: "linear-gradient(90deg, transparent 10%, rgba(0,245,200,0.08) 40%, rgba(64,180,220,0.06) 60%, transparent 90%)",
+        filter: "blur(1px)"
+      }} />
     </div>
   );
 }

@@ -269,11 +269,11 @@ h1, h2, h3, h4, h5, h6 {
   min-height: 280px;
 }
 
-.wave-1 { animation: waveFlow1 18s ease-in-out infinite alternate; transform-origin: left bottom; }
-.wave-2 { animation: waveFlow2 22s ease-in-out infinite alternate; transform-origin: right bottom; }
-.wave-3 { animation: waveFlow3 26s ease-in-out infinite alternate; transform-origin: left bottom; }
-.wave-4 { animation: waveFlow4 20s ease-in-out infinite alternate; transform-origin: right bottom; }
-.wave-5 { animation: waveFlow5 30s ease-in-out infinite alternate; transform-origin: left bottom; }
+.wave-1 { animation: waveFlow1 22s ease-in-out infinite alternate; will-change: transform; }
+.wave-2 { animation: waveFlow2 27s ease-in-out infinite alternate; will-change: transform; }
+.wave-3 { animation: waveFlow3 18s ease-in-out infinite alternate; will-change: transform; }
+.wave-4 { animation: waveFlow4 24s ease-in-out infinite alternate; will-change: transform; }
+.wave-5 { animation: waveFlow5 32s ease-in-out infinite alternate; will-change: transform; }
 
 .animate-item {
   animation: itemFadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
