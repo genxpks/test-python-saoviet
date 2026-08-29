@@ -1046,6 +1046,34 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* ==========================================================================
+   3D LAYERS, GLASSMORPHISM & DYNAMIC ANIMATIONS
+   ========================================================================== */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spin-slow {
+  animation: spin 12s linear infinite;
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.dot-pulse {
+  display: inline-block;
+  animation: pulse-dot 1.2s ease-in-out infinite;
+}
+
+@media (max-width: 900px) {
+  .hero-grid-responsive {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* ==========================================================================
    PRINT OPTIMIZATION
    ========================================================================== */
 @media print {
@@ -1068,3 +1096,5 @@ h1, h2, h3, h4, h5, h6 {
     padding: 0 !important;
   }
 }
+
+
