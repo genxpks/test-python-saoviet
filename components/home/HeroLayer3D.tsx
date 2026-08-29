@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import TiltCard3D from "@/components/home/TiltCard3D";
+import CyberPlanet3D from "./hero/CyberPlanet3D";
+import CosmicSubjectDeck from "./hero/CosmicSubjectDeck";
 
 // 10 Atomic Micro-Components
 import HeroEyebrowBadge3D from "./hero/HeroEyebrowBadge3D";
@@ -14,6 +16,7 @@ import TerminalCodeEditor from "./hero/TerminalCodeEditor";
 import TerminalActionControls from "./hero/TerminalActionControls";
 import TerminalOutputConsole from "./hero/TerminalOutputConsole";
 import FloatingBadgeWidgets3D from "./hero/FloatingBadgeWidgets3D";
+import { Orbit, Terminal, Sparkles } from "lucide-react";
 
 const CODE_SNIPPETS = {
   python: {
@@ -74,6 +77,7 @@ export default function CyberMatrix3D() {
 };
 
 export default function HeroLayer3D() {
+  const [heroMode, setHeroMode] = useState<"planet" | "editor">("planet");
   const [activeTab, setActiveTab] = useState<"python" | "cpp" | "web">("python");
   const [isRunning, setIsRunning] = useState(false);
   const [showOutput, setShowOutput] = useState(true);
@@ -101,10 +105,10 @@ export default function HeroLayer3D() {
         position: "absolute",
         top: "-80px",
         left: "5%",
-        width: "400px",
-        height: "400px",
-        background: "radial-gradient(circle, rgba(37, 99, 235, 0.18) 0%, transparent 70%)",
-        filter: "blur(60px)",
+        width: "420px",
+        height: "420px",
+        background: "radial-gradient(circle, rgba(0, 245, 200, 0.16) 0%, transparent 70%)",
+        filter: "blur(65px)",
         pointerEvents: "none",
         zIndex: 0
       }} />
@@ -113,10 +117,10 @@ export default function HeroLayer3D() {
         position: "absolute",
         top: "10%",
         right: "5%",
-        width: "350px",
-        height: "350px",
-        background: "radial-gradient(circle, rgba(5, 150, 105, 0.15) 0%, transparent 70%)",
-        filter: "blur(55px)",
+        width: "400px",
+        height: "400px",
+        background: "radial-gradient(circle, rgba(99, 102, 241, 0.18) 0%, transparent 70%)",
+        filter: "blur(60px)",
         pointerEvents: "none",
         zIndex: 0
       }} />
@@ -127,7 +131,7 @@ export default function HeroLayer3D() {
           position: "relative",
           zIndex: 1,
           display: "grid",
-          gridTemplateColumns: "1.05fr 0.95fr",
+          gridTemplateColumns: "1.02fr 0.98fr",
           gap: "2.5rem",
           alignItems: "center"
         }}
@@ -141,38 +145,108 @@ export default function HeroLayer3D() {
           <HeroFeatureMicroBadges />
         </div>
 
-        {/* Right Column: Composed of Terminal Sandbox & Docked Badges */}
+        {/* Right Column: 3D Holographic Planet or Live Sandbox Terminal */}
         <div className="animate-right">
-          <TiltCard3D maxTilt={6} perspective={1200} scale={1.015} glowColor="rgba(37, 99, 235, 0.15)">
+          {/* Mode Switcher Tabs (3D Planet vs Terminal) */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            gap: "0.5rem",
+            marginBottom: "0.75rem"
+          }}>
+            <button
+              onClick={() => setHeroMode("planet")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                padding: "0.4rem 0.9rem",
+                borderRadius: "var(--radius-full)",
+                fontSize: "0.78rem",
+                fontWeight: 800,
+                border: "1px solid",
+                borderColor: heroMode === "planet" ? "#00f5c8" : "rgba(255,255,255,0.1)",
+                background: heroMode === "planet" ? "rgba(0, 245, 200, 0.15)" : "rgba(8, 16, 38, 0.6)",
+                color: heroMode === "planet" ? "#00f5c8" : "var(--text-muted)",
+                cursor: "pointer",
+                boxShadow: heroMode === "planet" ? "0 0 15px rgba(0, 245, 200, 0.25)" : "none",
+                transition: "all 0.25s ease"
+              }}
+            >
+              <Orbit size={13} />
+              <span>Hành Tinh 3D</span>
+            </button>
+
+            <button
+              onClick={() => setHeroMode("editor")}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                padding: "0.4rem 0.9rem",
+                borderRadius: "var(--radius-full)",
+                fontSize: "0.78rem",
+                fontWeight: 800,
+                border: "1px solid",
+                borderColor: heroMode === "editor" ? "#38bdf8" : "rgba(255,255,255,0.1)",
+                background: heroMode === "editor" ? "rgba(56, 189, 248, 0.15)" : "rgba(8, 16, 38, 0.6)",
+                color: heroMode === "editor" ? "#38bdf8" : "var(--text-muted)",
+                cursor: "pointer",
+                boxShadow: heroMode === "editor" ? "0 0 15px rgba(56, 189, 248, 0.25)" : "none",
+                transition: "all 0.25s ease"
+              }}
+            >
+              <Terminal size={13} />
+              <span>Code Sandbox</span>
+            </button>
+          </div>
+
+          {heroMode === "planet" ? (
             <div style={{
-              background: "#070d19",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
+              background: "radial-gradient(ellipse at center, rgba(6, 16, 42, 0.8) 0%, rgba(2, 6, 18, 0.9) 100%)",
+              border: "1px solid rgba(0, 245, 200, 0.22)",
               borderRadius: "var(--radius-xl)",
-              boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.4), 0 0 25px rgba(37, 99, 235, 0.12)",
+              boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px rgba(0, 245, 200, 0.15)",
               overflow: "hidden"
             }}>
-              <TerminalTopBar
-                title={CODE_SNIPPETS[activeTab].title}
-                activeLanguage={activeTab}
-                onLanguageChange={setActiveTab}
-              />
-              <TerminalCodeEditor code={CODE_SNIPPETS[activeTab].code} />
-              <TerminalActionControls
-                isRunning={isRunning}
-                copied={copied}
-                onCopy={handleCopyCode}
-                onRun={handleRunCode}
-              />
-              {showOutput && (
-                <TerminalOutputConsole output={CODE_SNIPPETS[activeTab].output} />
-              )}
+              <CyberPlanet3D />
             </div>
-          </TiltCard3D>
+          ) : (
+            <TiltCard3D maxTilt={6} perspective={1200} scale={1.015} glowColor="rgba(56, 189, 248, 0.2)">
+              <div style={{
+                background: "#070d19",
+                border: "1px solid rgba(0, 245, 200, 0.2)",
+                borderRadius: "var(--radius-xl)",
+                boxShadow: "0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 30px rgba(0, 245, 200, 0.12)",
+                overflow: "hidden"
+              }}>
+                <TerminalTopBar
+                  title={CODE_SNIPPETS[activeTab].title}
+                  activeLanguage={activeTab}
+                  onLanguageChange={setActiveTab}
+                />
+                <TerminalCodeEditor code={CODE_SNIPPETS[activeTab].code} />
+                <TerminalActionControls
+                  isRunning={isRunning}
+                  copied={copied}
+                  onCopy={handleCopyCode}
+                  onRun={handleRunCode}
+                />
+                {showOutput && (
+                  <TerminalOutputConsole output={CODE_SNIPPETS[activeTab].output} />
+                )}
+              </div>
+            </TiltCard3D>
+          )}
 
-          {/* Cleanly Docked Feature Badges Below Terminal (No Overlap) */}
+          {/* Cleanly Docked Feature Badges Below */}
           <FloatingBadgeWidgets3D />
         </div>
       </div>
+
+      {/* QUICK SUBJECT SELECTION CARDS (Matching User Mockup) */}
+      <CosmicSubjectDeck />
     </section>
   );
 }

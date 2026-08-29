@@ -844,6 +844,32 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
+@keyframes cosmicPulse {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes spinSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 12s linear infinite;
+}
+
+.cosmic-subject-card:hover {
+  transform: translateY(-5px) scale(1.015);
+  border-color: rgba(0, 245, 200, 0.45) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 35px rgba(0, 245, 200, 0.25), inset 0 0 25px rgba(0, 245, 200, 0.08) !important;
+}
+
 @media print {
   .no-print, .main-header, .filter-toolbar, .btn, nav { display: none !important; }
   body {
