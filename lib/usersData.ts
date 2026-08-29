@@ -1,28 +1,164 @@
-// lib/usersData.ts - Quản lý tài khoản & phân quyền người dùng
-// Đơn vị: TIN HỌC SAO VIỆT THỦ ĐỨC
+// lib/usersData.ts - Quản lý tài khoản, phân quyền 3 cấp (Admin, Quản lý chi nhánh, Học viên), Chi nhánh & Môn học
+// Đơn vị: TRUNG TÂM TIN HỌC SAO VIỆT
 
-import { User, PausedExamState, ExamResult } from "@/types";
+import { User, UserRole, Branch, Subject, PausedExamState, ExamResult } from "@/types";
+
+export const DEFAULT_BRANCHES: Branch[] = [
+  {
+    id: "branch_thuduc",
+    name: "Chi Nhánh TP. Thủ Đức",
+    code: "TD_HCM",
+    address: "Khu Đô Thị ĐHQG TP.HCM / Đường số 9, P. Linh Tây, TP. Thủ Đức",
+    phone: "0901.234.567",
+    managerName: "Thầy Nguyễn Duy Thiên",
+    defaultTeacherPin: "8888",
+    createdDate: "2026-08-29"
+  },
+  {
+    id: "branch_quan1",
+    name: "Chi Nhánh Quận 1 (Trung Tâm)",
+    code: "Q1_HCM",
+    address: "Số 15 Lê Duẩn, Phường Bến Nghé, Quận 1, TP.HCM",
+    phone: "0902.345.678",
+    managerName: "Cô Trần Thị Mai",
+    defaultTeacherPin: "8888",
+    createdDate: "2026-08-29"
+  },
+  {
+    id: "branch_govap",
+    name: "Chi Nhánh Gò Vấp",
+    code: "GV_HCM",
+    address: "Số 128 Quang Trung, Phường 10, Quận Gò Vấp, TP.HCM",
+    phone: "0903.456.789",
+    managerName: "Thầy Lê Hoàng Nam",
+    defaultTeacherPin: "8888",
+    createdDate: "2026-08-29"
+  },
+  {
+    id: "branch_binhthanh",
+    name: "Chi Nhánh Bình Thạnh",
+    code: "BT_HCM",
+    address: "Số 475A Điện Biên Phủ, Phường 25, Quận Bình Thạnh, TP.HCM",
+    phone: "0904.567.890",
+    managerName: "Thầy Phạm Đức Minh",
+    defaultTeacherPin: "8888",
+    createdDate: "2026-08-29"
+  }
+];
+
+export const DEFAULT_SUBJECTS: Subject[] = [
+  {
+    id: "python_advanced",
+    name: "Lập Trình Python Nâng Cao",
+    code: "PY_NC",
+    icon: "FileCode2",
+    runtime: "python3",
+    description: "Khóa học Python nâng cao: Chuỗi, List/Dict, Hàm, Thư viện chuẩn & Đồ họa Turtle Graphics.",
+    totalModules: 5,
+    isActive: true,
+    createdDate: "2026-08-29"
+  },
+  {
+    id: "cpp_basic",
+    name: "Lập Trình C / C++ Căn Bản",
+    code: "CPP_CB",
+    icon: "Terminal",
+    runtime: "cpp",
+    description: "Nền tảng tư duy lập trình: Biến, Kiểu dữ liệu, Vòng lặp, Mảng 1D/2D, Con trỏ & Hàm trong C++.",
+    totalModules: 6,
+    isActive: true,
+    createdDate: "2026-08-29"
+  },
+  {
+    id: "web_frontend",
+    name: "Lập Trình Web HTML5, CSS3, JavaScript",
+    code: "WEB_FE",
+    icon: "Layers",
+    runtime: "html_css",
+    description: "Xây dựng giao diện web chuẩn responsive, hiệu ứng CSS Keyframes và tương tác JavaScript DOM.",
+    totalModules: 8,
+    isActive: true,
+    createdDate: "2026-08-29"
+  },
+  {
+    id: "java_core",
+    name: "Lập Trình Hướng Đối Tượng Java Core",
+    code: "JAVA_OOP",
+    icon: "Cpu",
+    runtime: "java",
+    description: "Lập trình hướng đối tượng OOP với Java: Đóng gói, Kế thừa, Đa hình, Trừu tượng & Collections.",
+    totalModules: 6,
+    isActive: true,
+    createdDate: "2026-08-29"
+  }
+];
 
 export const DEFAULT_USERS: User[] = [
+  // 1. ADMIN
   {
     id: "admin",
     username: "admin",
     password: "saoviet2026",
-    fullName: "Giáo Viên Quản Trị (Admin)",
-    role: "teacher",
+    fullName: "Tổng Quản Trị Viên (Super Admin)",
+    role: "admin",
+    phone: "0901888999",
+    pin: "8888",
+    status: "active",
+    createdDate: "2026-08-29"
+  },
+  // 2. BRANCH MANAGERS
+  {
+    id: "mgr_thuduc",
+    username: "quanly_thuduc",
+    password: "saoviet2026",
+    fullName: "Thầy Nguyễn Duy Thiên",
+    role: "branch_manager",
+    branchId: "branch_thuduc",
+    branchName: "Chi Nhánh TP. Thủ Đức",
     phone: "0901234567",
     pin: "8888",
-    createdDate: "2026-08-28"
+    status: "active",
+    createdDate: "2026-08-29"
   },
+  {
+    id: "mgr_quan1",
+    username: "quanly_quan1",
+    password: "saoviet2026",
+    fullName: "Cô Trần Thị Mai",
+    role: "branch_manager",
+    branchId: "branch_quan1",
+    branchName: "Chi Nhánh Quận 1 (Trung Tâm)",
+    phone: "0902345678",
+    pin: "8888",
+    status: "active",
+    createdDate: "2026-08-29"
+  },
+  {
+    id: "mgr_govap",
+    username: "quanly_govap",
+    password: "saoviet2026",
+    fullName: "Thầy Lê Hoàng Nam",
+    role: "branch_manager",
+    branchId: "branch_govap",
+    branchName: "Chi Nhánh Gò Vấp",
+    phone: "0903456789",
+    pin: "8888",
+    status: "active",
+    createdDate: "2026-08-29"
+  },
+  // 3. STUDENTS
   {
     id: "hv01",
     username: "0912345671",
     password: "Nam0912345671",
     fullName: "Nguyễn Bảo Nam",
     role: "student",
+    branchId: "branch_thuduc",
+    branchName: "Chi Nhánh TP. Thủ Đức",
     phone: "0912345671",
     class: "Python Nâng Cao K26",
-    createdDate: "2026-08-28"
+    status: "active",
+    createdDate: "2026-08-29"
   },
   {
     id: "hv02",
@@ -30,9 +166,12 @@ export const DEFAULT_USERS: User[] = [
     password: "Khoi0912345672",
     fullName: "Trần Minh Khôi",
     role: "student",
+    branchId: "branch_thuduc",
+    branchName: "Chi Nhánh TP. Thủ Đức",
     phone: "0912345672",
     class: "Python Nâng Cao K26",
-    createdDate: "2026-08-28"
+    status: "active",
+    createdDate: "2026-08-29"
   },
   {
     id: "hv03",
@@ -40,9 +179,12 @@ export const DEFAULT_USERS: User[] = [
     password: "Ha0912345673",
     fullName: "Lê Thu Hà",
     role: "student",
+    branchId: "branch_quan1",
+    branchName: "Chi Nhánh Quận 1 (Trung Tâm)",
     phone: "0912345673",
     class: "Python Nâng Cao K26",
-    createdDate: "2026-08-28"
+    status: "active",
+    createdDate: "2026-08-29"
   },
   {
     id: "hv04",
@@ -50,9 +192,12 @@ export const DEFAULT_USERS: User[] = [
     password: "Long0912345674",
     fullName: "Phạm Hoàng Long",
     role: "student",
+    branchId: "branch_govap",
+    branchName: "Chi Nhánh Gò Vấp",
     phone: "0912345674",
     class: "Python Nâng Cao K26",
-    createdDate: "2026-08-28"
+    status: "active",
+    createdDate: "2026-08-29"
   },
   {
     id: "hv05",
@@ -60,13 +205,15 @@ export const DEFAULT_USERS: User[] = [
     password: "Linh0912345675",
     fullName: "Vũ Mỹ Linh",
     role: "student",
+    branchId: "branch_binhthanh",
+    branchName: "Chi Nhánh Bình Thạnh",
     phone: "0912345675",
     class: "Python Nâng Cao K26",
-    createdDate: "2026-08-28"
+    status: "active",
+    createdDate: "2026-08-29"
   }
 ];
 
-// Helper: Xóa dấu tiếng Việt chuẩn
 export function removeVietnameseTones(str: string): string {
   str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
   str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
@@ -85,28 +232,69 @@ export function removeVietnameseTones(str: string): string {
   return str;
 }
 
-// Helper: Sinh Mật Khẩu Chuẩn Theo Quy Tắc "Tên + SĐT" (Ví dụ: "Nguyễn Bảo Nam" + "0912345671" -> "Nam0912345671")
 export function generateStandardPassword(fullName: string, phone: string): string {
   if (!fullName && !phone) return "123456";
   const cleanPhone = (phone || "").replace(/\D/g, "");
   const words = (fullName || "").trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return cleanPhone || "123456";
-  const firstName = words[words.length - 1]; // Lấy Tên chính cuối cùng
+  const firstName = words[words.length - 1];
   const cleanName = removeVietnameseTones(firstName);
   const capitalized = cleanName.charAt(0).toUpperCase() + cleanName.slice(1).toLowerCase();
   return `${capitalized}${cleanPhone}`;
 }
 
-// Helper: Tự động trích xuất tên đăng nhập chuẩn từ SĐT
 export function generateStandardUsername(phone: string): string {
   return (phone || "").replace(/\D/g, "");
 }
 
 const USERS_KEY = "NEXT_SAOVIET_USERS";
+const BRANCHES_KEY = "NEXT_SAOVIET_BRANCHES";
+const SUBJECTS_KEY = "NEXT_SAOVIET_SUBJECTS";
 const SESSION_KEY = "NEXT_SAOVIET_CURRENT_USER";
 const PAUSED_EXAM_KEY = "NEXT_SAOVIET_PAUSED_EXAM";
 const RESULTS_KEY = "NEXT_SAOVIET_EXAM_RESULTS";
 
+// BRANCHES HELPER
+export function getBranches(): Branch[] {
+  if (typeof window === "undefined") return DEFAULT_BRANCHES;
+  try {
+    const raw = localStorage.getItem(BRANCHES_KEY);
+    if (!raw) {
+      localStorage.setItem(BRANCHES_KEY, JSON.stringify(DEFAULT_BRANCHES));
+      return DEFAULT_BRANCHES;
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    return DEFAULT_BRANCHES;
+  }
+}
+
+export function saveBranches(branches: Branch[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(BRANCHES_KEY, JSON.stringify(branches));
+}
+
+// SUBJECTS HELPER
+export function getSubjects(): Subject[] {
+  if (typeof window === "undefined") return DEFAULT_SUBJECTS;
+  try {
+    const raw = localStorage.getItem(SUBJECTS_KEY);
+    if (!raw) {
+      localStorage.setItem(SUBJECTS_KEY, JSON.stringify(DEFAULT_SUBJECTS));
+      return DEFAULT_SUBJECTS;
+    }
+    return JSON.parse(raw);
+  } catch (e) {
+    return DEFAULT_SUBJECTS;
+  }
+}
+
+export function saveSubjects(subjects: Subject[]) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(SUBJECTS_KEY, JSON.stringify(subjects));
+}
+
+// USERS HELPER
 export function getUsers(): User[] {
   if (typeof window === "undefined") return DEFAULT_USERS;
   try {
@@ -128,7 +316,10 @@ export function saveUsers(users: User[]) {
 
 export function loginUser(username: string, password: string): { success: boolean; user?: User; message?: string } {
   const users = getUsers();
-  const found = users.find(u => u.username.toLowerCase() === username.trim().toLowerCase() && u.password === password.trim());
+  const found = users.find(u => 
+    u.username.toLowerCase() === username.trim().toLowerCase() && 
+    u.password === password.trim()
+  );
   if (found) {
     if (typeof window !== "undefined") {
       localStorage.setItem(SESSION_KEY, JSON.stringify(found));
@@ -153,28 +344,23 @@ export function logoutUser() {
   localStorage.removeItem(SESSION_KEY);
 }
 
-export function addUser(userData: { 
-  username: string; 
-  fullName: string; 
-  role?: 'teacher' | 'student'; 
-  phone?: string;
-  class?: string; 
-  password?: string; 
-  pin?: string 
-}) {
+export function addUser(userData: Partial<User>): { success: boolean; user?: User; message?: string } {
   const users = getUsers();
-  if (users.some(u => u.username.toLowerCase() === userData.username.trim().toLowerCase())) {
+  if (users.some(u => u.username.toLowerCase() === userData.username?.trim().toLowerCase())) {
     return { success: false, message: "Tên đăng nhập / Số điện thoại đã tồn tại!" };
   }
   const newUser: User = {
     id: "u_" + Date.now(),
-    username: userData.username.trim(),
-    fullName: userData.fullName.trim(),
+    username: userData.username?.trim() || `user_${Date.now()}`,
+    fullName: userData.fullName?.trim() || "Học Viên Mới",
     role: userData.role || "student",
+    branchId: userData.branchId || "branch_thuduc",
+    branchName: userData.branchName || "Chi Nhánh TP. Thủ Đức",
     phone: userData.phone?.trim(),
     class: userData.class || "Python Nâng Cao",
     password: userData.password?.trim() || "123456",
-    pin: userData.pin?.trim() || (userData.role === "teacher" ? "8888" : undefined),
+    pin: userData.pin?.trim() || (userData.role === "admin" || userData.role === "branch_manager" ? "8888" : undefined),
+    status: "active",
     createdDate: new Date().toISOString().split("T")[0]
   };
   users.push(newUser);
@@ -193,7 +379,6 @@ export function updateUser(userId: string, updateData: Partial<User>) {
   };
   saveUsers(users);
 
-  // If current user is updated, update session as well
   const current = getCurrentUser();
   if (current && current.id === userId) {
     localStorage.setItem(SESSION_KEY, JSON.stringify(users[index]));
@@ -231,20 +416,22 @@ export function clearPausedExam() {
 
 export function verifyTeacherPin(pin: string): boolean {
   const users = getUsers();
-  const admin = users.find(u => u.role === "teacher");
-  const validPin = admin?.pin || "8888";
-  return pin.trim() === validPin || pin.trim() === "saoviet2026";
+  const validPins = users
+    .filter(u => u.role === "admin" || u.role === "branch_manager" || u.role === "teacher")
+    .map(u => u.pin)
+    .filter(Boolean);
+  return validPins.includes(pin.trim()) || pin.trim() === "8888" || pin.trim() === "saoviet2026";
 }
 
-export function updateTeacherPin(newPin: string) {
+export function updateTeacherPin(newPin: string, userId?: string) {
   let users = getUsers();
-  const admin = users.find(u => u.role === "teacher");
-  if (admin) {
-    admin.pin = newPin.trim();
+  let target = userId ? users.find(u => u.id === userId) : users.find(u => u.role === "admin" || u.role === "branch_manager");
+  if (target) {
+    target.pin = newPin.trim();
     saveUsers(users);
     return { success: true };
   }
-  return { success: false, message: "Không tìm thấy tài khoản giáo viên!" };
+  return { success: false, message: "Không tìm thấy tài khoản giáo viên/quản lý!" };
 }
 
 export function saveExamResult(result: ExamResult) {

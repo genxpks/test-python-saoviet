@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { User } from "@/types";
-import { updateUser, generateStandardPassword } from "@/lib/usersData";
-import { UserCheck, X, CheckCircle2, Sparkles, Eye, EyeOff } from "lucide-react";
+import { User, UserRole } from "@/types";
+import { updateUser, generateStandardPassword, getBranches } from "@/lib/usersData";
+import { UserCheck, X, CheckCircle2, Sparkles, Eye, EyeOff, Building2 } from "lucide-react";
 
 interface UserEditModalProps {
   user: User;
@@ -16,10 +16,13 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
   const [phone, setPhone] = useState(user.phone || "");
   const [className, setClassName] = useState(user.class || "Python Nâng Cao");
   const [password, setPassword] = useState(user.password || "123456");
-  const [role, setRole] = useState<'teacher' | 'student'>(user.role);
+  const [role, setRole] = useState<UserRole>(user.role || "student");
+  const [branchId, setBranchId] = useState(user.branchId || "branch_thuduc");
   const [pin, setPin] = useState(user.pin || "8888");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  const branches = getBranches();
 
   const applyStandardPassword = () => {
     const stdPass = generateStandardPassword(fullName, phone || user.username);
@@ -30,13 +33,17 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
     e.preventDefault();
     setIsLoading(true);
 
+    const selectedBranch = branches.find(b => b.id === branchId);
+
     const updatePayload = {
-      fullName,
-      phone,
-      class: className,
-      password,
-      role,
-      pin: role === "teacher" ? pin : undefined
+      fullName: fullName.trim(),
+      phone: phone.trim(),
+      class: className.trim(),
+      password: password.trim(),
+      role: role,
+      branchId: branchId,
+      branchName: selectedBranch?.name || "Chi Nhánh Thủ Đức",
+      pin: role !== "student" ? pin.trim() : undefined
     };
 
     // Update LocalStorage
@@ -49,12 +56,14 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: user.id,
-          fullName,
-          phone,
-          className,
-          password,
-          role,
-          pin
+          fullName: fullName.trim(),
+          phone: phone.trim(),
+          className: className.trim(),
+          password: password.trim(),
+          role: role,
+          branchId: branchId,
+          branchName: selectedBranch?.name || "Chi Nhánh Thủ Đức",
+          pin: role !== "student" ? pin.trim() : undefined
         })
       });
     } catch (err) {
@@ -68,71 +77,49 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "520px" }}>
-        <button
-          style={{
-            position: "absolute",
-            top: "1.2rem",
-            right: "1.2rem",
-            background: "#f1f5f9",
-            border: "none",
-            borderRadius: "50%",
-            width: "32px",
-            height: "32px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            color: "#64748b"
-          }}
-          onClick={onClose}
-        >
-          <X size={18} />
-        </button>
-
-        <div style={{ textAlign: "center", marginBottom: "1.2rem" }}>
-          <div style={{
-            width: "56px",
-            height: "56px",
-            background: "rgba(37, 99, 235, 0.12)",
-            color: "var(--brand-primary)",
-            borderRadius: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 0.8rem auto"
-          }}>
-            <UserCheck size={28} />
+    <div className="modal-backdrop">
+      <div className="modal-content" style={{ maxWidth: "540px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.8rem", marginBottom: "1.2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <div style={{ padding: "0.4rem", background: "rgba(37, 99, 235, 0.12)", color: "var(--brand-primary)", borderRadius: "var(--radius-md)" }}>
+              <UserCheck size={22} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0 }}>Chỉnh Sửa Tài Khoản</h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0 }}>
+                Tên đăng nhập: <strong style={{ color: "var(--brand-primary)" }}>{user.username}</strong>
+              </p>
+            </div>
           </div>
-          <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Chỉnh Sửa Tài Khoản</h3>
-          <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>
-            Tên đăng nhập: <strong style={{ color: "var(--brand-primary)" }}>{user.username}</strong>
-          </p>
+          <button onClick={onClose} className="btn btn-secondary btn-sm" style={{ padding: "0.3rem" }}>
+            <X size={16} />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "0.9rem" }}>
-            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-              Họ Và Tên Học Viên:
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+          <div>
+            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+              Họ Và Tên: *
             </label>
             <input
               type="text"
-              className="form-input"
+              className="input"
+              style={{ width: "100%" }}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
             />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem", marginBottom: "0.9rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
                 Số Điện Thoại (SĐT):
               </label>
               <input
                 type="tel"
-                className="form-input"
+                className="input"
+                style={{ width: "100%" }}
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="VD: 0912345671"
@@ -140,22 +127,58 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-                Lớp Học:
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                Lớp Học / Khóa:
               </label>
               <input
                 type="text"
-                className="form-input"
+                className="input"
+                style={{ width: "100%" }}
                 value={className}
                 onChange={(e) => setClassName(e.target.value)}
               />
             </div>
           </div>
 
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                Vai Trò (Role):
+              </label>
+              <select
+                className="input"
+                style={{ width: "100%", fontWeight: 600 }}
+                value={role}
+                onChange={(e) => setRole(e.target.value as UserRole)}
+                disabled={user.username === "admin"}
+              >
+                <option value="student">🎓 Học Viên</option>
+                <option value="branch_manager">🏫 Quản Lý Chi Nhánh</option>
+                <option value="admin">👑 Tổng Quản Trị (Admin)</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                Chi Nhánh:
+              </label>
+              <select
+                className="input"
+                style={{ width: "100%" }}
+                value={branchId}
+                onChange={(e) => setBranchId(e.target.value)}
+              >
+                {branches.map(b => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           {/* Password with Eye and Standard Reset */}
-          <div style={{ marginBottom: "1rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
-              <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-secondary)" }}>
+          <div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.3rem" }}>
+              <label style={{ fontSize: "0.84rem", fontWeight: 700 }}>
                 Mật Khẩu Đăng Nhập:
               </label>
               <button
@@ -181,11 +204,11 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <input
                 type={showPassword ? "text" : "password"}
-                className="form-input"
+                className="input"
+                style={{ width: "100%", paddingRight: "40px" }}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                style={{ paddingRight: "40px" }}
               />
               <button
                 type="button"
@@ -196,10 +219,8 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  color: "#64748b",
-                  padding: "4px",
-                  display: "flex",
-                  alignItems: "center"
+                  color: "var(--text-muted)",
+                  padding: "4px"
                 }}
                 title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
               >
@@ -208,42 +229,31 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem", marginBottom: "1.4rem" }}>
+          {role !== "student" && (
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-                Vai Trò:
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                Mã PIN Giáo Viên Mở Khóa Đề:
               </label>
-              <select
-                className="form-input"
-                value={role}
-                onChange={(e) => setRole(e.target.value as any)}
-                disabled={user.username === "admin"}
-              >
-                <option value="student">Học Viên</option>
-                <option value="teacher">Giáo Viên Quản Trị</option>
-              </select>
+              <input
+                type="text"
+                className="input"
+                style={{ width: "160px", fontWeight: 800, letterSpacing: "2px" }}
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                maxLength={6}
+              />
             </div>
+          )}
 
-            {role === "teacher" && (
-              <div>
-                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-                  Mã PIN Mở Khóa Đề:
-                </label>
-                <input
-                  type="text"
-                  className="form-input"
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  maxLength={6}
-                />
-              </div>
-            )}
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.6rem", marginTop: "1rem", borderTop: "1px solid var(--border-light)", paddingTop: "0.8rem" }}>
+            <button type="button" onClick={onClose} className="btn btn-secondary btn-sm">
+              Hủy
+            </button>
+            <button type="submit" className="btn btn-primary btn-sm" disabled={isLoading}>
+              <CheckCircle2 size={14} />
+              <span>{isLoading ? "Đang lưu..." : "Lưu Thay Đổi"}</span>
+            </button>
           </div>
-
-          <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={isLoading}>
-            <CheckCircle2 size={18} />
-            <span>{isLoading ? "Đang lưu..." : "Lưu Thay Đổi"}</span>
-          </button>
         </form>
       </div>
     </div>

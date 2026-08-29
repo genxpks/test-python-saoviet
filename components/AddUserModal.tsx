@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { addUser, generateStandardPassword, generateStandardUsername } from "@/lib/usersData";
-import { UserPlus, X, CheckCircle2, Sparkles, Phone, User, KeyRound, Eye, EyeOff } from "lucide-react";
+import { addUser, generateStandardPassword, generateStandardUsername, getBranches } from "@/lib/usersData";
+import { UserRole } from "@/types";
+import { UserPlus, X, CheckCircle2, Sparkles, Eye, EyeOff, Building2 } from "lucide-react";
 
 interface AddUserModalProps {
   onClose: () => void;
@@ -15,11 +16,15 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [className, setClassName] = useState("Python Nâng Cao K26");
+  const [role, setRole] = useState<UserRole>("student");
+  const [branchId, setBranchId] = useState("branch_thuduc");
+  const [pin, setPin] = useState("8888");
   const [showPassword, setShowPassword] = useState(false);
   const [autoGen, setAutoGen] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Khi nhập Họ Tên hoặc SĐT -> Tự động sinh Username (SĐT) & Mật khẩu chuẩn (Tên + SĐT)
+  const branches = getBranches();
+
   const handleFullNameChange = (name: string) => {
     setFullName(name);
     if (autoGen) {
@@ -55,13 +60,18 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
     }
 
     setIsLoading(true);
+    const selectedBranch = branches.find(b => b.id === branchId);
+
     const res = addUser({
       username: username.trim(),
       fullName: fullName.trim(),
       phone: phone.trim(),
       class: className.trim(),
       password: password.trim(),
-      role: "student"
+      role: role,
+      branchId: branchId,
+      branchName: selectedBranch?.name || "Chi Nhánh Thủ Đức",
+      pin: role !== "student" ? pin.trim() : undefined
     });
 
     if (res.success) {
@@ -74,16 +84,19 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
             username: username.trim(),
             fullName: fullName.trim(),
             phone: phone.trim(),
-            class: className.trim(),
+            className: className.trim(),
             password: password.trim(),
-            role: "student"
+            role: role,
+            branchId: branchId,
+            branchName: selectedBranch?.name || "Chi Nhánh Thủ Đức",
+            pin: role !== "student" ? pin.trim() : undefined
           })
         });
       } catch (err) {
         console.warn("MongoDB API sync warning, saved to local store.");
       }
 
-      alert(`✅ Cấp tài khoản học viên thành công!\n👤 Tên đăng nhập: ${username}\n🔑 Mật khẩu chuẩn: ${password}`);
+      alert(`✅ Cấp tài khoản thành công!\n👤 Tên đăng nhập: ${username}\n🔑 Mật khẩu: ${password}`);
       onUserAdded();
       onClose();
     } else {
@@ -93,77 +106,68 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "520px" }}>
-        <button
-          style={{
-            position: "absolute",
-            top: "1.2rem",
-            right: "1.2rem",
-            background: "#f1f5f9",
-            border: "none",
-            borderRadius: "50%",
-            width: "32px",
-            height: "32px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            cursor: "pointer",
-            color: "#64748b"
-          }}
-          onClick={onClose}
-        >
-          <X size={18} />
-        </button>
-
-        <div style={{ textAlign: "center", marginBottom: "1.2rem" }}>
-          <div style={{
-            width: "56px",
-            height: "56px",
-            background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(6, 182, 212, 0.15))",
-            color: "var(--brand-primary)",
-            borderRadius: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 0.8rem auto"
-          }}>
-            <UserPlus size={28} />
+    <div className="modal-backdrop">
+      <div className="modal-content" style={{ maxWidth: "540px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.8rem", marginBottom: "1.2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <div style={{ padding: "0.4rem", background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(6, 182, 212, 0.15))", color: "var(--brand-primary)", borderRadius: "var(--radius-md)" }}>
+              <UserPlus size={22} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0 }}>Cấp Tài Khoản Mới</h3>
+              <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0 }}>
+                Hỗ trợ 3 Roles: Học viên, Quản lý chi nhánh, Admin
+              </p>
+            </div>
           </div>
-          <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Cấp Tài Khoản Học Viên Mới</h3>
-          <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>
-            Tự động khởi tạo Tên đăng nhập (SĐT) & Mật khẩu chuẩn (Tên + SĐT)
-          </p>
+          <button onClick={onClose} className="btn btn-secondary btn-sm" style={{ padding: "0.3rem" }}>
+            <X size={16} />
+          </button>
         </div>
 
-        {/* Standard Info Banner */}
-        <div style={{
-          background: "linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(6, 182, 212, 0.08))",
-          border: "1px solid rgba(37, 99, 235, 0.2)",
-          borderRadius: "var(--radius-sm)",
-          padding: "0.75rem 1rem",
-          marginBottom: "1.2rem",
-          fontSize: "0.82rem",
-          lineHeight: "1.5",
-          color: "var(--text-secondary)"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, color: "var(--brand-primary)", marginBottom: "0.25rem" }}>
-            <Sparkles size={14} />
-            <span>Quy Chuẩn Cấp Tài Khoản Sao Việt:</span>
-          </div>
-          <div>• <strong>Tên đăng nhập:</strong> Số điện thoại học viên (VD: <code>0912345671</code>)</div>
-          <div>• <strong>Mật khẩu chuẩn:</strong> Tên không dấu + SĐT (VD: <code>Nam0912345671</code>)</div>
-        </div>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                Vai Trò (Role): *
+              </label>
+              <select
+                className="input"
+                style={{ width: "100%", fontWeight: 600 }}
+                value={role}
+                onChange={(e) => setRole(e.target.value as UserRole)}
+              >
+                <option value="student">🎓 Học Viên</option>
+                <option value="branch_manager">🏫 Quản Lý Chi Nhánh</option>
+                <option value="admin">👑 Tổng Quản Trị (Admin)</option>
+              </select>
+            </div>
 
-        <form onSubmit={handleSubmit}>
-          {/* Họ và tên */}
-          <div style={{ marginBottom: "0.9rem" }}>
-            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-              Họ Và Tên Học Viên: <span style={{ color: "#ef4444" }}>*</span>
+            <div>
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                Thuộc Chi Nhánh: *
+              </label>
+              <select
+                className="input"
+                style={{ width: "100%" }}
+                value={branchId}
+                onChange={(e) => setBranchId(e.target.value)}
+              >
+                {branches.map(b => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+              Họ Và Tên: <span style={{ color: "#ef4444" }}>*</span>
             </label>
             <input
               type="text"
-              className="form-input"
+              className="input"
+              style={{ width: "100%" }}
               value={fullName}
               onChange={(e) => handleFullNameChange(e.target.value)}
               placeholder="Ví dụ: Nguyễn Bảo Nam"
@@ -172,30 +176,45 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
             />
           </div>
 
-          {/* Số điện thoại */}
-          <div style={{ marginBottom: "0.9rem" }}>
-            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-              Số Điện Thoại Học Viên (SĐT): <span style={{ color: "#ef4444" }}>*</span>
-            </label>
-            <input
-              type="tel"
-              className="form-input"
-              value={phone}
-              onChange={(e) => handlePhoneChange(e.target.value)}
-              placeholder="Ví dụ: 0912345671"
-              required
-            />
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem", marginBottom: "0.9rem" }}>
-            {/* Username */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-                Tên Đăng Nhập (Username):
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                Số Điện Thoại (SĐT): <span style={{ color: "#ef4444" }}>*</span>
+              </label>
+              <input
+                type="tel"
+                className="input"
+                style={{ width: "100%" }}
+                value={phone}
+                onChange={(e) => handlePhoneChange(e.target.value)}
+                placeholder="Ví dụ: 0912345671"
+                required
+              />
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                Lớp Học / Khóa:
               </label>
               <input
                 type="text"
-                className="form-input"
+                className="input"
+                style={{ width: "100%" }}
+                value={className}
+                onChange={(e) => setClassName(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                Tên Đăng Nhập:
+              </label>
+              <input
+                type="text"
+                className="input"
+                style={{ width: "100%" }}
                 value={username}
                 onChange={(e) => {
                   setUsername(e.target.value);
@@ -206,84 +225,83 @@ export default function AddUserModal({ onClose, onUserAdded }: AddUserModalProps
               />
             </div>
 
-            {/* Lớp học */}
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-                Lớp Học:
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.3rem" }}>
+                <label style={{ fontSize: "0.84rem", fontWeight: 700 }}>
+                  Mật Khẩu:
+                </label>
+                <button
+                  type="button"
+                  onClick={applyStandardCredentials}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "var(--brand-primary)",
+                    fontSize: "0.72rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "2px"
+                  }}
+                >
+                  <Sparkles size={11} />
+                  <span>Sinh chuẩn</span>
+                </button>
+              </div>
+              <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="input"
+                  style={{ width: "100%", paddingRight: "35px" }}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "8px",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--text-muted)",
+                    padding: "2px"
+                  }}
+                >
+                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {role !== "student" && (
+            <div>
+              <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                Mã PIN Quản Lý / Giáo Viên (mở khóa đề):
               </label>
               <input
                 type="text"
-                className="form-input"
-                value={className}
-                onChange={(e) => setClassName(e.target.value)}
+                className="input"
+                style={{ width: "160px", fontWeight: 800, letterSpacing: "2px" }}
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                maxLength={6}
               />
             </div>
+          )}
+
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.6rem", marginTop: "1rem", borderTop: "1px solid var(--border-light)", paddingTop: "0.8rem" }}>
+            <button type="button" onClick={onClose} className="btn btn-secondary btn-sm">
+              Hủy
+            </button>
+            <button type="submit" className="btn btn-primary btn-sm" disabled={isLoading}>
+              <CheckCircle2 size={14} />
+              <span>{isLoading ? "Đang tạo..." : "Tạo Tài Khoản"}</span>
+            </button>
           </div>
-
-          {/* Password with Eye Toggle */}
-          <div style={{ marginBottom: "1.3rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
-              <label style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-secondary)" }}>
-                Mật Khẩu Chuẩn (Tên + SĐT):
-              </label>
-              <button
-                type="button"
-                onClick={applyStandardCredentials}
-                style={{
-                  background: "none",
-                  border: "none",
-                  color: "var(--brand-primary)",
-                  fontSize: "0.75rem",
-                  fontWeight: 700,
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "3px"
-                }}
-              >
-                <Sparkles size={12} />
-                <span>Sinh lại chuẩn</span>
-              </button>
-            </div>
-
-            <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
-              <input
-                type={showPassword ? "text" : "password"}
-                className="form-input"
-                value={password}
-                onChange={(e) => {
-                  setPassword(e.target.value);
-                  setAutoGen(false);
-                }}
-                placeholder="VD: Nam0912345671"
-                required
-                style={{ paddingRight: "40px" }}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  color: "#64748b",
-                  padding: "4px",
-                  display: "flex",
-                  alignItems: "center"
-                }}
-                title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-              >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={isLoading}>
-            <CheckCircle2 size={18} />
-            <span>{isLoading ? "Đang tạo tài khoản..." : "Xác Nhận & Cấp Tài Khoản"}</span>
-          </button>
         </form>
       </div>
     </div>

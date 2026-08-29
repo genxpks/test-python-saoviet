@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { User, Question, PracticalProblem, PausedExamState, ExamResult } from "@/types";
+import { User, Question, PracticalProblem, PausedExamState, ExamResult, Branch, Subject } from "@/types";
 import { 
   getUsers, 
   deleteUser, 
@@ -12,7 +12,12 @@ import {
   deleteExamResult, 
   clearExamResults,
   updateTeacherPin,
-  loginUser
+  loginUser,
+  getBranches,
+  saveBranches,
+  getSubjects,
+  saveSubjects,
+  addUser
 } from "@/lib/usersData";
 import { 
   getQuestionsData, 
@@ -25,6 +30,9 @@ import AddUserModal from "@/components/AddUserModal";
 import UserEditModal from "@/components/admin/UserEditModal";
 import QuestionFormModal from "@/components/admin/QuestionFormModal";
 import PracticalFormModal from "@/components/admin/PracticalFormModal";
+import ExcelQuestionImporter from "@/components/admin/ExcelQuestionImporter";
+import BranchModal from "@/components/admin/BranchModal";
+import SubjectModal from "@/components/admin/SubjectModal";
 
 import { 
   ShieldCheck, 
@@ -57,17 +65,24 @@ import {
   Square,
   Bot,
   Eye,
-  EyeOff
+  EyeOff,
+  Building2,
+  Code2,
+  Layers,
+  Upload,
+  Filter,
+  Check,
+  X
 } from "lucide-react";
 
-type AdminTab = "users" | "questions" | "practicals" | "exams_monitor" | "results" | "settings";
+type AdminTab = "overview" | "branches" | "subjects" | "questions" | "practicals" | "users" | "exams_monitor" | "results" | "settings";
 
 export default function AdminPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [activeTab, setActiveTab] = useState<AdminTab>("users");
+  const [activeTab, setActiveTab] = useState<AdminTab>("questions");
   const [viewMode, setViewMode] = useState<"table" | "grid">("table");
 
-  // Auth form inside admin page if not logged in (empty by default for security)
+  // Auth form inside admin page if not logged in
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -81,6 +96,8 @@ export default function AdminPage() {
   };
 
   // Data states
+  const [branches, setBranches] = useState<Branch[]>([]);
+  const [subjects, setSubjects] = useState<Subject[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [practicals, setPracticals] = useState<PracticalProblem[]>([]);
@@ -92,16 +109,26 @@ export default function AdminPage() {
   const [selectedQuestionIds, setSelectedQuestionIds] = useState<number[]>([]);
 
   // Search & Filter states
+  const [selectedSubjectId, setSelectedSubjectId] = useState("python_advanced");
+  const [selectedBranchId, setSelectedBranchId] = useState("all");
+
   const [userSearch, setUserSearch] = useState("");
   const [userRoleFilter, setUserRoleFilter] = useState("all");
+  const [userBranchFilter, setUserBranchFilter] = useState("all");
 
   const [questionSearch, setQuestionSearch] = useState("");
   const [questionTypeFilter, setQuestionTypeFilter] = useState("all");
-
   const [practicalSearch, setPracticalSearch] = useState("");
   const [resultRankFilter, setResultRankFilter] = useState("all");
 
-  // Modal States
+  // Modals
+  const [showExcelModal, setShowExcelModal] = useState(false);
+  const [showBranchModal, setShowBranchModal] = useState(false);
+  const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
+
+  const [showSubjectModal, setShowSubjectModal] = useState(false);
+  const [editingSubject, setEditingSubject] = useState<Subject | null>(null);
+
   const [showAddUserModal, setShowAddUserModal] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
@@ -113,7 +140,6 @@ export default function AdminPage() {
 
   // Settings states
   const [teacherPinInput, setTeacherPinInput] = useState("8888");
-  const [aiModelSelected, setAiModelSelected] = useState("google/gemini-2.0-flash-001");
 
   useEffect(() => {
     const user = getCurrentUser();
@@ -121,29 +147,135 @@ export default function AdminPage() {
     loadAllData();
   }, []);
 
-  const loadAllData = () => {
+  const loadAllData = async () => {
+    // 1. Load Local
+    setBranches(getBranches());
+    setSubjects(getSubjects());
     setUsers(getUsers());
     setQuestions(getQuestionsData());
     setPracticals(getPracticalsData());
     setPausedExam(getPausedExam());
     setExamResults(getExamResults());
+
+    // 2. Sync from MongoDB Atlas
+    try {
+      const [resB, resS, resQ, resU, resE] = await Promise.all([
+        fetch("/api/branches").then(r => r.json()).catch(() => null),
+        fetch("/api/subjects").then(r => r.json()).catch(() => null),
+        fetch("/api/questions").then(r => r.json()).catch(() => null),
+        fetch("/api/users").then(r => r.json()).catch(() => null),
+        fetch("/api/exams").then(r => r.json()).catch(() => null)
+      ]);
+
+      if (resB?.success && resB.branches?.length > 0) {
+        setBranches(resB.branches);
+        saveBranches(resB.branches);
+      }
+      if (resS?.success && resS.subjects?.length > 0) {
+        setSubjects(resS.subjects);
+        saveSubjects(resS.subjects);
+      }
+      if (resQ?.success && resQ.questions?.length > 0) {
+        setQuestions(resQ.questions);
+      }
+      if (resU?.success && resU.users?.length > 0) {
+        setUsers(resU.users);
+      }
+      if (resE?.success && resE.results?.length > 0) {
+        setExamResults(resE.results);
+      }
+    } catch (err) {
+      console.log("Local fallback mode:", err);
+    }
   };
 
   const handleInlineLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const res = loginUser(loginUsername, loginPassword);
-    if (res.success && res.user && res.user.role === "teacher") {
+    if (res.success && res.user && (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher")) {
       setCurrentUser(res.user);
       setLoginError("");
       loadAllData();
     } else {
-      setLoginError("Tài khoản hoặc mật khẩu không chính xác, hoặc không có quyền Giáo viên!");
+      setLoginError("Tài khoản hoặc mật khẩu không chính xác, hoặc không có quyền Quản trị / Giáo viên!");
+    }
+  };
+
+  // Branch CRUD
+  const handleSaveBranch = async (branchData: Partial<Branch>) => {
+    try {
+      if (branchData.id && branches.some(b => b.id === branchData.id)) {
+        // Update
+        await fetch("/api/branches", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(branchData)
+        });
+      } else {
+        // Create
+        await fetch("/api/branches", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(branchData)
+        });
+      }
+      setShowBranchModal(false);
+      setEditingBranch(null);
+      loadAllData();
+    } catch (e: any) {
+      alert("Lỗi lưu chi nhánh: " + e.message);
+    }
+  };
+
+  const handleDeleteBranch = async (id: string) => {
+    if (confirm("Thầy/Cô có chắc chắn muốn xóa chi nhánh này?")) {
+      try {
+        await fetch(`/api/branches?id=${id}`, { method: "DELETE" });
+        loadAllData();
+      } catch (e: any) {
+        alert("Lỗi xóa chi nhánh: " + e.message);
+      }
+    }
+  };
+
+  // Subject CRUD
+  const handleSaveSubject = async (subjectData: Partial<Subject>) => {
+    try {
+      if (subjectData.id && subjects.some(s => s.id === subjectData.id)) {
+        await fetch("/api/subjects", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subjectData)
+        });
+      } else {
+        await fetch("/api/subjects", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subjectData)
+        });
+      }
+      setShowSubjectModal(false);
+      setEditingSubject(null);
+      loadAllData();
+    } catch (e: any) {
+      alert("Lỗi lưu môn học: " + e.message);
+    }
+  };
+
+  const handleDeleteSubject = async (id: string) => {
+    if (confirm("Thầy/Cô có chắc muốn xóa môn học này?")) {
+      try {
+        await fetch(`/api/subjects?id=${id}`, { method: "DELETE" });
+        loadAllData();
+      } catch (e: any) {
+        alert("Lỗi xóa môn học: " + e.message);
+      }
     }
   };
 
   // User Actions
   const handleDeleteUser = async (id: string) => {
-    if (confirm("Thầy/Cô có chắc chắn muốn xóa tài khoản học viên này không?")) {
+    if (confirm("Thầy/Cô có chắc chắn muốn xóa tài khoản này không?")) {
       deleteUser(id);
       try {
         await fetch(`/api/users?id=${id}`, { method: "DELETE" });
@@ -152,18 +284,9 @@ export default function AdminPage() {
     }
   };
 
-  const handleBulkDeleteUsers = async () => {
-    if (selectedUserIds.length === 0) return;
-    if (confirm(`Thầy/Cô có chắc muốn xóa ${selectedUserIds.length} tài khoản đã chọn?`)) {
-      selectedUserIds.forEach((id) => deleteUser(id));
-      setSelectedUserIds([]);
-      loadAllData();
-    }
-  };
-
   // Question Actions
   const handleDeleteQuestion = async (id: number) => {
-    if (confirm(`Thầy/Cô có chắc chắn muốn xóa câu hỏi #${id} khỏi ngân hàng câu hỏi?`)) {
+    if (confirm(`Thầy/Cô có chắc chắn muốn xóa câu hỏi #${id}?`)) {
       deleteQuestionData(id);
       try {
         await fetch(`/api/questions?id=${id}&target=question`, { method: "DELETE" });
@@ -172,1125 +295,788 @@ export default function AdminPage() {
     }
   };
 
-  // Practical Actions
-  const handleDeletePractical = async (id: number) => {
-    if (confirm(`Thầy/Cô có chắc chắn muốn xóa bài thực hành #${id}?`)) {
-      deletePracticalData(id);
-      try {
-        await fetch(`/api/questions?id=${id}&target=practical`, { method: "DELETE" });
-      } catch (e) {}
-      loadAllData();
-    }
+  // Export Excel
+  const handleExportQuestionsExcel = () => {
+    window.open(`/api/questions/export-excel?subjectId=${selectedSubjectId}&branchId=${selectedBranchId}`, "_blank");
   };
 
-  // Result Actions
-  const handleDeleteResult = async (id: string) => {
-    if (confirm("Xóa bản ghi kết quả bài thi này?")) {
-      deleteExamResult(id);
-      try {
-        await fetch(`/api/exams?id=${id}`, { method: "DELETE" });
-      } catch (e) {}
-      loadAllData();
-    }
-  };
+  // Filtered Questions
+  const filteredQuestions = useMemo(() => {
+    return questions.filter(q => {
+      const matchSubject = !selectedSubjectId || selectedSubjectId === "all" || q.subjectId === selectedSubjectId || (!q.subjectId && selectedSubjectId === "python_advanced");
+      const matchBranch = selectedBranchId === "all" || !q.branchId || q.branchId === "all" || q.branchId === selectedBranchId;
+      const matchSearch = !questionSearch || 
+        q.question.toLowerCase().includes(questionSearch.toLowerCase()) || 
+        q.explanation.toLowerCase().includes(questionSearch.toLowerCase()) ||
+        String(q.id).includes(questionSearch);
+      const matchType = questionTypeFilter === "all" || q.type === questionTypeFilter;
 
-  const handleClearAllResults = async () => {
-    if (confirm("⚠️ CẢNH BÁO: Thầy/Cô có chắc chắn muốn xóa toàn bộ lịch sử nộp bài thi?")) {
-      clearExamResults();
-      try {
-        await fetch(`/api/exams`, { method: "DELETE" });
-      } catch (e) {}
-      loadAllData();
-    }
-  };
+      return matchSubject && matchBranch && matchSearch && matchType;
+    });
+  }, [questions, selectedSubjectId, selectedBranchId, questionSearch, questionTypeFilter]);
 
-  const handleClearPausedExam = () => {
-    if (confirm("Hủy bỏ bài thi đang tạm dừng này?")) {
-      clearPausedExam();
-      try {
-        fetch(`/api/pause`, { method: "DELETE" });
-      } catch (e) {}
-      loadAllData();
-    }
-  };
+  // Filtered Users
+  const filteredUsers = useMemo(() => {
+    return users.filter(u => {
+      const matchSearch = !userSearch || 
+        u.fullName.toLowerCase().includes(userSearch.toLowerCase()) || 
+        u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
+        (u.phone && u.phone.includes(userSearch));
+      const matchRole = userRoleFilter === "all" || u.role === userRoleFilter || (userRoleFilter === "teacher" && (u.role === "admin" || u.role === "branch_manager"));
+      const matchBranch = userBranchFilter === "all" || u.branchId === userBranchFilter;
 
-  const handleUpdatePin = () => {
-    if (teacherPinInput.trim().length < 4) {
-      alert("Mã PIN phải có ít nhất 4 ký tự!");
-      return;
-    }
-    updateTeacherPin(teacherPinInput.trim());
-    alert(`✅ Đã cập nhật mã PIN giáo viên thành công: ${teacherPinInput}`);
-  };
+      return matchSearch && matchRole && matchBranch;
+    });
+  }, [users, userSearch, userRoleFilter, userBranchFilter]);
 
-  const handleExportCSV = () => {
-    if (examResults.length === 0) {
-      alert("Chưa có kết quả nào để xuất báo cáo!");
-      return;
-    }
-    const headers = "Họ và tên,Lớp,Điểm Trắc Nghiệm,Điểm Tự Luận,Tổng Điểm,Xếp Loại,Thời Gian Nộp\n";
-    const rows = examResults.map(r => 
-      `"${r.studentName}","${r.studentClass}",${r.mcqScore},${r.practicalScore},${r.totalScore},"${r.rank}","${r.submittedAt}"`
-    ).join("\n");
-    const blob = new Blob(["\uFEFF" + headers + rows], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `Bang_Diem_Python_SaoViet_${new Date().toISOString().split("T")[0]}.csv`;
-    link.click();
-  };
-
-  // Performance Statistics (Calculated KPI metrics)
+  // Calculated Stats
   const stats = useMemo(() => {
     const totalStudents = users.filter(u => u.role === "student").length;
+    const totalBranches = branches.length;
+    const totalSubjects = subjects.length;
     const completedCount = examResults.length;
     const avgScore = completedCount > 0 
       ? (examResults.reduce((acc, r) => acc + r.totalScore, 0) / completedCount).toFixed(1)
       : "0.0";
     const passCount = examResults.filter(r => r.totalScore >= 5.0).length;
-    const passRate = completedCount > 0 ? Math.round((passCount / completedCount) * 100) : 100;
+    const passRate = completedCount > 0 ? ((passCount / completedCount) * 100).toFixed(0) : "0";
 
-    return { totalStudents, completedCount, avgScore, passRate };
-  }, [users, examResults]);
+    return {
+      totalStudents,
+      totalBranches,
+      totalSubjects,
+      totalQuestions: questions.length,
+      completedCount,
+      avgScore,
+      passRate
+    };
+  }, [users, branches, subjects, questions, examResults]);
 
-  // Filters
-  const filteredUsers = useMemo(() => {
-    return users.filter((u) => {
-      const matchSearch = u.fullName.toLowerCase().includes(userSearch.toLowerCase()) ||
-        u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
-        (u.class && u.class.toLowerCase().includes(userSearch.toLowerCase()));
-      const matchRole = userRoleFilter === "all" || u.role === userRoleFilter;
-      return matchSearch && matchRole;
-    });
-  }, [users, userSearch, userRoleFilter]);
+  // Nếu chưa đăng nhập quyền Admin/Giáo viên, hiển thị màn hình khóa
+  const isAuthorized = currentUser && (currentUser.role === "admin" || currentUser.role === "branch_manager" || currentUser.role === "teacher");
 
-  const filteredQuestions = useMemo(() => {
-    return questions.filter((q) => {
-      const matchSearch = q.question.toLowerCase().includes(questionSearch.toLowerCase()) ||
-        q.explanation.toLowerCase().includes(questionSearch.toLowerCase());
-      const matchType = questionTypeFilter === "all" || q.type === questionTypeFilter;
-      return matchSearch && matchType;
-    });
-  }, [questions, questionSearch, questionTypeFilter]);
-
-  const filteredPracticals = useMemo(() => {
-    return practicals.filter((p) => {
-      return p.title.toLowerCase().includes(practicalSearch.toLowerCase()) ||
-        p.description.toLowerCase().includes(practicalSearch.toLowerCase());
-    });
-  }, [practicals, practicalSearch]);
-
-  const filteredResults = useMemo(() => {
-    return examResults.filter((r) => {
-      if (resultRankFilter === "all") return true;
-      return r.rank.toLowerCase().includes(resultRankFilter.toLowerCase());
-    });
-  }, [examResults, resultRankFilter]);
-
-  // If user is not logged in as teacher, display elegant login card
-  if (!currentUser || currentUser.role !== "teacher") {
+  if (!isAuthorized) {
     return (
-      <div style={{ maxWidth: "520px", margin: "3rem auto", padding: "0 1rem" }}>
-        <div className="q-card" style={{ padding: "2.5rem 2rem", textAlign: "center", boxShadow: "var(--shadow-card)" }}>
-          <div style={{
-            width: "68px",
-            height: "68px",
-            background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(6, 182, 212, 0.15))",
-            color: "var(--brand-primary)",
-            borderRadius: "20px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 1.2rem auto",
-            border: "1px solid rgba(37, 99, 235, 0.2)"
-          }}>
-            <ShieldCheck size={36} />
+      <div style={{ maxWidth: "480px", margin: "4rem auto", padding: "0 1rem" }}>
+        <div className="q-card" style={{ textAlign: "center", padding: "2.5rem 2rem" }}>
+          <div style={{ width: "64px", height: "64px", borderRadius: "50%", background: "rgba(245, 158, 11, 0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.2rem", color: "var(--brand-amber)" }}>
+            <Lock size={32} />
           </div>
-
-          <h2 style={{ fontSize: "1.5rem", fontWeight: 900, marginBottom: "0.4rem" }}>
-            Cổng Quản Trị Giáo Viên
-          </h2>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.8rem", lineHeight: "1.5" }}>
-            Vui lòng xác thực tài khoản Giáo Viên Quản Trị để truy cập toàn bộ hệ thống CRUD học liệu & bảng điểm.
+          <h2 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "0.5rem" }}>Khu Vực Quản Trị Hệ Thống</h2>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", marginBottom: "1.8rem" }}>
+            Vui lòng đăng nhập với tài khoản <strong>Tổng Quản Trị (Admin)</strong> hoặc <strong>Quản Lý Chi Nhánh</strong> để truy cập.
           </p>
 
-          <form onSubmit={handleInlineLogin} style={{ textAlign: "left" }}>
-            <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-                Tài Khoản Giáo Viên:
-              </label>
-              <input
-                type="text"
-                className="form-input"
-                value={loginUsername}
-                onChange={(e) => setLoginUsername(e.target.value)}
-                required
-              />
-            </div>
-
-            <div style={{ marginBottom: "1.4rem" }}>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-                Mật Khẩu:
-              </label>
-              <input
-                type="password"
-                className="form-input"
-                value={loginPassword}
-                onChange={(e) => setLoginPassword(e.target.value)}
-                required
-              />
-            </div>
-
+          <form onSubmit={handleInlineLogin} style={{ display: "flex", flexDirection: "column", gap: "1rem", textAlign: "left" }}>
             {loginError && (
-              <div style={{
-                color: "#e11d48",
-                fontSize: "0.85rem",
-                marginBottom: "1.2rem",
-                background: "#fff1f2",
-                border: "1px solid #fecdd3",
-                padding: "0.65rem 0.9rem",
-                borderRadius: "var(--radius-xs)"
-              }}>
+              <div style={{ padding: "0.75rem", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "var(--radius-md)", color: "#b91c1c", fontSize: "0.85rem" }}>
                 {loginError}
               </div>
             )}
 
-            <button type="submit" className="btn btn-primary btn-block btn-lg">
-              <KeyRound size={18} />
-              <span>Mở Bảng Điều Khiển Quản Trị</span>
+            <div>
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.4rem" }}>
+                Tên Đăng Nhập / Mã Quản Lý:
+              </label>
+              <input
+                type="text"
+                required
+                value={loginUsername}
+                onChange={(e) => setLoginUsername(e.target.value)}
+                placeholder="VD: admin hoặc quanly_thuduc"
+                className="input"
+                style={{ width: "100%" }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.4rem" }}>
+                Mật Khẩu Quản Trị:
+              </label>
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="Mật khẩu bảo mật"
+                className="input"
+                style={{ width: "100%" }}
+              />
+            </div>
+
+            <button type="submit" className="btn btn-warning btn-block btn-lg" style={{ marginTop: "0.5rem" }}>
+              <ShieldCheck size={18} />
+              <span>Đăng Nhập Quản Trị</span>
             </button>
           </form>
+
+          <div style={{ marginTop: "1.5rem", fontSize: "0.82rem", color: "var(--text-muted)", borderTop: "1px solid var(--border-light)", paddingTop: "1rem" }}>
+            Hệ thống xác thực quản trị viên bảo mật. Liên hệ ban giám đốc trung tâm để được cấp quyền truy cập.
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
-      {/* Top Banner Header */}
-      <div className="section-hero" style={{ padding: "2.2rem 2rem", marginBottom: "1.8rem" }}>
-        <div className="hero-content">
-          <div className="hero-tagline">
-            <ShieldCheck size={14} />
-            <span>SAO VIET ENTERPRISE ADMIN DASHBOARD</span>
+    <div style={{ maxWidth: "1360px", margin: "0 auto", padding: "0 0.5rem" }}>
+      {/* Top Banner & User Info */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", marginBottom: "0.3rem" }}>
+            <span className="badge badge-warning" style={{ fontSize: "0.78rem" }}>
+              {currentUser.role === "admin" ? "👑 TỔNG QUẢN TRỊ (ADMIN)" : `🏫 QUẢN LÝ: ${currentUser.branchName || "Chi Nhánh"}`}
+            </span>
+            <span style={{ fontSize: "0.84rem", color: "var(--text-muted)" }}>
+              Hệ Thống Đào Tạo & Khảo Thí Lập Trình — Tin Học Sao Việt
+            </span>
           </div>
+          <h1 style={{ fontSize: "1.6rem", fontWeight: 900, letterSpacing: "-0.5px", margin: 0 }}>
+            Bảng Điều Khiển Quản Trị & Khảo Thí
+          </h1>
+        </div>
 
-          <h2 style={{ fontSize: "1.85rem", fontWeight: 900, marginBottom: "0.4rem" }}>
-            Trung Tâm Khảo Thí & Quản Trị Học Liệu Python Nâng Cao
-          </h2>
-
-          <p style={{ color: "#94a3b8", fontSize: "0.95rem", maxWidth: "780px" }}>
-            Toàn quyền quản lý danh sách học viên, ngân hàng 120 câu hỏi trắc nghiệm, 10 bài toán tự luận, phê duyệt bài thi tạm dừng và xuất báo cáo điểm số.
-          </p>
+        <div style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+          <button onClick={loadAllData} className="btn btn-secondary btn-sm" title="Làm mới dữ liệu từ MongoDB">
+            <RefreshCw size={15} />
+            <span>Làm Mới Data</span>
+          </button>
+          <button onClick={() => setShowExcelModal(true)} className="btn btn-primary btn-sm" style={{ background: "linear-gradient(135deg, var(--brand-primary), var(--brand-emerald))" }}>
+            <FileSpreadsheet size={15} />
+            <span>📥 Nhập Câu Hỏi Excel</span>
+          </button>
         </div>
       </div>
 
-      {/* KPI Stats Strip — Multi-dimensional Interactive Filters */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: "1.1rem", marginBottom: "1.8rem" }}>
-        {/* KPI 1 */}
-        <div 
-          className="metric-card" 
-          style={{ cursor: "pointer", border: activeTab === "users" ? "2px solid var(--brand-primary)" : "1px solid var(--border-light)" }}
-          onClick={() => setActiveTab("users")}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Học Viên Khóa Học</span>
-            <Users size={18} color="var(--brand-primary)" />
-          </div>
-          <div className="metric-val" style={{ color: "var(--brand-primary)" }}>{stats.totalStudents}</div>
-          <div style={{ fontSize: "0.8rem", color: "var(--brand-emerald-dark)", marginTop: "0.3rem", display: "flex", alignItems: "center", gap: "4px" }}>
-            <TrendingUp size={14} />
-            <span>Đang tham gia ôn tập & khảo thí</span>
-          </div>
+      {/* KPI Cards Strip */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "0.85rem", marginBottom: "1.5rem" }}>
+        <div className="q-card" style={{ padding: "1rem 1.2rem", borderLeft: "4px solid var(--brand-primary)" }}>
+          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Chi Nhánh</div>
+          <div style={{ fontSize: "1.7rem", fontWeight: 900, color: "var(--brand-primary)", marginTop: "0.2rem" }}>{stats.totalBranches}</div>
+          <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>Cơ sở hoạt động</div>
         </div>
 
-        {/* KPI 2 */}
-        <div 
-          className="metric-card"
-          style={{ cursor: "pointer", border: activeTab === "questions" ? "2px solid var(--brand-cyan)" : "1px solid var(--border-light)" }}
+        <div className="q-card" style={{ padding: "1rem 1.2rem", borderLeft: "4px solid var(--brand-violet)" }}>
+          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Môn Học</div>
+          <div style={{ fontSize: "1.7rem", fontWeight: 900, color: "var(--brand-violet)", marginTop: "0.2rem" }}>{stats.totalSubjects}</div>
+          <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>Ngôn ngữ đào tạo</div>
+        </div>
+
+        <div className="q-card" style={{ padding: "1rem 1.2rem", borderLeft: "4px solid var(--brand-emerald)" }}>
+          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Học Viên</div>
+          <div style={{ fontSize: "1.7rem", fontWeight: 900, color: "var(--brand-emerald)", marginTop: "0.2rem" }}>{stats.totalStudents}</div>
+          <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>Tài khoản đang học</div>
+        </div>
+
+        <div className="q-card" style={{ padding: "1rem 1.2rem", borderLeft: "4px solid var(--brand-amber)" }}>
+          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Ngân Hàng Đề</div>
+          <div style={{ fontSize: "1.7rem", fontWeight: 900, color: "var(--brand-amber)", marginTop: "0.2rem" }}>{stats.totalQuestions}</div>
+          <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>Câu hỏi 6 dạng</div>
+        </div>
+
+        <div className="q-card" style={{ padding: "1rem 1.2rem", borderLeft: "4px solid #ec4899" }}>
+          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase" }}>Tỷ Lệ Đậu</div>
+          <div style={{ fontSize: "1.7rem", fontWeight: 900, color: "#ec4899", marginTop: "0.2rem" }}>{stats.passRate}%</div>
+          <div style={{ fontSize: "0.75rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>Điểm TB: {stats.avgScore}/10</div>
+        </div>
+      </div>
+
+      {/* Main Tab Bar */}
+      <div style={{ display: "flex", gap: "0.4rem", borderBottom: "2px solid var(--border-light)", paddingBottom: "0.5rem", marginBottom: "1.5rem", overflowX: "auto" }}>
+        {currentUser.role === "admin" && (
+          <>
+            <button
+              onClick={() => setActiveTab("branches")}
+              className={`btn btn-sm ${activeTab === "branches" ? "btn-primary" : "btn-secondary"}`}
+            >
+              <Building2 size={15} />
+              <span>🏢 Quản Lý Chi Nhánh ({branches.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab("subjects")}
+              className={`btn btn-sm ${activeTab === "subjects" ? "btn-primary" : "btn-secondary"}`}
+            >
+              <BookOpen size={15} />
+              <span>📚 Danh Mục Môn Học ({subjects.length})</span>
+            </button>
+          </>
+        )}
+
+        <button
           onClick={() => setActiveTab("questions")}
+          className={`btn btn-sm ${activeTab === "questions" ? "btn-primary" : "btn-secondary"}`}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Ngân Hàng Câu Hỏi</span>
-            <BookOpen size={18} color="var(--brand-cyan)" />
-          </div>
-          <div className="metric-val" style={{ color: "var(--brand-cyan)" }}>{questions.length}</div>
-          <div style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.3rem" }}>
-            6 Dạng bài + {practicals.length} bài code tự luận
-          </div>
-        </div>
+          <Layers size={15} />
+          <span>❓ Ngân Hàng Câu Hỏi ({questions.length})</span>
+        </button>
 
-        {/* KPI 3 */}
-        <div 
-          className="metric-card"
-          style={{ cursor: "pointer", border: activeTab === "exams_monitor" ? "2px solid var(--brand-amber)" : "1px solid var(--border-light)" }}
+        <button
+          onClick={() => setActiveTab("practicals")}
+          className={`btn btn-sm ${activeTab === "practicals" ? "btn-primary" : "btn-secondary"}`}
+        >
+          <Terminal size={15} />
+          <span>💻 Bài Thực Hành IDE ({practicals.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("users")}
+          className={`btn btn-sm ${activeTab === "users" ? "btn-primary" : "btn-secondary"}`}
+        >
+          <Users size={15} />
+          <span>👥 Quản Lý Người Dùng ({users.length})</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab("exams_monitor")}
+          className={`btn btn-sm ${activeTab === "exams_monitor" ? "btn-primary" : "btn-secondary"}`}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Bài Thi Tạm Dừng</span>
-            <Pause size={18} color="var(--brand-amber)" />
-          </div>
-          <div className="metric-val" style={{ color: pausedExam ? "#ef4444" : "var(--brand-amber)" }}>
-            {pausedExam ? "1 Đang Chờ" : "0"}
-          </div>
-          <div style={{ fontSize: "0.8rem", color: pausedExam ? "#ef4444" : "var(--brand-emerald-dark)", marginTop: "0.3rem" }}>
-            {pausedExam ? "⚠️ Cần cấp mã PIN phê duyệt" : "Phòng thi đang ổn định"}
-          </div>
-        </div>
+          <Pause size={15} />
+          <span>⏱️ Giám Sát Phòng Thi</span>
+        </button>
 
-        {/* KPI 4 */}
-        <div 
-          className="metric-card"
-          style={{ cursor: "pointer", border: activeTab === "results" ? "2px solid var(--brand-emerald)" : "1px solid var(--border-light)" }}
+        <button
           onClick={() => setActiveTab("results")}
+          className={`btn btn-sm ${activeTab === "results" ? "btn-primary" : "btn-secondary"}`}
         >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>Điểm TB / Tỷ Lệ Đạt</span>
-            <Award size={18} color="var(--brand-emerald)" />
-          </div>
-          <div className="metric-val" style={{ color: "var(--brand-emerald-dark)" }}>{stats.avgScore} <span style={{ fontSize: "1rem", color: "var(--text-muted)" }}>/10</span></div>
-          <div style={{ fontSize: "0.8rem", color: "var(--brand-emerald-dark)", marginTop: "0.3rem" }}>
-            Tỷ lệ tốt nghiệp: <strong>{stats.passRate}%</strong> ({stats.completedCount} bài nộp)
-          </div>
-        </div>
+          <Award size={15} />
+          <span>🏆 Sổ Bảng Điểm ({examResults.length})</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab("settings")}
+          className={`btn btn-sm ${activeTab === "settings" ? "btn-primary" : "btn-secondary"}`}
+        >
+          <Settings size={15} />
+          <span>⚙️ Cài Đặt Hệ Thống</span>
+        </button>
       </div>
 
-      {/* Main Workspace Layout (Sidebar Navigation + Workspace Canvas) */}
-      <div style={{ display: "grid", gridTemplateColumns: "240px 1fr", gap: "1.5rem", alignItems: "start" }}>
-        
-        {/* Modern Collapsible Sidebar Navigation */}
-        <aside style={{
-          background: "#ffffff",
-          borderRadius: "var(--radius-lg)",
-          border: "1px solid var(--border-light)",
-          padding: "1rem 0.8rem",
-          boxShadow: "var(--shadow-subtle)",
-          position: "sticky",
-          top: "80px"
-        }}>
-          <div style={{ fontSize: "0.74rem", fontWeight: 800, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "1px", padding: "0.4rem 0.8rem 0.8rem 0.8rem" }}>
-            Menu Quản Trị
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
-            <button
-              className={`btn btn-block ${activeTab === "users" ? "btn-primary" : "btn-secondary"}`}
-              style={{ justifyContent: "space-between", padding: "0.6rem 0.9rem", textAlign: "left" }}
-              onClick={() => setActiveTab("users")}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                <Users size={16} />
-                <span>Học Viên</span>
-              </div>
-              <span style={{ fontSize: "0.75rem", background: activeTab === "users" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "2px 7px", borderRadius: "10px", fontWeight: 700 }}>
-                {users.length}
-              </span>
-            </button>
-
-            <button
-              className={`btn btn-block ${activeTab === "questions" ? "btn-primary" : "btn-secondary"}`}
-              style={{ justifyContent: "space-between", padding: "0.6rem 0.9rem", textAlign: "left" }}
-              onClick={() => setActiveTab("questions")}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                <BookOpen size={16} />
-                <span>Câu Trắc Nghiệm</span>
-              </div>
-              <span style={{ fontSize: "0.75rem", background: activeTab === "questions" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "2px 7px", borderRadius: "10px", fontWeight: 700 }}>
-                {questions.length}
-              </span>
-            </button>
-
-            <button
-              className={`btn btn-block ${activeTab === "practicals" ? "btn-primary" : "btn-secondary"}`}
-              style={{ justifyContent: "space-between", padding: "0.6rem 0.9rem", textAlign: "left" }}
-              onClick={() => setActiveTab("practicals")}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                <Terminal size={16} />
-                <span>Tự Luận Code</span>
-              </div>
-              <span style={{ fontSize: "0.75rem", background: activeTab === "practicals" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "2px 7px", borderRadius: "10px", fontWeight: 700 }}>
-                {practicals.length}
-              </span>
-            </button>
-
-            <button
-              className={`btn btn-block ${activeTab === "exams_monitor" ? "btn-primary" : "btn-secondary"}`}
-              style={{ justifyContent: "space-between", padding: "0.6rem 0.9rem", textAlign: "left" }}
-              onClick={() => setActiveTab("exams_monitor")}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                <Pause size={16} />
-                <span>Phòng Thi & PIN</span>
-              </div>
-              {pausedExam && (
-                <span style={{ fontSize: "0.75rem", background: "#ef4444", color: "#fff", padding: "2px 7px", borderRadius: "10px", fontWeight: 700 }}>
-                  1
-                </span>
-              )}
-            </button>
-
-            <button
-              className={`btn btn-block ${activeTab === "results" ? "btn-primary" : "btn-secondary"}`}
-              style={{ justifyContent: "space-between", padding: "0.6rem 0.9rem", textAlign: "left" }}
-              onClick={() => setActiveTab("results")}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                <Award size={16} />
-                <span>Bảng Điểm Thi</span>
-              </div>
-              <span style={{ fontSize: "0.75rem", background: activeTab === "results" ? "rgba(255,255,255,0.25)" : "#e2e8f0", padding: "2px 7px", borderRadius: "10px", fontWeight: 700 }}>
-                {examResults.length}
-              </span>
-            </button>
-
-            <button
-              className={`btn btn-block ${activeTab === "settings" ? "btn-primary" : "btn-secondary"}`}
-              style={{ justifyContent: "space-between", padding: "0.6rem 0.9rem", textAlign: "left" }}
-              onClick={() => setActiveTab("settings")}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                <Settings size={16} />
-                <span>Cấu Hình & AI</span>
-              </div>
-            </button>
-          </div>
-
-          <div style={{ borderTop: "1px solid var(--border-light)", marginTop: "1.2rem", paddingTop: "1rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", padding: "0.4rem" }}>
-              <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "var(--brand-primary)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: "0.85rem" }}>
-                A
-              </div>
-              <div style={{ overflow: "hidden" }}>
-                <div style={{ fontSize: "0.82rem", fontWeight: 700, whiteSpace: "nowrap", textOverflow: "ellipsis", overflow: "hidden" }}>{currentUser.fullName}</div>
-                <div style={{ fontSize: "0.74rem", color: "var(--text-muted)" }}>Quyền Quản Trị Hệ Thống</div>
-              </div>
+      {/* TAB 1: QUẢN LÝ CHI NHÁNH */}
+      {activeTab === "branches" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <div>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0 }}>Danh Sách Chi Nhánh Trung Tâm</h2>
+              <p style={{ fontSize: "0.84rem", color: "var(--text-muted)", margin: 0 }}>
+                Quản lý các cơ sở đào tạo, cấp mã PIN giáo viên và phân quyền dữ liệu theo chi nhánh.
+              </p>
             </div>
+            <button onClick={() => { setEditingBranch(null); setShowBranchModal(true); }} className="btn btn-primary btn-sm">
+              <Plus size={15} />
+              <span>Thêm Chi Nhánh Mới</span>
+            </button>
           </div>
-        </aside>
 
-        {/* Main Content Workspace Canvas */}
-        <main>
-          {/* =========================================================================
-              TAB 1: USERS MANAGEMENT (CRUD)
-              ========================================================================= */}
-          {activeTab === "users" && (
-            <div className="q-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.4rem", flexWrap: "wrap", gap: "1rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+            {branches.map(b => (
+              <div key={b.id} className="q-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                 <div>
-                  <h3 style={{ fontSize: "1.25rem", fontWeight: 800 }}>👥 Danh Sách Học Viên & Tài Khoản</h3>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.86rem" }}>
-                    Hiển thị {filteredUsers.length} trên tổng số {users.length} tài khoản
-                  </p>
-                </div>
-
-                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Tìm tên, username, lớp..."
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                    style={{ height: "38px", fontSize: "0.86rem", width: "190px" }}
-                  />
-
-                  <select
-                    className="form-input"
-                    value={userRoleFilter}
-                    onChange={(e) => setUserRoleFilter(e.target.value)}
-                    style={{ height: "38px", fontSize: "0.86rem", width: "135px" }}
-                  >
-                    <option value="all">Tất cả vai trò</option>
-                    <option value="student">Chỉ Học Viên</option>
-                    <option value="teacher">Chỉ Giáo Viên</option>
-                  </select>
-
-                  <div style={{ display: "flex", border: "1px solid var(--border-light)", borderRadius: "var(--radius-sm)", overflow: "hidden" }}>
-                    <button
-                      className="btn btn-sm"
-                      style={{ background: viewMode === "table" ? "var(--brand-primary)" : "#ffffff", color: viewMode === "table" ? "#fff" : "var(--text-secondary)", borderRadius: 0, padding: "0.4rem 0.6rem" }}
-                      onClick={() => setViewMode("table")}
-                      title="Chế độ bảng"
-                    >
-                      <List size={15} />
-                    </button>
-                    <button
-                      className="btn btn-sm"
-                      style={{ background: viewMode === "grid" ? "var(--brand-primary)" : "#ffffff", color: viewMode === "grid" ? "#fff" : "var(--text-secondary)", borderRadius: 0, padding: "0.4rem 0.6rem" }}
-                      onClick={() => setViewMode("grid")}
-                      title="Chế độ thẻ lưới"
-                    >
-                      <LayoutGrid size={15} />
-                    </button>
-                  </div>
-
-                  <button className="btn btn-primary btn-sm" onClick={() => setShowAddUserModal(true)}>
-                    <UserPlus size={15} />
-                    <span>+ Thêm Học Viên</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Bulk Actions Toolbar */}
-              {selectedUserIds.length > 0 && (
-                <div style={{
-                  background: "linear-gradient(135deg, #1e293b, #0f172a)",
-                  color: "#fff",
-                  padding: "0.75rem 1.2rem",
-                  borderRadius: "var(--radius-md)",
-                  marginBottom: "1rem",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  boxShadow: "var(--shadow-card)"
-                }}>
-                  <div style={{ fontSize: "0.88rem", fontWeight: 700 }}>
-                    Đã chọn: <span style={{ color: "var(--brand-cyan)" }}>{selectedUserIds.length}</span> học viên
-                  </div>
-                  <div style={{ display: "flex", gap: "0.6rem" }}>
-                    <button className="btn btn-danger btn-sm" onClick={handleBulkDeleteUsers}>
-                      <Trash2 size={14} />
-                      <span>Xóa các mục đã chọn</span>
-                    </button>
-                    <button className="btn btn-secondary btn-sm" onClick={() => setSelectedUserIds([])}>
-                      Bỏ chọn
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* Table or Grid View */}
-              {viewMode === "table" ? (
-                <div className="data-table-wrapper">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th style={{ width: "40px" }}>
-                          <input
-                            type="checkbox"
-                            checked={selectedUserIds.length === filteredUsers.length && filteredUsers.length > 0}
-                            onChange={(e) => {
-                              if (e.target.checked) setSelectedUserIds(filteredUsers.map(u => u.id));
-                              else setSelectedUserIds([]);
-                            }}
-                          />
-                        </th>
-                        <th>Tài Khoản (SĐT)</th>
-                        <th>Họ Và Tên</th>
-                        <th>Số Điện Thoại</th>
-                        <th>Lớp Học</th>
-                        <th>Vai Trò</th>
-                        <th>Mật Khẩu Chuẩn</th>
-                        <th>Mã PIN</th>
-                        <th style={{ textAlign: "right" }}>Thao Tác</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredUsers.map((u) => {
-                        const isSelected = selectedUserIds.includes(u.id);
-                        return (
-                          <tr key={u.id} style={{ background: isSelected ? "rgba(37, 99, 235, 0.05)" : undefined }}>
-                            <td>
-                              <input
-                                type="checkbox"
-                                checked={isSelected}
-                                onChange={(e) => {
-                                  if (e.target.checked) setSelectedUserIds([...selectedUserIds, u.id]);
-                                  else setSelectedUserIds(selectedUserIds.filter(id => id !== u.id));
-                                }}
-                              />
-                            </td>
-                            <td>
-                              <code style={{ fontFamily: "var(--font-mono)", fontWeight: 700, color: "var(--brand-primary)" }}>
-                                {u.username}
-                              </code>
-                            </td>
-                            <td><strong>{u.fullName}</strong></td>
-                            <td>
-                              {u.phone ? (
-                                <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.86rem", color: "var(--brand-emerald-dark)", fontWeight: 600 }}>
-                                  {u.phone}
-                                </span>
-                              ) : (
-                                <span style={{ color: "#94a3b8" }}>—</span>
-                              )}
-                            </td>
-                            <td>{u.class || (u.role === 'teacher' ? 'Admin Trung Tâm' : 'Học Viên')}</td>
-                            <td>
-                              <span style={{
-                                background: u.role === "teacher" ? "#eff6ff" : "#f1f5f9",
-                                color: u.role === "teacher" ? "var(--brand-primary)" : "var(--text-secondary)",
-                                padding: "2px 8px",
-                                borderRadius: "var(--radius-full)",
-                                fontSize: "0.76rem",
-                                fontWeight: 700
-                              }}>
-                                {u.role === "teacher" ? "⭐ Giáo Viên" : "🎓 Học Viên"}
-                              </span>
-                            </td>
-                            <td>
-                              <div style={{ display: "inline-flex", alignItems: "center", gap: "6px" }}>
-                                <code style={{ background: "#f8fafc", padding: "2px 6px", borderRadius: "4px", fontFamily: "var(--font-mono)", fontSize: "0.85rem" }}>
-                                  {visiblePasswordIds.includes(u.id) ? u.password : "••••••••"}
-                                </code>
-                                <button
-                                  type="button"
-                                  onClick={() => togglePasswordVisibility(u.id)}
-                                  style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: "2px", display: "flex", alignItems: "center" }}
-                                  title={visiblePasswordIds.includes(u.id) ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                                >
-                                  {visiblePasswordIds.includes(u.id) ? <EyeOff size={13} /> : <Eye size={13} />}
-                                </button>
-                              </div>
-                            </td>
-                            <td>
-                              {u.role === "teacher" ? (
-                                <span style={{ fontFamily: "var(--font-mono)" }}>
-                                  {visiblePasswordIds.includes(u.id) ? <strong>{u.pin || "8888"}</strong> : "••••"}
-                                </span>
-                              ) : (
-                                <span style={{ color: "#94a3b8" }}>—</span>
-                              )}
-                            </td>
-                            <td style={{ textAlign: "right" }}>
-                              <div style={{ display: "inline-flex", gap: "0.4rem" }}>
-                                <button
-                                  className="btn btn-secondary btn-sm"
-                                  style={{ padding: "0.25rem 0.6rem", fontSize: "0.75rem" }}
-                                  onClick={() => setEditingUser(u)}
-                                  title="Sửa thông tin"
-                                >
-                                  <Edit3 size={13} />
-                                  <span>Sửa</span>
-                                </button>
-
-                                {u.username !== "admin" && (
-                                  <button
-                                    className="btn btn-danger btn-sm"
-                                    style={{ padding: "0.25rem 0.6rem", fontSize: "0.75rem" }}
-                                    onClick={() => handleDeleteUser(u.id)}
-                                    title="Xóa tài khoản"
-                                  >
-                                    <Trash2 size={13} />
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
-                  {filteredUsers.map((u) => (
-                    <div key={u.id} className="q-card" style={{ padding: "1.1rem" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.6rem" }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                          <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: u.role === "teacher" ? "var(--brand-primary)" : "var(--brand-cyan)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800 }}>
-                            {u.fullName.charAt(0)}
-                          </div>
-                          <div>
-                            <h4 style={{ fontSize: "0.95rem", fontWeight: 800 }}>{u.fullName}</h4>
-                            <div style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>@{u.username}</div>
-                          </div>
-                        </div>
-                        <span style={{ fontSize: "0.72rem", background: "#f1f5f9", padding: "2px 8px", borderRadius: "10px", fontWeight: 700 }}>
-                          {u.role === "teacher" ? "Giáo viên" : "Học viên"}
-                        </span>
-                      </div>
-
-                      <div style={{ fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "1rem", lineHeight: "1.6" }}>
-                        <div>SĐT: <strong style={{ color: "var(--brand-emerald-dark)", fontFamily: "var(--font-mono)" }}>{u.phone || u.username}</strong></div>
-                        <div>Lớp: <strong>{u.class || "Chưa phân lớp"}</strong></div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginTop: "2px" }}>
-                          <span>Mật khẩu:</span>
-                          <code>{visiblePasswordIds.includes(u.id) ? u.password : "••••••••"}</code>
-                          <button
-                            type="button"
-                            onClick={() => togglePasswordVisibility(u.id)}
-                            style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", padding: "2px" }}
-                          >
-                            {visiblePasswordIds.includes(u.id) ? <EyeOff size={12} /> : <Eye size={12} />}
-                          </button>
-                        </div>
-                      </div>
-
-                      <div style={{ display: "flex", gap: "0.4rem", borderTop: "1px solid var(--border-light)", paddingTop: "0.8rem" }}>
-                        <button className="btn btn-secondary btn-sm btn-block" onClick={() => setEditingUser(u)}>
-                          <Edit3 size={13} />
-                          <span>Chỉnh sửa</span>
-                        </button>
-                        {u.username !== "admin" && (
-                          <button className="btn btn-danger btn-sm" onClick={() => handleDeleteUser(u.id)}>
-                            <Trash2 size={13} />
-                          </button>
-                        )}
-                      </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
+                    <div>
+                      <span className="badge badge-primary" style={{ fontSize: "0.72rem", marginBottom: "0.3rem", display: "inline-block" }}>
+                        Mã: {b.code}
+                      </span>
+                      <h3 style={{ fontSize: "1.1rem", fontWeight: 800, margin: 0 }}>{b.name}</h3>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* =========================================================================
-              TAB 2: QUESTIONS MANAGEMENT (CRUD)
-              ========================================================================= */}
-          {activeTab === "questions" && (
-            <div className="q-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.4rem", flexWrap: "wrap", gap: "1rem" }}>
-                <div>
-                  <h3 style={{ fontSize: "1.25rem", fontWeight: 800 }}>📚 Ngân Hàng Câu Hỏi Trắc Nghiệm ({questions.length})</h3>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.86rem" }}>
-                    Quản lý toàn bộ 6 dạng bài tập trắc nghiệm và câu hỏi khảo thí
-                  </p>
-                </div>
-
-                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Tìm câu hỏi, lời giải..."
-                    value={questionSearch}
-                    onChange={(e) => setQuestionSearch(e.target.value)}
-                    style={{ height: "38px", fontSize: "0.86rem", width: "200px" }}
-                  />
-
-                  <select
-                    className="form-input"
-                    value={questionTypeFilter}
-                    onChange={(e) => setQuestionTypeFilter(e.target.value)}
-                    style={{ height: "38px", fontSize: "0.86rem", width: "165px" }}
-                  >
-                    <option value="all">Tất cả 6 dạng bài</option>
-                    <option value="single_choice">1. Trắc nghiệm ABCD</option>
-                    <option value="true_false">2. Đúng / Sai</option>
-                    <option value="multiple_choice">3. Nhiều đáp án</option>
-                    <option value="fill_blank">4. Điền từ</option>
-                    <option value="sequence_order">5. Sắp xếp thứ tự</option>
-                    <option value="matching">6. Ghép cặp</option>
-                  </select>
-
-                  <button className="btn btn-primary btn-sm" onClick={() => {
-                    setEditingQuestion(null);
-                    setShowQuestionModal(true);
-                  }}>
-                    <Plus size={15} />
-                    <span>+ Thêm Câu Hỏi</span>
-                  </button>
-                </div>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-                {filteredQuestions.map((q) => (
-                  <div
-                    key={q.id}
-                    style={{
-                      background: "#ffffff",
-                      border: "1px solid var(--border-light)",
-                      borderRadius: "var(--radius-md)",
-                      padding: "1.1rem 1.3rem",
-                      boxShadow: "var(--shadow-subtle)",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      gap: "1rem"
-                    }}
-                  >
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
-                        <span className="q-badge" style={{ fontSize: "0.72rem" }}>
-                          CÂU #{q.id} • {q.type_name}
-                        </span>
-                      </div>
-                      <div style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "0.98rem", marginBottom: "0.5rem" }}>
-                        {q.question}
-                      </div>
-                      <div style={{ fontSize: "0.84rem", color: "var(--text-muted)", lineHeight: "1.5" }}>
-                        <strong>💡 Phân tích logic:</strong> {q.explanation}
-                      </div>
-                    </div>
-
-                    <div style={{ display: "flex", gap: "0.4rem", flexShrink: 0 }}>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => {
-                          setEditingQuestion(q);
-                          setShowQuestionModal(true);
-                        }}
-                      >
+                    <div style={{ display: "flex", gap: "0.3rem" }}>
+                      <button onClick={() => { setEditingBranch(b); setShowBranchModal(true); }} className="btn btn-secondary btn-sm" style={{ padding: "0.3rem" }}>
                         <Edit3 size={14} />
-                        <span>Sửa</span>
                       </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDeleteQuestion(q.id)}
-                      >
+                      <button onClick={() => handleDeleteBranch(b.id)} className="btn btn-danger btn-sm" style={{ padding: "0.3rem" }}>
                         <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
 
-          {/* =========================================================================
-              TAB 3: PRACTICAL PROBLEMS MANAGEMENT (CRUD)
-              ========================================================================= */}
-          {activeTab === "practicals" && (
-            <div className="q-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.4rem", flexWrap: "wrap", gap: "1rem" }}>
-                <div>
-                  <h3 style={{ fontSize: "1.25rem", fontWeight: 800 }}>💻 Kho Bài Tập Tự Luận Thuật Toán ({practicals.length})</h3>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.86rem" }}>
-                    Các bài toán viết hàm chấm điểm tự động trong phòng thi trực tuyến IDE
+                  <p style={{ fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.4rem" }}>
+                    📍 {b.address}
+                  </p>
+                  <p style={{ fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.4rem" }}>
+                    📞 Hotline: {b.phone || "Chưa cập nhật"}
+                  </p>
+                  <p style={{ fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.8rem" }}>
+                    👤 Phụ trách: <strong>{b.managerName || "Giáo viên chi nhánh"}</strong>
                   </p>
                 </div>
 
-                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="Tìm bài thực hành..."
-                    value={practicalSearch}
-                    onChange={(e) => setPracticalSearch(e.target.value)}
-                    style={{ height: "38px", fontSize: "0.86rem", width: "200px" }}
-                  />
-
-                  <button className="btn btn-success btn-sm" onClick={() => {
-                    setEditingPractical(null);
-                    setShowPracticalModal(true);
-                  }}>
-                    <Plus size={15} />
-                    <span>+ Thêm Bài Thực Hành</span>
-                  </button>
+                <div style={{ background: "var(--bg-light)", padding: "0.6rem 0.8rem", borderRadius: "var(--radius-md)", display: "flex", justifyContent: "space-between", alignItems: "center", fontSize: "0.82rem" }}>
+                  <span>Mã PIN mở khóa:</span>
+                  <span style={{ fontWeight: 800, letterSpacing: "2px", color: "var(--brand-emerald-dark)" }}>
+                    {b.defaultTeacherPin || "8888"}
+                  </span>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {filteredPracticals.map((p) => (
-                  <div
-                    key={p.id}
-                    style={{
-                      background: "#ffffff",
-                      border: "1px solid var(--border-light)",
-                      borderRadius: "var(--radius-md)",
-                      padding: "1.2rem",
-                      boxShadow: "var(--shadow-subtle)"
-                    }}
-                  >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.6rem" }}>
+      {/* TAB 2: DANH MỤC MÔN HỌC */}
+      {activeTab === "subjects" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <div>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0 }}>Danh Mục Môn Học & Ngôn Ngữ Lập Trình</h2>
+              <p style={{ fontSize: "0.84rem", color: "var(--text-muted)", margin: 0 }}>
+                Hỗ trợ đa ngôn ngữ (Python, C++, Java, Web, ASP.NET) với môi trường thực thi chuyên biệt.
+              </p>
+            </div>
+            <button onClick={() => { setEditingSubject(null); setShowSubjectModal(true); }} className="btn btn-primary btn-sm">
+              <Plus size={15} />
+              <span>Thêm Môn Học Mới</span>
+            </button>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
+            {subjects.map(s => (
+              <div key={s.id} className="q-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "0.5rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                      <div style={{ padding: "0.4rem", background: "rgba(37, 99, 235, 0.1)", borderRadius: "var(--radius-md)", color: "var(--brand-primary)" }}>
+                        <Code2 size={20} />
+                      </div>
                       <div>
-                        <span className="q-badge" style={{ background: "rgba(16, 185, 129, 0.1)", color: "var(--brand-emerald-dark)", borderColor: "rgba(16, 185, 129, 0.25)", marginBottom: "0.3rem" }}>
-                          BÀI TỰ LUẬN #{p.id}
-                        </span>
-                        <h4 style={{ fontSize: "1.05rem", fontWeight: 800, marginTop: "0.2rem" }}>{p.title}</h4>
-                      </div>
-
-                      <div style={{ display: "flex", gap: "0.4rem" }}>
-                        <button
-                          className="btn btn-secondary btn-sm"
-                          onClick={() => {
-                            setEditingPractical(p);
-                            setShowPracticalModal(true);
-                          }}
-                        >
-                          <Edit3 size={14} />
-                          <span>Sửa</span>
-                        </button>
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleDeletePractical(p.id)}
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        <span className="badge badge-primary" style={{ fontSize: "0.72rem" }}>{s.code}</span>
+                        <h3 style={{ fontSize: "1.05rem", fontWeight: 800, margin: "0.2rem 0 0" }}>{s.name}</h3>
                       </div>
                     </div>
 
-                    <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "0.8rem" }}>
-                      {p.description}
-                    </p>
-
-                    <div style={{ background: "#090d16", padding: "0.75rem 1rem", borderRadius: "var(--radius-sm)", color: "#38bdf8", fontFamily: "var(--font-mono)", fontSize: "0.85rem" }}>
-                      <pre style={{ margin: 0, overflowX: "auto" }}>{p.starter_code}</pre>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* =========================================================================
-              TAB 4: EXAM MONITOR & PAUSED SESSIONS
-              ========================================================================= */}
-          {activeTab === "exams_monitor" && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem" }}>
-              <div className="q-card">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.2rem" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <Pause size={20} color="var(--brand-amber)" />
-                    <h3 style={{ fontSize: "1.15rem", fontWeight: 800 }}>Bài Thi Đang Tạm Dừng</h3>
-                  </div>
-                  <button className="btn btn-secondary btn-sm" onClick={loadAllData} title="Làm mới">
-                    <RefreshCw size={14} />
-                  </button>
-                </div>
-
-                {pausedExam ? (
-                  <div style={{
-                    background: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
-                    border: "1px solid #fde68a",
-                    padding: "1.4rem",
-                    borderRadius: "var(--radius-md)"
-                  }}>
-                    <h4 style={{ color: "#92400e", marginBottom: "0.4rem", fontWeight: 800, fontSize: "1.05rem" }}>
-                      📌 Thí sinh: {pausedExam.userName} ({pausedExam.userId})
-                    </h4>
-                    <p style={{ fontSize: "0.88rem", color: "#78350f", marginBottom: "1.2rem", lineHeight: "1.6" }}>
-                      Thời điểm lưu: <strong>{pausedExam.timestamp}</strong><br />
-                      Thời gian còn lại: <strong>{Math.floor(pausedExam.timerSeconds / 60)} phút {pausedExam.timerSeconds % 60} giây</strong><br />
-                      Đang làm: {pausedExam.examPart === 1 ? `Phần 1 (Câu ${pausedExam.currentQuestionIndex + 1}/50)` : `Phần 2 (Bài ${pausedExam.currentQuestionIndex + 1}/4)`}
-                    </p>
-
-                    <div style={{ display: "flex", gap: "0.6rem" }}>
-                      <button
-                        className="btn btn-success btn-sm"
-                        style={{ flex: 1 }}
-                        onClick={() => alert(`Mã PIN mở khóa phê duyệt cho học viên ${pausedExam.userName} là: ${currentUser.pin || "8888"}`)}
-                      >
-                        <KeyRound size={15} />
-                        <span>Cấp PIN ({currentUser.pin || "8888"})</span>
+                    <div style={{ display: "flex", gap: "0.3rem" }}>
+                      <button onClick={() => { setEditingSubject(s); setShowSubjectModal(true); }} className="btn btn-secondary btn-sm" style={{ padding: "0.3rem" }}>
+                        <Edit3 size={14} />
                       </button>
-
-                      <button className="btn btn-danger btn-sm" onClick={handleClearPausedExam}>
-                        <Trash2 size={15} />
-                        <span>Hủy Bài Này</span>
+                      <button onClick={() => handleDeleteSubject(s.id)} className="btn btn-danger btn-sm" style={{ padding: "0.3rem" }}>
+                        <Trash2 size={14} />
                       </button>
                     </div>
                   </div>
-                ) : (
-                  <div style={{ textAlign: "center", padding: "3rem 1rem", color: "var(--text-muted)" }}>
-                    <CheckCircle2 size={36} color="var(--brand-emerald)" style={{ margin: "0 auto 0.6rem auto", display: "block" }} />
-                    <h4 style={{ fontWeight: 700, marginBottom: "0.2rem" }}>Phòng Thi Ổn Định</h4>
-                    <p style={{ fontSize: "0.88rem" }}>Hiện không có thí sinh nào đang tạm dừng bài thi.</p>
-                  </div>
-                )}
-              </div>
 
-              <div className="q-card">
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.2rem" }}>
-                  <KeyRound size={20} color="var(--brand-primary)" />
-                  <h3 style={{ fontSize: "1.15rem", fontWeight: 800 }}>Đổi Mã PIN Giáo Viên</h3>
-                </div>
-
-                <p style={{ fontSize: "0.88rem", color: "var(--text-muted)", marginBottom: "1.2rem" }}>
-                  Mã PIN này được dùng để phê duyệt cho học sinh tiếp tục làm bài sau khi tạm dừng trong phòng thi.
-                </p>
-
-                <div style={{ marginBottom: "1.2rem" }}>
-                  <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
-                    Mã PIN Giáo Viên Mới:
-                  </label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={teacherPinInput}
-                    onChange={(e) => setTeacherPinInput(e.target.value)}
-                    maxLength={6}
-                    style={{ fontSize: "1.3rem", letterSpacing: "4px", fontWeight: 800, textAlign: "center" }}
-                  />
-                </div>
-
-                <button className="btn btn-primary btn-block" onClick={handleUpdatePin}>
-                  <CheckCircle2 size={16} />
-                  <span>Cập Nhật Mã PIN</span>
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* =========================================================================
-              TAB 5: GRADING RESULTS & EXPORT (CRUD)
-              ========================================================================= */}
-          {activeTab === "results" && (
-            <div className="q-card">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.4rem", flexWrap: "wrap", gap: "1rem" }}>
-                <div>
-                  <h3 style={{ fontSize: "1.25rem", fontWeight: 800 }}>📊 Lịch Sử Nộp Bài & Bảng Điểm Tốt Nghiệp ({examResults.length})</h3>
-                  <p style={{ color: "var(--text-muted)", fontSize: "0.86rem" }}>
-                    Tổng hợp kết quả đánh giá 50 câu trắc nghiệm và 4 câu tự luận thực hành
+                  <p style={{ fontSize: "0.84rem", color: "var(--text-muted)", margin: "0.5rem 0" }}>
+                    {s.description}
                   </p>
                 </div>
 
-                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
-                  <select
-                    className="form-input"
-                    value={resultRankFilter}
-                    onChange={(e) => setResultRankFilter(e.target.value)}
-                    style={{ height: "38px", fontSize: "0.86rem", width: "160px" }}
-                  >
-                    <option value="all">Tất cả xếp loại</option>
-                    <option value="XUẤT SẮC">Xuất Sắc (≥ 9.0)</option>
-                    <option value="GIỎI">Giỏi (≥ 8.0)</option>
-                    <option value="KHÁ">Khá (≥ 6.5)</option>
-                    <option value="TRUNG BÌNH">Trung Bình (≥ 5.0)</option>
-                  </select>
-
-                  <button className="btn btn-secondary btn-sm" onClick={handleExportCSV}>
-                    <Download size={15} />
-                    <span>Xuất File CSV</span>
-                  </button>
-
-                  <button className="btn btn-primary btn-sm" onClick={() => window.print()}>
-                    <Printer size={15} />
-                    <span>In Bảng Điểm</span>
-                  </button>
-
-                  {examResults.length > 0 && (
-                    <button className="btn btn-danger btn-sm" onClick={handleClearAllResults}>
-                      <Trash2 size={15} />
-                      <span>Xóa Tất Cả</span>
-                    </button>
-                  )}
+                <div style={{ borderTop: "1px solid var(--border-light)", paddingTop: "0.6rem", display: "flex", justifyContent: "space-between", fontSize: "0.82rem" }}>
+                  <span>Runtime: <code>{s.runtime}</code></span>
+                  <span>Chương: <strong>{s.totalModules} bài</strong></span>
                 </div>
               </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-              {filteredResults.length === 0 ? (
-                <p style={{ color: "var(--text-muted)", fontSize: "0.88rem", textAlign: "center", padding: "3rem" }}>
-                  Chưa có kết quả bài thi nào trong hệ thống.
-                </p>
-              ) : (
-                <div className="data-table-wrapper">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Học Viên</th>
-                        <th>Lớp Học</th>
-                        <th>Trắc Nghiệm (5.0đ)</th>
-                        <th>Tự Luận Code (5.0đ)</th>
-                        <th>Tổng Điểm</th>
-                        <th>Xếp Loại</th>
-                        <th>Thời Gian Nộp</th>
-                        <th style={{ textAlign: "right" }}>Thao Tác</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredResults.map((r) => (
-                        <tr key={r.id}>
-                          <td><strong>{r.studentName}</strong></td>
-                          <td>{r.studentClass}</td>
-                          <td>{r.mcqCorrect}/50 ({r.mcqScore}đ)</td>
-                          <td>{r.practicalScore} / 5.0đ</td>
-                          <td>
-                            <strong style={{ color: "var(--brand-primary)", fontSize: "1.1rem" }}>
-                              {r.totalScore} / 10
-                            </strong>
-                          </td>
-                          <td>
-                            <span style={{
-                              background: r.totalScore >= 8.0 ? "#ecfdf5" : r.totalScore >= 5.0 ? "#eff6ff" : "#fff1f2",
-                              color: r.totalScore >= 8.0 ? "#047857" : r.totalScore >= 5.0 ? "#1d4ed8" : "#be123c",
-                              border: `1px solid ${r.totalScore >= 8.0 ? "#a7f3d0" : r.totalScore >= 5.0 ? "#bfdbfe" : "#fecdd3"}`,
-                              padding: "2px 8px",
-                              borderRadius: "var(--radius-full)",
-                              fontSize: "0.76rem",
-                              fontWeight: 800
-                            }}>
-                              {r.rank}
-                            </span>
-                          </td>
-                          <td style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{r.submittedAt}</td>
-                          <td style={{ textAlign: "right" }}>
-                            <button
-                              className="btn btn-danger btn-sm"
-                              style={{ padding: "0.25rem 0.5rem" }}
-                              onClick={() => handleDeleteResult(r.id)}
-                              title="Xóa kết quả này"
-                            >
-                              <Trash2 size={12} />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+      {/* TAB 3: NGÂN HÀNG CÂU HỎI & EXCEL IMPORT/EXPORT */}
+      {activeTab === "questions" && (
+        <div>
+          {/* Action Bar */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.8rem" }}>
+            {/* Filter Subjects & Branches */}
+            <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
+              <select
+                value={selectedSubjectId}
+                onChange={(e) => setSelectedSubjectId(e.target.value)}
+                className="input"
+                style={{ fontWeight: 700, fontSize: "0.85rem" }}
+              >
+                <option value="all">📚 Tất Cả Môn Học ({questions.length})</option>
+                {subjects.map(s => (
+                  <option key={s.id} value={s.id}>{s.name} ({s.code})</option>
+                ))}
+              </select>
+
+              <select
+                value={selectedBranchId}
+                onChange={(e) => setSelectedBranchId(e.target.value)}
+                className="input"
+                style={{ fontWeight: 600, fontSize: "0.85rem" }}
+              >
+                <option value="all">🏢 Toàn Hệ Thống (Ngân hàng chung)</option>
+                {branches.map(b => (
+                  <option key={b.id} value={b.id}>🏢 {b.name}</option>
+                ))}
+              </select>
+
+              <select
+                value={questionTypeFilter}
+                onChange={(e) => setQuestionTypeFilter(e.target.value)}
+                className="input"
+                style={{ fontSize: "0.85rem" }}
+              >
+                <option value="all">Tất Cả 6 Dạng</option>
+                <option value="single_choice">Trắc nghiệm ABCD</option>
+                <option value="true_false">Đúng / Sai</option>
+                <option value="multiple_choice">Nhiều đáp án</option>
+                <option value="fill_blank">Điền từ</option>
+                <option value="sequence_order">Sắp xếp dòng lệnh</option>
+                <option value="matching">Nối cặp / Ghép quy trình</option>
+              </select>
             </div>
-          )}
 
-          {/* =========================================================================
-              TAB 6: SETTINGS & AI ENGINE
-              ========================================================================= */}
-          {activeTab === "settings" && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "1.5rem" }}>
-              <div className="q-card">
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.2rem" }}>
-                  <Bot size={20} color="var(--brand-primary)" />
-                  <h3 style={{ fontSize: "1.15rem", fontWeight: 800 }}>Cấu Hình Trợ Lý AI Chữa Bài</h3>
-                </div>
+            {/* Excel & Create Buttons */}
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button
+                onClick={() => setShowExcelModal(true)}
+                className="btn btn-primary btn-sm"
+                style={{ background: "linear-gradient(135deg, var(--brand-primary), var(--brand-emerald))" }}
+              >
+                <FileSpreadsheet size={15} />
+                <span>📥 Nhập Từ Excel</span>
+              </button>
 
-                <div style={{ marginBottom: "1rem" }}>
-                  <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
-                    Mô Hình AI (OpenRouter Engine):
-                  </label>
-                  <select
-                    className="form-input"
-                    value={aiModelSelected}
-                    onChange={(e) => setAiModelSelected(e.target.value)}
-                  >
-                    <option value="google/gemini-2.0-flash-001">Google Gemini 2.0 Flash (Khuyên dùng - Nhanh & Chính xác)</option>
-                    <option value="google/gemini-pro-1.5">Google Gemini 1.5 Pro</option>
-                    <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
-                    <option value="openai/gpt-4o-mini">OpenAI GPT-4o Mini</option>
-                  </select>
-                </div>
+              <button
+                onClick={handleExportQuestionsExcel}
+                className="btn btn-secondary btn-sm"
+                title="Xuất câu hỏi ra file Excel .xlsx"
+              >
+                <Download size={15} />
+                <span>📤 Xuất Ra Excel</span>
+              </button>
 
-                <div style={{ background: "var(--surface-subtle)", padding: "0.9rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)", fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "1.2rem" }}>
-                  Trợ lý AI tự động giảng giải phương pháp logic cho 120 câu hỏi trắc nghiệm và tìm lỗi cú pháp trong code Python của học viên.
-                </div>
-
-                <button className="btn btn-primary" onClick={() => alert("✅ Đã lưu cấu hình AI!")}>
-                  <CheckCircle2 size={16} />
-                  <span>Lưu Cấu Hình AI</span>
-                </button>
-              </div>
-
-              <div className="q-card">
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.2rem" }}>
-                  <GraduationCap size={20} color="var(--brand-emerald-dark)" />
-                  <h3 style={{ fontSize: "1.15rem", fontWeight: 800 }}>Thông Tin Đơn Vị Đào Tạo</h3>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem", fontSize: "0.9rem" }}>
-                  <div>
-                    <strong>Đơn vị:</strong> Trung Tâm Tin Học Sao Việt
-                  </div>
-                  <div>
-                    <strong>Chi nhánh:</strong> TP. Thủ Đức, TP. Hồ Chí Minh
-                  </div>
-                  <div>
-                    <strong>Khóa học:</strong> Lập Trình Python Nâng Cao (Thực Chiến & Chứng Chỉ)
-                  </div>
-                  <div>
-                    <strong>Thời lượng bài thi:</strong> 90 Phút (50 phút TN + 40 phút TL)
-                  </div>
-                </div>
-              </div>
+              <button
+                onClick={() => { setEditingQuestion(null); setShowQuestionModal(true); }}
+                className="btn btn-secondary btn-sm"
+              >
+                <Plus size={15} />
+                <span>Thêm Câu Thủ Công</span>
+              </button>
             </div>
-          )}
-        </main>
-      </div>
+          </div>
 
-      {/* Modals */}
+          {/* Search Box */}
+          <div style={{ marginBottom: "1rem" }}>
+            <input
+              type="text"
+              value={questionSearch}
+              onChange={(e) => setQuestionSearch(e.target.value)}
+              placeholder="🔍 Tìm kiếm câu hỏi theo nội dung, mã ID hoặc giải thích..."
+              className="input"
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          {/* Table List */}
+          <div className="q-card" style={{ padding: 0, overflow: "hidden" }}>
+            <div style={{ padding: "0.8rem 1.2rem", background: "var(--bg-light)", borderBottom: "1px solid var(--border-light)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <span style={{ fontSize: "0.88rem", fontWeight: 700 }}>
+                Hiển thị {filteredQuestions.length} / {questions.length} câu hỏi
+              </span>
+            </div>
+
+            <div style={{ maxHeight: "600px", overflowY: "auto" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+                <thead>
+                  <tr style={{ background: "var(--bg-light)", borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
+                    <th style={{ padding: "0.75rem 1rem", width: "60px" }}>ID</th>
+                    <th style={{ padding: "0.75rem 1rem", width: "130px" }}>Dạng Câu</th>
+                    <th style={{ padding: "0.75rem 1rem" }}>Nội Dung Câu Hỏi & Các Lựa Chọn</th>
+                    <th style={{ padding: "0.75rem 1rem", width: "110px" }}>Đáp Án</th>
+                    <th style={{ padding: "0.75rem 1rem", width: "90px", textAlign: "right" }}>Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredQuestions.map((q) => (
+                    <tr key={q.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
+                      <td style={{ padding: "0.75rem 1rem", fontWeight: 700 }}>#{q.id}</td>
+                      <td style={{ padding: "0.75rem 1rem" }}>
+                        <span className="badge badge-primary" style={{ fontSize: "0.72rem" }}>
+                          {q.type}
+                        </span>
+                      </td>
+                      <td style={{ padding: "0.75rem 1rem" }}>
+                        <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.3rem" }}>
+                          {q.question}
+                        </div>
+                        {q.options && q.options.length > 0 && (
+                          <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", display: "flex", gap: "0.8rem", flexWrap: "wrap" }}>
+                            {q.options.map((opt, i) => (
+                              <span key={i} style={{ background: "var(--bg-light)", padding: "0.15rem 0.4rem", borderRadius: "4px" }}>
+                                {String.fromCharCode(65 + i)}. {opt}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <div style={{ fontSize: "0.75rem", color: "var(--brand-emerald-dark)", marginTop: "0.2rem", fontStyle: "italic" }}>
+                          💡 {q.explanation}
+                        </div>
+                      </td>
+                      <td style={{ padding: "0.75rem 1rem", fontWeight: 700, color: "var(--brand-emerald-dark)" }}>
+                        {JSON.stringify(q.correct_answer)}
+                      </td>
+                      <td style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
+                        <div style={{ display: "flex", gap: "0.3rem", justifyContent: "flex-end" }}>
+                          <button onClick={() => { setEditingQuestion(q); setShowQuestionModal(true); }} className="btn btn-secondary btn-sm" style={{ padding: "0.3rem" }}>
+                            <Edit3 size={13} />
+                          </button>
+                          <button onClick={() => handleDeleteQuestion(q.id)} className="btn btn-danger btn-sm" style={{ padding: "0.3rem" }}>
+                            <Trash2 size={13} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 4: QUẢN LÝ NGƯỜI DÙNG 3 ROLES */}
+      {activeTab === "users" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.8rem" }}>
+            <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
+              <select
+                value={userRoleFilter}
+                onChange={(e) => setUserRoleFilter(e.target.value)}
+                className="input"
+                style={{ fontSize: "0.85rem", fontWeight: 700 }}
+              >
+                <option value="all">👥 Tất Cả Vai Trò ({users.length})</option>
+                <option value="admin">👑 Tổng Quản Trị (Admin)</option>
+                <option value="branch_manager">🏫 Quản Lý Chi Nhánh</option>
+                <option value="student">🎓 Học Viên</option>
+              </select>
+
+              <select
+                value={userBranchFilter}
+                onChange={(e) => setUserBranchFilter(e.target.value)}
+                className="input"
+                style={{ fontSize: "0.85rem" }}
+              >
+                <option value="all">🏢 Tất Cả Chi Nhánh</option>
+                {branches.map(b => (
+                  <option key={b.id} value={b.id}>{b.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <button onClick={() => setShowAddUserModal(true)} className="btn btn-primary btn-sm">
+              <UserPlus size={15} />
+              <span>Cấp Tài Khoản Mới</span>
+            </button>
+          </div>
+
+          <div style={{ marginBottom: "1rem" }}>
+            <input
+              type="text"
+              value={userSearch}
+              onChange={(e) => setUserSearch(e.target.value)}
+              placeholder="🔍 Tìm kiếm học viên theo họ tên, số điện thoại, lớp học..."
+              className="input"
+              style={{ width: "100%" }}
+            />
+          </div>
+
+          <div className="q-card" style={{ padding: 0, overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+              <thead>
+                <tr style={{ background: "var(--bg-light)", borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
+                  <th style={{ padding: "0.75rem 1rem" }}>Họ Và Tên</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Tên Đăng Nhập</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Vai Trò</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Chi Nhánh / Lớp</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Mật Khẩu</th>
+                  <th style={{ padding: "0.75rem 1rem", textAlign: "right" }}>Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredUsers.map((u) => (
+                  <tr key={u.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
+                    <td style={{ padding: "0.75rem 1rem", fontWeight: 700 }}>{u.fullName}</td>
+                    <td style={{ padding: "0.75rem 1rem" }}><code>{u.username}</code></td>
+                    <td style={{ padding: "0.75rem 1rem" }}>
+                      <span className={`badge ${u.role === "admin" ? "badge-warning" : u.role === "branch_manager" ? "badge-primary" : "badge-emerald"}`} style={{ fontSize: "0.72rem" }}>
+                        {u.role === "admin" ? "Admin" : u.role === "branch_manager" ? "Quản Lý Chi Nhánh" : "Học Viên"}
+                      </span>
+                    </td>
+                    <td style={{ padding: "0.75rem 1rem", color: "var(--text-secondary)" }}>
+                      {u.branchName || "Chi Nhánh Thủ Đức"} • {u.class || "Khóa 26"}
+                    </td>
+                    <td style={{ padding: "0.75rem 1rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                        <span>{visiblePasswordIds.includes(u.id) ? u.password : "••••••••"}</span>
+                        <button onClick={() => togglePasswordVisibility(u.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}>
+                          {visiblePasswordIds.includes(u.id) ? <EyeOff size={13} /> : <Eye size={13} />}
+                        </button>
+                      </div>
+                    </td>
+                    <td style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
+                      <div style={{ display: "flex", gap: "0.3rem", justifyContent: "flex-end" }}>
+                        <button onClick={() => setEditingUser(u)} className="btn btn-secondary btn-sm" style={{ padding: "0.3rem" }}>
+                          <Edit3 size={13} />
+                        </button>
+                        {u.username !== "admin" && (
+                          <button onClick={() => handleDeleteUser(u.id)} className="btn btn-danger btn-sm" style={{ padding: "0.3rem" }}>
+                            <Trash2 size={13} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 5: GIÁM SÁT PHÒNG THI & KẾT QUẢ */}
+      {activeTab === "exams_monitor" && (
+        <div>
+          <div className="q-card" style={{ marginBottom: "1.5rem" }}>
+            <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.5rem" }}>
+              Trạng Thái Phòng Thi & Bài Thi Đang Tạm Dừng
+            </h3>
+            {pausedExam ? (
+              <div style={{ padding: "1rem", background: "rgba(245, 158, 11, 0.1)", border: "1px solid var(--brand-amber)", borderRadius: "var(--radius-md)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <div>
+                    <h4 style={{ margin: 0, fontWeight: 800 }}>Học viên: {pausedExam.userName}</h4>
+                    <p style={{ margin: "0.2rem 0 0", fontSize: "0.85rem", color: "var(--text-muted)" }}>
+                      Thời gian tạm dừng: {pausedExam.timestamp} • Phần thi: {pausedExam.examPart === 1 ? "Trắc nghiệm" : "Tự luận"} • Thời gian còn lại: {Math.floor(pausedExam.timerSeconds / 60)} phút {pausedExam.timerSeconds % 60} giây
+                    </p>
+                  </div>
+                  <button onClick={() => { clearPausedExam(); loadAllData(); }} className="btn btn-danger btn-sm">
+                    Hủy Bài Tạm Dừng
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", margin: 0 }}>
+                Hiện tại không có học viên nào đang tạm dừng bài thi.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* TAB 6: SỔ BẢNG ĐIỂM */}
+      {activeTab === "results" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+            <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0 }}>Lịch Sử Nộp Bài & Phổ Điểm</h3>
+            <button
+              onClick={() => {
+                if (confirm("Xóa toàn bộ lịch sử bảng điểm?")) {
+                  clearExamResults();
+                  loadAllData();
+                }
+              }}
+              className="btn btn-danger btn-sm"
+            >
+              Xóa Toàn Bộ Lịch Sử
+            </button>
+          </div>
+
+          <div className="q-card" style={{ padding: 0, overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
+              <thead>
+                <tr style={{ background: "var(--bg-light)", borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
+                  <th style={{ padding: "0.75rem 1rem" }}>Học Viên</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Lớp</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Điểm TN (Thang 10)</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Điểm TL (Thang 10)</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Tổng Điểm</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Xếp Loại</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Thời Gian Nộp</th>
+                </tr>
+              </thead>
+              <tbody>
+                {examResults.map((r, i) => (
+                  <tr key={i} style={{ borderBottom: "1px solid var(--border-light)" }}>
+                    <td style={{ padding: "0.75rem 1rem", fontWeight: 700 }}>{r.studentName}</td>
+                    <td style={{ padding: "0.75rem 1rem" }}>{r.studentClass}</td>
+                    <td style={{ padding: "0.75rem 1rem" }}>{r.mcqScore}</td>
+                    <td style={{ padding: "0.75rem 1rem" }}>{r.practicalScore}</td>
+                    <td style={{ padding: "0.75rem 1rem", fontWeight: 800, color: r.totalScore >= 8 ? "var(--brand-emerald-dark)" : r.totalScore >= 5 ? "var(--brand-primary)" : "#dc2626" }}>
+                      {r.totalScore}
+                    </td>
+                    <td style={{ padding: "0.75rem 1rem" }}>
+                      <span className="badge badge-primary">{r.rank}</span>
+                    </td>
+                    <td style={{ padding: "0.75rem 1rem", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                      {r.submittedAt}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 7: CÀI ĐẶT HỆ THỐNG */}
+      {activeTab === "settings" && (
+        <div className="q-card" style={{ maxWidth: "600px" }}>
+          <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "1rem" }}>
+            Cấu Hình & Mã PIN Giáo Viên
+          </h3>
+
+          <div style={{ marginBottom: "1.2rem" }}>
+            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.4rem" }}>
+              Mã PIN Phê Duyệt Mở Khóa Bài Thi Tạm Dừng:
+            </label>
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <input
+                type="text"
+                value={teacherPinInput}
+                onChange={(e) => setTeacherPinInput(e.target.value)}
+                className="input"
+                style={{ width: "160px", fontWeight: 800, letterSpacing: "2px", fontSize: "1.1rem" }}
+              />
+              <button
+                onClick={() => {
+                  updateTeacherPin(teacherPinInput);
+                  alert("✅ Đã cập nhật mã PIN giáo viên: " + teacherPinInput);
+                }}
+                className="btn btn-primary"
+              >
+                Lưu Mã PIN
+              </button>
+            </div>
+            <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", marginTop: "0.4rem" }}>
+              Giáo viên dùng mã PIN này để mở khóa bài thi khi học sinh tạm dừng và xin làm tiếp.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* MODALS */}
+      {showExcelModal && (
+        <ExcelQuestionImporter
+          subjects={subjects}
+          branches={branches}
+          currentSubjectId={selectedSubjectId}
+          onImportSuccess={(count) => {
+            loadAllData();
+          }}
+          onClose={() => setShowExcelModal(false)}
+        />
+      )}
+
+      {showBranchModal && (
+        <BranchModal
+          branch={editingBranch}
+          onSave={handleSaveBranch}
+          onClose={() => { setShowBranchModal(false); setEditingBranch(null); }}
+        />
+      )}
+
+      {showSubjectModal && (
+        <SubjectModal
+          subject={editingSubject}
+          onSave={handleSaveSubject}
+          onClose={() => { setShowSubjectModal(false); setEditingSubject(null); }}
+        />
+      )}
+
       {showAddUserModal && (
         <AddUserModal
           onClose={() => setShowAddUserModal(false)}
-          onUserAdded={loadAllData}
+          onUserAdded={() => { setShowAddUserModal(false); loadAllData(); }}
         />
       )}
 
@@ -1298,29 +1084,23 @@ export default function AdminPage() {
         <UserEditModal
           user={editingUser}
           onClose={() => setEditingUser(null)}
-          onUserUpdated={loadAllData}
+          onUserUpdated={() => { setEditingUser(null); loadAllData(); }}
         />
       )}
 
       {showQuestionModal && (
         <QuestionFormModal
           question={editingQuestion}
-          onClose={() => {
-            setShowQuestionModal(false);
-            setEditingQuestion(null);
-          }}
-          onSaved={loadAllData}
+          onClose={() => { setShowQuestionModal(false); setEditingQuestion(null); }}
+          onSaved={() => { setShowQuestionModal(false); setEditingQuestion(null); loadAllData(); }}
         />
       )}
 
       {showPracticalModal && (
         <PracticalFormModal
           problem={editingPractical}
-          onClose={() => {
-            setShowPracticalModal(false);
-            setEditingPractical(null);
-          }}
-          onSaved={loadAllData}
+          onClose={() => { setShowPracticalModal(false); setEditingPractical(null); }}
+          onSaved={() => { setShowPracticalModal(false); setEditingPractical(null); loadAllData(); }}
         />
       )}
     </div>
