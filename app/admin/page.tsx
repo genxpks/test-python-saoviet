@@ -9,6 +9,7 @@ import {
   loginUser,
   DEFAULT_BRANCHES,
   DEFAULT_SUBJECTS,
+  logoutUser,
   formatStudyDuration,
   saveUsers
 } from "@/lib/usersData";
@@ -46,7 +47,8 @@ import {
   Building2,
   Code2,
   Eye,
-  EyeOff
+  EyeOff,
+  LogOut
 } from "lucide-react";
 
 type AdminTab = "questions" | "practicals" | "users" | "branches" | "subjects" | "results";
@@ -277,230 +279,304 @@ export default function AdminPage() {
   }
 
   return (
-    <div style={{ maxWidth: "1280px", margin: "0 auto", padding: "1.5rem 1rem" }}>
-      {/* Top Header & Branch Hierarchy Bar */}
-      <div style={{
-        background: "var(--surface-card)",
-        border: "1px solid var(--border-light)",
-        borderRadius: "var(--radius-lg)",
-        padding: "1.2rem 1.6rem",
-        marginBottom: "1.5rem",
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        flexWrap: "wrap",
-        gap: "1rem"
-      }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <div style={{
-            width: "48px",
-            height: "48px",
-            borderRadius: "12px",
-            background: currentUser.role === "admin" ? "var(--brand-rose)" : "var(--brand-violet)",
-            color: "#ffffff",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center"
-          }}>
-            <ShieldCheck size={26} />
-          </div>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <h1 style={{ fontSize: "1.35rem", fontWeight: 900, margin: 0 }}>
-                Bảng Điều Khiển Quản Trị
-              </h1>
-              <span className={`badge ${currentUser.role === "admin" ? "badge-warning" : "badge-primary"}`} style={{ fontSize: "0.72rem" }}>
-                {currentUser.role === "admin" ? "Super Admin" : "Quản Lý Chi Nhánh"}
-              </span>
+    <div style={{ maxWidth: "1550px", margin: "0 auto", padding: "1.5rem 1rem", minHeight: "calc(100vh - 80px)" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "270px 1fr", gap: "1.75rem", alignItems: "start" }}>
+        
+        {/* ========================================================================= */}
+        {/* 1. LEFT SIDEBAR (Matching Approved Mockup) */}
+        {/* ========================================================================= */}
+        <aside style={{
+          background: "rgba(4, 12, 34, 0.88)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1.5px solid rgba(0, 245, 200, 0.22)",
+          borderRadius: "24px",
+          padding: "1.5rem 1.1rem",
+          position: "sticky",
+          top: "85px",
+          display: "flex",
+          flexDirection: "column",
+          gap: "1.25rem",
+          boxShadow: "0 12px 35px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 245, 200, 0.08)"
+        }}>
+          {/* Brand Tag */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", paddingBottom: "1.2rem", borderBottom: "1.5px solid rgba(0, 245, 200, 0.15)" }}>
+            <div style={{
+              width: "42px",
+              height: "42px",
+              borderRadius: "12px",
+              background: "linear-gradient(135deg, #00f5c8, #0ea5e9)",
+              color: "#020617",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 0 20px rgba(0, 245, 200, 0.4)"
+            }}>
+              <ShieldCheck size={24} />
             </div>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", margin: "0.2rem 0 0" }}>
-              Xin chào <strong>{currentUser.fullName}</strong> • {currentUser.branchName || "Toàn Hệ Thống Sao Việt"}
-            </p>
-          </div>
-        </div>
-
-        {/* Branch View Selector for Admin */}
-        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.82rem", fontWeight: 700, color: "var(--text-muted)" }}>
-            <Building2 size={15} color="var(--brand-primary)" />
-            <span>CHẾ ĐỘ XEM CHI NHÁNH:</span>
+            <div>
+              <div style={{ fontSize: "1rem", fontWeight: 900, color: "#ffffff", fontFamily: "var(--font-heading)" }}>
+                Admin Panel
+              </div>
+              <div style={{ fontSize: "0.7rem", color: "#00f5c8", fontWeight: 800, letterSpacing: "0.05em" }}>
+                TIN HỌC SAO VIỆT
+              </div>
+            </div>
           </div>
 
-          {currentUser.role === "admin" ? (
-            <select
-              value={adminBranchMode}
-              onChange={(e) => setAdminBranchMode(e.target.value)}
-              className="input"
-              style={{ fontWeight: 800, fontSize: "0.85rem", borderColor: "var(--brand-primary)" }}
+          {/* Sidebar Menu Items (Vertical Tabs) */}
+          <nav style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+            {[
+              { id: "questions", label: "Ngân Hàng Câu Hỏi", count: questions.length, icon: BookOpen },
+              { id: "users", label: "Quản Lý Học Viên", count: filteredUsers.length, icon: Users },
+              { id: "subjects", label: "Môn Học & Ngôn Ngữ", count: subjects.length, icon: Code2 },
+              { id: "branches", label: "Cơ Sở Phòng Lab", count: branches.length, icon: Building2 },
+              { id: "results", label: "Kết Quả Thi Online", count: examResults.length, icon: GraduationCap }
+            ].map(tab => {
+              const isActive = activeTab === tab.id;
+              const IconComponent = tab.icon;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id as any)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    width: "100%",
+                    padding: "0.75rem 0.95rem",
+                    borderRadius: "14px",
+                    border: "1.5px solid",
+                    borderColor: isActive ? "#00f5c8" : "transparent",
+                    background: isActive ? "linear-gradient(135deg, rgba(0, 245, 200, 0.16), rgba(14, 165, 233, 0.12))" : "transparent",
+                    color: isActive ? "#00f5c8" : "#94a3b8",
+                    fontWeight: isActive ? 800 : 600,
+                    fontSize: "0.86rem",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    transition: "all 0.2s ease",
+                    boxShadow: isActive ? "0 4px 18px rgba(0, 245, 200, 0.18)" : "none"
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                    <IconComponent size={17} color={isActive ? "#00f5c8" : "#64748b"} />
+                    <span>{tab.label}</span>
+                  </div>
+                  <span style={{
+                    fontSize: "0.72rem",
+                    padding: "0.15rem 0.5rem",
+                    borderRadius: "9999px",
+                    background: isActive ? "rgba(0, 245, 200, 0.22)" : "rgba(255, 255, 255, 0.06)",
+                    color: isActive ? "#00f5c8" : "#64748b",
+                    fontWeight: 800
+                  }}>
+                    {tab.count}
+                  </span>
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Admin Info Card & Branch Switcher at Sidebar Bottom */}
+          <div style={{
+            marginTop: "auto",
+            paddingTop: "1.2rem",
+            borderTop: "1.5px solid rgba(0, 245, 200, 0.15)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "0.75rem"
+          }}>
+            <div>
+              <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#00f5c8", textTransform: "uppercase", marginBottom: "0.2rem" }}>
+                {currentUser.role === "admin" ? "Super Admin" : "Quản Lý Chi Nhánh"}
+              </div>
+              <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "#ffffff" }}>
+                {currentUser.fullName}
+              </div>
+              <div style={{ fontSize: "0.74rem", color: "#64748b" }}>
+                {currentUser.branchName || "Toàn Hệ Thống Sao Việt"}
+              </div>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.3rem" }}>
+                XEM THEO CHI NHÁNH:
+              </label>
+              {currentUser.role === "admin" ? (
+                <select
+                  value={adminBranchMode}
+                  onChange={(e) => setAdminBranchMode(e.target.value)}
+                  className="input"
+                  style={{ width: "100%", fontSize: "0.78rem", padding: "0.4rem 0.5rem", borderColor: "rgba(0, 245, 200, 0.3)" }}
+                >
+                  <option value="all">🏢 Toàn Bộ (4 Cơ Sở)</option>
+                  {branches.map(b => (
+                    <option key={b.id} value={b.id}>🏢 {b.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <div style={{ fontSize: "0.78rem", color: "#00f5c8", fontWeight: 700 }}>
+                  {currentUser.branchName || "Chi Nhánh Được Gán"}
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => {
+                logoutUser();
+                window.location.href = "/";
+              }}
+              className="btn btn-secondary btn-sm"
+              style={{ width: "100%", justifyContent: "center", color: "#f43f5e", borderColor: "rgba(244, 63, 94, 0.3)", padding: "0.45rem" }}
             >
-              <option value="all">🏢 Toàn Hệ Thống (4 Chi Nhánh TP.HCM)</option>
-              {branches.map(b => (
-                <option key={b.id} value={b.id}>🏢 {b.name}</option>
-              ))}
-            </select>
-          ) : (
-            <span className="badge badge-primary" style={{ padding: "0.4rem 0.8rem", fontSize: "0.82rem" }}>
-              {currentUser.branchName || "Chi Nhánh Được Gán"}
-            </span>
-          )}
-
-          <button onClick={loadAllData} className="btn btn-secondary btn-sm" title="Làm mới dữ liệu">
-            <RefreshCw size={14} />
-          </button>
-        </div>
-      </div>
-
-      {/* 4 COSMIC STAT CARDS (Exact Approved Mockup Match) */}
-      <div style={{
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-        gap: "1.25rem",
-        marginBottom: "1.75rem"
-      }}>
-        <div style={{
-          background: "rgba(4, 12, 34, 0.82)",
-          backdropFilter: "blur(20px)",
-          border: "1.5px solid rgba(0, 245, 200, 0.25)",
-          borderRadius: "18px",
-          padding: "1.6rem 1.4rem",
-          textAlign: "center",
-          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.1)"
-        }}>
-          <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.4rem" }}>
-            Tổng Câu Hỏi
+              <LogOut size={14} />
+              <span>Đăng Xuất</span>
+            </button>
           </div>
+        </aside>
+
+        {/* ========================================================================= */}
+        {/* 2. RIGHT MAIN CONTENT AREA */}
+        {/* ========================================================================= */}
+        <main style={{ minWidth: 0 }}>
+          {/* Top Header Bar */}
           <div style={{
-            fontSize: "2.8rem",
-            fontWeight: 900,
-            color: "#00f5c8",
-            fontFamily: "var(--font-heading)",
-            textShadow: "0 0 25px rgba(0, 245, 200, 0.5)",
-            lineHeight: 1.1
+            background: "rgba(4, 12, 34, 0.82)",
+            backdropFilter: "blur(20px)",
+            border: "1.5px solid rgba(0, 245, 200, 0.22)",
+            borderRadius: "20px",
+            padding: "1.1rem 1.5rem",
+            marginBottom: "1.5rem",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "1rem",
+            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.06)"
           }}>
-            {questions.length || 120}
-          </div>
-        </div>
+            <div>
+              <h1 style={{ fontSize: "1.4rem", fontWeight: 900, margin: 0, color: "#ffffff", fontFamily: "var(--font-heading)" }}>
+                Bảng Điều Khiển Quản Trị Hệ Thống
+              </h1>
+              <p style={{ color: "#94a3b8", fontSize: "0.82rem", margin: "0.2rem 0 0" }}>
+                Trung tâm kiểm soát dữ liệu, học viên và khảo thí trực tuyến Tin Học Sao Việt.
+              </p>
+            </div>
 
-        <div style={{
-          background: "rgba(4, 12, 34, 0.82)",
-          backdropFilter: "blur(20px)",
-          border: "1.5px solid rgba(56, 189, 248, 0.25)",
-          borderRadius: "18px",
-          padding: "1.6rem 1.4rem",
-          textAlign: "center",
-          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(56, 189, 248, 0.1)"
-        }}>
-          <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.4rem" }}>
-            Học Viên
+            <button
+              onClick={loadAllData}
+              className="btn btn-secondary btn-sm"
+              style={{ display: "flex", alignItems: "center", gap: "0.4rem", borderColor: "rgba(0, 245, 200, 0.3)", color: "#00f5c8" }}
+              title="Làm mới dữ liệu từ máy chủ"
+            >
+              <RefreshCw size={14} />
+              <span>Làm Mới Dữ Liệu</span>
+            </button>
           </div>
+
+          {/* 4 COSMIC STAT CARDS (Exact Approved Mockup Match) */}
           <div style={{
-            fontSize: "2.8rem",
-            fontWeight: 900,
-            color: "#38bdf8",
-            fontFamily: "var(--font-heading)",
-            textShadow: "0 0 25px rgba(56, 189, 248, 0.5)",
-            lineHeight: 1.1
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+            gap: "1.1rem",
+            marginBottom: "1.75rem"
           }}>
-            {users.filter(u => u.role === "student").length || 87}
+            <div style={{
+              background: "rgba(4, 12, 34, 0.82)",
+              backdropFilter: "blur(20px)",
+              border: "1.5px solid rgba(0, 245, 200, 0.25)",
+              borderRadius: "18px",
+              padding: "1.4rem 1.2rem",
+              textAlign: "center",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.1)"
+            }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.3rem" }}>
+                Tổng Câu Hỏi
+              </div>
+              <div style={{
+                fontSize: "2.6rem",
+                fontWeight: 900,
+                color: "#00f5c8",
+                fontFamily: "var(--font-heading)",
+                textShadow: "0 0 25px rgba(0, 245, 200, 0.5)",
+                lineHeight: 1.1
+              }}>
+                {questions.length || 120}
+              </div>
+            </div>
+
+            <div style={{
+              background: "rgba(4, 12, 34, 0.82)",
+              backdropFilter: "blur(20px)",
+              border: "1.5px solid rgba(56, 189, 248, 0.25)",
+              borderRadius: "18px",
+              padding: "1.4rem 1.2rem",
+              textAlign: "center",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(56, 189, 248, 0.1)"
+            }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.3rem" }}>
+                Học Viên
+              </div>
+              <div style={{
+                fontSize: "2.6rem",
+                fontWeight: 900,
+                color: "#38bdf8",
+                fontFamily: "var(--font-heading)",
+                textShadow: "0 0 25px rgba(56, 189, 248, 0.5)",
+                lineHeight: 1.1
+              }}>
+                {users.filter(u => u.role === "student").length || 87}
+              </div>
+            </div>
+
+            <div style={{
+              background: "rgba(4, 12, 34, 0.82)",
+              backdropFilter: "blur(20px)",
+              border: "1.5px solid rgba(167, 139, 250, 0.25)",
+              borderRadius: "18px",
+              padding: "1.4rem 1.2rem",
+              textAlign: "center",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(167, 139, 250, 0.1)"
+            }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.3rem" }}>
+                Chi Nhánh
+              </div>
+              <div style={{
+                fontSize: "2.6rem",
+                fontWeight: 900,
+                color: "#a78bfa",
+                fontFamily: "var(--font-heading)",
+                textShadow: "0 0 25px rgba(167, 139, 250, 0.5)",
+                lineHeight: 1.1
+              }}>
+                {branches.length || 4}
+              </div>
+            </div>
+
+            <div style={{
+              background: "rgba(4, 12, 34, 0.82)",
+              backdropFilter: "blur(20px)",
+              border: "1.5px solid rgba(0, 245, 200, 0.25)",
+              borderRadius: "18px",
+              padding: "1.4rem 1.2rem",
+              textAlign: "center",
+              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.1)"
+            }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.3rem" }}>
+                Kỳ Thi
+              </div>
+              <div style={{
+                fontSize: "2.6rem",
+                fontWeight: 900,
+                color: "#00f5c8",
+                fontFamily: "var(--font-heading)",
+                textShadow: "0 0 25px rgba(0, 245, 200, 0.5)",
+                lineHeight: 1.1
+              }}>
+                {examResults.length > 0 ? examResults.length : 23}
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div style={{
-          background: "rgba(4, 12, 34, 0.82)",
-          backdropFilter: "blur(20px)",
-          border: "1.5px solid rgba(167, 139, 250, 0.25)",
-          borderRadius: "18px",
-          padding: "1.6rem 1.4rem",
-          textAlign: "center",
-          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(167, 139, 250, 0.1)"
-        }}>
-          <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.4rem" }}>
-            Chi Nhánh
-          </div>
-          <div style={{
-            fontSize: "2.8rem",
-            fontWeight: 900,
-            color: "#a78bfa",
-            fontFamily: "var(--font-heading)",
-            textShadow: "0 0 25px rgba(167, 139, 250, 0.5)",
-            lineHeight: 1.1
-          }}>
-            {branches.length || 4}
-          </div>
-        </div>
-
-        <div style={{
-          background: "rgba(4, 12, 34, 0.82)",
-          backdropFilter: "blur(20px)",
-          border: "1.5px solid rgba(0, 245, 200, 0.25)",
-          borderRadius: "18px",
-          padding: "1.6rem 1.4rem",
-          textAlign: "center",
-          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.1)"
-        }}>
-          <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.4rem" }}>
-            Kỳ Thi
-          </div>
-          <div style={{
-            fontSize: "2.8rem",
-            fontWeight: 900,
-            color: "#00f5c8",
-            fontFamily: "var(--font-heading)",
-            textShadow: "0 0 25px rgba(0, 245, 200, 0.5)",
-            lineHeight: 1.1
-          }}>
-            {examResults.length > 0 ? examResults.length : 23}
-          </div>
-        </div>
-      </div>
-
-      {/* Navigation Tabs */}
-      <div style={{ display: "flex", gap: "0.5rem", borderBottom: "1.5px solid rgba(0, 245, 200, 0.15)", paddingBottom: "0.75rem", marginBottom: "1.5rem", overflowX: "auto" }}>
-        <button
-          onClick={() => setActiveTab("questions")}
-          className={`btn btn-sm ${activeTab === "questions" ? "btn-primary" : "btn-secondary"}`}
-          style={{ gap: "0.4rem" }}
-        >
-          <BookOpen size={15} />
-          <span>Ngân Hàng Câu Hỏi ({questions.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("users")}
-          className={`btn btn-sm ${activeTab === "users" ? "btn-primary" : "btn-secondary"}`}
-          style={{ gap: "0.4rem" }}
-        >
-          <Users size={15} />
-          <span>Quản Lý Học Viên ({filteredUsers.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("subjects")}
-          className={`btn btn-sm ${activeTab === "subjects" ? "btn-primary" : "btn-secondary"}`}
-          style={{ gap: "0.4rem" }}
-        >
-          <Code2 size={15} />
-          <span>Môn Học & Ngôn Ngữ ({subjects.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("branches")}
-          className={`btn btn-sm ${activeTab === "branches" ? "btn-primary" : "btn-secondary"}`}
-          style={{ gap: "0.4rem" }}
-        >
-          <Building2 size={15} />
-          <span>Cơ Sở Phòng Lab ({branches.length})</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab("results")}
-          className={`btn btn-sm ${activeTab === "results" ? "btn-primary" : "btn-secondary"}`}
-          style={{ gap: "0.4rem" }}
-        >
-          <GraduationCap size={15} />
-          <span>Kết Quả Thi ({examResults.length})</span>
-        </button>
-      </div>
 
       {/* TAB 1: QUESTIONS */}
       {activeTab === "questions" && (
@@ -877,6 +953,8 @@ export default function AdminPage() {
           }}
         />
       )}
+        </main>
+      </div>
     </div>
   );
 }
