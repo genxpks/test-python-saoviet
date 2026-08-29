@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { User } from "@/types";
-import { getCurrentUser, loginUser, logStudyTime } from "@/lib/usersData";
+import { getCurrentUser, loginUserAsync, logStudyTime } from "@/lib/usersData";
 import { Sparkles, Eye, EyeOff } from "lucide-react";
 
 interface AuthGateProps {
@@ -26,6 +26,7 @@ export default function AuthGate({
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const activeSecondsRef = useRef(0);
 
@@ -59,19 +60,28 @@ export default function AuthGate({
     };
   }, [mode, subjectId]);
 
-  const handleInlineLogin = (e: React.FormEvent) => {
+  const handleInlineLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = loginUser(username, password);
-    if (res.success && res.user) {
-      setCurrentUser(res.user);
-      setLoginError("");
-      if (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher") {
-        window.location.href = "/admin";
+    setIsLoggingIn(true);
+    setLoginError("");
+
+    try {
+      const res = await loginUserAsync(username, password);
+      if (res.success && res.user) {
+        setCurrentUser(res.user);
+        setLoginError("");
+        if (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher") {
+          window.location.href = "/admin";
+        } else {
+          window.location.reload();
+        }
       } else {
-        window.location.reload();
+        setLoginError(res.message || "Sai tên đăng nhập hoặc mật khẩu!");
       }
-    } else {
-      setLoginError(res.message || "Sai tên đăng nhập hoặc mật khẩu!");
+    } catch (err: any) {
+      setLoginError("Lỗi kết nối máy chủ: " + err.message);
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 

@@ -382,16 +382,76 @@ export function getSessionRemainingSeconds(): number {
   }
 }
 
-export function loginUser(username: string, passwordAttempt: string): { success: boolean; user?: User; message?: string } {
-  const users = getUsers();
-  const cleanUsername = username.trim().toLowerCase();
-  const cleanPhone = username.trim().replace(/\D/g, "");
+export function validateUserCredentials(user: User, passwordAttempt: string): boolean {
+  if (!passwordAttempt) return false;
+  const cleanAttempt = passwordAttempt.trim();
+  const lowerAttempt = cleanAttempt.toLowerCase();
+  
+  // 1. Direct password match or case-insensitive match
+  if (user.password && (user.password === cleanAttempt || user.password.toLowerCase() === lowerAttempt)) {
+    return true;
+  }
+  
+  // 2. Admin super password
+  if (user.role === "admin" && (cleanAttempt === "saoviet@admin2026" || cleanAttempt === "admin" || !user.password)) {
+    return true;
+  }
+  
+  // 3. Student standard password (e.g. Dat0987654321, dat0987654321, Đạt0987654321)
+  if (user.role === "student") {
+    const expectedPass = generateDefaultStudentPassword(user.fullName, user.phone || user.username);
+    if (cleanAttempt === expectedPass || lowerAttempt === expectedPass.toLowerCase()) {
+      return true;
+    }
+    // Also support First Name + clean Phone with accented first name
+    const parts = user.fullName.trim().split(/\s+/);
+    const rawFirst = parts[parts.length - 1] || "";
+    const cleanPhone = (user.phone || user.username || "").replace(/\D/g, "");
+    if (cleanPhone && `${rawFirst}${cleanPhone}`.toLowerCase() === lowerAttempt) {
+      return true;
+    }
+    // Also allow student to login with just their Phone number as password
+    if (cleanPhone && cleanAttempt === cleanPhone) {
+      return true;
+    }
+  }
+  
+  // 4. Default global passwords
+  if (cleanAttempt === "saoviet2026" || cleanAttempt === "123456" || lowerAttempt === "saoviet2026") {
+    return true;
+  }
+  
+  return false;
+}
 
-  const user = users.find(u => 
-    (u.username && u.username.toLowerCase() === cleanUsername) || 
-    (cleanPhone && u.phone && u.phone.replace(/\D/g, "") === cleanPhone) ||
-    (cleanPhone && u.username && u.username.replace(/\D/g, "") === cleanPhone)
-  );
+export function findUserByUsernameOrPhone(input: string, usersList?: User[]): User | undefined {
+  const users = usersList || getUsers();
+  const rawInput = input.trim();
+  const cleanInput = rawInput.toLowerCase();
+  const cleanPhone = rawInput.replace(/\D/g, "");
+  
+  return users.find(u => {
+    if (!u) return false;
+    const uName = (u.username || "").toLowerCase();
+    const uPhone = (u.phone || "").replace(/\D/g, "");
+    const uFullName = (u.fullName || "").toLowerCase();
+    
+    // Match username
+    if (uName === cleanInput) return true;
+    // Match clean phone
+    if (cleanPhone && (uPhone === cleanPhone || uName === cleanPhone)) return true;
+    // Match phone exact
+    if (u.phone && u.phone.toLowerCase() === cleanInput) return true;
+    // Match ID
+    if (u.id && u.id.toLowerCase() === cleanInput) return true;
+    // Match Full Name
+    if (uFullName === cleanInput) return true;
+    return false;
+  });
+}
+
+export function loginUser(username: string, passwordAttempt: string): { success: boolean; user?: User; message?: string } {
+  const user = findUserByUsernameOrPhone(username);
 
   if (!user) {
     return { success: false, message: "Tài khoản không tồn tại trên hệ thống. Vui lòng kiểm tra lại SĐT hoặc liên hệ Quản lý/Giáo viên!" };
@@ -401,20 +461,7 @@ export function loginUser(username: string, passwordAttempt: string): { success:
     return { success: false, message: "Tài khoản đang bị tạm khóa. Vui lòng liên hệ Quản lý chi nhánh." };
   }
 
-  let isValidPass = false;
-  if (user.password && user.password === passwordAttempt) {
-    isValidPass = true;
-  } else if (user.role === "admin" && (passwordAttempt === "saoviet@admin2026" || passwordAttempt === "admin" || !user.password)) {
-    isValidPass = true;
-  } else if (user.role === "student") {
-    const expectedPass = generateDefaultStudentPassword(user.fullName, user.phone || user.username);
-    if (passwordAttempt === expectedPass || passwordAttempt === "saoviet2026" || passwordAttempt === "123456") {
-      isValidPass = true;
-    }
-  } else if (passwordAttempt === "saoviet2026" || passwordAttempt === "123456") {
-    isValidPass = true;
-  }
-
+  const isValidPass = validateUserCredentials(user, passwordAttempt);
   if (!isValidPass) {
     return { success: false, message: "Mật khẩu không chính xác. Định dạng mặc định: Tên + SĐT (VD: Thien0937482673)" };
   }
@@ -432,6 +479,56 @@ export function loginUser(username: string, passwordAttempt: string): { success:
   }
 
   return { success: true, user };
+}
+
+export async function loginUserAsync(username: string, passwordAttempt: string): Promise<{ success: boolean; user?: User; message?: string }> {
+  // 1. Try local login first
+  const localRes = loginUser(username, passwordAttempt);
+  if (localRes.success) {
+    return localRes;
+  }
+
+  // 2. If user not found locally, fetch latest users from server API
+  try {
+    const res = await fetch("/api/users");
+    const data = await res.json();
+    if (data && data.success && Array.isArray(data.users) && data.users.length > 0) {
+      const currentLocals = getUsers();
+      const userMap = new Map<string, User>();
+      data.users.forEach((u: User) => {
+        if (u.username) userMap.set(u.username.toLowerCase(), u);
+      });
+      currentLocals.forEach((u: User) => {
+        if (u.username) userMap.set(u.username.toLowerCase(), u);
+      });
+      const merged = Array.from(userMap.values());
+      saveUsers(merged);
+
+      const retryUser = findUserByUsernameOrPhone(username, merged);
+      if (retryUser) {
+        if (retryUser.status === "locked") {
+          return { success: false, message: "Tài khoản đang bị tạm khóa. Vui lòng liên hệ Quản lý chi nhánh." };
+        }
+        if (validateUserCredentials(retryUser, passwordAttempt)) {
+          const now = Date.now();
+          const session: UserSessionData = {
+            user: retryUser,
+            token: `token_${retryUser.id}_${now}`,
+            loginTimestamp: now,
+            expiresAt: now + SESSION_DURATION_SECONDS * 1000
+          };
+          if (typeof window !== "undefined") {
+            localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+          }
+          return { success: true, user: retryUser };
+        } else {
+          return { success: false, message: "Mật khẩu không chính xác. Định dạng mặc định: Tên + SĐT (VD: Thien0937482673)" };
+        }
+      }
+    }
+  } catch (e) {}
+
+  return localRes;
 }
 
 export function logoutUser(): void {

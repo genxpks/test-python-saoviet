@@ -7,6 +7,7 @@ import {
   deleteUser, 
   getCurrentUser, 
   loginUser,
+  loginUserAsync,
   DEFAULT_BRANCHES,
   DEFAULT_SUBJECTS,
   logoutUser,
@@ -158,9 +159,9 @@ export default function AdminPage() {
     }
   };
 
-  const handleInlineLogin = (e: React.FormEvent) => {
+  const handleInlineLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = loginUser(loginUsername, loginPassword);
+    const res = await loginUserAsync(loginUsername, loginPassword);
     if (res.success && res.user && (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher")) {
       setCurrentUser(res.user);
       if (res.user.role === "branch_manager" && res.user.branchId) {

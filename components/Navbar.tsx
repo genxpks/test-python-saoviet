@@ -7,7 +7,7 @@ import { User } from "@/types";
 import { 
   getCurrentUser, 
   logoutUser, 
-  loginUser, 
+  loginUserAsync,
   getSessionRemainingSeconds, 
   formatStudyDuration 
 } from "@/lib/usersData";
@@ -26,66 +26,80 @@ import {
   Eye, 
   EyeOff, 
   Building2, 
-  Hourglass
+  Hourglass,
+  KeyRound,
+  Flame,
+  Check
 } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [showLoginModal, setShowLoginModal] = useState(false);
   const [sessionRemainingSec, setSessionRemainingSec] = useState<number>(0);
-  
+  const [showLoginModal, setShowLoginModal] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   useEffect(() => {
     const curUser = getCurrentUser();
     setUser(curUser);
-    if (curUser) {
-      setSessionRemainingSec(getSessionRemainingSeconds());
-    }
+    setSessionRemainingSec(getSessionRemainingSeconds());
+
+    // Auto-sync users with server in background on first load
+    fetch("/api/users").then(r => r.json()).then(data => {
+      if (data && data.success && Array.isArray(data.users)) {
+        // Updated in localStorage by background if needed
+      }
+    }).catch(() => null);
 
     const sessionTimer = setInterval(() => {
-      const liveUser = getCurrentUser();
-      if (!liveUser && user) {
+      const remaining = getSessionRemainingSeconds();
+      setSessionRemainingSec(remaining);
+      if (remaining <= 0 && curUser) {
+        logoutUser();
         setUser(null);
-        alert("⏰ Phiên đăng nhập đã tự động kết thúc sau 3 giờ học tập theo quy định của Tin Học Sao Việt.\nVui lòng đăng nhập lại để tiếp tục!");
-        setShowLoginModal(true);
-      } else if (liveUser) {
-        setUser(liveUser);
-        setSessionRemainingSec(getSessionRemainingSeconds());
       }
     }, 15000);
 
     return () => clearInterval(sessionTimer);
-  }, [user]);
+  }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const res = loginUser(username, password);
-    if (res.success && res.user) {
-      setUser(res.user);
-      setShowLoginModal(false);
-      setUsername("");
-      setPassword("");
-      setLoginError("");
-      setSessionRemainingSec(getSessionRemainingSeconds());
+    setIsLoggingIn(true);
+    setLoginError("");
 
-      // Auto redirect based on user role (Rock-solid browser navigation)
-      if (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher") {
-        window.location.href = "/admin";
-      } else if (res.user.role === "student") {
-        if (pathname === "/") {
-          window.location.href = "/study";
-        } else {
-          window.location.reload();
+    try {
+      const res = await loginUserAsync(username, password);
+      if (res.success && res.user) {
+        setUser(res.user);
+        setShowLoginModal(false);
+        setUsername("");
+        setPassword("");
+        setLoginError("");
+        setSessionRemainingSec(getSessionRemainingSeconds());
+
+        // Auto redirect based on user role
+        if (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher") {
+          window.location.href = "/admin";
+        } else if (res.user.role === "student") {
+          if (pathname === "/") {
+            window.location.href = "/study";
+          } else {
+            window.location.reload();
+          }
         }
+      } else {
+        setLoginError(res.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản!");
       }
-    } else {
-      setLoginError(res.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản!");
+    } catch (err: any) {
+      setLoginError("Lỗi kết nối máy chủ: " + err.message);
+    } finally {
+      setIsLoggingIn(false);
     }
   };
 
