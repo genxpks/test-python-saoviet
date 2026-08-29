@@ -332,9 +332,15 @@ export function getUsers(): User[] {
       return DEFAULT_USERS;
     }
     const userMap = new Map<string, User>();
-    DEFAULT_USERS.forEach(u => userMap.set(u.username.toLowerCase(), u));
+    // Add parsed users first to preserve custom created order (newest on top)
     parsed.forEach(u => {
       if (u && u.username) {
+        userMap.set(u.username.toLowerCase(), u);
+      }
+    });
+    // Ensure all default users exist
+    DEFAULT_USERS.forEach(u => {
+      if (!userMap.has(u.username.toLowerCase())) {
         userMap.set(u.username.toLowerCase(), u);
       }
     });

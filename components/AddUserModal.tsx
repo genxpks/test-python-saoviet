@@ -80,8 +80,14 @@ export default function AddUserModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName.trim() || !username.trim() || !password.trim()) {
-      alert("Vui lòng điền đầy đủ Họ tên, Số điện thoại và Mật khẩu!");
+    const finalFullName = fullName.trim();
+    const finalPhone = phone.trim();
+    const cleanPhone = finalPhone.replace(/\D/g, "");
+    const finalUsername = (username.trim() || cleanPhone || finalPhone).trim();
+    const finalPassword = (password.trim() || generateDefaultStudentPassword(finalFullName, finalPhone) || "123456").trim();
+
+    if (!finalFullName || !finalUsername) {
+      alert("Vui lòng điền đầy đủ Họ tên và Số điện thoại!");
       return;
     }
 
@@ -90,14 +96,14 @@ export default function AddUserModal({
 
     const newUser: User = {
       id: accountType === "branch_manager" ? `mgr_${Date.now()}` : `hv_${Date.now()}`,
-      username: username.trim(),
-      fullName: fullName.trim(),
-      phone: phone.trim(),
+      username: finalUsername,
+      fullName: finalFullName,
+      phone: finalPhone,
       class: accountType === "student" ? className.trim() : undefined,
-      password: password.trim(),
+      password: finalPassword,
       role: accountType === "branch_manager" ? "branch_manager" : "student",
       branchId: branchId,
-      branchName: selectedBranch?.name || "Chi Nhánh Thủ Đức",
+      branchName: selectedBranch?.name || "Chi Nhánh TP. Thủ Đức",
       pin: accountType === "branch_manager" ? pin.trim() : undefined,
       status: "active",
       enrolledSubjects: accountType === "student" ? enrolledSubjects : ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -105,8 +111,10 @@ export default function AddUserModal({
       createdDate: new Date().toISOString().split("T")[0]
     };
 
+    // 1. Save locally immediately
     addUser(newUser);
 
+    // 2. Sync to MongoDB Atlas API
     try {
       const res = await fetch("/api/users", {
         method: "POST",
@@ -115,7 +123,7 @@ export default function AddUserModal({
       });
       const data = await res.json();
       if (!data.success) {
-        alert("⚠️ Cảnh báo lưu máy chủ: " + data.message);
+        console.warn("Server user create warning:", data.message);
       }
     } catch (err: any) {
       console.error("User create network error:", err);
@@ -123,9 +131,9 @@ export default function AddUserModal({
 
     setIsLoading(false);
     if (accountType === "branch_manager") {
-      alert(`✅ Cấp quyền QUẢN LÝ CHI NHÁNH & Lưu Database Atlas thành công!\n🏢 Phụ trách: ${newUser.branchName}\n👤 Tên đăng nhập (SĐT): ${username}\n🔑 Mật khẩu: ${password}\n🔢 Mã PIN Giáo viên: ${pin}`);
+      alert(`✅ Cấp quyền QUẢN LÝ CHI NHÁNH thành công!\n🏢 Phụ trách: ${newUser.branchName}\n👤 Tên đăng nhập (SĐT): ${finalUsername}\n🔑 Mật khẩu: ${finalPassword}\n🔢 Mã PIN Quản lý: ${pin}`);
     } else {
-      alert(`✅ Cấp tài khoản HỌC VIÊN & Lưu Database Atlas thành công!\n🏫 Chi nhánh: ${newUser.branchName}\n👤 Tên đăng nhập (SĐT): ${username}\n🔑 Mật khẩu: ${password}\n📚 Môn được cấp: ${enrolledSubjects.join(", ")}`);
+      alert(`✅ Cấp tài khoản HỌC VIÊN thành công!\n🏫 Chi nhánh: ${newUser.branchName}\n👤 Tên đăng nhập (SĐT): ${finalUsername}\n🔑 Mật khẩu: ${finalPassword}\n📚 Môn được cấp: ${enrolledSubjects.join(", ")}`);
     }
 
     onUserAdded();

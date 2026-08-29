@@ -15,13 +15,13 @@ export async function GET(req: Request) {
     if (role && role !== "all") query.role = role;
     if (branchId && branchId !== "all") query.branchId = branchId;
 
-    let users = await collection.find(query).sort({ createdDate: -1 }).toArray();
+    let users = await collection.find(query).sort({ createdDate: -1, _id: -1 }).toArray();
 
     if (users.length === 0 && Object.keys(query).length === 0) {
       for (const u of DEFAULT_USERS) {
         await collection.updateOne({ username: u.username }, { $set: u }, { upsert: true });
       }
-      users = await collection.find({}).toArray();
+      users = await collection.find({}).sort({ createdDate: -1, _id: -1 }).toArray();
     }
 
     return NextResponse.json({ success: true, count: users.length, users });

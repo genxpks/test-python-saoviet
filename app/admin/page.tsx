@@ -145,7 +145,9 @@ export default function AdminPage() {
           if (u.username) userMap.set(u.username.toLowerCase(), u);
         });
         currentLocals.forEach((u: User) => {
-          if (u.username) userMap.set(u.username.toLowerCase(), u);
+          if (u.username && !userMap.has(u.username.toLowerCase())) {
+            userMap.set(u.username.toLowerCase(), u);
+          }
         });
         const merged = Array.from(userMap.values());
         setUsers(merged);
