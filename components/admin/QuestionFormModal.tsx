@@ -109,7 +109,7 @@ export default function QuestionFormModal({
         await fetch("/api/questions", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ target: "question", data: questionPayload })
+          body: JSON.stringify({ id: question.id, target: "question", data: questionPayload })
         });
       } catch (err) {}
     } else {

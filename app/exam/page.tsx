@@ -71,7 +71,7 @@ export default function ExamPage() {
     };
   }, [isExamActive, isPaused]);
 
-  const handleStartExam = () => {
+  const handleStartExam = async () => {
     if (!currentUser) {
       alert("Vui lòng đăng nhập tài khoản học viên trước khi bắt đầu thi!");
       return;
@@ -95,8 +95,17 @@ export default function ExamPage() {
     }
 
     setAccessError("");
-    const allQ = getQuestionsData();
-    const allP = getPracticalsData();
+    let allQ = getQuestionsData();
+    let allP = getPracticalsData();
+
+    try {
+      const qRes = await fetch("/api/questions");
+      const qData = await qRes.json();
+      if (qData && qData.success) {
+        if (Array.isArray(qData.questions) && qData.questions.length > 0) allQ = qData.questions;
+        if (Array.isArray(qData.practical_problems) && qData.practical_problems.length > 0) allP = qData.practical_problems;
+      }
+    } catch {}
 
     const shuffledQ = [...allQ].sort(() => Math.random() - 0.5).slice(0, Math.min(50, allQ.length));
     const shuffledP = [...allP].sort(() => Math.random() - 0.5).slice(0, Math.min(4, allP.length));
@@ -189,6 +198,15 @@ export default function ExamPage() {
       certificateCode: certCode,
       completedDate: new Date().toLocaleDateString("vi-VN")
     };
+
+    // Save to MongoDB Atlas exam_results collection
+    try {
+      fetch("/api/exams", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(resData)
+      }).catch(() => null);
+    } catch {}
 
     setFinalScoreData(resData);
     setShowResultModal(true);

@@ -53,7 +53,7 @@ export default function PracticalFormModal({
         await fetch("/api/questions", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ target: "practical", data: problemPayload })
+          body: JSON.stringify({ id: problem.id, target: "practical", data: problemPayload })
         });
       } catch (err) {}
     } else {

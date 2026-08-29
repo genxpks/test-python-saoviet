@@ -76,16 +76,22 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
   try {
     const body = await req.json();
-    const { id, target, data } = body;
+    const target = body.target;
+    const data = body.data || body;
+    const targetId = Number(body.id || data.id);
+
+    if (isNaN(targetId)) {
+      return NextResponse.json({ success: false, message: "Invalid ID" }, { status: 400 });
+    }
 
     try {
       const db = await getDatabase();
       if (target === "practical") {
         const pCol = db.collection("practical_problems");
-        await pCol.updateOne({ id: Number(id) }, { $set: data });
+        await pCol.updateOne({ id: targetId }, { $set: data }, { upsert: true });
       } else {
         const qCol = db.collection("questions");
-        await qCol.updateOne({ id: Number(id) }, { $set: data });
+        await qCol.updateOne({ id: targetId }, { $set: data }, { upsert: true });
       }
     } catch (dbErr) {}
 

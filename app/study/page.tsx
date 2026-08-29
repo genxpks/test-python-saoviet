@@ -26,6 +26,20 @@ export default function StudyPage() {
   useEffect(() => {
     setQuestions(getQuestionsData());
     setPracticals(getPracticalsData());
+
+    fetch("/api/questions")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.success) {
+          if (Array.isArray(data.questions) && data.questions.length > 0) {
+            setQuestions(data.questions);
+          }
+          if (Array.isArray(data.practical_problems) && data.practical_problems.length > 0) {
+            setPracticals(data.practical_problems);
+          }
+        }
+      })
+      .catch(() => null);
   }, []);
 
   const chips = [

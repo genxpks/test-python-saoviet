@@ -559,19 +559,17 @@ export function logStudyTime(userId: string, addedSeconds: number, mode: 'study'
       }
     }
 
-    const log: StudySessionLog = {
-      id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-      userId,
-      subjectId,
-      mode,
-      durationSeconds: addedSeconds,
-      timestamp: new Date().toISOString()
-    };
-    const logsRaw = localStorage.getItem(STORAGE_KEY_STUDY_LOGS);
-    const logs: StudySessionLog[] = logsRaw ? JSON.parse(logsRaw) : [];
-    logs.push(log);
-    if (logs.length > 500) logs.shift();
-    localStorage.setItem(STORAGE_KEY_STUDY_LOGS, JSON.stringify(logs));
+    // Sync to MongoDB Atlas study_logs and users collection
+    fetch("/api/study-time", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        durationSeconds: addedSeconds,
+        subjectId,
+        mode
+      })
+    }).catch(() => null);
   } catch {}
 }
 
