@@ -317,14 +317,14 @@ export default function ExamPage() {
 
                 {/* Exam Access Code Input */}
                 <div style={{
-                  background: "rgba(2, 6, 18, 0.8)",
-                  border: "1.5px solid rgba(0, 245, 200, 0.35)",
+                  background: "rgba(15, 23, 42, 0.85)",
+                  border: "1px solid rgba(255, 255, 255, 0.12)",
                   borderRadius: "14px",
                   padding: "1.2rem",
                   marginBottom: "1.5rem",
                   textAlign: "center"
                 }}>
-                  <label style={{ display: "block", fontSize: "0.88rem", fontWeight: 800, color: "#00f5c8", marginBottom: "0.6rem" }}>
+                  <label style={{ display: "block", fontSize: "0.88rem", fontWeight: 800, color: "#38bdf8", marginBottom: "0.6rem" }}>
                     🔑 NHẬP MÃ PHÒNG THI / MÃ ĐỀ THI ĐỂ MỞ KHÓA:
                   </label>
                   <input
@@ -337,8 +337,8 @@ export default function ExamPage() {
                       maxWidth: "420px",
                       padding: "0.75rem 1rem",
                       borderRadius: "10px",
-                      border: "1.5px solid rgba(0, 245, 200, 0.4)",
-                      background: "rgba(10, 20, 48, 0.8)",
+                      border: "1.5px solid #334155",
+                      background: "rgba(30, 41, 59, 0.8)",
                       color: "#ffffff",
                       fontSize: "1rem",
                       fontWeight: 800,
@@ -351,11 +351,11 @@ export default function ExamPage() {
                     }}
                   />
                   {accessError && (
-                    <div style={{ color: "#fb7185", fontSize: "0.82rem", fontWeight: 700, marginTop: "0.5rem" }}>
+                    <div style={{ color: "#fca5a5", fontSize: "0.82rem", fontWeight: 700, marginTop: "0.5rem" }}>
                       {accessError}
                     </div>
                   )}
-                  <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.4rem" }}>
+                  <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "0.4rem" }}>
                     (Mã phòng thi chuẩn: <code>SAOVIET2026</code>, <code>PYTHON2026</code> hoặc mã PIN Giám thị: <code>8888</code>)
                   </div>
                 </div>
@@ -366,11 +366,11 @@ export default function ExamPage() {
                   style={{
                     padding: "0.95rem 2.8rem",
                     fontSize: "1.05rem",
-                    fontWeight: 900,
+                    fontWeight: 800,
                     borderRadius: "9999px",
-                    background: "linear-gradient(135deg, #00f5c8, #0ea5e9)",
-                    color: "#020a14",
-                    boxShadow: "0 0 25px rgba(0, 245, 200, 0.4)"
+                    background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                    color: "#ffffff",
+                    boxShadow: "0 4px 18px rgba(37, 99, 235, 0.4)"
                   }}
                 >
                   <BookOpen size={20} />

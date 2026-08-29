@@ -284,15 +284,15 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
                 padding: "0.5rem 1.1rem",
                 borderRadius: "8px",
                 border: "none",
-                background: "linear-gradient(135deg, #00f5c8, #0ea5e9)",
-                color: "#020a14",
-                fontWeight: 800,
+                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                color: "#ffffff",
+                fontWeight: 700,
                 fontSize: "0.85rem",
                 cursor: "pointer",
-                boxShadow: "0 0 15px rgba(0, 245, 200, 0.3)"
+                boxShadow: "0 2px 10px rgba(37, 99, 235, 0.35)"
               }}
             >
-              <Play size={15} fill="#020a14" />
+              <Play size={15} fill="#ffffff" />
               <span>{isRunning ? "Đang Chạy..." : "▶️ Chạy Thử Code"}</span>
             </button>
 
@@ -341,22 +341,22 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
       {/* Terminal Console Output */}
       {consoleOutput && (
         <div style={{
-          background: "#020712",
-          border: "1px solid rgba(0, 245, 200, 0.2)",
+          background: "#070c18",
+          border: "1px solid rgba(59, 130, 246, 0.25)",
           borderRadius: "10px",
           padding: "0.85rem 1rem",
           marginBottom: "1rem",
           fontFamily: "var(--font-mono)",
           fontSize: "0.84rem"
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem", color: "#64748b", fontSize: "0.74rem" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "#00f5c8", fontWeight: 700 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem", color: "#94a3b8", fontSize: "0.74rem" }}>
+            <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "#38bdf8", fontWeight: 700 }}>
               <Terminal size={13} />
               KẾT QUẢ ĐẦU RA (OUTPUT CONSOLE):
             </span>
             <button
               onClick={() => setConsoleOutput("")}
-              style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: "0.72rem" }}
+              style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "0.72rem" }}
             >
               Xóa màn hình
             </button>

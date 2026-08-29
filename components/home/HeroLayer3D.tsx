@@ -51,7 +51,7 @@ export default function HeroLayer3D() {
           <div style={{
             fontSize: "0.92rem",
             fontWeight: 700,
-            color: "#00f5c8",
+            color: "#38bdf8",
             letterSpacing: "0.04em",
             marginBottom: "1rem",
             display: "inline-flex",
@@ -74,10 +74,9 @@ export default function HeroLayer3D() {
             Hệ Thống Đào Tạo &<br />
             Khảo Thí Lập Trình{" "}
             <span style={{
-              background: "linear-gradient(135deg, #00f5c8 0%, #38bdf8 100%)",
+              background: "linear-gradient(135deg, #60a5fa 0%, #38bdf8 100%)",
               WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent",
-              textShadow: "0 0 35px rgba(0, 245, 200, 0.45)"
+              WebkitTextFillColor: "transparent"
             }}>
               3D
             </span>
@@ -86,15 +85,15 @@ export default function HeroLayer3D() {
           {/* Subtitle */}
           <p style={{
             fontSize: "1.02rem",
-            color: "rgba(203, 213, 225, 0.85)",
+            color: "#cbd5e1",
             lineHeight: 1.6,
             marginBottom: "2rem",
             maxWidth: "540px"
           }}>
-            - Tin Học Sao Việt — Hệ thống Đào tạo & Khảo thí Lập trình chuẩn hóa, đánh giá năng lực thực tế học viên với 120+ câu hỏi và mô phỏng 3D trực quan.
+            Tin Học Sao Việt — Hệ thống Đào tạo & Khảo thí Lập trình chuẩn hóa, đánh giá năng lực thực tế học viên với 120+ câu hỏi và mô phỏng 3D trực quan.
           </p>
 
-          {/* 2 CTA Buttons (Matching Mockup) */}
+          {/* 2 CTA Buttons */}
           <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap" }}>
             <Link
               href="/study"
@@ -105,15 +104,14 @@ export default function HeroLayer3D() {
                 gap: "0.5rem",
                 padding: "0.85rem 1.8rem",
                 borderRadius: "10px",
-                background: "linear-gradient(135deg, #00f5c8 0%, #0ea5e9 100%)",
-                color: "#020a14",
-                fontWeight: 800,
+                background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+                color: "#ffffff",
+                fontWeight: 700,
                 fontSize: "0.95rem",
                 textDecoration: "none",
-                boxShadow: "0 6px 25px rgba(0, 245, 200, 0.4), 0 0 0 1px rgba(0, 245, 200, 0.3)",
-                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
+                boxShadow: "0 4px 18px rgba(37, 99, 235, 0.4)",
+                transition: "all 0.2s ease"
               }}
-              className="mockup-btn-primary"
             >
               <BookOpen size={17} />
               <span>Bắt Đầu Ngay</span>
@@ -128,17 +126,15 @@ export default function HeroLayer3D() {
                 gap: "0.5rem",
                 padding: "0.85rem 1.8rem",
                 borderRadius: "10px",
-                background: "rgba(6, 16, 40, 0.6)",
-                border: "1.5px solid rgba(0, 245, 200, 0.35)",
-                color: "#00f5c8",
+                background: "rgba(30, 41, 59, 0.8)",
+                border: "1.5px solid #334155",
+                color: "#ffffff",
                 fontWeight: 700,
                 fontSize: "0.95rem",
                 textDecoration: "none",
-                backdropFilter: "blur(12px)",
                 boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
-                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
+                transition: "all 0.2s ease"
               }}
-              className="mockup-btn-secondary"
             >
               <Clock size={17} />
               <span>Phòng Thi 50P</span>

@@ -125,23 +125,23 @@ export default function QuestionCard({
 
   const qNum = index !== undefined ? index + 1 : question.id;
 
-  // Distinct theme per question archetype
+  // Distinct high-contrast theme per question archetype
   const getBadgeTheme = (type?: string) => {
     switch (type) {
       case "single_choice":
-        return { bg: "rgba(37, 99, 235, 0.08)", color: "#1d4ed8", border: "rgba(37, 99, 235, 0.2)", icon: HelpCircle };
+        return { bg: "rgba(59, 130, 246, 0.15)", color: "#60a5fa", border: "rgba(59, 130, 246, 0.4)", icon: HelpCircle };
       case "true_false":
-        return { bg: "rgba(8, 145, 178, 0.08)", color: "#0e7490", border: "rgba(8, 145, 178, 0.2)", icon: ToggleLeft };
+        return { bg: "rgba(14, 165, 233, 0.15)", color: "#38bdf8", border: "rgba(14, 165, 233, 0.4)", icon: ToggleLeft };
       case "multiple_choice":
-        return { bg: "rgba(124, 58, 237, 0.08)", color: "#6d28d9", border: "rgba(124, 58, 237, 0.2)", icon: CheckCircle2 };
+        return { bg: "rgba(168, 85, 247, 0.15)", color: "#c084fc", border: "rgba(168, 85, 247, 0.4)", icon: CheckCircle2 };
       case "fill_blank":
-        return { bg: "rgba(217, 119, 6, 0.08)", color: "#b45309", border: "rgba(217, 119, 6, 0.2)", icon: Code2 };
+        return { bg: "rgba(245, 158, 11, 0.15)", color: "#fbbf24", border: "rgba(245, 158, 11, 0.4)", icon: Code2 };
       case "sequence_order":
-        return { bg: "rgba(5, 150, 105, 0.08)", color: "#047857", border: "rgba(5, 150, 105, 0.2)", icon: ListOrdered };
+        return { bg: "rgba(16, 185, 129, 0.15)", color: "#34d399", border: "rgba(16, 185, 129, 0.4)", icon: ListOrdered };
       case "matching":
-        return { bg: "rgba(225, 29, 72, 0.08)", color: "#be123c", border: "rgba(225, 29, 72, 0.2)", icon: LinkIcon };
+        return { bg: "rgba(244, 63, 94, 0.15)", color: "#fb7185", border: "rgba(244, 63, 94, 0.4)", icon: LinkIcon };
       default:
-        return { bg: "rgba(100, 116, 139, 0.08)", color: "#334155", border: "rgba(100, 116, 139, 0.2)", icon: HelpCircle };
+        return { bg: "rgba(148, 163, 184, 0.15)", color: "#cbd5e1", border: "rgba(148, 163, 184, 0.3)", icon: HelpCircle };
     }
   };
 
@@ -368,7 +368,7 @@ export default function QuestionCard({
 
               return leftList.map((lVal: string, idx: number) => (
                 <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "center" }}>
-                  <div style={{ padding: "0.6rem 0.8rem", background: "#f8fafc", border: "1px solid var(--border-light)", borderRadius: "var(--radius-xs)", fontSize: "0.86rem", fontWeight: 700 }}>
+                  <div style={{ padding: "0.6rem 0.8rem", background: "rgba(30, 41, 59, 0.85)", color: "#f8fafc", border: "1px solid #334155", borderRadius: "var(--radius-xs)", fontSize: "0.86rem", fontWeight: 700 }}>
                     {lVal}
                   </div>
                   <select
@@ -413,9 +413,9 @@ export default function QuestionCard({
             disabled={isAiLoading}
             className="btn btn-sm"
             style={{
-              background: "linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(37, 99, 235, 0.1))",
-              color: "var(--brand-violet)",
-              border: "1px solid rgba(124, 58, 237, 0.25)"
+              background: "linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(37, 99, 235, 0.15))",
+              color: "#c084fc",
+              border: "1px solid rgba(168, 85, 247, 0.35)"
             }}
           >
             <Bot size={15} />
@@ -430,13 +430,13 @@ export default function QuestionCard({
           marginTop: "1rem",
           padding: "1rem 1.25rem",
           borderRadius: "var(--radius-md)",
-          background: "#f0fdf4",
-          border: "1px solid #bbf7d0",
+          background: "rgba(5, 150, 105, 0.12)",
+          border: "1px solid rgba(16, 185, 129, 0.3)",
           fontSize: "0.9rem",
           lineHeight: "1.6",
-          color: "#166534"
+          color: "#bbf7d0"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, marginBottom: "0.4rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, marginBottom: "0.4rem", color: "#34d399" }}>
             <CheckCircle2 size={16} />
             <span>Phân tích đáp án chuẩn:</span>
           </div>
@@ -450,27 +450,27 @@ export default function QuestionCard({
           marginTop: "1rem",
           padding: "1.1rem 1.25rem",
           borderRadius: "var(--radius-md)",
-          background: "#faf5ff",
-          border: "1px solid #e9d5ff",
+          background: "rgba(124, 58, 237, 0.12)",
+          border: "1px solid rgba(168, 85, 247, 0.3)",
           fontSize: "0.9rem",
           lineHeight: "1.6",
-          color: "#581c87"
+          color: "#e9d5ff"
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", fontWeight: 800 }}>
-              <Sparkles size={16} color="var(--brand-violet)" />
-              <span>Trợ Lý Sư Phạm AI Gemini 2.0:</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", fontWeight: 800, color: "#c084fc" }}>
+              <Sparkles size={16} />
+              <span>Trợ Lý Sư Phạm AI Gemini:</span>
             </div>
             <button
               onClick={handleCopyExplanation}
               className="btn btn-secondary btn-sm"
               style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem" }}
             >
-              {copied ? <Check size={12} color="green" /> : <Copy size={12} />}
+              {copied ? <Check size={12} color="#34d399" /> : <Copy size={12} />}
               <span>{copied ? "Đã chép" : "Sao chép"}</span>
             </button>
           </div>
-          <div style={{ whiteSpace: "pre-line" }}>{aiExplanation}</div>
+          <div style={{ whiteSpace: "pre-line", color: "#f3e8ff" }}>{aiExplanation}</div>
         </div>
       )}
     </div>

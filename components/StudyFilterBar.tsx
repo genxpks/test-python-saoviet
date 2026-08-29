@@ -31,20 +31,20 @@ export default function StudyFilterBar({
       gap: "1rem",
       flexWrap: "wrap",
       marginBottom: "2rem",
-      background: "rgba(6, 14, 36, 0.75)",
+      background: "rgba(15, 23, 42, 0.88)",
       backdropFilter: "blur(18px)",
       WebkitBackdropFilter: "blur(18px)",
-      border: "1.5px solid rgba(0, 245, 200, 0.22)",
-      borderRadius: "20px",
+      border: "1px solid rgba(255, 255, 255, 0.1)",
+      borderRadius: "16px",
       padding: "0.85rem 1.25rem",
-      boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.08)"
+      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.35)"
     }}>
       {/* Search Input Box */}
       <div style={{ position: "relative", display: "flex", alignItems: "center", flex: "1 1 320px" }}>
         <div style={{
           position: "absolute",
           left: "1rem",
-          color: "rgba(0, 245, 200, 0.65)",
+          color: "#94a3b8",
           display: "flex",
           alignItems: "center",
           pointerEvents: "none"
@@ -58,26 +58,25 @@ export default function StudyFilterBar({
             width: "100%",
             paddingLeft: "2.75rem",
             paddingRight: search ? "2.5rem" : "1rem",
-            height: "44px",
+            height: "42px",
             fontSize: "0.9rem",
-            borderRadius: "12px",
-            background: "rgba(3, 10, 26, 0.8)",
-            border: "1.5px solid rgba(0, 245, 200, 0.3)",
+            borderRadius: "10px",
+            background: "rgba(30, 41, 59, 0.8)",
+            border: "1.5px solid #334155",
             color: "#ffffff",
             outline: "none",
-            boxShadow: "inset 0 0 10px rgba(0, 245, 200, 0.05)",
             transition: "all 0.2s ease"
           }}
-          placeholder="Search..."
+          placeholder="Tìm kiếm câu hỏi, từ khóa, lệnh Python..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
           onFocus={(e) => {
-            e.currentTarget.style.borderColor = "#00f5c8";
-            e.currentTarget.style.boxShadow = "0 0 20px rgba(0, 245, 200, 0.3)";
+            e.currentTarget.style.borderColor = "#3b82f6";
+            e.currentTarget.style.boxShadow = "0 0 0 3px rgba(37, 99, 235, 0.15)";
           }}
           onBlur={(e) => {
-            e.currentTarget.style.borderColor = "rgba(0, 245, 200, 0.3)";
-            e.currentTarget.style.boxShadow = "inset 0 0 10px rgba(0, 245, 200, 0.05)";
+            e.currentTarget.style.borderColor = "#334155";
+            e.currentTarget.style.boxShadow = "none";
           }}
         />
 
@@ -105,7 +104,7 @@ export default function StudyFilterBar({
         )}
       </div>
 
-      {/* Filter Chips (Matching Approved Mockup Tabs) */}
+      {/* Filter Chips */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", alignItems: "center" }}>
         {chips.map((chip) => {
           const isActive = filterType === chip.id;
@@ -114,20 +113,20 @@ export default function StudyFilterBar({
               key={chip.id}
               onClick={() => onFilterChange(chip.id)}
               style={{
-                borderRadius: "10px",
-                padding: "0.55rem 1.1rem",
+                borderRadius: "8px",
+                padding: "0.5rem 1rem",
                 fontSize: "0.84rem",
-                fontWeight: 800,
+                fontWeight: 700,
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "0.4rem",
+                gap: "0.45rem",
                 border: "1.5px solid",
-                borderColor: isActive ? "#00f5c8" : "rgba(255, 255, 255, 0.08)",
-                background: isActive ? "linear-gradient(135deg, #00f5c8, #0ea5e9)" : "rgba(3, 10, 26, 0.6)",
-                color: isActive ? "#020a14" : "#94a3b8",
+                borderColor: isActive ? "#3b82f6" : "#334155",
+                background: isActive ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "rgba(30, 41, 59, 0.7)",
+                color: isActive ? "#ffffff" : "#cbd5e1",
                 cursor: "pointer",
-                boxShadow: isActive ? "0 4px 18px rgba(0, 245, 200, 0.4)" : "none",
-                transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
+                boxShadow: isActive ? "0 2px 10px rgba(37, 99, 235, 0.35)" : "none",
+                transition: "all 0.15s ease"
               }}
             >
               <span>{chip.label}</span>
@@ -136,9 +135,9 @@ export default function StudyFilterBar({
                   fontSize: "0.72rem",
                   padding: "0.1rem 0.45rem",
                   borderRadius: "9999px",
-                  background: isActive ? "rgba(0, 0, 0, 0.2)" : "rgba(255, 255, 255, 0.08)",
-                  color: isActive ? "#020a14" : "#64748b",
-                  fontWeight: 900
+                  background: isActive ? "rgba(255, 255, 255, 0.22)" : "rgba(255, 255, 255, 0.08)",
+                  color: isActive ? "#ffffff" : "#94a3b8",
+                  fontWeight: 800
                 }}
               >
                 {chip.count}

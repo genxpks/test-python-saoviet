@@ -45,27 +45,26 @@ export default function CosmicSubjectDeck() {
               alignItems: "center",
               justifyContent: "center",
               textDecoration: "none",
-              background: "rgba(4, 12, 32, 0.72)",
+              background: "rgba(15, 23, 42, 0.85)",
               backdropFilter: "blur(20px)",
               WebkitBackdropFilter: "blur(20px)",
-              border: "1.8px solid rgba(0, 245, 200, 0.38)",
+              border: "1px solid rgba(255, 255, 255, 0.12)",
               borderRadius: "20px",
               padding: "2.4rem 1.5rem",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.12), inset 0 0 20px rgba(0, 245, 200, 0.04)",
-              transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+              boxShadow: "0 8px 24px rgba(0, 0, 0, 0.35)",
+              transition: "all 0.22s ease",
               position: "relative",
               overflow: "hidden"
             }}
           >
-            {/* Top Cyan Glowing Shimmer Line */}
+            {/* Top Shimmer Line */}
             <div style={{
               position: "absolute",
               top: 0,
               left: "15%",
               right: "15%",
               height: "2px",
-              background: "linear-gradient(90deg, transparent, rgba(0, 245, 200, 0.7), transparent)",
-              boxShadow: "0 0 10px rgba(0, 245, 200, 0.6)"
+              background: "linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.8), transparent)"
             }} />
 
             {/* Language Name (Big, Bold, Clean) */}

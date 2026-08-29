@@ -144,7 +144,7 @@ export default function StudyPage() {
               display: "inline-block",
               fontSize: "0.88rem",
               fontWeight: 700,
-              color: "#00f5c8",
+              color: "#38bdf8",
               letterSpacing: "0.04em",
               marginBottom: "0.5rem"
             }}>
@@ -157,13 +157,12 @@ export default function StudyPage() {
               letterSpacing: "-0.8px",
               color: "#ffffff",
               marginBottom: "0.5rem",
-              fontFamily: "var(--font-heading)",
-              textShadow: "0 0 30px rgba(0, 245, 200, 0.45)"
+              fontFamily: "var(--font-heading)"
             }}>
               {currentSubject.name} — Ôn Tập & Luyện Code Web
             </h1>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
-              Nền tảng ôn luyện 120 câu trắc nghiệm chuẩn hóa và 10 bài toán thực hành vừa viết code vừa build chạy thử trực tiếp trên trình duyệt.
+            <p style={{ color: "#cbd5e1", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
+              Nền tảng ôn luyện 120 câu trắc nghiệm chuẩn hóa và các bài toán thực hành vừa viết code vừa build chạy thử trực tiếp trên trình duyệt.
             </p>
           </div>
 
@@ -182,19 +181,19 @@ export default function StudyPage() {
                 alignItems: "center",
                 gap: "0.6rem",
                 padding: "0.75rem 1.4rem",
-                borderRadius: "14px",
-                border: studyMode === "quiz" ? "1.5px solid #00f5c8" : "1px solid rgba(255,255,255,0.12)",
-                background: studyMode === "quiz" ? "linear-gradient(135deg, rgba(0,245,200,0.2), rgba(14,165,233,0.2))" : "rgba(15,23,42,0.6)",
-                color: studyMode === "quiz" ? "#00f5c8" : "#94a3b8",
-                fontWeight: 800,
+                borderRadius: "12px",
+                border: studyMode === "quiz" ? "1.5px solid #3b82f6" : "1px solid #334155",
+                background: studyMode === "quiz" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "rgba(30, 41, 59, 0.7)",
+                color: studyMode === "quiz" ? "#ffffff" : "#cbd5e1",
+                fontWeight: 700,
                 fontSize: "0.92rem",
                 cursor: "pointer",
-                boxShadow: studyMode === "quiz" ? "0 0 20px rgba(0,245,200,0.25)" : "none",
+                boxShadow: studyMode === "quiz" ? "0 4px 15px rgba(37, 99, 235, 0.35)" : "none",
                 transition: "all 0.2s ease"
               }}
             >
               <BookOpen size={18} />
-              <span>📚 120 Câu Hỏi Ôn Tập Chuẩn Hóa ({questions.length} câu)</span>
+              <span>📚 120 Câu Hỏi Ôn Tập ({questions.length} câu)</span>
             </button>
 
             <button
@@ -204,19 +203,19 @@ export default function StudyPage() {
                 alignItems: "center",
                 gap: "0.6rem",
                 padding: "0.75rem 1.4rem",
-                borderRadius: "14px",
-                border: studyMode === "coding" ? "1.5px solid #00f5c8" : "1px solid rgba(255,255,255,0.12)",
-                background: studyMode === "coding" ? "linear-gradient(135deg, rgba(0,245,200,0.2), rgba(14,165,233,0.2))" : "rgba(15,23,42,0.6)",
-                color: studyMode === "coding" ? "#00f5c8" : "#94a3b8",
-                fontWeight: 800,
+                borderRadius: "12px",
+                border: studyMode === "coding" ? "1.5px solid #3b82f6" : "1px solid #334155",
+                background: studyMode === "coding" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "rgba(30, 41, 59, 0.7)",
+                color: studyMode === "coding" ? "#ffffff" : "#cbd5e1",
+                fontWeight: 700,
                 fontSize: "0.92rem",
                 cursor: "pointer",
-                boxShadow: studyMode === "coding" ? "0 0 20px rgba(0,245,200,0.25)" : "none",
+                boxShadow: studyMode === "coding" ? "0 4px 15px rgba(37, 99, 235, 0.35)" : "none",
                 transition: "all 0.2s ease"
               }}
             >
               <Terminal size={18} />
-              <span>💻 Luyện Code & Chạy Thử Web IDE ({practicals.length} bài)</span>
+              <span>💻 Luyện Code Web IDE ({practicals.length} bài)</span>
             </button>
           </div>
 

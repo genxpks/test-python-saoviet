@@ -122,15 +122,15 @@ export default function Navbar() {
         <div className="container header-content">
           <Link href="/" className="logo-section">
             <div className="logo-icon-wrap" style={{
-              background: "linear-gradient(135deg, rgba(0, 245, 200, 0.25), rgba(14, 165, 233, 0.25))",
-              border: "1px solid rgba(0, 245, 200, 0.4)",
-              boxShadow: "0 0 15px rgba(0, 245, 200, 0.3)"
+              background: "linear-gradient(135deg, #2563eb, #0284c7)",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+              boxShadow: "0 2px 10px rgba(37, 99, 235, 0.35)"
             }}>
-              <Sparkles size={20} color="#00f5c8" />
+              <Sparkles size={18} color="#ffffff" />
             </div>
             <div>
-              <div className="brand-title" style={{ fontSize: "1.05rem", letterSpacing: "-0.3px" }}>TIN HỌC SAO VIỆT</div>
-              <div className="brand-subtitle" style={{ color: "#94a3b8" }}>Hệ Thống Đào Tạo & Khảo Thí Lập Trình 3D</div>
+              <div className="brand-title" style={{ fontSize: "1.05rem", letterSpacing: "-0.3px", color: "#f8fafc" }}>TIN HỌC SAO VIỆT</div>
+              <div className="brand-subtitle" style={{ color: "#94a3b8" }}>Hệ Thống Đào Tạo & Khảo Thí Lập Trình</div>
             </div>
           </Link>
 
