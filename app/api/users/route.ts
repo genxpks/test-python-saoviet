@@ -63,7 +63,7 @@ export async function POST(req: Request) {
       const db = await getDatabase();
       const collection = db.collection("users");
       await collection.updateOne(
-        { $or: [{ username: newUser.username }, { id: newUser.id }] },
+        { username: newUser.username },
         { $set: newUser },
         { upsert: true }
       );

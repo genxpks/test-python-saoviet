@@ -371,21 +371,21 @@ export default function AddUserModal({
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
             <div>
               <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
-                Tên Đăng Nhập (Tự động = SĐT):
+                Tên Đăng Nhập (Mặc định = Số ĐT):
               </label>
               <input
                 type="text"
-                required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                placeholder={phone.replace(/\D/g, "") || "Tự động lấy SĐT"}
                 style={{
                   width: "100%",
                   padding: "0.65rem 0.85rem",
                   borderRadius: "10px",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid #cbd5e1",
                   background: "#f8fafc",
-                  color: "#1e293b",
-                  fontWeight: 600,
+                  color: "#0f172a",
+                  fontWeight: 700,
                   fontFamily: "var(--font-mono)",
                   fontSize: "0.88rem"
                 }}
@@ -394,14 +394,14 @@ export default function AddUserModal({
 
             <div>
               <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
-                Mật Khẩu Đăng Nhập: *
+                Mật Khẩu Đăng Nhập:
               </label>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
                 <input
                   type={showPassword ? "text" : "password"}
-                  required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  placeholder={fullName && phone ? generateDefaultStudentPassword(fullName, phone) : "Tự động sinh Tên+SĐT"}
                   style={{
                     width: "100%",
                     padding: "0.65rem 2.4rem 0.65rem 0.85rem",
@@ -409,7 +409,7 @@ export default function AddUserModal({
                     border: "1px solid #cbd5e1",
                     background: "#ffffff",
                     color: "#0f172a",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     fontFamily: "var(--font-mono)",
                     fontSize: "0.88rem"
                   }}
@@ -555,6 +555,79 @@ export default function AddUserModal({
               </div>
             </div>
           )}
+
+          {/* Live Preview Box */}
+          <div style={{
+            background: accountType === "branch_manager" ? "#faf5ff" : "#f0fdf4",
+            border: accountType === "branch_manager" ? "1px solid #d8b4fe" : "1px solid #bbf7d0",
+            padding: "0.8rem 1rem",
+            borderRadius: "12px",
+            fontSize: "0.82rem"
+          }}>
+            <div style={{ fontWeight: 800, color: accountType === "branch_manager" ? "#7e22ce" : "#15803d", marginBottom: "0.3rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+              <Sparkles size={15} />
+              <span>THÔNG TIN ĐĂNG NHẬP SẼ ĐƯỢC CẤP:</span>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", color: "#1e293b" }}>
+              <div>👤 Tên đăng nhập: <strong style={{ color: "#2563eb", fontFamily: "var(--font-mono)" }}>{(username.trim() || phone.replace(/\D/g, "") || "Chưa nhập SĐT")}</strong></div>
+              <div>🔑 Mật khẩu: <strong style={{ color: "#ea580c", fontFamily: "var(--font-mono)" }}>{(password.trim() || generateDefaultStudentPassword(fullName, phone) || "123456")}</strong></div>
+            </div>
+          </div>
+
+          {/* Quick Fill Helpers */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+            <span style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 600 }}>Điền nhanh:</span>
+            <button
+              type="button"
+              onClick={() => {
+                setAccountType("student");
+                setFullName("Trần Minh Quang");
+                const p = "098" + Math.floor(1000000 + Math.random() * 9000000);
+                setPhone(p);
+                setUsername(p);
+                setPassword("Quang" + p);
+              }}
+              style={{
+                background: "#eff6ff",
+                border: "1px solid #bfdbfe",
+                color: "#1d4ed8",
+                padding: "0.25rem 0.6rem",
+                borderRadius: "8px",
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+            >
+              🪄 Mẫu Học Viên Mới
+            </button>
+
+            {!isBranchLocked && (
+              <button
+                type="button"
+                onClick={() => {
+                  setAccountType("branch_manager");
+                  setFullName("Thầy Nguyễn Thanh Tùng");
+                  const p = "090" + Math.floor(1000000 + Math.random() * 9000000);
+                  setPhone(p);
+                  setUsername(p);
+                  setPassword("saoviet2026");
+                  setPin("8888");
+                }}
+                style={{
+                  background: "#faf5ff",
+                  border: "1px solid #d8b4fe",
+                  color: "#7e22ce",
+                  padding: "0.25rem 0.6rem",
+                  borderRadius: "8px",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  cursor: "pointer"
+                }}
+              >
+                🪄 Mẫu Quản Lý Chi Nhánh
+              </button>
+            )}
+          </div>
 
           {/* Action Buttons */}
           <div style={{
