@@ -17,7 +17,8 @@ import {
   saveBranches,
   getSubjects,
   saveSubjects,
-  addUser
+  addUser,
+  formatStudyDuration
 } from "@/lib/usersData";
 import { 
   getQuestionsData, 
@@ -878,6 +879,7 @@ export default function AdminPage() {
                   <th style={{ padding: "0.75rem 1rem" }}>Tên Đăng Nhập</th>
                   <th style={{ padding: "0.75rem 1rem" }}>Vai Trò</th>
                   <th style={{ padding: "0.75rem 1rem" }}>Chi Nhánh / Lớp</th>
+                  <th style={{ padding: "0.75rem 1rem" }}>Thời Lượng Học</th>
                   <th style={{ padding: "0.75rem 1rem" }}>Mật Khẩu</th>
                   <th style={{ padding: "0.75rem 1rem", textAlign: "right" }}>Thao Tác</th>
                 </tr>
@@ -894,6 +896,9 @@ export default function AdminPage() {
                     </td>
                     <td style={{ padding: "0.75rem 1rem", color: "var(--text-secondary)" }}>
                       {u.branchName || "Chi Nhánh Thủ Đức"} • {u.class || "Khóa 26"}
+                    </td>
+                    <td style={{ padding: "0.75rem 1rem", color: "var(--brand-primary)", fontWeight: 700 }}>
+                      ⏱️ {formatStudyDuration(u.totalStudySeconds || 0)}
                     </td>
                     <td style={{ padding: "0.75rem 1rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>

@@ -4,7 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { User } from "@/types";
-import { getCurrentUser, logoutUser, loginUser } from "@/lib/usersData";
+import { 
+  getCurrentUser, 
+  logoutUser, 
+  loginUser, 
+  getSessionRemainingSeconds, 
+  formatStudyDuration 
+} from "@/lib/usersData";
 import { 
   Terminal, 
   BookOpen, 
@@ -21,13 +27,15 @@ import {
   Eye,
   EyeOff,
   Building2,
-  Lock
+  Lock,
+  Hourglass
 } from "lucide-react";
 
 export default function Navbar() {
   const pathname = usePathname();
   const [user, setUser] = useState<User | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [sessionRemainingSec, setSessionRemainingSec] = useState<number>(0);
   
   // Login form state
   const [username, setUsername] = useState("");
@@ -36,8 +44,28 @@ export default function Navbar() {
   const [loginError, setLoginError] = useState("");
 
   useEffect(() => {
-    setUser(getCurrentUser());
-  }, []);
+    const curUser = getCurrentUser();
+    setUser(curUser);
+    if (curUser) {
+      setSessionRemainingSec(getSessionRemainingSeconds());
+    }
+
+    // Interval to monitor 3-hour session timeout & study time updates
+    const sessionTimer = setInterval(() => {
+      const liveUser = getCurrentUser();
+      if (!liveUser && user) {
+        // Session has expired after 3 hours!
+        setUser(null);
+        alert("⏰ Phiên đăng nhập đã tự động kết thúc sau 3 giờ học tập theo quy định của Tin Học Sao Việt.\nVui lòng đăng nhập lại để tiếp tục!");
+        setShowLoginModal(true);
+      } else if (liveUser) {
+        setUser(liveUser);
+        setSessionRemainingSec(getSessionRemainingSeconds());
+      }
+    }, 15000); // Check every 15s
+
+    return () => clearInterval(sessionTimer);
+  }, [user]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,6 +76,7 @@ export default function Navbar() {
       setUsername("");
       setPassword("");
       setLoginError("");
+      setSessionRemainingSec(getSessionRemainingSeconds());
     } else {
       setLoginError(res.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại tài khoản!");
     }
@@ -56,6 +85,14 @@ export default function Navbar() {
   const handleLogout = () => {
     logoutUser();
     setUser(null);
+  };
+
+  const formatRemainingTime = (sec: number) => {
+    if (sec <= 0) return "0p";
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    if (h > 0) return `${h}h ${m}p`;
+    return `${m}p`;
   };
 
   return (
@@ -117,16 +154,37 @@ export default function Navbar() {
           <div className="user-action-box">
             {user ? (
               <>
+                {/* Session countdown indicator */}
+                <div 
+                  className="hide-mobile"
+                  title="Thời lượng phiên đăng nhập (tự động đăng xuất sau 3 giờ)"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    fontSize: "0.75rem",
+                    padding: "0.3rem 0.6rem",
+                    background: "var(--bg-light)",
+                    border: "1px solid var(--border-light)",
+                    borderRadius: "var(--radius-full)",
+                    color: "var(--text-secondary)"
+                  }}
+                >
+                  <Hourglass size={12} color="var(--brand-amber)" />
+                  <span>Phiên: <strong>{formatRemainingTime(sessionRemainingSec)}</strong></span>
+                </div>
+
                 <div className="user-profile-badge">
                   <div className="user-avatar">{user.fullName.charAt(0)}</div>
                   <div className="user-details">
                     <span className="u-name">{user.fullName}</span>
                     <span className="u-role">
                       {user.role === "admin" 
-                        ? "👑 Tổng Quản Trị (Admin)" 
+                        ? "👑 Tổng Quản Trị" 
                         : user.role === "branch_manager" 
                           ? `🏫 Quản Lý: ${user.branchName || "Chi Nhánh"}` 
                           : `🎓 ${user.class || "Học Viên"}`}
+                      {user.totalStudySeconds ? ` • ⏱️ ${formatStudyDuration(user.totalStudySeconds)}` : ""}
                     </span>
                   </div>
                 </div>
@@ -210,11 +268,11 @@ export default function Navbar() {
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, color: "var(--brand-primary)", marginBottom: "0.2rem" }}>
                 <Sparkles size={13} />
-                <span>Quy chuẩn tài khoản Tin Học Sao Việt:</span>
+                <span>Quy chuẩn đào tạo Tin Học Sao Việt:</span>
               </div>
-              <div>• <strong>Tài khoản học viên</strong> được Quản lý chi nhánh tạo và cấp khi đăng ký khóa học.</div>
-              <div>• <strong>Tên đăng nhập:</strong> Số điện thoại học viên (VD: <code>0912345671</code>)</div>
-              <div>• <strong>Mật khẩu chuẩn:</strong> Tên không dấu + SĐT (VD: <code>Nam0912345671</code>)</div>
+              <div>• Bắt buộc đăng nhập để ôn tập, làm bài thi và in đề chuẩn.</div>
+              <div>• Hệ thống tự động ghi nhận thời gian học tập của học viên.</div>
+              <div>• ⏱️ Phiên đăng nhập sẽ tự động đăng xuất sau <strong>3 giờ</strong> để bảo vệ tài khoản.</div>
             </div>
 
             <form onSubmit={handleLogin}>

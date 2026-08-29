@@ -9,6 +9,7 @@ import PythonEditor from "@/components/PythonEditor";
 import ExamNavigator from "@/components/ExamNavigator";
 import PinUnlockModal from "@/components/PinUnlockModal";
 import ExamResultModal from "@/components/ExamResultModal";
+import AuthGate from "@/components/AuthGate";
 import { 
   Trophy, 
   Clock, 
@@ -220,8 +221,13 @@ export default function ExamPage() {
   };
 
   return (
-    <div>
-      {!isExamActive ? (
+    <AuthGate
+      mode="exam"
+      pageTitle="Phòng Khảo Thí Trực Tuyến Tin Học Sao Việt"
+      pageDescription="Học viên vui lòng đăng nhập để bắt đầu làm bài thi chính thức, tính giờ và lưu kết quả."
+    >
+      <div>
+        {!isExamActive ? (
         /* Exam Lobby Card */
         <div className="q-card" style={{ maxWidth: "800px", margin: "1.5rem auto", padding: "2.8rem 2.2rem", textAlign: "center" }}>
           <div style={{
@@ -526,16 +532,17 @@ export default function ExamPage() {
         />
       )}
 
-      {/* Result Modal */}
-      {showResultModal && finalScoreData && (
-        <ExamResultModal
-          resultData={finalScoreData}
-          onClose={() => {
-            setShowResultModal(false);
-            setIsExamActive(false);
-          }}
-        />
-      )}
-    </div>
+        {/* Result Modal */}
+        {showResultModal && finalScoreData && (
+          <ExamResultModal
+            resultData={finalScoreData}
+            onClose={() => {
+              setShowResultModal(false);
+              setIsExamActive(false);
+            }}
+          />
+        )}
+      </div>
+    </AuthGate>
   );
 }

@@ -91,7 +91,29 @@ export interface User {
   email?: string;
   pin?: string;             // Teacher PIN
   status?: 'active' | 'locked';
+  totalStudySeconds?: number;
+  lastStudyDate?: string;
   createdDate: string;
+}
+
+export interface UserSessionData {
+  user: User;
+  loginTimestamp: number;
+  expiresAt: number; // loginTimestamp + 3 * 3600 * 1000
+}
+
+export interface StudySessionLog {
+  id: string;
+  userId: string;
+  username: string;
+  studentName: string;
+  branchId?: string;
+  subjectId?: string;
+  durationSeconds: number;
+  date: string; // YYYY-MM-DD
+  startTime: string;
+  lastUpdatedTime: string;
+  mode: 'study' | 'exam' | 'practice';
 }
 
 export interface PausedExamState {

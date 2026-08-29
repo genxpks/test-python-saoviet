@@ -1,7 +1,7 @@
-// lib/usersData.ts - Quản lý tài khoản, phân quyền 3 cấp (Admin, Quản lý chi nhánh, Học viên), Chi nhánh & Môn học
+// lib/usersData.ts - Quản lý tài khoản, phân quyền 3 cấp, thời lượng học & Timeout phiên 3 giờ
 // Đơn vị: TRUNG TÂM TIN HỌC SAO VIỆT
 
-import { User, UserRole, Branch, Subject, PausedExamState, ExamResult } from "@/types";
+import { User, UserRole, Branch, Subject, PausedExamState, ExamResult, UserSessionData, StudySessionLog } from "@/types";
 
 export const DEFAULT_BRANCHES: Branch[] = [
   {
@@ -98,12 +98,13 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "admin",
     username: "admin",
-    password: "saoviet2026",
+    password: "",
     fullName: "Tổng Quản Trị Viên (Super Admin)",
     role: "admin",
     phone: "0901888999",
     pin: "8888",
     status: "active",
+    totalStudySeconds: 0,
     createdDate: "2026-08-29"
   },
   // 2. BRANCH MANAGERS
@@ -118,6 +119,7 @@ export const DEFAULT_USERS: User[] = [
     phone: "0901234567",
     pin: "8888",
     status: "active",
+    totalStudySeconds: 0,
     createdDate: "2026-08-29"
   },
   {
@@ -131,6 +133,7 @@ export const DEFAULT_USERS: User[] = [
     phone: "0902345678",
     pin: "8888",
     status: "active",
+    totalStudySeconds: 0,
     createdDate: "2026-08-29"
   },
   {
@@ -144,6 +147,7 @@ export const DEFAULT_USERS: User[] = [
     phone: "0903456789",
     pin: "8888",
     status: "active",
+    totalStudySeconds: 0,
     createdDate: "2026-08-29"
   },
   // 3. STUDENTS
@@ -158,6 +162,7 @@ export const DEFAULT_USERS: User[] = [
     phone: "0912345671",
     class: "Python Nâng Cao K26",
     status: "active",
+    totalStudySeconds: 3600,
     createdDate: "2026-08-29"
   },
   {
@@ -171,6 +176,7 @@ export const DEFAULT_USERS: User[] = [
     phone: "0912345672",
     class: "Python Nâng Cao K26",
     status: "active",
+    totalStudySeconds: 1800,
     createdDate: "2026-08-29"
   },
   {
@@ -184,6 +190,7 @@ export const DEFAULT_USERS: User[] = [
     phone: "0912345673",
     class: "Python Nâng Cao K26",
     status: "active",
+    totalStudySeconds: 2400,
     createdDate: "2026-08-29"
   },
   {
@@ -197,6 +204,7 @@ export const DEFAULT_USERS: User[] = [
     phone: "0912345674",
     class: "Python Nâng Cao K26",
     status: "active",
+    totalStudySeconds: 900,
     createdDate: "2026-08-29"
   },
   {
@@ -210,6 +218,7 @@ export const DEFAULT_USERS: User[] = [
     phone: "0912345675",
     class: "Python Nâng Cao K26",
     status: "active",
+    totalStudySeconds: 1200,
     createdDate: "2026-08-29"
   }
 ];
@@ -247,12 +256,32 @@ export function generateStandardUsername(phone: string): string {
   return (phone || "").replace(/\D/g, "");
 }
 
+// ⏱️ 3-HOUR SESSION TIMEOUT CONSTANT (3 giờ = 10,800,000 milliseconds)
+export const SESSION_TIMEOUT_MS = 3 * 60 * 60 * 1000;
+
 const USERS_KEY = "NEXT_SAOVIET_USERS";
 const BRANCHES_KEY = "NEXT_SAOVIET_BRANCHES";
 const SUBJECTS_KEY = "NEXT_SAOVIET_SUBJECTS";
 const SESSION_KEY = "NEXT_SAOVIET_CURRENT_USER";
 const PAUSED_EXAM_KEY = "NEXT_SAOVIET_PAUSED_EXAM";
 const RESULTS_KEY = "NEXT_SAOVIET_EXAM_RESULTS";
+const STUDY_LOGS_KEY = "NEXT_SAOVIET_STUDY_LOGS";
+
+// FORMAT DURATION HELPER (VD: 3800s -> "1 giờ 3 phút")
+export function formatStudyDuration(seconds: number): string {
+  if (!seconds || seconds <= 0) return "0 phút";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+
+  if (h > 0) {
+    return `${h} giờ ${m > 0 ? `${m} phút` : ""}`.trim();
+  }
+  if (m > 0) {
+    return `${m} phút`;
+  }
+  return `${s} giây`;
+}
 
 // BRANCHES HELPER
 export function getBranches(): Branch[] {
@@ -314,15 +343,23 @@ export function saveUsers(users: User[]) {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
+// AUTH & 3-HOUR SESSION MANAGEMENT
 export function loginUser(username: string, password: string): { success: boolean; user?: User; message?: string } {
   const users = getUsers();
   const found = users.find(u => 
     u.username.toLowerCase() === username.trim().toLowerCase() && 
     u.password === password.trim()
   );
+
   if (found) {
     if (typeof window !== "undefined") {
-      localStorage.setItem(SESSION_KEY, JSON.stringify(found));
+      const now = Date.now();
+      const sessionData: UserSessionData = {
+        user: found,
+        loginTimestamp: now,
+        expiresAt: now + SESSION_TIMEOUT_MS
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
     }
     return { success: true, user: found };
   }
@@ -333,15 +370,123 @@ export function getCurrentUser(): User | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(SESSION_KEY);
-    return raw ? JSON.parse(raw) : null;
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw);
+
+    // If structure is UserSessionData with loginTimestamp
+    if (parsed && parsed.loginTimestamp) {
+      const now = Date.now();
+      if (now - parsed.loginTimestamp > SESSION_TIMEOUT_MS) {
+        // Session expired after 3 hours
+        logoutUser();
+        return null;
+      }
+      return parsed.user;
+    }
+
+    // Legacy user object without timestamp -> stamp it
+    if (parsed && parsed.id) {
+      const now = Date.now();
+      const sessionData: UserSessionData = {
+        user: parsed,
+        loginTimestamp: now,
+        expiresAt: now + SESSION_TIMEOUT_MS
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+      return parsed;
+    }
+
+    return null;
   } catch (e) {
     return null;
+  }
+}
+
+// Get Remaining Session Time in Seconds
+export function getSessionRemainingSeconds(): number {
+  if (typeof window === "undefined") return 0;
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return 0;
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.loginTimestamp) {
+      const elapsed = Date.now() - parsed.loginTimestamp;
+      const remainingMs = SESSION_TIMEOUT_MS - elapsed;
+      return remainingMs > 0 ? Math.floor(remainingMs / 1000) : 0;
+    }
+    return 0;
+  } catch (e) {
+    return 0;
   }
 }
 
 export function logoutUser() {
   if (typeof window === "undefined") return;
   localStorage.removeItem(SESSION_KEY);
+}
+
+// STUDY TIME LOGGING
+export function logStudyTime(
+  userId: string,
+  durationSeconds: number,
+  mode: 'study' | 'exam' | 'practice' = 'study',
+  subjectId: string = 'python_advanced'
+) {
+  if (!userId || durationSeconds <= 0 || typeof window === "undefined") return;
+
+  try {
+    // 1. Update local users array
+    const users = getUsers();
+    const userIndex = users.findIndex(u => u.id === userId || u.username === userId);
+    if (userIndex !== -1) {
+      users[userIndex].totalStudySeconds = (users[userIndex].totalStudySeconds || 0) + durationSeconds;
+      users[userIndex].lastStudyDate = new Date().toISOString().split("T")[0];
+      saveUsers(users);
+
+      // Update current session user as well
+      const cur = getCurrentUser();
+      if (cur && (cur.id === userId || cur.username === userId)) {
+        cur.totalStudySeconds = users[userIndex].totalStudySeconds;
+        const now = Date.now();
+        const raw = localStorage.getItem(SESSION_KEY);
+        const loginTs = raw ? JSON.parse(raw).loginTimestamp || now : now;
+        localStorage.setItem(SESSION_KEY, JSON.stringify({
+          user: cur,
+          loginTimestamp: loginTs,
+          expiresAt: loginTs + SESSION_TIMEOUT_MS
+        }));
+      }
+    }
+
+    // 2. Save to local study logs
+    const rawLogs = localStorage.getItem(STUDY_LOGS_KEY);
+    const logs: StudySessionLog[] = rawLogs ? JSON.parse(rawLogs) : [];
+    const newLog: StudySessionLog = {
+      id: "log_" + Date.now(),
+      userId,
+      username: users[userIndex]?.username || userId,
+      studentName: users[userIndex]?.fullName || "Học Viên",
+      branchId: users[userIndex]?.branchId,
+      subjectId,
+      durationSeconds,
+      date: new Date().toISOString().split("T")[0],
+      startTime: new Date().toISOString(),
+      lastUpdatedTime: new Date().toISOString(),
+      mode
+    };
+    logs.unshift(newLog);
+    localStorage.setItem(STUDY_LOGS_KEY, JSON.stringify(logs.slice(0, 200)));
+
+    // 3. Sync with MongoDB Atlas in background
+    fetch("/api/study-time", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newLog)
+    }).catch(() => {});
+  } catch (err) {
+    console.warn("Study time logging warning:", err);
+  }
 }
 
 export function addUser(userData: Partial<User>): { success: boolean; user?: User; message?: string } {
@@ -361,6 +506,7 @@ export function addUser(userData: Partial<User>): { success: boolean; user?: Use
     password: userData.password?.trim() || "123456",
     pin: userData.pin?.trim() || (userData.role === "admin" || userData.role === "branch_manager" ? "8888" : undefined),
     status: "active",
+    totalStudySeconds: 0,
     createdDate: new Date().toISOString().split("T")[0]
   };
   users.push(newUser);
@@ -381,7 +527,13 @@ export function updateUser(userId: string, updateData: Partial<User>) {
 
   const current = getCurrentUser();
   if (current && current.id === userId) {
-    localStorage.setItem(SESSION_KEY, JSON.stringify(users[index]));
+    const raw = localStorage.getItem(SESSION_KEY);
+    const loginTs = raw ? JSON.parse(raw).loginTimestamp || Date.now() : Date.now();
+    localStorage.setItem(SESSION_KEY, JSON.stringify({
+      user: users[index],
+      loginTimestamp: loginTs,
+      expiresAt: loginTs + SESSION_TIMEOUT_MS
+    }));
   }
 
   return { success: true, user: users[index] };
@@ -420,7 +572,7 @@ export function verifyTeacherPin(pin: string): boolean {
     .filter(u => u.role === "admin" || u.role === "branch_manager" || u.role === "teacher")
     .map(u => u.pin)
     .filter(Boolean);
-  return validPins.includes(pin.trim()) || pin.trim() === "8888" || pin.trim() === "saoviet2026";
+  return validPins.includes(pin.trim()) || pin.trim() === "8888";
 }
 
 export function updateTeacherPin(newPin: string, userId?: string) {
