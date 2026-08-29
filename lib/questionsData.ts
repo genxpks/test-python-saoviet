@@ -2120,6 +2120,71 @@ export const PRACTICAL_DATA: PracticalProblem[] = [
         "expected_output": "2 4 6 8 ... 98 100"
       }
     ]
+  },
+  {
+    "id": 11,
+    "title": "Vẽ hình vuông 4 cạnh 4 màu rực rỡ (Turtle Graphics)",
+    "description": "Sử dụng thư viện turtle, viết chương trình điều khiển chú rùa vẽ hình vuông cạnh 100 bước với 4 cạnh mang 4 màu: đỏ (red), xanh lá (green), xanh dương (blue) và vàng (yellow).",
+    "starter_code": "import turtle\n\nbut_ve = turtle.Turtle()\nbut_ve.pensize(4)\nbut_ve.speed(3)\n\n# Viết vòng lặp vẽ 4 cạnh 4 màu ở đây\n\nturtle.done()",
+    "solution_code": "import turtle\n\nbut_ve = turtle.Turtle()\nbut_ve.pensize(4)\nbut_ve.speed(3)\n\ncac_mau = ['red', 'green', 'blue', 'yellow']\nfor mau in cac_mau:\n    but_ve.color(mau)\n    but_ve.forward(100)\n    but_ve.right(90)\n\nturtle.done()",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "Hình vuông 4 cạnh: red, green, blue, yellow"
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "Vẽ hình chữ nhật nét đậm màu tím (Turtle Graphics)",
+    "description": "Viết chương trình Turtle vẽ hình chữ nhật có chiều dài 150 bước, chiều rộng 80 bước, nét vẽ dày pensize = 5 và màu tím (purple).",
+    "starter_code": "import turtle\n\nbut_ve = turtle.Turtle()\nbut_ve.pensize(5)\nbut_ve.color('purple')\nbut_ve.speed(3)\n\n# Viết vòng lặp vẽ hình chữ nhật ở đây\n\nturtle.done()",
+    "solution_code": "import turtle\n\nbut_ve = turtle.Turtle()\nbut_ve.pensize(5)\nbut_ve.color('purple')\nbut_ve.speed(3)\n\nfor i in range(2):\n    but_ve.forward(150)\n    but_ve.right(90)\n    but_ve.forward(80)\n    but_ve.right(90)\n\nturtle.done()",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "Hình chữ nhật 150x80 nét 5 màu purple"
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "title": "Vẽ tam giác đều & đổi màu nền Screen (Turtle Graphics)",
+    "description": "Đổi màu nền màn hình đồ họa thành 'lightblue', vẽ hình tam giác đều cạnh 120 bước, nét vẽ dày 3, viền và phần ruột tô kín màu đỏ (red).",
+    "starter_code": "import turtle\n\nman_hinh = turtle.Screen()\nman_hinh.bgcolor('lightblue')\n\nbut_ve = turtle.Turtle()\nbut_ve.pensize(3)\nbut_ve.color('red', 'red')\n\n# Bắt đầu tô màu và vẽ tam giác 3 cạnh\nbut_ve.begin_fill()\n\nbut_ve.end_fill()\nturtle.done()",
+    "solution_code": "import turtle\n\nman_hinh = turtle.Screen()\nman_hinh.bgcolor('lightblue')\n\nbut_ve = turtle.Turtle()\nbut_ve.pensize(3)\nbut_ve.color('red', 'red')\nbut_ve.speed(3)\n\nbut_ve.begin_fill()\nfor i in range(3):\n    but_ve.forward(120)\n    but_ve.left(120)\nbut_ve.end_fill()\n\nturtle.done()",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "Tam giác đều đỏ trên nền lightblue"
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "Vẽ ngôi sao 5 cánh vàng viền đỏ (Turtle Graphics)",
+    "description": "Viết chương trình vẽ ngôi sao 5 cánh với độ dài cạnh 150 bước, góc xoay đặc trưng 144 độ, viền màu đỏ và tô màu ruột vàng óng (yellow).",
+    "starter_code": "import turtle\n\nbut_ve = turtle.Turtle()\nbut_ve.pensize(3)\nbut_ve.speed(3)\nbut_ve.color('red', 'yellow')\n\n# Viết mã nguồn vẽ ngôi sao 5 cánh tại đây\n\nturtle.done()",
+    "solution_code": "import turtle\n\nbut_ve = turtle.Turtle()\nbut_ve.pensize(3)\nbut_ve.speed(3)\nbut_ve.color('red', 'yellow')\n\nbut_ve.begin_fill()\nfor i in range(5):\n    but_ve.forward(150)\n    but_ve.right(144)\nbut_ve.end_fill()\n\nturtle.done()",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "Ngôi sao 5 cánh viền đỏ ruột vàng"
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "title": "Vẽ họa tiết xoắn ốc nghệ thuật tăng dần bước đi (Turtle Graphics)",
+    "description": "Sử dụng vòng lặp for i in range(1, 80) điều khiển rùa tăng dần độ dài bước đi (i * 3) và xoay góc 91 độ tạo hiệu ứng xoắn ốc đối xứng tuyệt đẹp.",
+    "starter_code": "import turtle\n\nbut_ve = turtle.Turtle()\nbut_ve.pensize(2)\nbut_ve.speed(0)\nbut_ve.color('darkblue')\n\n# Viết vòng lặp vẽ xoắn ốc tại đây\n\nturtle.done()",
+    "solution_code": "import turtle\n\nbut_ve = turtle.Turtle()\nbut_ve.pensize(2)\nbut_ve.speed(0)\nbut_ve.color('darkblue')\n\nfor i in range(1, 80):\n    but_ve.forward(i * 3)\n    but_ve.right(91)\n\nturtle.done()",
+    "test_cases": [
+      {
+        "input": "",
+        "expected_output": "Họa tiết xoắn ốc nghệ thuật darkblue"
+      }
+    ]
   }
 ];
 

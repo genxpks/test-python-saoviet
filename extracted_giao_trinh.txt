@@ -1,0 +1,1772 @@
+TIN HỌC SAO VIỆT THỦ ĐỨC — TÀI LIỆU THỰC HÀNH LẬP TRÌNH PYTHON NÂNG CAO
+GIÁO TRÌNH & BÀI TẬP LẬP TRÌNH PYTHON NÂNG CAO
+Bộ Tài Liệu Thực Hành Chuẩn — Tin Học Sao Việt Thủ Đức — In Ấn Sắc Nét
+═════ PHẦN 1: CHƯƠNG 5 — THƯ VIỆN ĐỒ HỌA TURTLE (RÙA VẼ TRANH) ═════
+Lý thuyết trọng tâm, các câu lệnh điều khiển rùa, 4 bài tập giáo trình gốc và 2 bài tập mở rộng mới.
+▶ BÀI 12: 
+THƯ VIỆN TURTLE — KHỞI ĐỘNG THƯ VIỆN ĐỒ HỌA
+• Mục tiêu học tập: 
+Khởi tạo đối tượng Turtle, đặt hình dạng chú rùa và giữ màn hình đồ họa luôn mở.
+• Trực quan dễ nhớ: 
+Chú robot rùa thông minh cầm cây bút lông nhiều màu sẵn sàng vẽ tranh.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+but_ve = turtle.Turtle()
+but_ve.shape("turtle")
+but_ve.speed(3)
+but_ve.forward(100)
+turtle.done()
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+(Cửa sổ đồ họa mở ra: Chú rùa tiến thẳng 100 bước để lại một nét vẽ màu đen)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• import turtle: Nạp thư viện đồ họa rùa Turtle có sẵn trong Python.
+• but_ve = turtle.Turtle(): Khởi tạo đối tượng bút vẽ điều khiển chú rùa.
+• but_ve.shape('turtle'): Đổi con trỏ thành hình chú rùa dễ thương.
+• turtle.done(): Giữ cửa sổ vẽ luôn mở để học viên quan sát tác phẩm.
+✍️ Lưu ý quan trọng cho học viên: 
+Luôn luôn đặt lệnh turtle.done() ở dòng cuối cùng của chương trình Turtle.
+▶ BÀI 13: 
+CÁC CÂU LỆNH ĐIỀU KHIỂN RÙA VẼ CƠ BẢN
+• Mục tiêu học tập: 
+Làm chủ nhóm lệnh di chuyển forward, backward, left, right, circle; độ dày pensize và màu nét color.
+• Trực quan dễ nhớ: 
+Bé điều khiển ô tô đồ chơi: tiến tới, lùi lại, rẽ góc và bấm nút phun sơn.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+but_ve = turtle.Turtle()
+but_ve.pensize(3)
+but_ve.color("blue")
+but_ve.forward(100)
+but_ve.right(90)
+but_ve.forward(50)
+but_ve.circle(40)
+turtle.done()
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+(Chú rùa vẽ đường thẳng 100 bước màu xanh dương, rẽ phải 90 độ vẽ 50 bước và vẽ 1 hình tròn bán kính 40)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• but_ve.pensize(3): Đặt độ dày của nét vẽ bằng 3 điểm ảnh.
+• but_ve.color('blue'): Đổi màu nét vẽ sang màu xanh dương.
+• but_ve.forward(100): Tiến thẳng 100 bước.
+• but_ve.right(90): Xoay góc vuông sang phải 90 độ.
+• but_ve.circle(40): Vẽ hình tròn bán kính 40 bước.
+✍️ Lưu ý quan trọng cho học viên: 
+but_ve.penup() nhấc bút không vẽ nét, but_ve.pendown() hạ bút để tiếp tục vẽ.
+▶ CHƯƠNG 5 — BÀI TẬP 1 (GỐC): 
+VẼ HÌNH VUÔNG NHIỀU MÀU (4 CẠNH 4 MÀU RỰC RỠ)
+• Mục tiêu học tập: 
+Vẽ hình vuông cạnh 100 bước, mỗi cạnh một màu: đỏ, xanh lá, xanh dương, vàng.
+• Trực quan dễ nhớ: 
+Khung tranh 4 màu sắc cầu vồng do chính tay bé lập trình vẽ.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+but_ve = turtle.Turtle()
+but_ve.pensize(4)
+but_ve.speed(3)
+cac_mau = ["red", "green", "blue", "yellow"]
+for mau in cac_mau:
+    but_ve.color(mau)
+    but_ve.forward(100)
+    but_ve.right(90)
+turtle.done()
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+(Màn hình hiển thị hình vuông cạnh 100 bước với 4 cạnh mang 4 màu Đỏ, Xanh lá, Xanh dương và Vàng)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• cac_mau = ['red', 'green', 'blue', 'yellow']: Danh sách 4 màu theo đề bài.
+• Vòng lặp for mau in cac_mau đổi màu bút ở mỗi cạnh rồi tiến 100 bước và xoay phải 90 độ.
+✍️ Lưu ý quan trọng cho học viên: 
+Góc quay ngoài của hình vuông là 90 độ (360 / 4 cạnh = 90 độ).
+▶ CHƯƠNG 5 — BÀI TẬP 2 (GỐC): 
+VẼ HÌNH CHỮ NHẬT NÉT ĐẬM MÀU TÍM
+• Mục tiêu học tập: 
+Vẽ hình chữ nhật dài 150 bước, rộng 80 bước, nét vẽ dày 5 điểm ảnh, màu tím (purple).
+• Trực quan dễ nhớ: 
+Bé vẽ cánh cửa lớn của ngôi nhà cổ tích bằng nét bút lông màu tím cực đậm.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+but_ve = turtle.Turtle()
+but_ve.pensize(5)
+but_ve.color("purple")
+but_ve.speed(3)
+for i in range(2):
+    but_ve.forward(150)
+    but_ve.right(90)
+    but_ve.forward(80)
+    but_ve.right(90)
+turtle.done()
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+(Màn hình hiển thị hình chữ nhật chiều dài 150, chiều rộng 80, nét vẽ dày 5 và có màu tím nổi bật)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• but_ve.pensize(5): Nét vẽ dày 5 điểm ảnh giúp đường nét to rõ khi in ấn.
+• but_ve.color('purple'): Chọn màu mực vẽ tím.
+• Vòng lặp for i in range(2) vẽ 2 lần cặp cạnh dài 150 và cạnh rộng 80.
+✍️ Lưu ý quan trọng cho học viên: 
+Hình chữ nhật có 2 cặp cạnh đối diện bằng nhau.
+▶ CHƯƠNG 5 — BÀI TẬP 3 (GỐC): 
+VẼ HAI HÌNH VUÔNG XA NHAU (KỸ THUẬT PENUP & PENDOWN)
+• Mục tiêu học tập: 
+Vẽ hình vuông 1 (cạnh 80), nhấc bút di chuyển sang phải 200 bước mà không vẽ nét, vẽ hình vuông 2 (cạnh 80, màu cam).
+• Trực quan dễ nhớ: 
+Chú rùa vẽ xong một bức tranh, sau đó nhảy cóc sang vị trí bên cạnh để vẽ tiếp hình thứ hai.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+but_ve = turtle.Turtle()
+but_ve.pensize(3)
+but_ve.speed(3)
+but_ve.color("blue")
+for i in range(4):
+    but_ve.forward(80)
+    but_ve.right(90)
+but_ve.penup()
+but_ve.forward(200)
+but_ve.pendown()
+but_ve.color("orange")
+for i in range(4):
+    but_ve.forward(80)
+    but_ve.right(90)
+turtle.done()
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+(Màn hình hiển thị 2 hình vuông riêng biệt cạnh 80 bước cách nhau 200 bước: hình 1 màu xanh dương, hình 2 màu cam)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Vẽ hình vuông thứ nhất màu xanh dương cạnh 80 bước.
+• but_ve.penup(): Nhấc bút lên, di chuyển 200 bước mà không để lại nét mực thừa.
+• but_ve.pendown(): Hạ bút xuống và vẽ hình vuông thứ hai màu cam.
+✍️ Lưu ý quan trọng cho học viên: 
+Kỹ thuật penup() và pendown() là kỹ năng bắt buộc khi vẽ các họa tiết tách rời.
+▶ CHƯƠNG 5 — BÀI TẬP 4 (GỐC): 
+VẼ TAM GIÁC ĐỀU & ĐỔI MÀU NỀN MÀN HÌNH (BGCOLOR & TÔ MÀU)
+• Mục tiêu học tập: 
+Đổi màu nền màn hình thành 'lightblue', vẽ hình tam giác đều cạnh 120 bước, nét dày 3, viền và nền tô màu đỏ.
+• Trực quan dễ nhớ: 
+Lá cờ tam giác màu đỏ rực rỡ nổi bật trên nền trời xanh biếc mùa hè.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+man_hinh = turtle.Screen()
+man_hinh.bgcolor("lightblue")
+but_ve = turtle.Turtle()
+but_ve.pensize(3)
+but_ve.color("red", "red")
+but_ve.speed(3)
+but_ve.begin_fill()
+for i in range(3):
+    but_ve.forward(120)
+    but_ve.left(120)
+but_ve.end_fill()
+turtle.done()
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+(Cửa sổ nền xanh nhạt 'lightblue' hiển thị hình tam giác đều màu đỏ rực rỡ, cạnh 120 bước, viền dày 3)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• man_hinh.bgcolor('lightblue'): Đổi màu nền toàn bộ cửa sổ đồ họa.
+• but_ve.color('red', 'red'): Thiết lập màu viền và màu tô đều là đỏ.
+• but_ve.begin_fill() và but_ve.end_fill(): Bắt đầu và kết thúc việc tô màu kín.
+• Góc quay ngoài của tam giác đều là 120 độ (360 / 3 = 120 độ).
+✍️ Lưu ý quan trọng cho học viên: 
+Tổng 3 góc ngoài của mọi hình đa giác đều luôn luôn bằng 360 độ.
+▶ CHƯƠNG 5 — BÀI TẬP 5 (MỞ RỘNG MỚI): 
+VẼ NGÔI SAO 5 CÁNH VÀNG VIỀN ĐỎ RỰC RỠ
+• Mục tiêu học tập: 
+Vẽ ngôi sao 5 cánh có độ dài cạnh 150 bước, góc xoay 144 độ, viền đỏ và tô màu vàng bên trong.
+• Trực quan dễ nhớ: 
+Ngôi sao lấp lánh trên bầu trời đêm hoặc ngôi sao vàng trên quốc kỳ.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+but_ve = turtle.Turtle()
+but_ve.pensize(3)
+but_ve.speed(3)
+but_ve.color("red", "yellow")
+but_ve.begin_fill()
+for i in range(5):
+    but_ve.forward(150)
+    but_ve.right(144)
+but_ve.end_fill()
+turtle.done()
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+(Màn hình hiển thị ngôi sao 5 cánh rực rỡ với đường viền màu đỏ và phần ruột được tô vàng óng ánh)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Góc quay đặc trưng của ngôi sao 5 cánh chuẩn là 144 độ (right(144)).
+• Vòng lặp for chạy đúng 5 lần tương ứng với 5 đỉnh của ngôi sao.
+• but_ve.begin_fill() và but_ve.end_fill() tự động tô kín màu vàng cho toàn bộ thân ngôi sao.
+✍️ Lưu ý quan trọng cho học viên: 
+Ngôi sao 5 cánh được tạo nên bằng cách vẽ đan chéo các đoạn thẳng xoay góc 144 độ.
+▶ CHƯƠNG 5 — BÀI TẬP 6 (MỞ RỘNG MỚI): 
+VẼ HỌA TIẾT XOẮN ỐC NGHỆ THUẬT TĂNG DẦN BÁN KÍNH
+• Mục tiêu học tập: 
+Sử dụng vòng lặp for tăng dần kích thước bước đi để tạo nên hình xoắn ốc đối xứng tuyệt đẹp.
+• Trực quan dễ nhớ: 
+Vỏ ốc biển kỳ diệu cuộn tròn mở rộng dần từ tâm ra ngoài.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+but_ve = turtle.Turtle()
+but_ve.pensize(2)
+but_ve.speed(0)
+but_ve.color("darkblue")
+for i in range(1, 80):
+    but_ve.forward(i * 3)
+    but_ve.right(91)
+turtle.done()
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+(Cửa sổ Turtle vẽ một bức tranh xoắn ốc hình học nghệ thuật xoay đều từ tâm lan tỏa ra ngoài)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Biến đếm i tăng dần từ 1 đến 79 giúp độ dài bước đi (i * 3) dài ra sau mỗi góc rẽ.
+• Góc xoay 91 độ (lớn hơn góc vuông 90 độ đúng 1 độ) tạo nên hiệu ứng xoắn lệch tâm nghệ thuật.
+• Tốc độ speed(0) giúp máy tính vẽ nhanh như chớp.
+✍️ Lưu ý quan trọng cho học viên: 
+Thay đổi góc xoay thành 61 độ hoặc 121 độ sẽ tạo ra các hình xoắn tam giác hoặc lục giác rất lạ mắt.
+═════ PHẦN 2: CHƯƠNG 1 — CÁC THAO TÁC VỚI KIỂU DỮ LIỆU STRING (CHUỖI) ═════
+Học phần Bài 1, Bài 2, Bài 3, 3 bài tập giáo trình gốc và 2 bài tập mở rộng mới.
+▶ BÀI 1: 
+CƠ BẢN VỀ CHUỖI (STRING) & TRUY CẬP KÝ TỰ QUA VỊ TRÍ
+• Mục tiêu học tập: 
+Tạo chuỗi, sử dụng ký tự đặc biệt '\n', '\t' và cắt chuỗi theo chỉ số index [0], [-1], [start:end].
+• Trực quan dễ nhớ: 
+Chuỗi như đoàn tàu hỏa gồm nhiều toa, mỗi toa mang 1 chữ cái được đánh số vị trí từ 0.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+s = "Tin Hoc Sao Viet"
+print(s)
+print(s[0])
+print(s[-1])
+print(s[0:7])
+print("Dong 1\nDong 2\tTab")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Tin Hoc Sao Viet
+T
+t
+Tin Hoc
+Dong 1
+Dong 2
+Tab
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• s[0]: Lấy ký tự đầu tiên tại vị trí 0 (chữ 'T').
+• s[-1]: Lấy ký tự cuối cùng của chuỗi (chữ 't').
+• s[0:7]: Cắt chuỗi từ vị trí 0 đến trước vị trí 7 thu được 'Tin Hoc'.
+• \n là ký tự xuống dòng mới, \t là ký tự thụt lề Tab.
+✍️ Lưu ý quan trọng cho học viên: 
+Chuỗi trong Python là bất biến (immutable), không thể sửa trực tiếp từng ký tự.
+▶ BÀI 2: 
+CÁC PHƯƠNG THỨC XỬ LÝ CHUỖI THƯỜNG DÙNG
+• Mục tiêu học tập: 
+Làm chủ các phương thức upper(), lower(), title(), strip(), len(), find(), replace() và kiểm tra chuỗi.
+• Trực quan dễ nhớ: 
+Các nút bấm chức năng tự động: in hoa toàn bộ, xóa khoảng trắng thừa, tìm kiếm từ.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+s = "  tin hoc sao viet  "
+print(s.upper())
+print(s.lower())
+print(s.title())
+print(s.strip())
+print(len(s))
+print(s.find("sao"))
+print(s.replace("viet", "nam"))
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+TIN HOC SAO VIET  
+  tin hoc sao viet  
+  Tin Hoc Sao Viet  
+tin hoc sao viet
+20
+10
+  tin hoc sao nam
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• s.upper(): Chuyển tất cả chữ thành chữ hoa in đậm nét.
+• s.lower(): Chuyển tất cả chữ thành chữ thường.
+• s.title(): Tự động viết hoa chữ cái đầu tiên của từng từ.
+• s.strip(): Cắt bỏ khoảng trắng dư thừa ở đầu và cuối chuỗi.
+• len(s): Đếm tổng số lượng ký tự có trong chuỗi.
+• s.find('sao'): Trả về vị trí xuất hiện đầu tiên của chữ 'sao'.
+• s.replace('viet', 'nam'): Thay thế chữ 'viet' bằng chữ 'nam'.
+✍️ Lưu ý quan trọng cho học viên: 
+Hàm s.isdigit() kiểm tra toàn bộ là số, s.isalpha() kiểm tra toàn bộ là chữ cái.
+▶ BÀI 3: 
+ĐỊNH DẠNG CHUỖI (STRING FORMATTING) VỚI F-STRING
+• Mục tiêu học tập: 
+Truyền biến vào văn bản nhanh chóng bằng phương thức .format() và f-string chuyên nghiệp.
+• Trực quan dễ nhớ: 
+Mẫu giấy khen in sẵn, em chỉ việc điền Tên và Điểm số vào đúng chỗ trống.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+ten = "Bao Nam"
+tuoi = 10
+diem = 9.8765
+print("Ban {} nam nay {} tuoi".format(ten, tuoi))
+print(f"Ban {ten} nam nay {tuoi} tuoi")
+print(f"Diem so lam tron 2 chu so: {diem:.2f}")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Ban Bao Nam nam nay 10 tuoi
+Ban Bao Nam nam nay 10 tuoi
+Diem so lam tron 2 chu so: 9.88
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• .format(ten, tuoi): Điền tuần tự giá trị của biến ten và tuoi vào dấu ngoặc {}.
+• f"Ban {ten}...": Cú pháp f-string hiện đại, đặt biến trực tiếp trong ngoặc nhọn.
+• {diem:.2f}: Định dạng số thực làm tròn đúng 2 chữ số thập phân sau dấu phẩy.
+✍️ Lưu ý quan trọng cho học viên: 
+Khi dùng f-string bắt buộc phải có chữ 'f' hoặc 'F' đứng ngay trước dấu ngoặc kép.
+▶ CHƯƠNG 1 — BÀI TẬP 1 (GỐC): 
+KIỂM TRA TÊN NGƯỜI DÙNG CÓ SỐ VÀ KHOẢNG TRẮNG
+• Mục tiêu học tập: 
+Nhập tên từ bàn phím, kiểm tra tên có chứa chữ số và khoảng trắng để in thông báo phân loại.
+• Trực quan dễ nhớ: 
+Cổng soát vé tự động quét xem họ tên học sinh có bị gõ nhầm số hay không.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+ten = input("Nhap ho ten: ")
+co_so = False
+for ch in ten:
+    if ch.isdigit():
+        co_so = True
+        break
+co_khoang_trang = " " in ten
+if co_so and not co_khoang_trang:
+    print("Ten nguoi dung co so va khong co khoang trang")
+elif not co_so and co_khoang_trang:
+    print("Ten nguoi dung khong co so va co khoang trang")
+elif co_so and co_khoang_trang:
+    print("Ten nguoi dung co ca so va khoang trang")
+else:
+    print("Ten nguoi dung chi gom chu cai, khong co so va khong co khoang trang")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap ho ten: NguyenVanAn1
+Ten nguoi dung co so va khong co khoang trang
+Nhap ho ten: Nguyen Van An
+Ten nguoi dung khong co so va co khoang trang
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Vòng lặp for ch in ten duyệt từng ký tự, dùng ch.isdigit() phát hiện chữ số.
+• Cú pháp ' ' in ten kiểm tra xem có ký tự khoảng cách hay không.
+• Cấu trúc if-elif-else phân loại 4 trường hợp dữ liệu.
+✍️ Lưu ý quan trọng cho học viên: 
+Toán tử 'in' trong Python giúp kiểm tra sự tồn tại của chuỗi con cực nhanh.
+▶ CHƯƠNG 1 — BÀI TẬP 2 (GỐC): 
+CHUẨN HÓA HỌ TÊN HỌC SINH (XÓA KHOẢNG TRẮNG & VIẾT HOA)
+• Mục tiêu học tập: 
+Xóa khoảng trắng thừa ở hai đầu chuỗi và viết hoa chữ cái đầu của mỗi từ trong tên.
+• Trực quan dễ nhớ: 
+Bác thợ cắt tỉa chỉnh sửa lại họ tên cho ngay ngắn trước khi in bằng khen.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+ten_nguoi_dung = "         nguyen van an     "
+print("Ten nguoi dung:", ten_nguoi_dung)
+ten_da_xoa_khoang_trang = ten_nguoi_dung.strip()
+print("Ten nguoi dung sau khi xoa dau cach thua:", ten_da_xoa_khoang_trang)
+ten_chuan_hoa = ten_da_xoa_khoang_trang.title()
+print("Ten nguoi dung sau khi viet hoa chu cai dau:", ten_chuan_hoa)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Ten nguoi dung:          nguyen van an     
+Ten nguoi dung sau khi xoa dau cach thua: nguyen van an
+Ten nguoi dung sau khi viet hoa chu cai dau: Nguyen Van An
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• ten_nguoi_dung.strip(): Cắt bỏ các khoảng trắng dư thừa ở hai đầu.
+• ten_da_xoa_khoang_trang.title(): Tự động viết hoa chữ cái đầu mỗi từ.
+✍️ Lưu ý quan trọng cho học viên: 
+Phương thức title() rất thông minh, tự động nhận diện dấu cách để viết hoa chữ tiếp theo.
+▶ CHƯƠNG 1 — BÀI TẬP 3 (GỐC): 
+KIỂM TRA ĐỘ DÀI MẬT KHẨU (MẬT KHẨU YẾU / MẠNH)
+• Mục tiêu học tập: 
+Nhập mật khẩu từ bàn phím, kiểm tra độ dài: < 8 ký tự là yếu, >= 8 ký tự là mạnh.
+• Trực quan dễ nhớ: 
+Ổ khóa an toàn yêu cầu chìa khóa phải đủ từ 8 răng cưa trở lên mới bảo mật.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+mat_khau = input("Nhap mat khau: ")
+if len(mat_khau) < 8:
+    print("MAT KHAU QUA YEU")
+else:
+    print("MAT KHAU MANH")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap mat khau: Abc1234
+MAT KHAU QUA YEU
+Nhap mat khau: Abc12345678
+MAT KHAU MANH
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Hàm len(mat_khau): Trả về tổng số ký tự của mật khẩu vừa nhập.
+• Cấu trúc if-else phân loại mật khẩu theo ngưỡng 8 ký tự.
+✍️ Lưu ý quan trọng cho học viên: 
+Mật khẩu mạnh thực tế nên có thêm chữ hoa, chữ số và ký tự đặc biệt.
+▶ CHƯƠNG 1 — BÀI TẬP 4 (MỞ RỘNG MỚI): 
+ĐẾM SỐ LƯỢNG NGUYÊN ÂM VÀ PHỤ ÂM TRONG CÂU
+• Mục tiêu học tập: 
+Nhập một câu văn bản tiếng Anh/không dấu, đếm chính xác số nguyên âm (a, e, i, o, u) và số phụ âm.
+• Trực quan dễ nhớ: 
+Máy quét phân tích ngôn ngữ học bóc tách cấu trúc câu chữ.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+cau = input("Nhap mot cau van: ").lower()
+nguyen_am = "aeiou"
+so_nguyen_am = 0
+so_phu_am = 0
+for ch in cau:
+    if ch.isalpha():
+        if ch in nguyen_am:
+            so_nguyen_am += 1
+        else:
+            so_phu_am += 1
+print(f"So luong nguyen am: {so_nguyen_am}")
+print(f"So luong phu am: {so_phu_am}")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap mot cau van: Lap trinh Python Sao Viet
+So luong nguyen am: 7
+So luong phu am: 15
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Chuyển toàn bộ câu sang chữ thường bằng .lower() để so khớp chuẩn xác không phân biệt hoa thường.
+• Phương thức ch.isalpha() lọc bỏ các ký tự khoảng trắng hoặc dấu câu.
+• Cú pháp ch in nguyen_am kiểm tra nếu ký tự nằm trong tập 5 nguyên âm 'aeiou'.
+✍️ Lưu ý quan trọng cho học viên: 
+Kỹ thuật đếm tần suất này là nền tảng của các thuật toán xử lý ngôn ngữ tự nhiên (NLP).
+▶ CHƯƠNG 1 — BÀI TẬP 5 (MỞ RỘNG MỚI): 
+ẨN THÔNG TIN SỐ ĐIỆN THOẠI BẢO VỆ DỮ LIỆU CÁ NHÂN
+• Mục tiêu học tập: 
+Nhập số điện thoại 10 số, che giấu 4 chữ số ở giữa bằng dấu sao '****' (Ví dụ: 0901234567 -> 090****567).
+• Trực quan dễ nhớ: 
+Tấm rèm bảo mật thông tin tài khoản ngân hàng khi hiển thị trên hóa đơn.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+sdt = input("Nhap so dien thoai (10 so): ").strip()
+if len(sdt) == 10 and sdt.isdigit():
+    sdt_an = sdt[:3] + "****" + sdt[7:]
+    print("So dien thoai sau khi bao mat:", sdt_an)
+else:
+    print("So dien thoai khong hop le! Vui long nhap dung 10 chu so.")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so dien thoai (10 so): 0901234567
+So dien thoai sau khi bao mat: 090****567
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• sdt[:3] lấy 3 chữ số đầu tiên (đầu số nhà mạng).
+• sdt[7:] lấy 3 chữ số cuối cùng.
+• Ghép nối chuỗi (String Concatenation) với chuỗi sao '****' ở giữa để bảo vệ quyền riêng tư người dùng.
+✍️ Lưu ý quan trọng cho học viên: 
+Đây là tính năng bảo mật thông tin bắt buộc trong mọi ứng dụng thương mại điện tử hiện đại.
+═════ PHẦN 3: CHƯƠNG 2 — KIỂU DỮ LIỆU LIST VÀ DICTIONARY ═════
+Học phần Bài 4, Bài 5, 3 bài tập giáo trình gốc và 2 bài tập mở rộng mới.
+▶ BÀI 4: 
+KIỂU DỮ LIỆU LIST (DANH SÁCH CÓ THỨ TỰ)
+• Mục tiêu học tập: 
+Tạo danh sách list, truy cập phần tử qua chỉ số và duyệt danh sách bằng vòng lặp for.
+• Trực quan dễ nhớ: 
+Ngăn kéo đựng nhiều hộp quà có đánh số thứ tự từ 0, 1, 2, 3...
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+a = [2, 5, 10, 1, 3]
+print("Phan tu dau tien:", a[0])
+print("Phan tu thu hai:", a[1])
+print("Phan tu cuoi cung:", a[-1])
+print("Duyet danh sach qua tung gia tri:")
+for x in a:
+    print(x)
+print("Duyet danh sach qua vi tri index:")
+for i in range(len(a)):
+    print(f"Vi tri {i} co gia tri la: {a[i]}")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Phan tu dau tien: 2
+Phan tu thu hai: 5
+Phan tu cuoi cung: 3
+Duyet danh sach qua tung gia tri:
+2
+5
+10
+1
+3
+Duyet danh sach qua vi tri index:
+Vi tri 0 co gia tri la: 2
+Vi tri 1 co gia tri la: 5
+Vi tri 2 co gia tri la: 10
+Vi tri 3 co gia tri la: 1
+Vi tri 4 co gia tri la: 3
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• a = [2, 5, 10, 1, 3]: Khởi tạo một danh sách List chứa 5 số nguyên.
+• a[0]: Truy cập phần tử đầu tiên tại vị trí 0.
+• Vòng lặp for x in a: Lần lượt lấy từng giá trị trong danh sách.
+• Vòng lặp for i in range(len(a)): Duyệt qua từng chỉ số vị trí index.
+✍️ Lưu ý quan trọng cho học viên: 
+List có thể chứa các phần tử có kiểu dữ liệu hỗn hợp (số, chuỗi, boolean).
+▶ BÀI 5: 
+KIỂU DỮ LIỆU DICTIONARY (CẶP KHÓA — GIÁ TRỊ)
+• Mục tiêu học tập: 
+Nắm vững cú pháp tạo dictionary {key: value}, truy cập qua khóa và duyệt cặp key-value.
+• Trực quan dễ nhớ: 
+Cuốn danh bạ điện thoại: mỗi cái tên (Key) đi kèm một số điện thoại (Value).
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+hoc_sinh = {
+    "ten": "Bao Nam",
+    "tuoi": 10,
+    "lop": "Python Nang Cao"
+}
+print("Ten hoc sinh:", hoc_sinh["ten"])
+print("Tuoi hoc sinh:", hoc_sinh["tuoi"])
+print("Duyet qua tung key:")
+for k in hoc_sinh:
+    print(k, "->", hoc_sinh[k])
+print("Duyet qua ca key va value:")
+for key, val in hoc_sinh.items():
+    print(f"{key}: {val}")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Ten hoc sinh: Bao Nam
+Tuoi hoc sinh: 10
+Duyet qua tung key:
+ten -> Bao Nam
+tuoi -> 10
+lop -> Python Nang Cao
+Duyet qua ca key va value:
+ten: Bao Nam
+tuoi: 10
+lop: Python Nang Cao
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• hoc_sinh = {...}: Tạo từ điển với 3 cặp khóa - giá trị.
+• hoc_sinh['ten']: Truy cập giá trị gắn liền với khóa 'ten'.
+• hoc_sinh.items(): Trả về toàn bộ các cặp (key, value) để duyệt vòng lặp.
+✍️ Lưu ý quan trọng cho học viên: 
+Khóa (Key) trong Dictionary phải là duy nhất và không được trùng lặp.
+▶ CHƯƠNG 2 — BÀI TẬP 1 (GỐC): 
+QUẢN LÝ THÔNG TIN HỌC SINH BẰNG DICTIONARY
+• Mục tiêu học tập: 
+Nhập thông tin ten, tuoi, lop từ bàn phím, lưu vào Dictionary và in thông tin định dạng rõ ràng.
+• Trực quan dễ nhớ: 
+Lập hồ sơ thẻ học sinh điện tử lưu vào hệ thống máy tính của trung tâm.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+ten = input("Nhap ten: ")
+tuoi = int(input("Nhap tuoi: "))
+lop = input("Nhap lop: ")
+hoc_sinh = {
+    "ten": ten,
+    "tuoi": tuoi,
+    "lop": lop
+}
+print("=== THONG TIN HOC SINH ===")
+print("Ten:", hoc_sinh["ten"])
+print("Tuoi:", hoc_sinh["tuoi"])
+print("Lop:", hoc_sinh["lop"])
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap ten: Thien
+Nhap tuoi: 25
+Nhap lop: Python
+=== THONG TIN HOC SINH ===
+Ten: Thien
+Tuoi: 25
+Lop: Python
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Nhận dữ liệu từ bàn phím bằng hàm input() và int(input()).
+• Đưa các biến vào Dictionary hoc_sinh theo đúng các trường.
+• Truy xuất và in từng giá trị bằng hoc_sinh['ten'], hoc_sinh['tuoi'], hoc_sinh['lop'].
+✍️ Lưu ý quan trọng cho học viên: 
+Dùng Dictionary giúp dữ liệu có nhãn tên rõ ràng, không bị nhầm lẫn vị trí.
+▶ CHƯƠNG 2 — BÀI TẬP 2 (GỐC): 
+TÌM MIN, MAX VÀ SẮP XẾP DANH SÁCH SỐ NGUYÊN
+• Mục tiêu học tập: 
+Nhập 5 số nguyên vào List, dùng min() và max() tìm giá trị, sắp xếp tăng dần bằng .sort().
+• Trực quan dễ nhớ: 
+Xếp hàng các bạn nhỏ từ bạn thấp nhất đến bạn cao nhất theo thứ tự đều tăm tắp.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+danh_sach = []
+for i in range(1, 6):
+    so = int(input(f"Nhap so thu {i}: "))
+    danh_sach.append(so)
+so_nho_nhat = min(danh_sach)
+so_lon_nhat = max(danh_sach)
+print(f"So nho nhat: {so_nho_nhat}")
+print(f"So lon nhat: {so_lon_nhat}")
+danh_sach.sort()
+print("Danh sach sap xep tang dan:", danh_sach)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so thu 1: 5
+Nhap so thu 2: 1
+Nhap so thu 3: 6
+Nhap so thu 4: 7
+Nhap so thu 5: 10
+So nho nhat: 1
+So lon nhat: 10
+Danh sach sap xep tang dan: [1, 5, 6, 7, 10]
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• danh_sach.append(so): Thêm từng số vừa nhập vào cuối danh sách.
+• min(danh_sach) và max(danh_sach): Tự động tìm giá trị bé nhất và lớn nhất.
+• danh_sach.sort(): Sắp xếp trực tiếp các phần tử tăng dần.
+✍️ Lưu ý quan trọng cho học viên: 
+Muốn sắp xếp giảm dần, em truyền tham số danh_sach.sort(reverse=True).
+▶ CHƯƠNG 2 — BÀI TẬP 3 (GỐC): 
+HỆ THỐNG QUẢN LÝ DANH SÁCH MUA ĐỒ CHƠI (LIST & DICT)
+• Mục tiêu học tập: 
+Xây dựng menu 3 chức năng: 1. Thêm đồ chơi, 2. Xem danh sách, 3. Thoát bằng vòng lặp while True.
+• Trực quan dễ nhớ: 
+Chiếc máy tính tiền thu ngân trong siêu thị đồ chơi của bé.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+danh_sach_do_choi = []
+while True:
+    print("=== MENU ===")
+    print("1. Them do choi")
+    print("2. Xem danh sach")
+    print("3. Thoat")
+    
+    chon = input("Chon chuc nang (1-3): ")
+    
+    if chon == "1":
+        ten = input("Ten mat hang: ")
+        so_luong = int(input("So luong: "))
+        mon_do = {"ten": ten, "so_luong": so_luong}
+        danh_sach_do_choi.append(mon_do)
+        print(f"Da them {ten} vao danh sach.\n")
+    elif chon == "2":
+        print("--- DANH SACH DO CHOI ---")
+        if len(danh_sach_do_choi) == 0:
+            print("Danh sach dang trong!\n")
+        else:
+            for item in danh_sach_do_choi:
+                print(f"- {item['ten']}: {item['so_luong']} cai")
+            print()
+    elif chon == "3":
+        print("Tam biet!")
+        break
+    else:
+        print("Lua chon khong hop le! Vui long chon tu 1 den 3.\n")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+=== MENU ===
+1. Them do choi
+2. Xem danh sach
+3. Thoat
+Chon chuc nang (1-3): 1
+Ten mat hang: robot
+So luong: 2
+Da them robot vao danh sach.
+=== MENU ===
+1. Them do choi
+2. Xem danh sach
+3. Thoat
+Chon chuc nang (1-3): 3
+Tam biet!
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Cấu trúc danh sách lồng từ điển: List chứa các Dictionary {'ten': ..., 'so_luong': ...}.
+• Vòng lặp while True giúp menu tương tác liên tục cho đến khi người dùng chọn phím 3.
+• Lệnh break kết thúc vòng lặp ngay khi chọn Thoát.
+✍️ Lưu ý quan trọng cho học viên: 
+Đây là mô hình quản lý dữ liệu nền tảng trong mọi phần mềm quản lý kho hàng.
+▶ CHƯƠNG 2 — BÀI TẬP 4 (MỞ RỘNG MỚI): 
+TRA CỨU & CẬP NHẬT DANH BẠ ĐIỆN THOẠI BẰNG DICTIONARY
+• Mục tiêu học tập: 
+Xây dựng từ điển danh bạ gồm tên và số điện thoại, cho phép tra cứu số khi biết tên và cập nhật số mới.
+• Trực quan dễ nhớ: 
+Ứng dụng danh bạ thông minh trên điện thoại di động.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+danh_ba = {
+    "Minh": "0901112233",
+    "An": "0904445566",
+    "Bao": "0907778899"
+}
+ten_tim = input("Nhap ten can tra cuu: ")
+if ten_tim in danh_ba:
+    print(f"So dien thoai cua {ten_tim} la: {danh_ba[ten_tim]}")
+else:
+    print(f"Khong tim thay {ten_tim} trong danh ba!")
+    sdt_moi = input("Nhap so dien thoai de them moi: ")
+    danh_ba[ten_tim] = sdt_moi
+    print(f"Da them {ten_tim} vao danh ba thanh cong!")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap ten can tra cuu: Cuong
+Khong tim thay Cuong trong danh ba!
+Nhap so dien thoai de them moi: 0912345678
+Da them Cuong vao danh ba thanh cong!
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Toán tử ten_tim in danh_ba kiểm tra sự tồn tại của khóa Key trong từ điển với tốc độ tức thì.
+• Nếu chưa có, cú pháp danh_ba[ten_tim] = sdt_moi tự động tạo thêm một cặp khóa-giá trị mới.
+✍️ Lưu ý quan trọng cho học viên: 
+Dictionary là cấu trúc dữ liệu tối ưu nhất cho bài toán tìm kiếm và tra cứu theo định danh.
+▶ CHƯƠNG 2 — BÀI TẬP 5 (MỞ RỘNG MỚI): 
+THỐNG KÊ TẦN SUẤT XUẤT HIỆN CỦA CÁC TỪ TRONG CÂU
+• Mục tiêu học tập: 
+Tách câu thành danh sách các từ và dùng Dictionary đếm số lần xuất hiện của từng từ.
+• Trực quan dễ nhớ: 
+Máy quét kiểm toán từ vựng trong bài văn của học sinh.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+van_ban = "python rat hay va python rat de hoc"
+danh_sach_tu = van_ban.split()
+thong_ke = {}
+for tu in danh_sach_tu:
+    if tu in thong_ke:
+        thong_ke[tu] += 1
+    else:
+        thong_ke[tu] = 1
+print("=== BANG THONG KE TU VUNG ===")
+for tu, so_lan in thong_ke.items():
+    print(f"Tu '{tu}': xuat hien {so_lan} lan")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+=== BANG THONG KE TU VUNG ===
+Tu 'python': xuat hien 2 lan
+Tu 'rat': xuat hien 2 lan
+Tu 'hay': xuat hien 1 lan
+Tu 'va': xuat hien 1 lan
+Tu 'de': xuat hien 1 lan
+Tu 'hoc': xuat hien 1 lan
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Hàm van_ban.split() tự động tách chuỗi thành List các từ đơn dựa theo dấu khoảng trắng.
+• Vòng lặp duyệt từng từ: nếu từ đã có trong Dictionary thì tăng số lượng lên 1, nếu chưa có thì gán bằng 1.
+✍️ Lưu ý quan trọng cho học viên: 
+Thuật toán Word Count này là bài toán kinh điển trong lĩnh vực phân tích dữ liệu lớn (Big Data).
+═════ PHẦN 4: CHƯƠNG 3 — ĐỊNH NGHĨA VÀ CÁC THAO TÁC VỚI HÀM ═════
+Học phần Bài 6, Bài 7, 4 bài tập giáo trình gốc và 2 bài tập mở rộng mới.
+▶ BÀI 6: 
+KHÁI NIỆM VÀ VAI TRÒ CỦA HÀM TRONG PYTHON
+• Mục tiêu học tập: 
+Nắm vững cú pháp tạo hàm bằng từ khóa def và quy tắc thụt lề khối lệnh.
+• Trực quan dễ nhớ: 
+Robot phụ tá — em dạy việc một lần, khi cần chỉ việc gọi tên Robot!
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def ten_ham(tham_so):
+    return gia_tri
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+(Định nghĩa khung mẫu hàm — sẵn sàng gọi trong chương trình)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• def: Từ khóa bắt buộc để khai báo một hàm mới.
+• ten_ham: Tên hàm đại diện cho chức năng.
+• tham_so: Dữ liệu đầu vào hàm nhận để xử lý.
+• return: Gửi kết quả về cho nơi gọi hàm.
+✍️ Lưu ý quan trọng cho học viên: 
+Nhớ dấu hai chấm (:) ở cuối dòng def và bấm phím Tab lùi đầu dòng khối lệnh.
+▶ BÀI 7: 
+ĐỊNH NGHĨA HÀM, GIÁ TRỊ TRẢ VỀ (RETURN) VÀ GỌI HÀM
+• Mục tiêu học tập: 
+Phân biệt hàm có tham số, hàm trả về kết quả bằng return và hàm trả về None.
+• Trực quan dễ nhớ: 
+Robot tính 3 x 4 = 12 xong mang số 12 về đưa tận tay cho em cất vào ví.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def greet(name):
+    print("Xin chao!", name)
+def multiply(a, b):
+    return a * b
+greet("Minh")
+result = multiply(3, 4)
+print("Ket qua phep nhan la:", result)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Xin chao! Minh
+Ket qua phep nhan la: 12
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• greet('Minh'): Hàm in ra câu chào kèm tên tham số.
+• multiply(3, 4): Hàm tính tích 2 số và dùng return trả về số 12.
+• Biến result lưu trữ giá trị trả về để in ra màn hình.
+✍️ Lưu ý quan trọng cho học viên: 
+Khi gặp lệnh return, hàm sẽ kết thúc ngay lập tức.
+▶ CHƯƠNG 3 — BÀI TẬP 1 (GỐC): 
+HÀM KIỂM TRA SỐ CHẴN / SỐ LẺ (IS_EVEN_NUMBER)
+• Mục tiêu học tập: 
+Viết hàm nhận vào số n, trả về True nếu chẵn, False nếu lẻ.
+• Trực quan dễ nhớ: 
+Lấy kẹo chia đôi, nếu không dư (n % 2 == 0) là Chẵn, còn dư 1 là Lẻ.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def is_even_number(n):
+    if n % 2 == 0:
+        return True
+    else:
+        return False
+n = int(input("Nhap so nguyen duong n: "))
+if is_even_number(n):
+    print(n, "la so chan")
+else:
+    print(n, "la so le")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so nguyen duong n: 4
+4 la so chan
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Toán tử n % 2 là phép chia lấy phần dư.
+• Hàm trả về giá trị Boolean (True / False) để câu lệnh if-else sử dụng.
+✍️ Lưu ý quan trọng cho học viên: 
+Có thể viết gọn hàm chỉ bằng một dòng: return n % 2 == 0.
+▶ CHƯƠNG 3 — BÀI TẬP 2 (GỐC): 
+HÀM TÍNH TỔNG TỪ 1 ĐẾN N (SUM_FROM_1_TO_N)
+• Mục tiêu học tập: 
+Viết hàm tính tổng: 1 + 2 + 3 + ... + n. Nếu n <= 0 trả về 0.
+• Trực quan dễ nhớ: 
+Bỏ từng đồng xu từ 1 đến n vào heo đất tiết kiệm rồi đếm tổng số xu.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def sum_from_1_to_n(n):
+    if n <= 0:
+        return 0
+    total = 0
+    for i in range(1, n + 1):
+        total = total + i
+    return total
+n = int(input("Nhap so nguyen duong n: "))
+result = sum_from_1_to_n(n)
+print(f"Tong tu 1 den {n} la: {result}")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so nguyen duong n: 10
+Tong tu 1 den 10 la: 55
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Nếu n <= 0, hàm lập tức trả về 0.
+• Vòng lặp for i in range(1, n + 1) cộng dồn từng số vào biến total.
+✍️ Lưu ý quan trọng cho học viên: 
+range(1, n + 1) cần có n + 1 để lấy được chính xác số n.
+▶ CHƯƠNG 3 — BÀI TẬP 3 (GỐC): 
+HÀM IN BẢNG CỬU CHƯƠNG (PRINT_MULTIPLICATION_TABLE)
+• Mục tiêu học tập: 
+Viết hàm in ra bảng cửu chương của số n từ 1 đến 10.
+• Trực quan dễ nhớ: 
+Chiếc máy in thông minh tự động in 10 dòng phép nhân.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def print_multiplication_table(n):
+    print(f"Bang cuu chuong cua {n} la:")
+    for i in range(1, 11):
+        print(f"{n} x {i} = {n * i}")
+n = int(input("Nhap so nguyen duong n: "))
+print_multiplication_table(n)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so nguyen duong n: 5
+Bang cuu chuong cua 5 la:
+5 x 1 = 5
+5 x 2 = 10
+...
+5 x 9 = 45
+5 x 10 = 50
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Vòng lặp for i in range(1, 11) chạy qua 10 số từ 1 đến 10.
+• Dùng f-string f'{n} x {i} = {n * i}' để in và tính phép nhân.
+✍️ Lưu ý quan trọng cho học viên: 
+Hàm này chỉ làm nhiệm vụ in nên không cần câu lệnh return.
+▶ CHƯƠNG 3 — BÀI TẬP 4 (GỐC): 
+DỰ ÁN MÁY TÍNH MINI 4 PHÉP TÍNH (CỘNG - TRỪ - NHÂN - CHIA)
+• Mục tiêu học tập: 
+Viết 4 hàm toán học và menu 1-4, kiểm tra điều kiện chia cho 0 và lặp lại khi nhập sai.
+• Trực quan dễ nhớ: 
+Tự chế tạo chiếc máy tính bỏ túi Casio tí hon bằng các hàm riêng biệt.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def sum(a, b):
+    return a + b
+def subtract(a, b):
+    return a - b
+def multiply(a, b):
+    return a * b
+def divide(a, b):
+    if b == 0:
+        return "Khong the chia cho 0!"
+    return a / b
+while True:
+    print("1 - Cong")
+    print("2 - Tru")
+    print("3 - Nhan")
+    print("4 - Chia")
+    choice = int(input("Hay chon phep tinh (1-4): "))
+    if 1 <= choice <= 4:
+        a = float(input("Nhap so a: "))
+        b = float(input("Nhap so b: "))
+        if choice == 1:
+            print("Ket qua:", sum(a, b))
+        elif choice == 2:
+            print("Ket qua:", subtract(a, b))
+        elif choice == 3:
+            print("Ket qua:", multiply(a, b))
+        elif choice == 4:
+            print("Ket qua:", divide(a, b))
+        break
+    else:
+        print("Khong ton tai phep tinh! Vui long nhap lai.\n")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+1 - Cong
+2 - Tru
+3 - Nhan
+4 - Chia
+Hay chon phep tinh (1-4): 2
+Nhap so a: 10
+Nhap so b: 15
+Ket qua: -5.0
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Chương trình chia thành 4 hàm độc lập (sum, subtract, multiply, divide).
+• Kiểm tra điều kiện b == 0 trong hàm divide để chống lỗi sập chương trình.
+• Vòng lặp while True kết hợp break giúp xử lý nhập sai linh hoạt.
+✍️ Lưu ý quan trọng cho học viên: 
+Dùng float(input()) để tính toán được cả các số thập phân.
+▶ CHƯƠNG 3 — BÀI TẬP 5 (MỞ RỘNG MỚI): 
+HÀM KIỂM TRA SỐ ĐỐI XỨNG (PALINDROMIC NUMBER)
+• Mục tiêu học tập: 
+Viết hàm kiem_tra_doi_xung(n) trả về True nếu đọc xuôi đọc ngược đều bằng nhau (ví dụ: 121, 1331).
+• Trực quan dễ nhớ: 
+Tấm gương soi phản chiếu hai chiều giống hệt nhau.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def kiem_tra_doi_xung(n):
+    chuoi_so = str(n)
+    return chuoi_so == chuoi_so[::-1]
+n = int(input("Nhap so nguyen duong can kiem tra: "))
+if kiem_tra_doi_xung(n):
+    print(f"So {n} la so doi xung!")
+else:
+    print(f"So {n} khong phai la so doi xung.")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so nguyen duong can kiem tra: 12321
+So 12321 la so doi xung!
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Chuyển số n thành chuỗi str(n) để áp dụng kỹ thuật đảo ngược slicing [::-1].
+• So sánh chuỗi gốc với chuỗi đảo: nếu bằng nhau thì trả về True, ngược lại False.
+✍️ Lưu ý quan trọng cho học viên: 
+Kỹ thuật này áp dụng được cho cả chuỗi từ đối xứng (ví dụ: 'radar', 'level').
+▶ CHƯƠNG 3 — BÀI TẬP 6 (MỞ RỘNG MỚI): 
+HÀM TÍNH CHỈ SỐ KHỐI CƠ THỂ BMI VÀ TƯ VẤN SỨC KHỎE
+• Mục tiêu học tập: 
+Viết hàm tinh_bmi(can_nang, chieu_cao) và in kết quả phân loại: Gầy (< 18.5), Bình thường (18.5 - 24.9), Thừa cân (>= 25).
+• Trực quan dễ nhớ: 
+Bác sĩ điện tử thông minh đo khám sức khỏe học đường cho bé.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def tinh_bmi(can_nang, chieu_cao):
+    bmi = can_nang / (chieu_cao ** 2)
+    return bmi
+can_nang = float(input("Nhap can nang (kg): "))
+chieu_cao = float(input("Nhap chieu cao (m, vi du 1.45): "))
+chi_so = tinh_bmi(can_nang, chieu_cao)
+print(f"Chi so BMI cua be la: {chi_so:.1f}")
+if chi_so < 18.5:
+    print("Danh gia: The trang hoi gay, can bo sung dinh duong!")
+elif 18.5 <= chi_so < 25:
+    print("Danh gia: The trang ly tuong rat can doi!")
+else:
+    print("Danh gia: The trang hoi thua can, hay cham tap the thao!")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap can nang (kg): 35
+Nhap chieu cao (m, vi du 1.45): 1.40
+Chi so BMI cua be la: 17.9
+Danh gia: The trang hoi gay, can bo sung dinh duong!
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Công thức chuẩn: BMI = Cân nặng (kg) / (Chiều cao (m))².
+• Hàm trả về kết quả số thực và dùng f-string {chi_so:.1f} làm tròn 1 chữ số thập phân.
+✍️ Lưu ý quan trọng cho học viên: 
+Hàm giúp chia nhỏ phép tính toán học phức tạp thành module độc lập, dễ kiểm tra.
+═════ PHẦN 5: CHƯƠNG 4 — SỬ DỤNG CÁC THƯ VIỆN CƠ BẢN (RANDOM, MATH, DATETIME) ═════
+Học phần Bài 8, Bài 9, Bài 10, Bài 11, 4 bài tập giáo trình gốc và 2 bài tập mở rộng mới.
+▶ BÀI 8: 
+GIỚI THIỆU THƯ VIỆN VÀ CÁC CÁCH IMPORT TRONG PYTHON
+• Mục tiêu học tập: 
+Hiểu module là gì và 3 cách import: import toàn bộ, from ... import và đặt tên rút gọn as.
+• Trực quan dễ nhớ: 
+Hộp đồ nghề Doraemon — có sẵn bảo bối, em chỉ cần lấy ra dùng.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import math
+print("Can bac hai cua 16 la:", math.sqrt(16))
+from math import sqrt
+print("Can bac hai cua 25 la:", sqrt(25))
+import datetime as dt
+now = dt.datetime.now()
+print("Thoi gian hien tai:", now)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Can bac hai cua 16 la: 4.0
+Can bac hai cua 25 la: 5.0
+Thoi gian hien tai: 2026-08-28 20:00:00.123456
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• import math: Nhập toàn bộ thư viện, gọi qua math.sqrt().
+• from math import sqrt: Chỉ lấy hàm sqrt để gọi trực tiếp.
+• import datetime as dt: Đặt tên tắt dt cho ngắn gọn.
+✍️ Lưu ý quan trọng cho học viên: 
+Nên đặt tất cả các lệnh import ở ngay các dòng đầu tiên của file.
+▶ BÀI 9: 
+THƯ VIỆN RANDOM — LÀM VIỆC VỚI SỐ NGẪU NHIÊN
+• Mục tiêu học tập: 
+Dùng random.randint(a, b) sinh số nguyên và random.choice(list) chọn phần tử ngẫu nhiên.
+• Trực quan dễ nhớ: 
+Chiếc nón kỳ diệu bốc thăm trúng thưởng, mỗi lần rút ra một món quà bất ngờ.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import random
+so_ngau_nhien = random.randint(1, 10)
+print("So may man hom nay la:", so_ngau_nhien)
+hoa_qua = ["Tao", "Chuoi", "Cam", "Xoai"]
+mon_duoc_chon = random.choice(hoa_qua)
+print("Hom nay be duoc an qua:", mon_duoc_chon)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+So may man hom nay la: 7
+Hom nay be duoc an qua: Cam
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• random.randint(1, 10): Sinh số nguyên ngẫu nhiên từ 1 đến 10.
+• random.choice(hoa_qua): Chọn ngẫu nhiên một phần tử trong danh sách.
+✍️ Lưu ý quan trọng cho học viên: 
+Mỗi lần chạy kết quả sẽ khác nhau vì do máy tính tự quay số.
+▶ BÀI 10: 
+THƯ VIỆN MATH — CÁC PHÉP TOÁN NÂNG CAO
+• Mục tiêu học tập: 
+Sử dụng math.pi, math.sqrt(), math.pow() và math.factorial().
+• Trực quan dễ nhớ: 
+Compa và máy tính khoa học giúp bé giải hình học cực nhanh.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import math
+print("So Pi =", math.pi)
+print("Can bac hai cua 49 la:", math.sqrt(49))
+print("2 mu 5 la:", math.pow(2, 5))
+print("5 giai thua (5!) la:", math.factorial(5))
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+So Pi = 3.141592653589793
+Can bac hai cua 49 la: 7.0
+2 mu 5 la: 32.0
+5 giai thua (5!) la: 120
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• math.pi: Hằng số số Pi xấp xỉ 3.14159...
+• math.sqrt(49): Tính căn bậc hai của 49 (ra 7.0).
+• math.pow(2, 5): Tính lũy thừa 2 mũ 5 (ra 32.0).
+• math.factorial(5): Tính giai thừa 5! = 1*2*3*4*5 = 120.
+✍️ Lưu ý quan trọng cho học viên: 
+Kết quả của sqrt() và pow() luôn luôn là kiểu số thực float.
+▶ BÀI 11: 
+THƯ VIỆN DATETIME — LÀM VIỆC VỚI NGÀY VÀ GIỜ
+• Mục tiêu học tập: 
+Lấy thời gian thực của máy tính và bóc tách Ngày, Tháng, Năm, Giờ, Phút.
+• Trực quan dễ nhớ: 
+Chiếc đồng hồ thông minh gắn trên máy tính báo cho chương trình biết giờ giấc.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import datetime
+now = datetime.datetime.now()
+print("Bay gio la:", now.hour, "gio", now.minute, "phut")
+print("Hom nay la ngay:", now.day, "thang", now.month, "nam", now.year)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Bay gio la: 20 gio 0 phut
+Hom nay la ngay: 28 thang 8 nam 2026
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• datetime.datetime.now(): Lấy thời gian hiện tại của hệ thống.
+• now.hour, now.minute: Lấy giờ và phút.
+• now.day, now.month, now.year: Lấy ngày, tháng và năm.
+✍️ Lưu ý quan trọng cho học viên: 
+Nếu chỉ muốn lấy ngày mà không cần giờ, dùng datetime.date.today().
+▶ CHƯƠNG 4 — BÀI TẬP 1 (GỐC): 
+MÔ PHỎNG TUNG XÚC XẮC N LẦN (DÙNG RANDOM)
+• Mục tiêu học tập: 
+Mô phỏng tung xúc xắc 6 mặt n lần và in ra tổng số điểm sau n lần tung.
+• Trực quan dễ nhớ: 
+Bé lắc xí ngầu từ 1 đến 6 chấm trong trò chơi cờ cá ngựa.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import random
+n = int(input("Nhap so lan tung: "))
+tong_diem = 0
+for i in range(1, n + 1):
+    diem = random.randint(1, 6)
+    print(f"Lan tung thu {i} duoc diem: {diem}")
+    tong_diem = tong_diem + diem
+print(f"Tong diem sau {n} lan tung: {tong_diem}")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so lan tung: 3
+Lan tung thu 1 duoc diem: 5
+Lan tung thu 2 duoc diem: 6
+Lan tung thu 3 duoc diem: 4
+Tong diem sau 3 lan tung: 15
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Mỗi lần lặp, random.randint(1, 6) sinh điểm ngẫu nhiên.
+• Cộng dồn điểm vào biến tong_diem và in kết quả cuối cùng.
+✍️ Lưu ý quan trọng cho học viên: 
+Đề bài yêu cầu chỉ in kết quả ra màn hình mà không cần return.
+▶ CHƯƠNG 4 — BÀI TẬP 2 (GỐC): 
+TÍNH DIỆN TÍCH, CHU VI & THỂ TÍCH HÌNH HỌC (DÙNG MATH)
+• Mục tiêu học tập: 
+Viết 3 hàm riêng biệt cho hình tròn (r), hình cầu (r) và hình trụ (r, h) theo đúng công thức.
+• Trực quan dễ nhớ: 
+Kiến trúc sư tính toán kích thước quả bóng tròn và lon nước ngọt hình trụ.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import math
+def hinh_tron(r):
+    chu_vi = 2 * math.pi * r
+    dien_tich = math.pi * (r ** 2)
+    print(f"Hinh tron ban kinh r = {r} , chu vi = {chu_vi:.2f} , dien tich = {dien_tich:.2f}")
+def hinh_cau(r):
+    the_tich = (4/3) * math.pi * (r ** 3)
+    print(f"Hinh cau ban kinh r = {r} , the tich = {the_tich:.2f}")
+def hinh_tru(r, h):
+    the_tich = math.pi * (r ** 2) * h
+    print(f"Hinh tru ban kinh r = {r} , chieu cao h = {h} , the tich = {the_tich:.2f}")
+hinh_tron(4)
+hinh_cau(4)
+hinh_tru(4, 10)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Hinh tron ban kinh r = 4 , chu vi = 25.13 , dien tich = 50.27
+Hinh cau ban kinh r = 4 , the tich = 268.08
+Hinh tru ban kinh r = 4 , chieu cao h = 10 , the tich = 502.65
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Hàm hinh_tron(r): Chu vi = 2πr, Diện tích = πr².
+• Hàm hinh_cau(r): Thể tích cầu = (4/3)πr³.
+• Hàm hinh_tru(r, h): Thể tích trụ = πr²h.
+• Dùng định dạng :.2f để làm tròn đúng 2 chữ số thập phân.
+✍️ Lưu ý quan trọng cho học viên: 
+Trong Python, phép tính lũy thừa viết là r ** 2 hoặc r ** 3.
+▶ CHƯƠNG 4 — BÀI TẬP 3 (GỐC): 
+HIỂN THỊ THỜI GIAN THEO ĐỊNH DẠNG DỄ ĐỌC (DATETIME)
+• Mục tiêu học tập: 
+Lấy thời gian hiện tại bằng datetime.datetime.now() và in định dạng theo mẫu giáo trình.
+• Trực quan dễ nhớ: 
+Bản tin dự báo thời tiết đọc thông báo giờ giấc chính xác cho mọi người.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import datetime
+now = datetime.datetime.now()
+print(f"Bay gio la {now.hour} : {now.minute} ngay {now.day} / {now.month} / {now.year}")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Bay gio la 9 : 36 ngay 22 / 12 / 2025
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Lấy thời gian thực của máy tính bằng datetime.datetime.now().
+• Dùng f-string sắp xếp thứ tự giờ : phút và ngày / tháng / năm.
+✍️ Lưu ý quan trọng cho học viên: 
+Có thể mở rộng thêm giây bằng cú pháp {now.second}.
+▶ CHƯƠNG 4 — BÀI TẬP 4 (GỐC): 
+TRÒ CHƠI ĐOÁN SỐ BÍ MẬT TỪ 1 ĐẾN 100 (RANDOM MINI GAME)
+• Mục tiêu học tập: 
+Tạo số bí mật bằng random.randint(1, 100), nhận số đoán và gợi ý Quá cao / Quá thấp.
+• Trực quan dễ nhớ: 
+Trò chơi 'Đi tìm kho báu' — máy tính là người quản trò thông thái dẫn đường cho bé.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import random
+so_bi_mat = random.randint(1, 100)
+print("====================================")
+print("Toi da nghi ra mot so tu 1 den 100.")
+print("Ban hay doan xem do la so gi!")
+print("====================================")
+while True:
+    doan = int(input("Nhap so cua ban: "))
+    
+    if doan == so_bi_mat:
+        print("Chuc mung! Ban da doan dung.")
+        break
+    elif doan < so_bi_mat:
+        print("So cua ban thap hon so bi mat. Hay thu so cao hon!")
+    else:
+        print("So cua ban cao hon so bi mat. Hay thu so thap hon!")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+====================================
+Toi da nghi ra mot so tu 1 den 100.
+Ban hay doan xem do la so gi!
+====================================
+Nhap so cua ban: 50
+So cua ban thap hon so bi mat. Hay thu so cao hon!
+Nhap so cua ban: 75
+So cua ban cao hon so bi mat. Hay thu so thap hon!
+Nhap so cua ban: 51
+Chuc mung! Ban da doan dung.
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• random.randint(1, 100): Chọn ngẫu nhiên số bí mật từ 1 đến 100.
+• Vòng lặp while True nhận số đoán cho đến khi đoán đúng.
+• Lệnh break kích hoạt khi doan == so_bi_mat để kết thúc game.
+✍️ Lưu ý quan trọng cho học viên: 
+Mẹo chiến thắng nhanh: Luôn đoán số ở chính giữa khoảng (Ví dụ 50 trước) để thu hẹp phạm vi nhanh nhất!
+▶ CHƯƠNG 4 — BÀI TẬP 5 (MỞ RỘNG MỚI): 
+MÁY TẠO MẬT KHẨU BẢO MẬT NGẪU NHIÊN (PASSWORD GENERATOR)
+• Mục tiêu học tập: 
+Tự động sinh chuỗi mật khẩu ngẫu nhiên có độ dài n gồm chữ hoa, chữ thường và chữ số bằng thư viện random.
+• Trực quan dễ nhớ: 
+Chiếc máy cấp mã khóa OTP ngân hàng tự động bảo mật tuyệt đối.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import random
+ky_tu = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*"
+do_dai = int(input("Do dai mat khau mong muon (vi du 8, 12): "))
+mat_khau_moi = ""
+for i in range(do_dai):
+    mat_khau_moi += random.choice(ky_tu)
+print("Mat khau ngau nhien an toan cua ban la:", mat_khau_moi)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Do dai mat khau mong muon (vi du 8, 12): 10
+Mat khau ngau nhien an toan cua ban la: K9#mP2$xR7
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• random.choice(ky_tu) chọn ngẫu nhiên một ký tự từ kho chuỗi ký tự an toàn.
+• Vòng lặp chạy n lần ghép nối các ký tự lại với nhau thành mật khẩu hoàn chỉnh.
+✍️ Lưu ý quan trọng cho học viên: 
+Mật khẩu ngẫu nhiên này có độ bảo mật cực cao, chống lại các phần mềm dò quét mật khẩu.
+▶ CHƯƠNG 4 — BÀI TẬP 6 (MỞ RỘNG MỚI): 
+ĐỒNG HỒ ĐẾM NGƯỢC THỜI GIAN ĐẾN NGÀY TẾT NGUYÊN ĐÁN
+• Mục tiêu học tập: 
+Sử dụng module datetime tính toán chính xác còn bao nhiêu ngày, giờ, phút nữa là đến thời khắc năm mới.
+• Trực quan dễ nhớ: 
+Đồng hồ đếm ngược giao thừa tại Quảng trường thành phố.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import datetime
+hom_nay = datetime.datetime.now()
+ngay_tet = datetime.datetime(2027, 1, 1, 0, 0, 0)
+khoang_cach = ngay_tet - hom_nay
+print(f"Thoi diem hien tai: {hom_nay.strftime('%d/%m/%Y %H:%M:%S')}")
+print(f"Con dung: {khoang_cach.days} ngay nua la den Tet!")
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Thoi diem hien tai: 28/08/2026 20:15:00
+Con dung: 125 ngay nua la den Tet!
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Phép trừ giữa 2 đối tượng datetime tạo ra một đối tượng khoảng thời gian timedelta.
+• khoang_cach.days trả về chính xác số ngày chênh lệch giữa 2 mốc thời gian.
+✍️ Lưu ý quan trọng cho học viên: 
+strftime('%d/%m/%Y %H:%M:%S') là phương thức định dạng ngày tháng năm giờ phút giây chuẩn quốc tế.
+═════ PHẦN 6: BÀI TẬP PYTHON NÂNG CAO TỔNG HỢP (6 DỰ ÁN NÂNG CAO) ═════
+Bộ bài tập dự án tích hợp Hàm (def), Danh sách (List), Từ điển (Dictionary), Xử lý chuỗi và Đồ họa Turtle.
+▶ DỰ ÁN TỔNG HỢP 1: 
+HÀM VẼ CHUỖI HÌNH VUÔNG NẰM NGANG TĂNG DẦN KÍCH THƯỚC (VE_CHUOI_HINH_VUONG)
+• Mục tiêu học tập: 
+Xây dựng hàm nhận vào List kích thước cạnh và khoảng cách dịch chuyển, vẽ các hình vuông nối tiếp nhau.
+• Trực quan dễ nhớ: 
+Xây dựng dãy nhà phố liên kế có diện tích mở rộng dần theo chiều ngang quy hoạch.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+def ve_chuoi_hinh_vuong(danh_sach_canh, khoang_cach):
+    print("Dang khoi chay giao dien Turtle de ve chuoi hinh vuong...")
+    but_ve = turtle.Turtle()
+    but_ve.pensize(2)
+    but_ve.speed(3)
+    
+    for canh in danh_sach_canh:
+        for i in range(4):
+            but_ve.forward(canh)
+            but_ve.right(90)
+        but_ve.penup()
+        but_ve.forward(canh + khoang_cach)
+        but_ve.pendown()
+    
+    turtle.done()
+n = int(input("So luong hinh vuong muon ve: "))
+danh_sach_canh = []
+for i in range(1, n + 1):
+    canh = int(input(f"Kich thuoc canh hinh thu {i}: "))
+    danh_sach_canh.append(canh)
+khoang_cach = int(input("Khoang cach dich chuyen giua cac hinh: "))
+ve_chuoi_hinh_vuong(danh_sach_canh, khoang_cach)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+So luong hinh vuong muon ve: 3
+Kich thuoc canh hinh thu 1: 40
+Kich thuoc canh hinh thu 2: 60
+Kich thuoc canh hinh thu 3: 80
+Khoang cach dich chuyen giua cac hinh: 20
+Dang khoi chay giao dien Turtle de ve chuoi hinh vuong...
+(Cửa sổ Turtle hiển thị 3 hình vuông nằm ngang lần lượt có cạnh 40, 60, 80 cách nhau 20 bước)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Hàm ve_chuoi_hinh_vuong nhận danh sách cạnh và khoảng cách dịch chuyển.
+• Vòng lặp ngoài duyệt từng kích thước; vòng lặp trong 4 lần vẽ hình vuông.
+• Sau mỗi hình, nhấc bút penup(), tiến tới đoạn (canh + khoang_cach), rồi hạ bút pendown().
+✍️ Lưu ý quan trọng cho học viên: 
+Dùng append() để thu thập các kích thước cạnh người dùng nhập vào mảng List trước khi gọi hàm.
+▶ DỰ ÁN TỔNG HỢP 2: 
+HÀM VẼ ĐA GIÁC HOA VĂN MÀU SẮC ĐỐI XỨNG (VE_DA_GIAC_MAU_SAC)
+• Mục tiêu học tập: 
+Duyệt Dictionary chứa cặp màu sắc và bán kính, dùng .strip() làm sạch chuỗi màu và vẽ bông hoa nhiều cánh xoay quanh tâm.
+• Trực quan dễ nhớ: 
+Bông hoa đa giác nhiều tầng nở rộ với các cánh hoa tròn đều tăm tắp bao quanh nhụy hoa.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+def ve_da_giac_mau_sac(tu_dien_mau, so_hinh_tron):
+    print("Dang mo giao dien Turtle de ve da giac mau sac...")
+    but_ve = turtle.Turtle()
+    but_ve.pensize(2)
+    but_ve.speed(4)
+    goc_quay = 360 / so_hinh_tron
+    
+    for mau, ban_kinh in tu_dien_mau.items():
+        mau_sach = mau.strip()
+        but_ve.color(mau_sach)
+        for i in range(so_hinh_tron):
+            but_ve.circle(ban_kinh)
+            but_ve.left(goc_quay)
+    
+    turtle.done()
+tu_dien_mau = {" red ": 50, " blue ": 80, " green ": 110}
+so_hinh_tron = int(input("Nhap so luong hinh tron muon lap lai tai moi tam: "))
+ve_da_giac_mau_sac(tu_dien_mau, so_hinh_tron)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so luong hinh tron muon lap lai tai moi tam: 4
+Dang mo giao dien Turtle de ve da giac mau sac...
+(Cửa sổ Turtle vẽ 3 cụm hoa văn 4 cánh lồng nhau tại tâm với 3 màu Đỏ - Xanh dương - Xanh lá, bán kính 50, 80, 110)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• tu_dien_mau.items(): Lấy ra từng cặp (màu sắc, bán kính) từ Dictionary.
+• mau.strip(): Cắt bỏ các khoảng trắng thừa ở hai đầu chuỗi màu tránh lỗi cho lệnh .color().
+• goc_quay = 360 / so_hinh_tron: Chia đều góc xoay để cánh hoa phân bố đối xứng hoàn hảo.
+✍️ Lưu ý quan trọng cho học viên: 
+Phương thức .strip() là kỹ thuật cơ bản giúp làm sạch dữ liệu đầu vào cực kỳ hữu ích.
+▶ DỰ ÁN TỔNG HỢP 3: 
+HÀM QUẢN LÝ VÀ XẾP LOẠI ĐIỂM HỌC SINH (LAP_DANH_SACH_LOP)
+• Mục tiêu học tập: 
+Nhập điểm cho danh sách học sinh có sẵn, lưu vào Dictionary và phân loại học lực Giỏi (>= 8.0) hoặc Đạt (< 8.0).
+• Trực quan dễ nhớ: 
+Hệ thống sổ điểm điện tử của giáo viên, tự động tổng hợp và xếp loại thi đua học kỳ.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def lap_danh_sach_lop(danh_sach_ten):
+    bang_diem = {}
+    for ten in danh_sach_ten:
+        diem = float(input(f"Nhap diem cho {ten}: "))
+        bang_diem[ten] = diem
+    
+    print("\n=== KET QUA XEP LOAI HOC LUC ===")
+    for ten, diem in bang_diem.items():
+        if diem >= 8.0:
+            xep_loai = "Gioi"
+        else:
+            xep_loai = "Dat"
+        print(f"Hoc sinh {ten} - Diem: {diem} - Xep loai: {xep_loai}")
+danh_sach_hoc_sinh = ["Nguyen Tri Dung", "Tran Thu Ha", "Le Minh Khoi"]
+lap_danh_sach_lop(danh_sach_hoc_sinh)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap diem cho Nguyen Tri Dung: 8.5
+Nhap diem cho Tran Thu Ha: 7.2
+Nhap diem cho Le Minh Khoi: 9.0
+=== KET QUA XEP LOAI HOC LUC ===
+Hoc sinh Nguyen Tri Dung - Diem: 8.5 - Xep loai: Gioi
+Hoc sinh Tran Thu Ha - Diem: 7.2 - Xep loai: Dat
+Hoc sinh Le Minh Khoi - Diem: 9.0 - Xep loai: Gioi
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Hàm lap_danh_sach_lop duyệt danh sách họ tên và gọi hàm input() nhập điểm.
+• float(input()): Ép kiểu dữ liệu điểm số sang dạng số thực.
+• bang_diem[ten] = diem: Lưu thông tin vào Dictionary với tên làm Key và điểm làm Value.
+• Cấu trúc if-else so sánh điểm >= 8.0 để gán xếp loại.
+✍️ Lưu ý quan trọng cho học viên: 
+Dùng Dictionary giúp tra cứu điểm của từng học sinh theo tên tức thì.
+▶ DỰ ÁN TỔNG HỢP 4: 
+HÀM KẾT HỢP LIST VẼ BIỂU ĐỒ CỘT TĂNG TRƯỞNG TURTLE (VE_BIEU_DO_TANG_TRUONG)
+• Mục tiêu học tập: 
+Nhận danh sách chiều cao cột và màu sắc, vẽ biểu đồ cột hình chữ nhật có khoảng cách trống 15 bước giữa các cột.
+• Trực quan dễ nhớ: 
+Biểu đồ thống kê kết quả học tập và phát triển của học viên trên màn hình trực quan.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+def ve_bieu_do_tang_truong(danh_sach_chieu_cao, mau_sac):
+    print("Dang ve bieu do cot tang truong tren Turtle...")
+    but_ve = turtle.Turtle()
+    but_ve.pensize(2)
+    but_ve.color(mau_sac)
+    but_ve.speed(3)
+    
+    do_rong = 30
+    for h in danh_sach_chieu_cao:
+        but_ve.forward(do_rong)
+        but_ve.left(90)
+        but_ve.forward(h)
+        but_ve.left(90)
+        but_ve.forward(do_rong)
+        but_ve.left(90)
+        but_ve.forward(h)
+        but_ve.left(90)
+        
+        but_ve.penup()
+        but_ve.forward(do_rong + 15)
+        but_ve.pendown()
+        
+    turtle.done()
+danh_sach_chieu_cao = [50, 120, 80, 150, 95]
+mau = input("Nhap mau sac cho bieu do tu ban phim: ")
+ve_bieu_do_tang_truong(danh_sach_chieu_cao, mau)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap mau sac cho bieu do tu ban phim: orange
+Dang ve bieu do cot tang truong tren Turtle...
+(Cửa sổ Turtle vẽ trục biểu đồ gồm 5 cột đứng màu cam có độ cao 50, 120, 80, 150, 95 cách đều nhau 15 bước)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Hàm ve_bieu_do_tang_truong duyệt qua từng chiều cao h trong danh sách.
+• Thuật toán vẽ 1 cột đứng: đi ngang do_rong (30 bước), đi lên h bước, đi ngang do_rong, đi xuống h bước.
+• Nhấc bút penup(), tiến tới đoạn (do_rong + 15 bước) để tạo khoảng cách đều giữa các cột.
+✍️ Lưu ý quan trọng cho học viên: 
+Đây là ứng dụng trực quan hóa dữ liệu (Data Visualization) thực tế bằng đồ họa Python.
+▶ DỰ ÁN TỔNG HỢP 5: 
+HÀM BỘ LỌC AN NINH QUÉT MÃ ĐĂNG KÝ VÀ CẬP NHẬT THÀNH VIÊN CLB (BO_LOC_DANG_KY_CLB)
+• Mục tiêu học tập: 
+Quét danh sách mã, làm sạch bằng .strip(), kiểm tra .isalnum() loại bỏ mã lỗi và nhập tên thành viên cho mã hợp lệ.
+• Trực quan dễ nhớ: 
+Cổng an ninh soát vé thông minh tự động quét mã thẻ thành viên câu lạc bộ trường học.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def bo_loc_dang_ky_clb(danh_sach_ma):
+    thanh_vien = {}
+    print("=== TIEN TRINH QUET MA DANG KY CLB ===")
+    for ma in danh_sach_ma:
+        ma_sach = ma.strip()
+        if ma_sach.isalnum():
+            ten = input(f"Ma hop le [{ma_sach}] -> Nhap ho ten hoc sinh: ")
+            thanh_vien[ma_sach] = ten
+        else:
+            print(f"Ma khong hop le [{ma_sach}] -> Da bi loai tu dong!")
+            
+    print("\n=== DANH SACH THANH VIEN CLB CHINH THUC ===")
+    for ma, ten in thanh_vien.items():
+        print(f"- Ma: {ma} | Ho ten: {ten}")
+danh_sach_ma = ["THPT2026", "KHTN 123", "CHUYEN_ANH", "TIN2K9"]
+bo_loc_dang_ky_clb(danh_sach_ma)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+=== TIEN TRINH QUET MA DANG KY CLB ===
+Ma hop le [THPT2026] -> Nhap ho ten hoc sinh: Nguyen Hoang Long
+Ma khong hop le [KHTN 123] -> Da bi loai tu dong!
+Ma khong hop le [CHUYEN_ANH] -> Da bi loai tu dong!
+Ma hop le [TIN2K9] -> Nhap ho ten hoc sinh: Phan My Linh
+=== DANH SACH THANH VIEN CLB CHINH THUC ===
+- Ma: THPT2026 | Ho ten: Nguyen Hoang Long
+- Ma: TIN2K9 | Ho ten: Phan My Linh
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• ma.strip(): Cắt bỏ các ký tự khoảng trắng thừa ở hai đầu chuỗi mã.
+• ma_sach.isalnum(): Kiểm tra chuỗi chỉ gồm chữ cái và số. Các mã có khoảng trắng ('KHTN 123') hoặc gạch dưới ('CHUYEN_ANH') bị loại tự động.
+• Đối với mã hợp lệ, kích hoạt input() nhập tên và lưu cặp {ma: ten} vào Dictionary thành viên.
+✍️ Lưu ý quan trọng cho học viên: 
+Phương thức isalnum() viết tắt của 'is alpha-numeric' (kiểm tra chữ và số kết hợp).
+▶ DỰ ÁN TỔNG HỢP 6: 
+HÀM VẼ HOA VĂN XOAY VÒNG TỪ ĐA GIÁC ĐỀU (VE_HOA_VAN_XOAY)
+• Mục tiêu học tập: 
+Xây dựng hàm nhận vào số cạnh, chiều dài cạnh, độ dày nét vẽ; dùng vòng lặp lồng nhau xoay 6 lần tạo hoa văn 6 cánh.
+• Trực quan dễ nhớ: 
+Kính vạn hoa nghệ thuật tạo nên những đóa hoa đối xứng hình học kỳ diệu.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import turtle
+def ve_hoa_van_xoay(so_canh, chieu_dai_canh, do_day):
+    print("Dang khoi tao thuat toan xoay da giac de tao hoa van nghe thuat...")
+    but_ve = turtle.Turtle()
+    but_ve.pensize(do_day)
+    but_ve.color("purple")
+    but_ve.speed(5)
+    
+    goc_da_giac = 360 / so_canh
+    goc_xoay_truc = 360 / 6
+    
+    for i in range(6):
+        for j in range(so_canh):
+            but_ve.forward(chieu_dai_canh)
+            but_ve.right(goc_da_giac)
+        but_ve.right(goc_xoay_truc)
+        
+    turtle.done()
+so_canh = int(input("Em muon canh hoa la hinh gi? (Nhap 3: Tam giac, 4: Hinh vuong, 5: Ngu giac): "))
+chieu_dai = int(input("Nhap chieu dai mot canh cua da giac: "))
+do_day = int(input("Nhap do day net ve (tu 1 den 5): "))
+ve_hoa_van_xoay(so_canh, chieu_dai, do_day)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Em muon canh hoa la hinh gi? (Nhap 3: Tam giac, 4: Hinh vuong, 5: Ngu giac): 4
+Nhap chieu dai mot canh cua da giac: 60
+Nhap do day net ve (tu 1 den 5): 2
+Dang khoi tao thuat toan xoay da giac de tao hoa van nghe thuat...
+(Cửa sổ Turtle vẽ một đóa hoa màu tím đối xứng gồm 6 hình vuông cạnh 60 xoay 60 độ quanh tâm)
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Hàm ve_hoa_van_xoay nhận cấu hình linh hoạt theo số cạnh người dùng chọn.
+• Vòng lặp ngoài chạy cố định 6 lần tạo 6 cánh hoa quanh trục; vòng lặp trong vẽ đa giác đều góc 360 / so_canh.
+• Vẽ xong một đa giác, xoay phải 60 độ (360 / 6) để chuyển trục cho cánh hoa tiếp theo.
+✍️ Lưu ý quan trọng cho học viên: 
+Học viên có thể thử nghiệm nhập so_canh = 3 (tam giác) hoặc so_canh = 5 (ngũ giác) để tạo ra các đóa hoa phong cách độc đáo khác.
+═════ PHẦN 7: KHO 10 BÀI TOÁN THỰC HÀNH TỰ LUẬN ĐỀ THI (CHUẨN BỊ CHO BÀI THI 4 CÂU RANDOM - 40 PHÚT) ═════
+Kho 10 bài toán lập trình hàm bám sát kiến thức khóa học, kèm code mẫu chuẩn và phân tích logic.
+▶ BÀI TỰ LUẬN 1: 
+HÀM TÍNH TỔNG HAI SỐ A VÀ B CÓ KIỂM TRA ĐẦU VÀO
+• Mục tiêu học tập: 
+Viết hàm giải quyết bài toán: HÀM TÍNH TỔNG HAI SỐ A VÀ B CÓ KIỂM TRA ĐẦU VÀO.
+• Trực quan dễ nhớ: 
+Khối xử lý logic độc lập, dễ dàng tái sử dụng nhiều lần trong chương trình.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def tinh_tong(a, b):
+    return a + b
+a = float(input('Nhap so a: '))
+b = float(input('Nhap so b: '))
+print('Tong hai so la:', tinh_tong(a, b))
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so a: 15
+Nhap so b: 25
+Tong hai so la: 40.0
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Hàm nhận 2 tham số và trả về tổng a + b.
+• Dùng float() để hỗ trợ tính cả số nguyên và số thực.
+✍️ Lưu ý quan trọng cho học viên: 
+Hãy kiểm tra các trường hợp biên của dữ liệu đầu vào để code hoạt động ổn định nhất.
+▶ BÀI TỰ LUẬN 2: 
+HÀM KIỂM TRA SỐ CHẴN HAY SỐ LẺ
+• Mục tiêu học tập: 
+Viết hàm giải quyết bài toán: HÀM KIỂM TRA SỐ CHẴN HAY SỐ LẺ.
+• Trực quan dễ nhớ: 
+Khối xử lý logic độc lập, dễ dàng tái sử dụng nhiều lần trong chương trình.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def kiem_tra_chan(n):
+    return n % 2 == 0
+n = int(input('Nhap so nguyen n: '))
+if kiem_tra_chan(n):
+    print(n, 'la so chan')
+else:
+    print(n, 'la so le')
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so nguyen n: 8
+8 la so chan
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Toán tử n % 2 == 0 trả về True nếu chia hết cho 2, ngược lại trả về False.
+✍️ Lưu ý quan trọng cho học viên: 
+Hãy kiểm tra các trường hợp biên của dữ liệu đầu vào để code hoạt động ổn định nhất.
+▶ BÀI TỰ LUẬN 3: 
+HÀM IN BẢNG CỬU CHƯƠNG TỪ 1 ĐẾN 10
+• Mục tiêu học tập: 
+Viết hàm giải quyết bài toán: HÀM IN BẢNG CỬU CHƯƠNG TỪ 1 ĐẾN 10.
+• Trực quan dễ nhớ: 
+Khối xử lý logic độc lập, dễ dàng tái sử dụng nhiều lần trong chương trình.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def in_bang_cuu_chuong(n):
+    print(f'Bang cuu chuong cua {n}:')
+    for i in range(1, 11):
+        print(f'{n} x {i} = {n * i}')
+n = int(input('Nhap so can in cuu chuong: '))
+in_bang_cuu_chuong(n)
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so can in cuu chuong: 7
+Bang cuu chuong cua 7:
+7 x 1 = 7
+7 x 2 = 14
+...
+7 x 10 = 70
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Dùng vòng lặp for i in range(1, 11) in 10 dòng phép nhân tương ứng.
+✍️ Lưu ý quan trọng cho học viên: 
+Hãy kiểm tra các trường hợp biên của dữ liệu đầu vào để code hoạt động ổn định nhất.
+▶ BÀI TỰ LUẬN 4: 
+HÀM TÍNH DIỆN TÍCH HÌNH TRÒN VỚI MATH.PI
+• Mục tiêu học tập: 
+Viết hàm giải quyết bài toán: HÀM TÍNH DIỆN TÍCH HÌNH TRÒN VỚI MATH.PI.
+• Trực quan dễ nhớ: 
+Khối xử lý logic độc lập, dễ dàng tái sử dụng nhiều lần trong chương trình.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+import math
+def tinh_dien_tich_tron(r):
+    return math.pi * (r ** 2)
+r = float(input('Nhap ban kinh r: '))
+print(f'Dien tich hinh tron la: {tinh_dien_tich_tron(r):.2f}')
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap ban kinh r: 5
+Dien tich hinh tron la: 78.54
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Sử dụng hằng số math.pi và phép lũy thừa r ** 2.
+• Định dạng :.2f để làm tròn 2 chữ số thập phân.
+✍️ Lưu ý quan trọng cho học viên: 
+Hãy kiểm tra các trường hợp biên của dữ liệu đầu vào để code hoạt động ổn định nhất.
+▶ BÀI TỰ LUẬN 5: 
+HÀM ĐẢO NGƯỢC XÂU KÝ TỰ (STRING SLICING)
+• Mục tiêu học tập: 
+Viết hàm giải quyết bài toán: HÀM ĐẢO NGƯỢC XÂU KÝ TỰ (STRING SLICING).
+• Trực quan dễ nhớ: 
+Khối xử lý logic độc lập, dễ dàng tái sử dụng nhiều lần trong chương trình.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def dao_nguoc_chuoi(s):
+    return s[::-1]
+s = input('Nhap chuoi can dao: ')
+print('Chuoi sau khi dao nguoc la:', dao_nguoc_chuoi(s))
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap chuoi can dao: Python Sao Viet
+Chuoi sau khi dao nguoc la: teiV oaS nohtyP
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Cú pháp s[::-1] bước nhảy -1 giúp đảo ngược toàn bộ chuỗi ký tự tức thì.
+✍️ Lưu ý quan trọng cho học viên: 
+Hãy kiểm tra các trường hợp biên của dữ liệu đầu vào để code hoạt động ổn định nhất.
+▶ BÀI TỰ LUẬN 6: 
+HÀM TÍNH GIAI THỪA CỦA MỘT SỐ NGUYÊN N!
+• Mục tiêu học tập: 
+Viết hàm giải quyết bài toán: HÀM TÍNH GIAI THỪA CỦA MỘT SỐ NGUYÊN N!.
+• Trực quan dễ nhớ: 
+Khối xử lý logic độc lập, dễ dàng tái sử dụng nhiều lần trong chương trình.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def tinh_giai_thua(n):
+    if n == 0 or n == 1:
+        return 1
+    gt = 1
+    for i in range(2, n + 1):
+        gt = gt * i
+    return gt
+n = int(input('Nhap so n (n >= 0): '))
+print(f'{n}! = {tinh_giai_thua(n)}')
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so n (n >= 0): 5
+5! = 120
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Giai thừa n! = 1 * 2 * ... * n.
+• Quy ước 0! = 1 và 1! = 1.
+✍️ Lưu ý quan trọng cho học viên: 
+Hãy kiểm tra các trường hợp biên của dữ liệu đầu vào để code hoạt động ổn định nhất.
+▶ BÀI TỰ LUẬN 7: 
+HÀM KIỂM TRA SỐ NGUYÊN TỐ TỐI ƯU
+• Mục tiêu học tập: 
+Viết hàm giải quyết bài toán: HÀM KIỂM TRA SỐ NGUYÊN TỐ TỐI ƯU.
+• Trực quan dễ nhớ: 
+Khối xử lý logic độc lập, dễ dàng tái sử dụng nhiều lần trong chương trình.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def kiem_tra_nguyen_to(n):
+    if n < 2:
+        return False
+    for i in range(2, int(n ** 0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+n = int(input('Nhap so can kiem tra: '))
+if kiem_tra_nguyen_to(n):
+    print(n, 'la so nguyen to')
+else:
+    print(n, 'khong phai so nguyen to')
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap so can kiem tra: 17
+17 la so nguyen to
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Số nguyên tố là số lớn hơn 1 và chỉ chia hết cho 1 và chính nó.
+• Kiểm tra chia hết từ 2 đến căn bậc hai của n để tối ưu tốc độ.
+✍️ Lưu ý quan trọng cho học viên: 
+Hãy kiểm tra các trường hợp biên của dữ liệu đầu vào để code hoạt động ổn định nhất.
+▶ BÀI TỰ LUẬN 8: 
+HÀM TÍNH CHU VI & DIỆN TÍCH HÌNH CHỮ NHẬT
+• Mục tiêu học tập: 
+Viết hàm giải quyết bài toán: HÀM TÍNH CHU VI & DIỆN TÍCH HÌNH CHỮ NHẬT.
+• Trực quan dễ nhớ: 
+Khối xử lý logic độc lập, dễ dàng tái sử dụng nhiều lần trong chương trình.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def tinh_hcn(dai, rong):
+    chu_vi = (dai + rong) * 2
+    dien_tich = dai * rong
+    return chu_vi, dien_tich
+dai = float(input('Nhap chieu dai: '))
+rong = float(input('Nhap chieu rong: '))
+cv, dt = tinh_hcn(dai, rong)
+print(f'Chu vi: {cv} | Dien tich: {dt}')
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap chieu dai: 12.5
+Nhap chieu rong: 7.5
+Chu vi: 40.0 | Dien tich: 93.75
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Hàm trả về đồng thời 2 giá trị (Tuple).
+• Giải nén kết quả vào 2 biến cv và dt.
+✍️ Lưu ý quan trọng cho học viên: 
+Hãy kiểm tra các trường hợp biên của dữ liệu đầu vào để code hoạt động ổn định nhất.
+▶ BÀI TỰ LUẬN 9: 
+HÀM CHUYỂN ĐỔI ĐỘ C SANG ĐỘ F
+• Mục tiêu học tập: 
+Viết hàm giải quyết bài toán: HÀM CHUYỂN ĐỔI ĐỘ C SANG ĐỘ F.
+• Trực quan dễ nhớ: 
+Khối xử lý logic độc lập, dễ dàng tái sử dụng nhiều lần trong chương trình.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def c_sang_f(c):
+    return (c * 9 / 5) + 32
+c = float(input('Nhap nhiet do (do C): '))
+print(f'{c} do C = {c_sang_f(c):.1f} do F')
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Nhap nhiet do (do C): 37
+37.0 do C = 98.6 do F
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Công thức chuyển đổi chuẩn: F = (C * 9/5) + 32.
+✍️ Lưu ý quan trọng cho học viên: 
+Hãy kiểm tra các trường hợp biên của dữ liệu đầu vào để code hoạt động ổn định nhất.
+▶ BÀI TỰ LUẬN 10: 
+HÀM IN DANH SÁCH CÁC SỐ CHẴN TỪ 1 ĐẾN 100
+• Mục tiêu học tập: 
+Viết hàm giải quyết bài toán: HÀM IN DANH SÁCH CÁC SỐ CHẴN TỪ 1 ĐẾN 100.
+• Trực quan dễ nhớ: 
+Khối xử lý logic độc lập, dễ dàng tái sử dụng nhiều lần trong chương trình.
+⌨️ MÃ NGUỒN PYTHON (GÕ VÀO MÁY):
+def in_so_chan_1_den_100():
+    print('Cac so chan tu 1 den 100:')
+    for i in range(2, 101, 2):
+        print(i, end=' ')
+    print()
+in_so_chan_1_den_100()
+🖥️ KẾT QUẢ IN RA MÀN HÌNH (OUTPUT):
+Cac so chan tu 1 den 100:
+2 4 6 8 10 12 14 16 18 20 ... 98 100
+📖 GIẢI THÍCH CHI TIẾT & SUY LUẬN LOGIC:
+• Hàm range(2, 101, 2) bắt đầu từ 2, kết thúc ở 100 với bước nhảy 2.
+• Tham số end=' ' giúp in các số nằm cùng trên một hàng ngang.
+✍️ Lưu ý quan trọng cho học viên: 
+Hãy kiểm tra các trường hợp biên của dữ liệu đầu vào để code hoạt động ổn định nhất.
+═════ BẢNG ĐÁNH GIÁ RÈN LUYỆN TOÀN KHÓA HỌC ═════
+Tích chọn và chấm điểm sau khi hoàn thành từng bài trên máy
+Nội Dung Bài Học & Dự Án Thực Hành
+Học Viên Tự Đánh Giá
+Thầy/Cô Nhận Xét
+Chương 5 - Bài 12: Khởi động thư viện Turtle
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 5 - Bài 13: Các lệnh điều khiển rùa cơ bản
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 5 - Bài tập 1: Hình vuông 4 màu rực rỡ
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 5 - Bài tập 2: Hình chữ nhật nét đậm màu tím
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 5 - Bài tập 3: Vẽ 2 hình vuông xa nhau
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 5 - Bài tập 4: Vẽ tam giác đều & đổi màu nền
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 5 - Bài tập 5 (Mới): Ngôi sao 5 cánh viền đỏ ruột vàng
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 5 - Bài tập 6 (Mới): Họa tiết xoắn ốc nghệ thuật
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 1 - Bài 1: Cơ bản về chuỗi & cắt chuỗi slicing
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 1 - Bài 2: Các phương thức xử lý chuỗi thường dùng
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 1 - Bài 3: Định dạng chuỗi với f-string
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 1 - Bài tập 1: Kiểm tra tên có số/khoảng trắng
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 1 - Bài tập 2: Chuẩn hóa họ tên
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 1 - Bài tập 3: Kiểm tra độ dài mật khẩu
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 1 - Bài tập 4 (Mới): Đếm nguyên âm và phụ âm
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 1 - Bài tập 5 (Mới): Ẩn thông tin số điện thoại
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 2 - Bài 4: Kiểu dữ liệu List & duyệt mảng vòng lặp
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 2 - Bài 5: Kiểu dữ liệu Dictionary (Khóa - Giá trị)
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 2 - Bài tập 1: Hồ sơ học sinh bằng Dictionary
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 2 - Bài tập 2: Tìm min/max & sắp xếp danh sách số
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 2 - Bài tập 3: Quản lý giỏ đồ chơi (List lồng Dict)
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 2 - Bài tập 4 (Mới): Tra cứu & cập nhật danh bạ SĐT
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 2 - Bài tập 5 (Mới): Thống kê tần suất từ vựng
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 3 - Bài 6: Khái niệm và cấu trúc hàm trong Python
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 3 - Bài 7: Định nghĩa, tham số, return & None
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 3 - Bài tập 1: Hàm kiểm tra chẵn/lẻ
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 3 - Bài tập 2: Hàm tính tổng 1 đến n
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 3 - Bài tập 3: Hàm in bảng cửu chương
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 3 - Bài tập 4: Dự án máy tính 4 phép tính
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 3 - Bài tập 5 (Mới): Hàm kiểm tra số đối xứng
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 3 - Bài tập 6 (Mới): Hàm tính chỉ số BMI
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 4 - Bài 8: Giới thiệu thư viện & cú pháp import
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 4 - Bài 9: Thư viện Random sinh số & bốc thăm
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 4 - Bài 10: Thư viện Math & các phép toán nâng cao
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 4 - Bài 11: Thư viện Datetime làm việc với ngày giờ
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 4 - Bài tập 1: Mô phỏng xúc xắc
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 4 - Bài tập 2: Tính hình tròn, cầu, trụ
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 4 - Bài tập 3: In ngày giờ hiện tại
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 4 - Bài tập 4: Trò chơi đoán số 1-100
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 4 - Bài tập 5 (Mới): Máy tạo mật khẩu ngẫu nhiên
+[  ] Hoàn thành
+⭐⭐⭐
+Chương 4 - Bài tập 6 (Mới): Đếm ngược ngày đến Tết
+[  ] Hoàn thành
+⭐⭐⭐
+Dự án 1: Chuỗi hình vuông tăng dần kích thước
+[  ] Hoàn thành
+⭐⭐⭐
+Dự án 2: Đa giác hoa văn màu sắc lồng nhau
+[  ] Hoàn thành
+⭐⭐⭐
+Dự án 3: Quản lý & phân loại điểm học sinh
+[  ] Hoàn thành
+⭐⭐⭐
+Dự án 4: Biểu đồ cột tăng trưởng Turtle
+[  ] Hoàn thành
+⭐⭐⭐
+Dự án 5: Bộ lọc an ninh quét mã CLB
+[  ] Hoàn thành
+⭐⭐⭐
+Dự án 6: Hoa văn xoay vòng từ đa giác đều
+[  ] Hoàn thành
+⭐⭐⭐
+Đề thi Thực hành: 10 Bài toán viết hàm hoàn chỉnh
+[  ] Hoàn thành
+⭐⭐⭐
