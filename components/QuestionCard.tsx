@@ -368,17 +368,25 @@ export default function QuestionCard({
 
               return leftList.map((lVal: string, idx: number) => (
                 <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "center" }}>
-                  <div style={{ padding: "0.6rem 0.8rem", background: "rgba(30, 41, 59, 0.85)", color: "#f8fafc", border: "1px solid #334155", borderRadius: "var(--radius-xs)", fontSize: "0.86rem", fontWeight: 700 }}>
+                  <div style={{ padding: "0.65rem 0.9rem", background: "rgba(30, 41, 59, 0.9)", color: "#ffffff", border: "1.5px solid #475569", borderRadius: "8px", fontSize: "0.88rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
                     {lVal}
                   </div>
                   <select
                     className="form-select"
                     value={pairs[lVal] || ""}
                     onChange={(e) => handleMatchSelect(lVal, e.target.value)}
+                    style={{
+                      background: "rgba(15, 23, 42, 0.95)",
+                      color: "#f8fafc",
+                      border: "1.5px solid #475569",
+                      padding: "0.65rem 0.85rem",
+                      borderRadius: "8px",
+                      fontSize: "0.86rem"
+                    }}
                   >
-                    <option value="">-- Chọn ghép cặp --</option>
+                    <option value="" style={{ background: "#0f172a", color: "#94a3b8" }}>-- Chọn ghép cặp --</option>
                     {rightList.map((rVal: string, rIdx: number) => (
-                      <option key={rIdx} value={rVal}>{rVal}</option>
+                      <option key={rIdx} value={rVal} style={{ background: "#0f172a", color: "#f8fafc" }}>{rVal}</option>
                     ))}
                   </select>
                 </div>

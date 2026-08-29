@@ -116,10 +116,12 @@ export default function AIChatAssistant() {
             maxWidth: "calc(100vw - 48px)",
             height: "560px",
             maxHeight: "calc(100vh - 120px)",
-            background: "#ffffff",
+            background: "rgba(15, 23, 42, 0.96)",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
             borderRadius: "var(--radius-xl)",
-            boxShadow: "0 25px 60px -15px rgba(15, 23, 42, 0.35)",
-            border: "1px solid var(--border-light)",
+            boxShadow: "0 25px 60px -15px rgba(0, 0, 0, 0.7)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
             display: "flex",
             flexDirection: "column",
             zIndex: 999,
@@ -180,7 +182,7 @@ export default function AIChatAssistant() {
               display: "flex",
               flexDirection: "column",
               gap: "12px",
-              background: "var(--bg-main)"
+              background: "#0a0f1d"
             }}
           >
             {messages.map((m, idx) => (
@@ -190,15 +192,15 @@ export default function AIChatAssistant() {
                   alignSelf: m.role === "user" ? "flex-end" : "flex-start",
                   maxWidth: "90%",
                   background: m.role === "user" 
-                    ? "linear-gradient(135deg, #1d4ed8, #2563eb)" 
-                    : "#ffffff",
-                  color: m.role === "user" ? "#ffffff" : "var(--text-primary)",
-                  padding: "10px 14px",
+                    ? "linear-gradient(135deg, #2563eb, #1d4ed8)" 
+                    : "rgba(30, 41, 59, 0.95)",
+                  color: m.role === "user" ? "#ffffff" : "#f8fafc",
+                  padding: "11px 15px",
                   borderRadius: m.role === "user" ? "16px 16px 2px 16px" : "16px 16px 16px 2px",
-                  border: m.role === "user" ? "none" : "1px solid var(--border-light)",
+                  border: m.role === "user" ? "none" : "1px solid #334155",
                   fontSize: "0.88rem",
-                  lineHeight: "1.55",
-                  boxShadow: "0 2px 8px rgba(15, 23, 42, 0.04)",
+                  lineHeight: "1.6",
+                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.25)",
                   position: "relative"
                 }}
               >
@@ -221,7 +223,7 @@ export default function AIChatAssistant() {
                     }}
                     title="Sao chép câu trả lời"
                   >
-                    {copiedIdx === idx ? <Check size={11} color="green" /> : <Copy size={11} />}
+                    {copiedIdx === idx ? <Check size={11} color="#34d399" /> : <Copy size={11} />}
                   </button>
                 )}
               </div>
@@ -231,18 +233,18 @@ export default function AIChatAssistant() {
               <div
                 style={{
                   alignSelf: "flex-start",
-                  background: "#ffffff",
+                  background: "rgba(30, 41, 59, 0.9)",
                   padding: "10px 14px",
                   borderRadius: "14px",
-                  border: "1px solid var(--border-light)",
+                  border: "1px solid #334155",
                   fontSize: "0.84rem",
-                  color: "var(--text-muted)",
+                  color: "#cbd5e1",
                   display: "flex",
                   alignItems: "center",
                   gap: "6px"
                 }}
               >
-                <Sparkles size={14} color="var(--brand-primary)" />
+                <Sparkles size={14} color="#38bdf8" />
                 <span>Thầy AI đang đối chiếu bài học và soạn lời giảng...</span>
               </div>
             )}
@@ -252,9 +254,9 @@ export default function AIChatAssistant() {
           {/* Quick Prompts Chips */}
           <div
             style={{
-              padding: "6px 12px",
-              background: "#f1f5f9",
-              borderTop: "1px solid var(--border-light)",
+              padding: "8px 12px",
+              background: "rgba(15, 23, 42, 0.95)",
+              borderTop: "1px solid rgba(255, 255, 255, 0.1)",
               display: "flex",
               gap: "6px",
               overflowX: "auto",
@@ -262,23 +264,47 @@ export default function AIChatAssistant() {
             }}
           >
             <button
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: "0.75rem", padding: "3px 8px", borderRadius: "10px" }}
               onClick={() => handleSendMessage("Em muốn hiểu rõ cách hoạt động của hàm len() và chỉ số âm s[-1] trong Python.")}
+              style={{
+                fontSize: "0.76rem",
+                padding: "4px 10px",
+                borderRadius: "8px",
+                background: "rgba(30, 41, 59, 0.85)",
+                color: "#e2e8f0",
+                border: "1px solid #334155",
+                cursor: "pointer",
+                fontWeight: 600
+              }}
             >
               len() & chỉ số âm
             </button>
             <button
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: "0.75rem", padding: "3px 8px", borderRadius: "10px" }}
               onClick={() => handleSendMessage("Giải thích cách dùng Turtle: penup, pendown và vòng lặp for vẽ đa giác.")}
+              style={{
+                fontSize: "0.76rem",
+                padding: "4px 10px",
+                borderRadius: "8px",
+                background: "rgba(30, 41, 59, 0.85)",
+                color: "#e2e8f0",
+                border: "1px solid #334155",
+                cursor: "pointer",
+                fontWeight: 600
+              }}
             >
               Đồ họa Turtle
             </button>
             <button
-              className="btn btn-secondary btn-sm"
-              style={{ fontSize: "0.75rem", padding: "3px 8px", borderRadius: "10px" }}
               onClick={() => handleSendMessage("Chỉ cho em mẹo phân biệt List, Tuple, Set và Dictionary trong Python.")}
+              style={{
+                fontSize: "0.76rem",
+                padding: "4px 10px",
+                borderRadius: "8px",
+                background: "rgba(30, 41, 59, 0.85)",
+                color: "#e2e8f0",
+                border: "1px solid #334155",
+                cursor: "pointer",
+                fontWeight: 600
+              }}
             >
               List vs Dict vs Tuple
             </button>
@@ -288,8 +314,8 @@ export default function AIChatAssistant() {
           <div
             style={{
               padding: "10px 14px",
-              background: "#ffffff",
-              borderTop: "1px solid var(--border-light)",
+              background: "rgba(15, 23, 42, 0.98)",
+              borderTop: "1px solid rgba(255, 255, 255, 0.1)",
               display: "flex",
               gap: "8px",
               alignItems: "center"
@@ -297,12 +323,21 @@ export default function AIChatAssistant() {
           >
             <input
               type="text"
-              className="form-input"
               value={inputPrompt}
               onChange={(e) => setInputPrompt(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
               placeholder="Nhập câu hỏi cần Thầy AI giải đáp..."
-              style={{ fontSize: "0.9rem", height: "40px" }}
+              style={{
+                fontSize: "0.9rem",
+                height: "40px",
+                flex: 1,
+                padding: "0 12px",
+                borderRadius: "8px",
+                background: "rgba(30, 41, 59, 0.8)",
+                border: "1.5px solid #334155",
+                color: "#ffffff",
+                outline: "none"
+              }}
             />
             <button
               className="btn btn-primary btn-sm"
