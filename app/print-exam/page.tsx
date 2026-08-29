@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { getQuestionsData, getPracticalsData } from "@/lib/questionsData";
 import { Question, PracticalProblem } from "@/types";
 import { DEFAULT_SUBJECTS } from "@/lib/usersData";
@@ -12,17 +12,31 @@ import { Printer, Shuffle, FileText, KeyRound, BookOpen, Code2 } from "lucide-re
 export default function PrintExamPage() {
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("python");
   const [printMode, setPrintMode] = useState<"exam_student" | "exam_key" | "all_120">("exam_student");
-  const [examQuestions, setExamQuestions] = useState<Question[]>(() => {
-    return [...getQuestionsData()].slice(0, 50);
-  });
-  const [examPracticals, setExamPracticals] = useState<PracticalProblem[]>(() => {
-    return [...getPracticalsData()].slice(0, 4);
-  });
+  const [examQuestions, setExamQuestions] = useState<Question[]>([]);
+  const [examPracticals, setExamPracticals] = useState<PracticalProblem[]>([]);
+  const [allQuestionsPool, setAllQuestionsPool] = useState<Question[]>([]);
+  const [allPracticalsPool, setAllPracticalsPool] = useState<PracticalProblem[]>([]);
   const [examCode, setExamCode] = useState("MÃ ĐỀ 101");
 
+  useEffect(() => {
+    fetch("/api/questions")
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.success) {
+          const qs: Question[] = data.questions || [];
+          const ps: PracticalProblem[] = data.practical_problems || [];
+          setAllQuestionsPool(qs);
+          setAllPracticalsPool(ps);
+          setExamQuestions([...qs].slice(0, 50));
+          setExamPracticals([...ps].slice(0, 4));
+        }
+      })
+      .catch(() => null);
+  }, []);
+
   const handleShuffleNewExam = () => {
-    const allQ = getQuestionsData();
-    const allP = getPracticalsData();
+    const allQ = allQuestionsPool.length > 0 ? allQuestionsPool : getQuestionsData();
+    const allP = allPracticalsPool.length > 0 ? allPracticalsPool : getPracticalsData();
     const shuffledQ = [...allQ].sort(() => Math.random() - 0.5).slice(0, Math.min(50, allQ.length));
     const shuffledP = [...allP].sort(() => Math.random() - 0.5).slice(0, Math.min(4, allP.length));
     const randCode = "MÃ ĐỀ " + Math.floor(100 + Math.random() * 900);

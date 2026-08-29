@@ -8,17 +8,8 @@ export async function GET() {
     const qCol = db.collection("questions");
     const pCol = db.collection("practical_problems");
 
-    let questions = await qCol.find({}).toArray();
-    let practicals = await pCol.find({}).toArray();
-
-    if (questions.length === 0) {
-      await qCol.insertMany(QUESTIONS_DATA as any);
-      questions = await qCol.find({}).toArray();
-    }
-    if (practicals.length === 0) {
-      await pCol.insertMany(PRACTICAL_DATA as any);
-      practicals = await pCol.find({}).toArray();
-    }
+    const questions = await qCol.find({}).sort({ id: 1 }).toArray();
+    const practicals = await pCol.find({}).sort({ id: 1 }).toArray();
 
     return NextResponse.json({
       success: true,
@@ -30,8 +21,8 @@ export async function GET() {
   } catch (error: any) {
     return NextResponse.json({
       success: true,
-      questions: QUESTIONS_DATA,
-      practical_problems: PRACTICAL_DATA,
+      questions: [],
+      practical_problems: [],
       isFallback: true,
       note: error.message
     });
