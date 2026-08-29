@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { User } from "@/types";
 import { getCurrentUser, loginUser, logStudyTime } from "@/lib/usersData";
-import { Lock, LogIn, Sparkles, Eye, EyeOff } from "lucide-react";
+import { Sparkles, Eye, EyeOff } from "lucide-react";
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -15,8 +15,8 @@ interface AuthGateProps {
 
 export default function AuthGate({ 
   children, 
-  pageTitle = "Khu Vực Học Tập & Khảo Thí", 
-  pageDescription = "Vui lòng đăng nhập bằng tài khoản học viên do Trung tâm cấp để tiếp tục.",
+  pageTitle = "Đăng Nhập Khóa Học", 
+  pageDescription = "Học viên đăng nhập bằng SĐT được Quản lý chi nhánh cấp",
   mode = "study",
   subjectId = "python"
 }: AuthGateProps) {
@@ -74,7 +74,7 @@ export default function AuthGate({
   if (isChecking) {
     return (
       <div style={{ padding: "4rem 1rem", textAlign: "center" }}>
-        <div style={{ color: "var(--brand-primary)", fontWeight: 700, fontSize: "1.1rem" }}>
+        <div style={{ color: "#00f5c8", fontWeight: 700, fontSize: "1.1rem" }}>
           Đang kiểm tra phiên đăng nhập...
         </div>
       </div>
@@ -87,111 +87,119 @@ export default function AuthGate({
 
   return (
     <div style={{
-      maxWidth: "480px",
-      margin: "3rem auto",
+      maxWidth: "440px",
+      margin: "3.5rem auto",
       padding: "0 1rem"
     }}>
       <div style={{
-        background: "rgba(4, 10, 26, 0.88)",
+        background: "rgba(4, 12, 34, 0.88)",
         backdropFilter: "blur(24px)",
         WebkitBackdropFilter: "blur(24px)",
-        border: "1px solid rgba(0, 200, 180, 0.2)",
-        borderRadius: "20px",
-        padding: "2.8rem 2.2rem",
+        border: "1.5px solid rgba(0, 245, 200, 0.28)",
+        borderRadius: "24px",
+        padding: "2.6rem 2.2rem",
         textAlign: "center",
-        boxShadow: "0 0 60px rgba(0, 100, 200, 0.15), 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(0,200,180,0.1)",
+        boxShadow: "0 25px 60px rgba(0, 0, 0, 0.75), 0 0 45px rgba(0, 245, 200, 0.18), inset 0 0 25px rgba(0, 245, 200, 0.04)",
         position: "relative",
         overflow: "hidden"
       }}>
-        {/* Top accent line */}
+        {/* Top Glowing Shimmer Line */}
         <div style={{
-          position: "absolute", top: 0, left: 0, right: 0, height: "2px",
-          background: "linear-gradient(90deg, transparent, rgba(0,245,200,0.6), rgba(80,160,255,0.4), transparent)"
+          position: "absolute",
+          top: 0,
+          left: "15%",
+          right: "15%",
+          height: "2px",
+          background: "linear-gradient(90deg, transparent, rgba(0, 245, 200, 0.7), transparent)",
+          boxShadow: "0 0 10px rgba(0, 245, 200, 0.6)"
         }} />
 
-        {/* Logo */}
+        {/* Glowing Star Icon (Exact Mockup Match) */}
         <div style={{
-          width: "72px",
-          height: "72px",
-          borderRadius: "18px",
-          background: "linear-gradient(135deg, rgba(0, 200, 160, 0.18), rgba(0, 80, 200, 0.18))",
-          border: "1px solid rgba(0, 245, 200, 0.35)",
-          boxShadow: "0 0 24px rgba(0, 200, 180, 0.2)",
-          color: "#00f5c8",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          margin: "0 auto 1.4rem"
+          marginBottom: "1.2rem"
         }}>
-          <Lock size={32} />
+          <div style={{
+            width: "64px",
+            height: "64px",
+            borderRadius: "18px",
+            background: "linear-gradient(135deg, rgba(0, 245, 200, 0.15), rgba(14, 165, 233, 0.15))",
+            border: "1.5px solid rgba(0, 245, 200, 0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#00f5c8",
+            boxShadow: "0 0 25px rgba(0, 245, 200, 0.35), inset 0 0 15px rgba(0, 245, 200, 0.1)"
+          }}>
+            <Sparkles size={32} />
+          </div>
         </div>
 
-        <h2 style={{ fontSize: "1.5rem", fontWeight: 900, marginBottom: "0.4rem", letterSpacing: "-0.5px", color: "#f1f5f9" }}>
+        <h2 style={{
+          fontSize: "1.55rem",
+          fontWeight: 900,
+          marginBottom: "1.5rem",
+          letterSpacing: "-0.5px",
+          color: "#ffffff",
+          fontFamily: "var(--font-heading)"
+        }}>
           {pageTitle}
         </h2>
-        <p style={{ color: "#64748b", fontSize: "0.88rem", marginBottom: "1.6rem", lineHeight: "1.5" }}>
-          {pageDescription}
-        </p>
 
-        <div style={{
-          background: "rgba(0, 40, 60, 0.5)",
-          border: "1px solid rgba(0, 200, 180, 0.2)",
-          borderRadius: "10px",
-          padding: "0.85rem 1rem",
-          marginBottom: "1.5rem",
-          fontSize: "0.82rem",
-          color: "#94a3b8",
-          textAlign: "left",
-          lineHeight: "1.6"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, color: "#00f5c8", marginBottom: "0.3rem" }}>
-            <Sparkles size={14} />
-            <span>Quy định tài khoản học viên Sao Việt:</span>
-          </div>
-          <div>• <strong>Tên đăng nhập:</strong> Số điện thoại học viên (VD: <code style={{ background: "rgba(0,200,180,0.1)", padding: "1px 5px", borderRadius: "4px", color: "#00f5c8" }}>0937482673</code>)</div>
-          <div>• <strong>Mật khẩu chuẩn:</strong> Tên + SĐT (VD: <code style={{ background: "rgba(0,200,180,0.1)", padding: "1px 5px", borderRadius: "4px", color: "#00f5c8" }}>Thien0937482673</code>)</div>
-          <div style={{ marginTop: "0.3rem", fontSize: "0.78rem", color: "#475569" }}>
-            ⏱️ Phiên học tự động hết hạn sau 3 giờ học liên tục.
-          </div>
-        </div>
-
-        <form onSubmit={handleInlineLogin} style={{ display: "flex", flexDirection: "column", gap: "1rem", textAlign: "left" }}>
+        <form onSubmit={handleInlineLogin} style={{ display: "flex", flexDirection: "column", gap: "1.1rem", textAlign: "left" }}>
           {loginError && (
             <div style={{
               color: "#fb7185",
-              fontSize: "0.85rem",
-              background: "rgba(244, 63, 94, 0.1)",
-              border: "1px solid rgba(244, 63, 94, 0.25)",
-              padding: "0.75rem 1rem",
+              fontSize: "0.84rem",
+              background: "rgba(244, 63, 94, 0.12)",
+              border: "1px solid rgba(244, 63, 94, 0.3)",
+              padding: "0.65rem 0.9rem",
               borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              gap: "0.5rem"
+              textAlign: "center"
             }}>
-              <span>⚠️</span>
-              <span>{loginError}</span>
+              {loginError}
             </div>
           )}
 
           <div>
-            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.35rem", color: "#94a3b8" }}>
-              Tên Đăng Nhập / SĐT:
+            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.4rem", color: "#cbd5e1" }}>
+              SĐT
             </label>
             <input
               type="text"
               required
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="VD: 0937482673 hoặc admin"
-              className="input"
-              style={{ width: "100%" }}
+              placeholder="Phone SĐT (VD: 0937482673)"
+              style={{
+                width: "100%",
+                padding: "0.85rem 1.1rem",
+                background: "rgba(10, 20, 48, 0.75)",
+                border: "1.5px solid rgba(0, 245, 200, 0.35)",
+                borderRadius: "12px",
+                color: "#ffffff",
+                fontSize: "0.92rem",
+                outline: "none",
+                boxShadow: "0 0 15px rgba(0, 245, 200, 0.08)",
+                transition: "all 0.2s ease"
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = "#00f5c8";
+                e.currentTarget.style.boxShadow = "0 0 20px rgba(0, 245, 200, 0.25)";
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = "rgba(0, 245, 200, 0.35)";
+                e.currentTarget.style.boxShadow = "0 0 15px rgba(0, 245, 200, 0.08)";
+              }}
               autoFocus
             />
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.35rem", color: "#94a3b8" }}>
-              Mật Khẩu:
+            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.4rem", color: "#cbd5e1" }}>
+              Mật khẩu
             </label>
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
               <input
@@ -199,16 +207,34 @@ export default function AuthGate({
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="VD: Thien0937482673..."
-                className="input"
-                style={{ width: "100%", paddingRight: "40px" }}
+                placeholder="Mật khẩu"
+                style={{
+                  width: "100%",
+                  padding: "0.85rem 1.1rem",
+                  paddingRight: "44px",
+                  background: "rgba(10, 20, 48, 0.75)",
+                  border: "1.5px solid rgba(255, 255, 255, 0.12)",
+                  borderRadius: "12px",
+                  color: "#ffffff",
+                  fontSize: "0.92rem",
+                  outline: "none",
+                  transition: "all 0.2s ease"
+                }}
+                onFocus={(e) => {
+                  e.currentTarget.style.borderColor = "#00f5c8";
+                  e.currentTarget.style.boxShadow = "0 0 20px rgba(0, 245, 200, 0.25)";
+                }}
+                onBlur={(e) => {
+                  e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.12)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 style={{
                   position: "absolute",
-                  right: "10px",
+                  right: "12px",
                   background: "none",
                   border: "none",
                   cursor: "pointer",
@@ -216,18 +242,52 @@ export default function AuthGate({
                   padding: "4px"
                 }}
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
 
-          <button type="submit" className="btn btn-primary btn-block btn-lg" style={{ marginTop: "0.4rem" }}>
-            <LogIn size={18} />
-            <span>Đăng Nhập Vào Học Ngay</span>
+          {/* Exact Mockup Cyan Gradient Full-Width Pill Button */}
+          <button
+            type="submit"
+            style={{
+              marginTop: "0.6rem",
+              width: "100%",
+              padding: "0.95rem 1.5rem",
+              borderRadius: "9999px",
+              background: "linear-gradient(135deg, #00f5c8 0%, #0ea5e9 100%)",
+              color: "#020a14",
+              fontWeight: 900,
+              fontSize: "1rem",
+              border: "none",
+              cursor: "pointer",
+              letterSpacing: "0.04em",
+              boxShadow: "0 6px 25px rgba(0, 245, 200, 0.45)",
+              transition: "all 0.25s cubic-bezier(0.16, 1, 0.3, 1)"
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = "translateY(-2px) scale(1.015)";
+              e.currentTarget.style.boxShadow = "0 10px 32px rgba(0, 245, 200, 0.65)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = "none";
+              e.currentTarget.style.boxShadow = "0 6px 25px rgba(0, 245, 200, 0.45)";
+            }}
+          >
+            ĐĂNG NHẬP
           </button>
         </form>
+
+        {/* Clean Footer Hint (Exact Mockup Match) */}
+        <div style={{
+          marginTop: "1.4rem",
+          fontSize: "0.85rem",
+          color: "#94a3b8",
+          fontWeight: 600
+        }}>
+          Mật khẩu = Tên + SĐT
+        </div>
       </div>
     </div>
   );
 }
-
