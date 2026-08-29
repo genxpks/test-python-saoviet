@@ -1,14 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import TiltCard3D from "./TiltCard3D";
-import { 
-  Building2, 
-  MapPin, 
-  Phone, 
-  UserCheck, 
-  Sparkles
-} from "lucide-react";
+
+// 10 Atomic Micro-Components
+import NetworkSectionHeader from "./network/NetworkSectionHeader";
+import BranchGridContainer from "./network/BranchGridContainer";
+import BranchMapLinkAction from "./network/BranchMapLinkAction";
+import BranchSupportCallout from "./network/BranchSupportCallout";
 
 interface BranchItem {
   code: string;
@@ -69,110 +67,19 @@ export default function BranchNetworkLayer() {
 
   return (
     <section style={{ marginBottom: "4rem" }}>
-      {/* Section Header */}
-      <div style={{ textAlign: "center", marginBottom: "2.2rem" }}>
-        <div style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          background: "rgba(37, 99, 235, 0.08)",
-          color: "var(--brand-primary)",
-          padding: "0.3rem 0.85rem",
-          borderRadius: "var(--radius-full)",
-          fontSize: "0.8rem",
-          fontWeight: 800,
-          marginBottom: "0.6rem"
-        }}>
-          <Building2 size={14} />
-          <span>MẠNG LƯỚI CHI NHÁNH ĐÀO TẠO</span>
-        </div>
+      {/* 1. Header Micro-Component */}
+      <NetworkSectionHeader />
 
-        <h2 style={{ fontSize: "1.9rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
-          Hệ Thống 4 Cơ Sở Đào Tạo Chuẩn Phòng Lab Tại TP.HCM
-        </h2>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
-          Phòng máy lạnh hiện đại 100%, kết nối mạng riêng bảo mật, hỗ trợ giáo viên kèm 1:1 trong suốt quá trình ôn tập và thi cử.
-        </p>
-      </div>
+      {/* 2. Grid Container with 3D Branch Cards */}
+      <BranchGridContainer
+        branches={BRANCHES}
+        activeBranchCode={activeBranch.code}
+        onSelectBranch={setActiveBranch}
+      />
 
-      {/* 4 Branch Cards Grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(270px, 1fr))", gap: "1.2rem" }}>
-        {BRANCHES.map((b) => {
-          const isSelected = activeBranch.code === b.code;
-
-          return (
-            <TiltCard3D key={b.code} maxTilt={6} scale={1.015}>
-              <div
-                onClick={() => setActiveBranch(b)}
-                className="q-card"
-                style={{
-                  cursor: "pointer",
-                  padding: "1.5rem",
-                  border: isSelected ? "2px solid var(--brand-primary)" : "1px solid var(--border-light)",
-                  background: isSelected ? "linear-gradient(145deg, rgba(37, 99, 235, 0.04), rgba(255, 255, 255, 0.95))" : "var(--surface-card)",
-                  boxShadow: isSelected ? "0 14px 30px -8px rgba(37, 99, 235, 0.15)" : "var(--shadow-subtle)",
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  height: "100%",
-                  borderRadius: "var(--radius-md)"
-                }}
-              >
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.8rem" }}>
-                    <span style={{
-                      fontSize: "0.72rem",
-                      fontWeight: 800,
-                      color: "var(--brand-primary)",
-                      background: "var(--brand-primary-light)",
-                      padding: "0.2rem 0.6rem",
-                      borderRadius: "var(--radius-full)",
-                      border: "1px solid rgba(37, 99, 235, 0.2)"
-                    }}>
-                      {b.district}
-                    </span>
-                    <span style={{ fontSize: "0.75rem", fontWeight: 800, color: "var(--text-muted)" }}>
-                      MÃ: {b.code}
-                    </span>
-                  </div>
-
-                  <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.6rem", color: "var(--text-primary)" }}>
-                    {b.name}
-                  </h3>
-
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.4rem" }}>
-                    <MapPin size={15} color="var(--brand-primary)" style={{ flexShrink: 0, marginTop: "2px" }} />
-                    <span>{b.address}</span>
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.4rem" }}>
-                    <Phone size={15} color="var(--brand-emerald)" />
-                    <span>Hotline: <strong>{b.phone}</strong></span>
-                  </div>
-
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.84rem", color: "var(--text-secondary)", marginBottom: "0.8rem" }}>
-                    <UserCheck size={15} color="var(--brand-violet)" />
-                    <span>Phụ trách: <strong>{b.manager}</strong></span>
-                  </div>
-                </div>
-
-                <div style={{
-                  background: "var(--surface-subtle)",
-                  padding: "0.6rem 0.8rem",
-                  borderRadius: "var(--radius-sm)",
-                  fontSize: "0.78rem",
-                  color: "var(--text-muted)",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center"
-                }}>
-                  <span>{b.rooms}</span>
-                </div>
-              </div>
-            </TiltCard3D>
-          );
-        })}
-      </div>
+      {/* 3. Support Callout & Footnotes */}
+      <BranchSupportCallout />
+      <BranchMapLinkAction />
     </section>
   );
 }

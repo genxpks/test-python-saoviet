@@ -1,20 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import TiltCard3D from "./TiltCard3D";
 import { 
   FileCode2, 
   Terminal, 
   Layers, 
-  Cpu, 
-  ChevronRight, 
-  CheckCircle2, 
-  Sparkles, 
-  BookOpen, 
-  ArrowRight,
-  Code2
+  Cpu 
 } from "lucide-react";
+
+// 10 Atomic Micro-Components
+import CurriculumSectionHeader from "./curriculum/CurriculumSectionHeader";
+import SubjectTrackList from "./curriculum/SubjectTrackList";
+import SyllabusInspectorPanel from "./curriculum/SyllabusInspectorPanel";
 
 interface SubjectTrack {
   id: string;
@@ -122,182 +119,23 @@ export default function SubjectMatrixLayer() {
 
   return (
     <section style={{ marginBottom: "4rem" }}>
-      {/* Section Header */}
-      <div style={{ textAlign: "center", marginBottom: "2.2rem" }}>
-        <div style={{
-          display: "inline-flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          background: "rgba(37, 99, 235, 0.08)",
-          color: "var(--brand-primary)",
-          padding: "0.3rem 0.85rem",
-          borderRadius: "var(--radius-full)",
-          fontSize: "0.8rem",
-          fontWeight: 800,
-          marginBottom: "0.6rem"
-        }}>
-          <Code2 size={14} />
-          <span>DANH MỤC KHÓA HỌC CHUẨN ĐẦU RA</span>
-        </div>
+      {/* 1. Header Micro-Component */}
+      <CurriculumSectionHeader />
 
-        <h2 style={{ fontSize: "1.9rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
-          Ma Trận Đào Tạo 4 Bộ Môn Lập Trình Trọng Điểm
-        </h2>
-        <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
-          Chương trình biên soạn độc quyền của Tin Học Sao Việt, kết hợp bài giảng lý thuyết cô đọng và thực chiến phòng máy 100%.
-        </p>
-      </div>
-
-      {/* Main Grid: Left track selector & Right curriculum inspector */}
+      {/* 2. Main Grid: Left track list & Right syllabus inspector */}
       <div 
         className="hero-grid-responsive"
         style={{ display: "grid", gridTemplateColumns: "1fr 1.3fr", gap: "1.5rem", alignItems: "stretch" }}
       >
-        {/* Left Column: 4 Subject Selector Cards */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-          {TRACKS.map((track) => {
-            const Icon = track.icon;
-            const isSelected = selectedTrack.id === track.id;
+        {/* Left: 4 Subject Selector Cards */}
+        <SubjectTrackList
+          tracks={TRACKS}
+          selectedTrackId={selectedTrack.id}
+          onSelectTrack={setSelectedTrack}
+        />
 
-            return (
-              <TiltCard3D key={track.id} maxTilt={6} scale={1.01}>
-                <div
-                  onClick={() => setSelectedTrack(track)}
-                  className="q-card"
-                  style={{
-                    cursor: "pointer",
-                    padding: "1.2rem 1.4rem",
-                    border: isSelected ? `2px solid ${track.color}` : "1px solid var(--border-light)",
-                    background: isSelected ? track.bgGradient : "var(--surface-card)",
-                    boxShadow: isSelected ? `0 10px 25px -5px rgba(0, 0, 0, 0.08)` : "var(--shadow-subtle)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    borderRadius: "var(--radius-md)"
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                    <div style={{
-                      width: "44px",
-                      height: "44px",
-                      borderRadius: "12px",
-                      background: isSelected ? track.color : "var(--surface-subtle)",
-                      color: isSelected ? "#ffffff" : track.color,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      transition: "all 0.25s ease"
-                    }}>
-                      <Icon size={22} />
-                    </div>
-
-                    <div>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                        <span style={{ fontSize: "0.72rem", fontWeight: 800, color: track.color, background: "rgba(0,0,0,0.04)", padding: "1px 6px", borderRadius: "4px" }}>
-                          {track.code}
-                        </span>
-                        <h3 style={{ fontSize: "1.05rem", fontWeight: 800, margin: 0 }}>{track.name}</h3>
-                      </div>
-                      <p style={{ fontSize: "0.8rem", color: "var(--text-muted)", margin: "0.2rem 0 0" }}>
-                        {track.modulesCount} chương học • {track.runtime}
-                      </p>
-                    </div>
-                  </div>
-
-                  <ChevronRight size={18} color={isSelected ? track.color : "#94a3b8"} />
-                </div>
-              </TiltCard3D>
-            );
-          })}
-        </div>
-
-        {/* Right Column: Detailed Interactive Syllabus Card */}
-        <TiltCard3D maxTilt={5} scale={1.01}>
-          <div className="q-card" style={{
-            padding: "2rem",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-            borderTop: `4px solid ${selectedTrack.color}`,
-            background: "var(--surface-card)",
-            height: "100%",
-            borderRadius: "var(--radius-lg)"
-          }}>
-            <div>
-              {/* Header info */}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.2rem" }}>
-                <div>
-                  <span style={{
-                    fontSize: "0.75rem",
-                    fontWeight: 800,
-                    color: selectedTrack.color,
-                    background: `${selectedTrack.color}15`,
-                    padding: "0.2rem 0.6rem",
-                    borderRadius: "var(--radius-full)",
-                    display: "inline-block",
-                    marginBottom: "0.4rem"
-                  }}>
-                    CHI TIẾT CHƯƠNG TRÌNH ĐÀO TẠO
-                  </span>
-                  <h3 style={{ fontSize: "1.35rem", fontWeight: 900, color: "var(--text-primary)" }}>
-                    {selectedTrack.name}
-                  </h3>
-                  <p style={{ fontSize: "0.88rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
-                    {selectedTrack.tagline}
-                  </p>
-                </div>
-              </div>
-
-              {/* Module Topics Checklist */}
-              <div style={{ marginBottom: "1.5rem" }}>
-                <h4 style={{ fontSize: "0.85rem", fontWeight: 800, textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "0.6rem", letterSpacing: "0.04em" }}>
-                  Lộ Trình Các Chương Trọng Điểm:
-                </h4>
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
-                  {selectedTrack.highlightTopics.map((topic, idx) => (
-                    <div key={idx} style={{ display: "flex", alignItems: "flex-start", gap: "0.6rem", fontSize: "0.88rem", color: "var(--text-secondary)" }}>
-                      <CheckCircle2 size={16} color={selectedTrack.color} style={{ minWidth: "16px", marginTop: "3px" }} />
-                      <span>{topic}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Sample Code Preview */}
-              <div style={{
-                background: "#070d19",
-                border: "1px solid #1e293b",
-                borderRadius: "var(--radius-md)",
-                padding: "0.9rem 1.1rem",
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.82rem",
-                marginBottom: "1.5rem"
-              }}>
-                <div style={{ display: "flex", justifyContent: "space-between", color: "#94a3b8", fontSize: "0.72rem", marginBottom: "0.3rem" }}>
-                  <span># Câu hỏi trích đoạn mẫu:</span>
-                  <span style={{ color: selectedTrack.color }}>{selectedTrack.runtime}</span>
-                </div>
-                <div style={{ color: "#f8fafc", marginBottom: "0.4rem", fontWeight: 600 }}>
-                  Q: {selectedTrack.sampleQuestion}
-                </div>
-                <pre style={{ margin: 0, color: "#38bdf8", overflowX: "auto" }}>
-                  {selectedTrack.sampleCode}
-                </pre>
-              </div>
-            </div>
-
-            {/* Bottom CTA to study page */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: "1rem", borderTop: "1px solid var(--border-light)" }}>
-              <div style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
-                Chứng nhận cấp bởi <strong>Tin Học Sao Việt</strong>
-              </div>
-              <Link href="/study" className="btn btn-primary btn-sm" style={{ gap: "0.4rem" }}>
-                <span>Vào Ôn Luyện Bộ Môn Này</span>
-                <ArrowRight size={14} />
-              </Link>
-            </div>
-          </div>
-        </TiltCard3D>
+        {/* Right: Detailed Interactive Syllabus Inspector */}
+        <SyllabusInspectorPanel selectedTrack={selectedTrack} />
       </div>
     </section>
   );
