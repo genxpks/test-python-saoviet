@@ -11,12 +11,9 @@ import {
   AlertTriangle, 
   X, 
   RefreshCw, 
-  HelpCircle, 
   Layers, 
-  ArrowRight,
   ClipboardPaste,
   FileCode2,
-  Sparkles,
   Info
 } from "lucide-react";
 
@@ -35,7 +32,7 @@ export default function ExcelQuestionImporter({
   onImportSuccess,
   onClose
 }: ExcelQuestionImporterProps) {
-  const [selectedSubject, setSelectedSubject] = useState(currentSubjectId || "python_advanced");
+  const [selectedSubject, setSelectedSubject] = useState(currentSubjectId || "python");
   const [selectedBranch, setSelectedBranch] = useState("all");
   const [overwrite, setOverwrite] = useState(false);
   const [mode, setMode] = useState<"file" | "paste">("file");
@@ -79,7 +76,7 @@ export default function ExcelQuestionImporter({
     }
   };
 
-  // 3. Xử lý khi dán bảng tính từ Excel (TSV / Clipboard)
+  // 3. Xử lý khi dán bảng tính từ Excel
   const handleParsePaste = () => {
     if (!pasteText.trim()) {
       setErrors(["Vui lòng dán dữ liệu bảng tính từ Excel trước khi bấm phân tích."]);
@@ -96,7 +93,7 @@ export default function ExcelQuestionImporter({
 
       lines.forEach((line, idx) => {
         const parts = line.split("\t");
-        if (parts.length < 3) return; // Bỏ qua dòng quá ngắn
+        if (parts.length < 3) return;
 
         const qTypeRaw = (parts[1] || "single_choice").trim().toLowerCase();
         const qContent = (parts[2] || "").trim();
@@ -171,7 +168,7 @@ export default function ExcelQuestionImporter({
 
       const data = await res.json();
       if (data.success) {
-        alert(`🎉 Thành công! Đã nạp ${data.inserted_count} câu hỏi vào CSDL MongoDB Atlas.`);
+        alert(`🎉 Thành công! Đã nạp ${data.inserted_count} câu hỏi vào CSDL cho môn ${selectedSubject.toUpperCase()}.`);
         onImportSuccess(data.inserted_count);
         onClose();
       } else {
@@ -185,37 +182,83 @@ export default function ExcelQuestionImporter({
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content" style={{ maxWidth: "960px", maxHeight: "90vh", overflowY: "auto" }}>
+    <div style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(15, 23, 42, 0.6)",
+      backdropFilter: "blur(6px)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000,
+      padding: "1rem"
+    }}>
+      <div style={{
+        background: "#ffffff",
+        color: "#0f172a",
+        maxWidth: "960px",
+        width: "100%",
+        maxHeight: "92vh",
+        overflowY: "auto",
+        padding: "2rem",
+        borderRadius: "20px",
+        border: "1px solid #e2e8f0",
+        boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.2)",
+        position: "relative"
+      }}>
         {/* Header */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border-light)", paddingBottom: "1rem", marginBottom: "1.2rem" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-            <div style={{ padding: "0.5rem", background: "rgba(16, 185, 129, 0.1)", borderRadius: "var(--radius-md)", color: "var(--brand-emerald)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #e2e8f0", paddingBottom: "1rem", marginBottom: "1.2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "#ecfdf5", color: "#059669", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <FileSpreadsheet size={24} />
             </div>
             <div>
-              <h3 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0 }}>Nhập Câu Hỏi Hàng Loạt Từ Excel</h3>
-              <p style={{ margin: 0, fontSize: "0.84rem", color: "var(--text-muted)" }}>
-                Hỗ trợ import định dạng .xlsx, .csv và dán trực tiếp từ bảng tính cho 6 dạng câu hỏi.
+              <h3 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
+                Nạp Bộ Câu Hỏi & Đề Thi Hàng Loạt Từ Excel
+              </h3>
+              <p style={{ margin: "0.2rem 0 0", fontSize: "0.82rem", color: "#64748b" }}>
+                Hỗ trợ import định dạng .xlsx, .csv và dán trực tiếp từ bảng tính cho 6 dạng câu hỏi trắc nghiệm.
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="btn btn-secondary btn-sm" style={{ padding: "0.4rem" }}>
+          <button
+            onClick={onClose}
+            style={{
+              background: "#f1f5f9",
+              border: "none",
+              borderRadius: "50%",
+              width: "32px",
+              height: "32px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "#64748b"
+            }}
+          >
             <X size={18} />
           </button>
         </div>
 
-        {/* Cấu hình Target Subject & Branch */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.2rem", background: "var(--bg-light)", padding: "1rem", borderRadius: "var(--radius-md)", border: "1px solid var(--border-light)" }}>
+        {/* Target Subject & Branch */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1.2rem", background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
           <div>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.4rem" }}>
-              1. Chọn Môn Học / Ngôn Ngữ:
+            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+              1. Chọn Môn Học Đích: *
             </label>
             <select
               value={selectedSubject}
               onChange={(e) => setSelectedSubject(e.target.value)}
-              className="input"
-              style={{ width: "100%", fontWeight: 600 }}
+              style={{
+                width: "100%",
+                padding: "0.65rem 0.85rem",
+                borderRadius: "10px",
+                border: "1px solid #cbd5e1",
+                background: "#ffffff",
+                color: "#0f172a",
+                fontWeight: 700,
+                fontSize: "0.85rem"
+              }}
             >
               {subjects.map(s => (
                 <option key={s.id} value={s.id}>{s.name} ({s.code})</option>
@@ -224,14 +267,22 @@ export default function ExcelQuestionImporter({
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, marginBottom: "0.4rem" }}>
-              2. Áp dụng cho Chi Nhánh:
+            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+              2. Áp Dụng Cho Chi Nhánh:
             </label>
             <select
               value={selectedBranch}
               onChange={(e) => setSelectedBranch(e.target.value)}
-              className="input"
-              style={{ width: "100%", fontWeight: 600 }}
+              style={{
+                width: "100%",
+                padding: "0.65rem 0.85rem",
+                borderRadius: "10px",
+                border: "1px solid #cbd5e1",
+                background: "#ffffff",
+                color: "#0f172a",
+                fontWeight: 600,
+                fontSize: "0.85rem"
+              }}
             >
               <option value="all">🌐 Toàn bộ Chi nhánh (Ngân hàng chung)</option>
               {branches.map(b => (
@@ -241,44 +292,81 @@ export default function ExcelQuestionImporter({
           </div>
         </div>
 
-        {/* Tab chuyển đổi File / Paste */}
-        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+        {/* Tab Selection */}
+        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
           <button
             onClick={() => setMode("file")}
-            className={`btn ${mode === "file" ? "btn-primary" : "btn-secondary"} btn-sm`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              padding: "0.55rem 1rem",
+              borderRadius: "8px",
+              border: "1px solid",
+              borderColor: mode === "file" ? "#2563eb" : "#cbd5e1",
+              background: mode === "file" ? "#eff6ff" : "#ffffff",
+              color: mode === "file" ? "#1d4ed8" : "#475569",
+              fontWeight: 700,
+              fontSize: "0.82rem",
+              cursor: "pointer"
+            }}
           >
             <Upload size={15} />
             <span>Kéo Thả / Tải File .xlsx</span>
           </button>
           <button
             onClick={() => setMode("paste")}
-            className={`btn ${mode === "paste" ? "btn-primary" : "btn-secondary"} btn-sm`}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              padding: "0.55rem 1rem",
+              borderRadius: "8px",
+              border: "1px solid",
+              borderColor: mode === "paste" ? "#2563eb" : "#cbd5e1",
+              background: mode === "paste" ? "#eff6ff" : "#ffffff",
+              color: mode === "paste" ? "#1d4ed8" : "#475569",
+              fontWeight: 700,
+              fontSize: "0.82rem",
+              cursor: "pointer"
+            }}
           >
             <ClipboardPaste size={15} />
-            <span>Dán Trực Tiếp Bảng Tính Excel</span>
+            <span>Dán Trực Tiếp Từ Excel</span>
           </button>
           <div style={{ flex: 1 }} />
           <button
             onClick={handleDownloadTemplate}
-            className="btn btn-secondary btn-sm"
-            style={{ color: "var(--brand-emerald)", borderColor: "var(--brand-emerald)" }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              padding: "0.55rem 1rem",
+              borderRadius: "8px",
+              border: "1px solid #10b981",
+              background: "#ecfdf5",
+              color: "#059669",
+              fontWeight: 700,
+              fontSize: "0.82rem",
+              cursor: "pointer"
+            }}
           >
             <Download size={15} />
             <span>📄 Tải File Excel Mẫu Chuẩn</span>
           </button>
         </div>
 
-        {/* Khu vực Upload File */}
+        {/* Upload File Zone */}
         {mode === "file" ? (
           <div
             onClick={() => fileInputRef.current?.click()}
             style={{
-              border: "2px dashed var(--border-medium)",
-              borderRadius: "var(--radius-lg)",
-              padding: "2rem",
+              border: "2px dashed #cbd5e1",
+              borderRadius: "16px",
+              padding: "2.5rem 1.5rem",
               textAlign: "center",
               cursor: "pointer",
-              background: file ? "rgba(16, 185, 129, 0.05)" : "var(--bg-card)",
+              background: file ? "#ecfdf5" : "#f8fafc",
               transition: "all 0.2s"
             }}
           >
@@ -289,23 +377,23 @@ export default function ExcelQuestionImporter({
               accept=".xlsx, .xls, .csv"
               style={{ display: "none" }}
             />
-            <Upload size={36} color={file ? "var(--brand-emerald)" : "var(--text-muted)"} style={{ margin: "0 auto 0.5rem" }} />
+            <Upload size={38} color={file ? "#059669" : "#94a3b8"} style={{ margin: "0 auto 0.6rem" }} />
             {file ? (
               <div>
-                <p style={{ fontWeight: 800, color: "var(--brand-emerald)", fontSize: "1rem", margin: "0 0 0.2rem" }}>
-                  Đã nạp file: {file.name}
+                <p style={{ fontWeight: 800, color: "#059669", fontSize: "1rem", margin: "0 0 0.2rem" }}>
+                  Đã chọn file: {file.name}
                 </p>
-                <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0 }}>
-                  Dung lượng: {(file.size / 1024).toFixed(1)} KB • Nhấn để chọn file khác
+                <p style={{ fontSize: "0.82rem", color: "#64748b", margin: 0 }}>
+                  Dung lượng: {(file.size / 1024).toFixed(1)} KB • Nhấp để đổi file khác
                 </p>
               </div>
             ) : (
               <div>
-                <p style={{ fontWeight: 700, fontSize: "0.95rem", margin: "0 0 0.3rem" }}>
-                  Nhấp vào đây hoặc kéo thả file Excel (.xlsx, .csv) vào khung này
+                <p style={{ fontWeight: 700, fontSize: "0.95rem", color: "#334155", margin: "0 0 0.25rem" }}>
+                  Nhấp để tải file Excel hoặc kéo thả vào đây
                 </p>
-                <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0 }}>
-                  Hệ thống tự động đọc cấu trúc 6 dạng câu hỏi và đối chiếu đáp án.
+                <p style={{ fontSize: "0.82rem", color: "#94a3b8", margin: 0 }}>
+                  Hỗ trợ các định dạng .xlsx, .xls hoặc .csv
                 </p>
               </div>
             )}
@@ -313,85 +401,92 @@ export default function ExcelQuestionImporter({
         ) : (
           <div>
             <textarea
+              rows={6}
               value={pasteText}
               onChange={(e) => setPasteText(e.target.value)}
-              placeholder="Bôi đen các ô trong Excel -> Nhấn Ctrl+C -> Nhấn Ctrl+V dán vào đây..."
-              rows={6}
-              className="input"
-              style={{ width: "100%", fontFamily: "monospace", fontSize: "0.85rem" }}
+              placeholder="Copy dữ liệu từ bảng tính Excel và dán (Ctrl + V) vào đây..."
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                borderRadius: "10px",
+                border: "1px solid #cbd5e1",
+                fontFamily: "var(--font-mono)",
+                fontSize: "0.84rem",
+                background: "#ffffff",
+                color: "#0f172a"
+              }}
             />
             <button
               onClick={handleParsePaste}
-              className="btn btn-primary btn-sm"
-              style={{ marginTop: "0.5rem" }}
-              disabled={isParsing || !pasteText.trim()}
+              style={{
+                marginTop: "0.5rem",
+                padding: "0.55rem 1rem",
+                borderRadius: "8px",
+                border: "none",
+                background: "#2563eb",
+                color: "#ffffff",
+                fontWeight: 700,
+                fontSize: "0.82rem",
+                cursor: "pointer"
+              }}
             >
-              <RefreshCw size={14} className={isParsing ? "spin" : ""} />
-              <span>Phân Tích Dữ Liệu Dán</span>
+              Phân Tích Dữ Liệu Dán
             </button>
           </div>
         )}
 
-        {/* Thông báo Lỗi nếu có */}
-        {errors.length > 0 && (
-          <div style={{ marginTop: "1rem", padding: "0.85rem 1rem", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "var(--radius-md)", color: "#b91c1c", fontSize: "0.85rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700, marginBottom: "0.3rem" }}>
-              <AlertTriangle size={16} />
-              <span>Phát hiện {errors.length} cảnh báo / lỗi định dạng:</span>
-            </div>
-            <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
-              {errors.slice(0, 5).map((e, idx) => (
-                <li key={idx}>{e}</li>
-              ))}
-              {errors.length > 5 && <li>... và {errors.length - 5} cảnh báo khác.</li>}
-            </ul>
+        {/* Parsing / Errors / Preview */}
+        {isParsing && (
+          <div style={{ textAlign: "center", padding: "1rem", color: "#2563eb", fontWeight: 700 }}>
+            ⏳ Đang phân tích dữ liệu câu hỏi...
           </div>
         )}
 
-        {/* Bảng Preview Câu Hỏi */}
-        {parsedQuestions.length > 0 && (
-          <div style={{ marginTop: "1.5rem" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <CheckCircle2 size={18} color="var(--brand-emerald)" />
-                <span style={{ fontWeight: 800, fontSize: "0.95rem" }}>
-                  Xem trước: Đã đọc được {parsedQuestions.length} câu hỏi hợp lệ
-                </span>
-              </div>
+        {errors.length > 0 && (
+          <div style={{ marginTop: "1rem", padding: "0.85rem", background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "10px", color: "#b91c1c", fontSize: "0.82rem" }}>
+            <div style={{ fontWeight: 700, marginBottom: "0.3rem" }}>⚠️ Có lỗi khi phân tích file:</div>
+            {errors.map((err, i) => <div key={i}>• {err}</div>)}
+          </div>
+        )}
 
-              <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.85rem", cursor: "pointer", color: "var(--text-secondary)" }}>
+        {parsedQuestions.length > 0 && (
+          <div style={{ marginTop: "1.2rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
+              <div style={{ fontWeight: 800, fontSize: "0.92rem", color: "#059669" }}>
+                ✅ Đã phân tích thành công: {parsedQuestions.length} câu hỏi hợp lệ
+              </div>
+              <label style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", color: "#475569", cursor: "pointer" }}>
                 <input
                   type="checkbox"
                   checked={overwrite}
                   onChange={(e) => setOverwrite(e.target.checked)}
+                  style={{ accentColor: "#2563eb" }}
                 />
-                <span>Xóa các câu hỏi cũ của môn này trước khi nạp mới</span>
+                <span>Xóa câu hỏi cũ cùng môn trước khi nạp</span>
               </label>
             </div>
 
-            <div style={{ maxHeight: "250px", overflowY: "auto", border: "1px solid var(--border-light)", borderRadius: "var(--radius-md)" }}>
-              <table style={{ width: "100%", fontSize: "0.82rem", borderCollapse: "collapse" }}>
-                <thead>
-                  <tr style={{ background: "var(--bg-light)", borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
-                    <th style={{ padding: "0.5rem 0.8rem", width: "40px" }}>STT</th>
-                    <th style={{ padding: "0.5rem 0.8rem", width: "130px" }}>Dạng Câu</th>
-                    <th style={{ padding: "0.5rem 0.8rem" }}>Nội Dung Đề Bài</th>
-                    <th style={{ padding: "0.5rem 0.8rem", width: "90px" }}>Đáp Án</th>
+            <div style={{ maxHeight: "220px", overflowY: "auto", border: "1px solid #e2e8f0", borderRadius: "10px" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.82rem" }}>
+                <thead style={{ background: "#f1f5f9", textAlign: "left", position: "sticky", top: 0 }}>
+                  <tr>
+                    <th style={{ padding: "0.5rem 0.75rem" }}>#</th>
+                    <th style={{ padding: "0.5rem 0.75rem" }}>Dạng</th>
+                    <th style={{ padding: "0.5rem 0.75rem" }}>Nội Dung Câu Hỏi</th>
+                    <th style={{ padding: "0.5rem 0.75rem" }}>Đáp Án</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {parsedQuestions.map((q, idx) => (
-                    <tr key={idx} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                      <td style={{ padding: "0.5rem 0.8rem", fontWeight: 700 }}>{idx + 1}</td>
-                      <td style={{ padding: "0.5rem 0.8rem" }}>
-                        <span className="badge badge-primary" style={{ fontSize: "0.72rem" }}>
+                  {parsedQuestions.map((q, i) => (
+                    <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                      <td style={{ padding: "0.45rem 0.75rem", fontWeight: 700 }}>{i + 1}</td>
+                      <td style={{ padding: "0.45rem 0.75rem" }}>
+                        <span style={{ padding: "0.1rem 0.4rem", borderRadius: "4px", background: "#eff6ff", color: "#1d4ed8", fontSize: "0.72rem", fontWeight: 700 }}>
                           {q.type}
                         </span>
                       </td>
-                      <td style={{ padding: "0.5rem 0.8rem", color: "var(--text-primary)" }}>
-                        {q.question.slice(0, 85)}{q.question.length > 85 ? "..." : ""}
-                      </td>
-                      <td style={{ padding: "0.5rem 0.8rem", fontWeight: 700, color: "var(--brand-emerald-dark)" }}>
+                      <td style={{ padding: "0.45rem 0.75rem" }}>{q.question}</td>
+                      <td style={{ padding: "0.45rem 0.75rem", fontWeight: 700, color: "#059669" }}>
                         {JSON.stringify(q.correct_answer)}
                       </td>
                     </tr>
@@ -399,33 +494,48 @@ export default function ExcelQuestionImporter({
                 </tbody>
               </table>
             </div>
+
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem", marginTop: "1rem" }}>
+              <button
+                type="button"
+                onClick={onClose}
+                style={{
+                  padding: "0.65rem 1.25rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#475569",
+                  fontWeight: 600,
+                  fontSize: "0.85rem",
+                  cursor: "pointer"
+                }}
+              >
+                Hủy
+              </button>
+              <button
+                type="button"
+                disabled={isSubmitting}
+                onClick={handleSubmitToDatabase}
+                style={{
+                  padding: "0.65rem 1.4rem",
+                  borderRadius: "10px",
+                  border: "none",
+                  background: "linear-gradient(135deg, #059669, #047857)",
+                  color: "#ffffff",
+                  fontWeight: 700,
+                  fontSize: "0.85rem",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.4rem"
+                }}
+              >
+                <CheckCircle2 size={16} />
+                <span>{isSubmitting ? "Đang nạp vào CSDL..." : `Nạp ${parsedQuestions.length} Câu Vào Môn ${selectedSubject.toUpperCase()}`}</span>
+              </button>
+            </div>
           </div>
         )}
-
-        {/* Footer Actions */}
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.8rem", marginTop: "1.5rem", borderTop: "1px solid var(--border-light)", paddingTop: "1rem" }}>
-          <button onClick={onClose} className="btn btn-secondary">
-            Hủy Bỏ
-          </button>
-          <button
-            onClick={handleSubmitToDatabase}
-            disabled={parsedQuestions.length === 0 || isSubmitting}
-            className="btn btn-primary btn-lg"
-            style={{ background: "linear-gradient(135deg, var(--brand-primary), var(--brand-emerald))" }}
-          >
-            {isSubmitting ? (
-              <>
-                <RefreshCw size={16} className="spin" />
-                <span>Đang Nạp Vào MongoDB...</span>
-              </>
-            ) : (
-              <>
-                <CheckCircle2 size={16} />
-                <span>Nạp {parsedQuestions.length} Câu Vào Database</span>
-              </>
-            )}
-          </button>
-        </div>
       </div>
     </div>
   );

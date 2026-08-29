@@ -48,10 +48,16 @@ import {
   Code2,
   Eye,
   EyeOff,
-  LogOut
+  LogOut,
+  Layers,
+  CheckCircle2,
+  FileText,
+  Clock,
+  ArrowRight,
+  AlertCircle
 } from "lucide-react";
 
-type AdminTab = "questions" | "practicals" | "users" | "branches" | "subjects" | "results";
+type AdminTab = "questions" | "practicals" | "users" | "subjects" | "branches" | "results";
 
 export default function AdminPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -83,7 +89,10 @@ export default function AdminPage() {
   const [questionSearch, setQuestionSearch] = useState("");
   const [questionTypeFilter, setQuestionTypeFilter] = useState("all");
 
+  // Modals state
   const [showExcelModal, setShowExcelModal] = useState(false);
+  const [excelTargetSubject, setExcelTargetSubject] = useState("python");
+
   const [showBranchModal, setShowBranchModal] = useState(false);
   const [editingBranch, setEditingBranch] = useState<Branch | null>(null);
 
@@ -109,9 +118,10 @@ export default function AdminPage() {
   }, []);
 
   const loadAllData = async () => {
+    const initialUsers = getUsers();
     setBranches(DEFAULT_BRANCHES);
     setSubjects(DEFAULT_SUBJECTS);
-    setUsers(getUsers());
+    setUsers(initialUsers);
     setQuestions(getQuestionsData());
     setPracticals(getPracticalsData());
 
@@ -127,9 +137,25 @@ export default function AdminPage() {
       if (resB?.success && resB.branches?.length > 0) setBranches(resB.branches);
       if (resS?.success && resS.subjects?.length > 0) setSubjects(resS.subjects);
       if (resQ?.success && resQ.questions?.length > 0) setQuestions(resQ.questions);
-      if (resU?.success && resU.users?.length > 0) setUsers(resU.users);
+      if (resU?.success && Array.isArray(resU.users) && resU.users.length > 0 && !resU.isFallback) {
+        const currentLocals = getUsers();
+        const userMap = new Map<string, User>();
+        resU.users.forEach((u: User) => {
+          if (u.username) userMap.set(u.username.toLowerCase(), u);
+        });
+        currentLocals.forEach((u: User) => {
+          if (u.username) userMap.set(u.username.toLowerCase(), u);
+        });
+        const merged = Array.from(userMap.values());
+        setUsers(merged);
+        saveUsers(merged);
+      } else {
+        setUsers(getUsers());
+      }
       if (resE?.success && resE.results?.length > 0) setExamResults(resE.results);
-    } catch {}
+    } catch {
+      setUsers(getUsers());
+    }
   };
 
   const handleInlineLogin = (e: React.FormEvent) => {
@@ -166,17 +192,103 @@ export default function AdminPage() {
   const handleDeleteQuestion = async (id: number) => {
     if (confirm(`Bạn có chắc chắn muốn xóa câu hỏi #${id}?`)) {
       deleteQuestionData(id);
+      try {
+        await fetch(`/api/questions?id=${id}&target=question`, { method: "DELETE" });
+      } catch {}
+      loadAllData();
+    }
+  };
+
+  const handleDeletePractical = async (id: number) => {
+    if (confirm(`Bạn có chắc chắn muốn xóa bài thực hành #${id}?`)) {
+      deletePracticalData(id);
+      try {
+        await fetch(`/api/questions?id=${id}&target=practical`, { method: "DELETE" });
+      } catch {}
       loadAllData();
     }
   };
 
   const handleDeleteUser = async (id: string) => {
-    if (confirm("Bạn có chắc chắn muốn xóa tài khoản học viên này?")) {
+    if (confirm("Bạn có chắc chắn muốn xóa tài khoản này?")) {
       deleteUser(id);
+      try {
+        await fetch(`/api/users?id=${id}`, { method: "DELETE" });
+      } catch {}
       loadAllData();
     }
   };
 
+  const handleSaveBranch = async (branchData: Partial<Branch>) => {
+    try {
+      if (editingBranch) {
+        await fetch("/api/branches", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editingBranch.id, ...branchData })
+        });
+      } else {
+        await fetch("/api/branches", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(branchData)
+        });
+      }
+      setShowBranchModal(false);
+      setEditingBranch(null);
+      loadAllData();
+    } catch (err: any) {
+      alert("Lỗi lưu chi nhánh: " + err.message);
+    }
+  };
+
+  const handleDeleteBranch = async (branchId: string) => {
+    if (confirm("Bạn có chắc chắn muốn xóa chi nhánh này?")) {
+      try {
+        await fetch(`/api/branches?id=${branchId}`, { method: "DELETE" });
+        loadAllData();
+      } catch (err: any) {
+        alert("Lỗi xóa chi nhánh: " + err.message);
+      }
+    }
+  };
+
+  const handleSaveSubject = async (subjectData: Partial<Subject>, initOption?: string) => {
+    try {
+      if (editingSubject) {
+        await fetch("/api/subjects", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editingSubject.id, ...subjectData })
+        });
+      } else {
+        await fetch("/api/subjects", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(subjectData)
+        });
+      }
+      setShowSubjectModal(false);
+      setEditingSubject(null);
+      loadAllData();
+      alert(`✅ Môn học ${subjectData.name} đã được lưu thành công!`);
+    } catch (err: any) {
+      alert("Lỗi lưu môn học: " + err.message);
+    }
+  };
+
+  const handleDeleteSubject = async (subjectId: string) => {
+    if (confirm("Bạn có chắc chắn muốn xóa môn học này khỏi chương trình?")) {
+      try {
+        await fetch(`/api/subjects?id=${subjectId}`, { method: "DELETE" });
+        loadAllData();
+      } catch (err: any) {
+        alert("Lỗi xóa môn học: " + err.message);
+      }
+    }
+  };
+
+  // Filtered Questions
   const filteredQuestions = useMemo(() => {
     return questions.filter((q) => {
       const matchType = questionTypeFilter === "all" || q.type === questionTypeFilter;
@@ -190,6 +302,7 @@ export default function AdminPage() {
     });
   }, [questions, questionTypeFilter, selectedSubjectId, questionSearch]);
 
+  // Filtered Users
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {
       const matchRole = userRoleFilter === "all" || u.role === userRoleFilter;
@@ -205,56 +318,79 @@ export default function AdminPage() {
     });
   }, [users, userRoleFilter, adminBranchMode, currentUser, userSearch]);
 
+  // Quick stats by subject
+  const getSubjectQuestionCount = (subId: string) => {
+    return questions.filter(q => q.subjectId === subId || (!q.subjectId && subId === "python")).length;
+  };
+
+  const getSubjectPracticalCount = (subId: string) => {
+    return practicals.filter(p => p.subjectId === subId || (!p.subjectId && subId === "python")).length;
+  };
+
   if (!currentUser || (currentUser.role !== "admin" && currentUser.role !== "branch_manager" && currentUser.role !== "teacher")) {
     return (
       <div style={{ maxWidth: "480px", margin: "4rem auto", padding: "0 1rem" }}>
-        <div className="q-card" style={{ padding: "2.5rem 2rem", textAlign: "center" }}>
+        <div style={{
+          background: "#ffffff",
+          borderRadius: "20px",
+          border: "1px solid #e2e8f0",
+          boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1)",
+          padding: "2.5rem 2rem",
+          textAlign: "center"
+        }}>
           <div style={{
             width: "60px",
             height: "60px",
             borderRadius: "16px",
-            background: "rgba(225, 29, 72, 0.1)",
-            color: "var(--brand-rose)",
+            background: "#fee2e2",
+            color: "#dc2626",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             margin: "0 auto 1.2rem"
           }}>
-            <ShieldCheck size={30} />
+            <ShieldCheck size={32} />
           </div>
 
-          <h2 style={{ fontSize: "1.35rem", fontWeight: 800, marginBottom: "0.4rem" }}>
+          <h2 style={{ fontSize: "1.4rem", fontWeight: 800, color: "#0f172a", marginBottom: "0.4rem" }}>
             Khu Vực Quản Trị Hệ Thống
           </h2>
-          <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", marginBottom: "1.5rem" }}>
+          <p style={{ color: "#64748b", fontSize: "0.86rem", marginBottom: "1.5rem" }}>
             Vui lòng đăng nhập tài khoản Tổng Quản Trị (Admin) hoặc Quản Lý Chi Nhánh.
           </p>
 
           <form onSubmit={handleInlineLogin} style={{ display: "flex", flexDirection: "column", gap: "1rem", textAlign: "left" }}>
             {loginError && (
-              <div style={{ color: "#b91c1c", fontSize: "0.82rem", background: "#fef2f2", padding: "0.6rem 0.8rem", borderRadius: "var(--radius-sm)" }}>
+              <div style={{ color: "#b91c1c", fontSize: "0.82rem", background: "#fef2f2", padding: "0.6rem 0.8rem", borderRadius: "8px", border: "1px solid #fecaca" }}>
                 {loginError}
               </div>
             )}
 
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
-                Tài Khoản Quản Trị:
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+                Tên Đăng Nhập:
               </label>
               <input
                 type="text"
                 required
                 value={loginUsername}
                 onChange={(e) => setLoginUsername(e.target.value)}
-                placeholder="VD: admin hoặc quanly_thuduc"
-                className="input"
-                style={{ width: "100%" }}
+                placeholder="admin hoặc quanly_thuduc"
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontSize: "0.88rem"
+                }}
                 autoFocus
               />
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
                 Mật Khẩu:
               </label>
               <input
@@ -263,12 +399,37 @@ export default function AdminPage() {
                 value={loginPassword}
                 onChange={(e) => setLoginPassword(e.target.value)}
                 placeholder="Nhập mật khẩu..."
-                className="input"
-                style={{ width: "100%" }}
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontSize: "0.88rem"
+                }}
               />
             </div>
 
-            <button type="submit" className="btn btn-primary btn-block btn-lg" style={{ marginTop: "0.4rem" }}>
+            <button
+              type="submit"
+              style={{
+                width: "100%",
+                padding: "0.75rem",
+                borderRadius: "10px",
+                border: "none",
+                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                color: "#ffffff",
+                fontWeight: 700,
+                fontSize: "0.9rem",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.5rem",
+                marginTop: "0.5rem"
+              }}
+            >
               <Lock size={16} />
               <span>Đăng Nhập Quản Trị</span>
             </button>
@@ -279,59 +440,58 @@ export default function AdminPage() {
   }
 
   return (
-    <div style={{ maxWidth: "1550px", margin: "0 auto", padding: "1.5rem 1rem", minHeight: "calc(100vh - 80px)" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "270px 1fr", gap: "1.75rem", alignItems: "start" }}>
+    <div style={{ background: "#f8fafc", minHeight: "100vh", padding: "1.5rem 1rem", color: "#0f172a" }}>
+      <div style={{ maxWidth: "1600px", margin: "0 auto", display: "grid", gridTemplateColumns: "270px 1fr", gap: "1.75rem", alignItems: "start" }}>
         
         {/* ========================================================================= */}
-        {/* 1. LEFT SIDEBAR (Matching Approved Mockup) */}
+        {/* 1. LEFT SIDEBAR (Clean Corporate Light Mode) */}
         {/* ========================================================================= */}
         <aside style={{
-          background: "rgba(4, 12, 34, 0.88)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          border: "1.5px solid rgba(0, 245, 200, 0.22)",
-          borderRadius: "24px",
+          background: "#ffffff",
+          border: "1px solid #e2e8f0",
+          borderRadius: "20px",
           padding: "1.5rem 1.1rem",
           position: "sticky",
-          top: "85px",
+          top: "20px",
           display: "flex",
           flexDirection: "column",
           gap: "1.25rem",
-          boxShadow: "0 12px 35px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 245, 200, 0.08)"
+          boxShadow: "0 4px 20px -2px rgba(0, 0, 0, 0.05)"
         }}>
           {/* Brand Tag */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", paddingBottom: "1.2rem", borderBottom: "1.5px solid rgba(0, 245, 200, 0.15)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", paddingBottom: "1.2rem", borderBottom: "1px solid #e2e8f0" }}>
             <div style={{
               width: "42px",
               height: "42px",
               borderRadius: "12px",
-              background: "linear-gradient(135deg, #00f5c8, #0ea5e9)",
-              color: "#020617",
+              background: "linear-gradient(135deg, #2563eb, #3b82f6)",
+              color: "#ffffff",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              boxShadow: "0 0 20px rgba(0, 245, 200, 0.4)"
+              boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)"
             }}>
               <ShieldCheck size={24} />
             </div>
             <div>
-              <div style={{ fontSize: "1rem", fontWeight: 900, color: "#ffffff", fontFamily: "var(--font-heading)" }}>
-                Admin Panel
+              <div style={{ fontSize: "1.05rem", fontWeight: 900, color: "#0f172a", fontFamily: "var(--font-heading)" }}>
+                Admin Portal
               </div>
-              <div style={{ fontSize: "0.7rem", color: "#00f5c8", fontWeight: 800, letterSpacing: "0.05em" }}>
+              <div style={{ fontSize: "0.72rem", color: "#2563eb", fontWeight: 800, letterSpacing: "0.04em" }}>
                 TIN HỌC SAO VIỆT
               </div>
             </div>
           </div>
 
-          {/* Sidebar Menu Items (Vertical Tabs) */}
-          <nav style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
+          {/* Sidebar Menu Navigation */}
+          <nav style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
             {[
               { id: "questions", label: "Ngân Hàng Câu Hỏi", count: questions.length, icon: BookOpen },
-              { id: "users", label: "Quản Lý Học Viên", count: filteredUsers.length, icon: Users },
-              { id: "subjects", label: "Môn Học & Ngôn Ngữ", count: subjects.length, icon: Code2 },
-              { id: "branches", label: "Cơ Sở Phòng Lab", count: branches.length, icon: Building2 },
-              { id: "results", label: "Kết Quả Thi Online", count: examResults.length, icon: GraduationCap }
+              { id: "practicals", label: "Bài Thi Thực Hành", count: practicals.length, icon: Terminal },
+              { id: "subjects", label: "Môn Học & Ngân Hàng Đề", count: subjects.length, icon: Code2 },
+              { id: "users", label: "Phân Cấp Tài Khoản", count: filteredUsers.length, icon: Users },
+              { id: "branches", label: "Cơ Sở & Phòng Lab", count: branches.length, icon: Building2 },
+              { id: "results", label: "Kết Quả Khảo Thí", count: examResults.length, icon: GraduationCap }
             ].map(tab => {
               const isActive = activeTab === tab.id;
               const IconComponent = tab.icon;
@@ -345,29 +505,28 @@ export default function AdminPage() {
                     justifyContent: "space-between",
                     width: "100%",
                     padding: "0.75rem 0.95rem",
-                    borderRadius: "14px",
-                    border: "1.5px solid",
-                    borderColor: isActive ? "#00f5c8" : "transparent",
-                    background: isActive ? "linear-gradient(135deg, rgba(0, 245, 200, 0.16), rgba(14, 165, 233, 0.12))" : "transparent",
-                    color: isActive ? "#00f5c8" : "#94a3b8",
+                    borderRadius: "12px",
+                    border: "1px solid",
+                    borderColor: isActive ? "#bfdbfe" : "transparent",
+                    background: isActive ? "#eff6ff" : "transparent",
+                    color: isActive ? "#1d4ed8" : "#475569",
                     fontWeight: isActive ? 800 : 600,
                     fontSize: "0.86rem",
                     cursor: "pointer",
                     textAlign: "left",
-                    transition: "all 0.2s ease",
-                    boxShadow: isActive ? "0 4px 18px rgba(0, 245, 200, 0.18)" : "none"
+                    transition: "all 0.15s"
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                    <IconComponent size={17} color={isActive ? "#00f5c8" : "#64748b"} />
+                    <IconComponent size={17} color={isActive ? "#2563eb" : "#64748b"} />
                     <span>{tab.label}</span>
                   </div>
                   <span style={{
                     fontSize: "0.72rem",
                     padding: "0.15rem 0.5rem",
                     borderRadius: "9999px",
-                    background: isActive ? "rgba(0, 245, 200, 0.22)" : "rgba(255, 255, 255, 0.06)",
-                    color: isActive ? "#00f5c8" : "#64748b",
+                    background: isActive ? "#dbeafe" : "#f1f5f9",
+                    color: isActive ? "#1e40af" : "#64748b",
                     fontWeight: 800
                   }}>
                     {tab.count}
@@ -377,45 +536,59 @@ export default function AdminPage() {
             })}
           </nav>
 
-          {/* Admin Info Card & Branch Switcher at Sidebar Bottom */}
+          {/* Admin Profile & Branch Filter at Sidebar Bottom */}
           <div style={{
             marginTop: "auto",
             paddingTop: "1.2rem",
-            borderTop: "1.5px solid rgba(0, 245, 200, 0.15)",
+            borderTop: "1px solid #e2e8f0",
             display: "flex",
             flexDirection: "column",
             gap: "0.75rem"
           }}>
-            <div>
-              <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#00f5c8", textTransform: "uppercase", marginBottom: "0.2rem" }}>
-                {currentUser.role === "admin" ? "Super Admin" : "Quản Lý Chi Nhánh"}
+            <div style={{ background: "#f8fafc", padding: "0.75rem", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+              <div style={{
+                fontSize: "0.68rem",
+                fontWeight: 800,
+                color: currentUser.role === "admin" ? "#7e22ce" : "#1d4ed8",
+                textTransform: "uppercase",
+                marginBottom: "0.15rem"
+              }}>
+                {currentUser.role === "admin" ? "👑 Super Admin" : "🏢 Quản Lý Chi Nhánh"}
               </div>
-              <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "#ffffff" }}>
+              <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "#0f172a" }}>
                 {currentUser.fullName}
               </div>
-              <div style={{ fontSize: "0.74rem", color: "#64748b" }}>
+              <div style={{ fontSize: "0.72rem", color: "#64748b" }}>
                 {currentUser.branchName || "Toàn Hệ Thống Sao Việt"}
               </div>
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.3rem" }}>
-                XEM THEO CHI NHÁNH:
+              <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 800, color: "#475569", marginBottom: "0.3rem", textTransform: "uppercase" }}>
+                Xem Dữ Liệu Theo Chi Nhánh:
               </label>
               {currentUser.role === "admin" ? (
                 <select
                   value={adminBranchMode}
                   onChange={(e) => setAdminBranchMode(e.target.value)}
-                  className="input"
-                  style={{ width: "100%", fontSize: "0.78rem", padding: "0.4rem 0.5rem", borderColor: "rgba(0, 245, 200, 0.3)" }}
+                  style={{
+                    width: "100%",
+                    fontSize: "0.78rem",
+                    padding: "0.45rem 0.6rem",
+                    borderRadius: "8px",
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontWeight: 600
+                  }}
                 >
-                  <option value="all">🏢 Toàn Bộ (4 Cơ Sở)</option>
+                  <option value="all">🏢 Toàn Bộ Cơ Sở ({branches.length})</option>
                   {branches.map(b => (
                     <option key={b.id} value={b.id}>🏢 {b.name}</option>
                   ))}
                 </select>
               ) : (
-                <div style={{ fontSize: "0.78rem", color: "#00f5c8", fontWeight: 700 }}>
+                <div style={{ fontSize: "0.78rem", color: "#2563eb", fontWeight: 700, padding: "0.4rem 0.5rem", background: "#eff6ff", borderRadius: "6px" }}>
                   {currentUser.branchName || "Chi Nhánh Được Gán"}
                 </div>
               )}
@@ -426,8 +599,21 @@ export default function AdminPage() {
                 logoutUser();
                 window.location.href = "/";
               }}
-              className="btn btn-secondary btn-sm"
-              style={{ width: "100%", justifyContent: "center", color: "#f43f5e", borderColor: "rgba(244, 63, 94, 0.3)", padding: "0.45rem" }}
+              style={{
+                width: "100%",
+                padding: "0.5rem",
+                borderRadius: "8px",
+                border: "1px solid #fecaca",
+                background: "#fef2f2",
+                color: "#dc2626",
+                fontWeight: 700,
+                fontSize: "0.82rem",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.4rem",
+                cursor: "pointer"
+              }}
             >
               <LogOut size={14} />
               <span>Đăng Xuất</span>
@@ -436,37 +622,48 @@ export default function AdminPage() {
         </aside>
 
         {/* ========================================================================= */}
-        {/* 2. RIGHT MAIN CONTENT AREA */}
+        {/* 2. MAIN CONTENT AREA */}
         {/* ========================================================================= */}
         <main style={{ minWidth: 0 }}>
-          {/* Top Header Bar */}
+          
+          {/* Top Bar Header */}
           <div style={{
-            background: "rgba(4, 12, 34, 0.82)",
-            backdropFilter: "blur(20px)",
-            border: "1.5px solid rgba(0, 245, 200, 0.22)",
-            borderRadius: "20px",
-            padding: "1.1rem 1.5rem",
+            background: "#ffffff",
+            border: "1px solid #e2e8f0",
+            borderRadius: "18px",
+            padding: "1.2rem 1.5rem",
             marginBottom: "1.5rem",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
             gap: "1rem",
-            boxShadow: "0 8px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.06)"
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)"
           }}>
             <div>
-              <h1 style={{ fontSize: "1.4rem", fontWeight: 900, margin: 0, color: "#ffffff", fontFamily: "var(--font-heading)" }}>
-                Bảng Điều Khiển Quản Trị Hệ Thống
+              <h1 style={{ fontSize: "1.45rem", fontWeight: 900, color: "#0f172a", margin: 0 }}>
+                Hệ Thống Quản Trị & Khảo Thí Trực Tuyến
               </h1>
-              <p style={{ color: "#94a3b8", fontSize: "0.82rem", margin: "0.2rem 0 0" }}>
-                Trung tâm kiểm soát dữ liệu, học viên và khảo thí trực tuyến Tin Học Sao Việt.
+              <p style={{ color: "#64748b", fontSize: "0.84rem", margin: "0.2rem 0 0" }}>
+                Trung tâm điều hành dữ liệu học phần, ngân hàng đề thi và phân cấp tài khoản Tin Học Sao Việt.
               </p>
             </div>
 
             <button
               onClick={loadAllData}
-              className="btn btn-secondary btn-sm"
-              style={{ display: "flex", alignItems: "center", gap: "0.4rem", borderColor: "rgba(0, 245, 200, 0.3)", color: "#00f5c8" }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.4rem",
+                padding: "0.55rem 1rem",
+                borderRadius: "10px",
+                border: "1px solid #cbd5e1",
+                background: "#ffffff",
+                color: "#2563eb",
+                fontWeight: 700,
+                fontSize: "0.84rem",
+                cursor: "pointer"
+              }}
               title="Làm mới dữ liệu từ máy chủ"
             >
               <RefreshCw size={14} />
@@ -474,457 +671,926 @@ export default function AdminPage() {
             </button>
           </div>
 
-          {/* 4 COSMIC STAT CARDS (Exact Approved Mockup Match) */}
+          {/* 4 STAT CARDS (High-Contrast Clean Light Mode) */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
             gap: "1.1rem",
             marginBottom: "1.75rem"
           }}>
             <div style={{
-              background: "rgba(4, 12, 34, 0.82)",
-              backdropFilter: "blur(20px)",
-              border: "1.5px solid rgba(0, 245, 200, 0.25)",
-              borderRadius: "18px",
-              padding: "1.4rem 1.2rem",
-              textAlign: "center",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.1)"
+              background: "#ffffff",
+              border: "1px solid #e2e8f0",
+              borderTop: "4px solid #2563eb",
+              borderRadius: "16px",
+              padding: "1.25rem",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.03)"
             }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.3rem" }}>
-                Tổng Câu Hỏi
+              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                Tổng Câu Hỏi Khảo Thí
               </div>
-              <div style={{
-                fontSize: "2.6rem",
-                fontWeight: 900,
-                color: "#00f5c8",
-                fontFamily: "var(--font-heading)",
-                textShadow: "0 0 25px rgba(0, 245, 200, 0.5)",
-                lineHeight: 1.1
-              }}>
+              <div style={{ fontSize: "2.3rem", fontWeight: 900, color: "#1d4ed8", lineHeight: 1.2, marginTop: "0.2rem" }}>
                 {questions.length || 120}
               </div>
+              <div style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: 600, marginTop: "0.2rem" }}>
+                🐍 Python: 120 câu chuẩn 6 dạng
+              </div>
             </div>
 
             <div style={{
-              background: "rgba(4, 12, 34, 0.82)",
-              backdropFilter: "blur(20px)",
-              border: "1.5px solid rgba(56, 189, 248, 0.25)",
-              borderRadius: "18px",
-              padding: "1.4rem 1.2rem",
-              textAlign: "center",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(56, 189, 248, 0.1)"
+              background: "#ffffff",
+              border: "1px solid #e2e8f0",
+              borderTop: "4px solid #16a34a",
+              borderRadius: "16px",
+              padding: "1.25rem",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.03)"
             }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.3rem" }}>
-                Học Viên
+              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                Học Viên Đang Học
               </div>
-              <div style={{
-                fontSize: "2.6rem",
-                fontWeight: 900,
-                color: "#38bdf8",
-                fontFamily: "var(--font-heading)",
-                textShadow: "0 0 25px rgba(56, 189, 248, 0.5)",
-                lineHeight: 1.1
-              }}>
+              <div style={{ fontSize: "2.3rem", fontWeight: 900, color: "#15803d", lineHeight: 1.2, marginTop: "0.2rem" }}>
                 {users.filter(u => u.role === "student").length || 87}
               </div>
+              <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.2rem" }}>
+                Phân quyền theo từng chi nhánh
+              </div>
             </div>
 
             <div style={{
-              background: "rgba(4, 12, 34, 0.82)",
-              backdropFilter: "blur(20px)",
-              border: "1.5px solid rgba(167, 139, 250, 0.25)",
-              borderRadius: "18px",
-              padding: "1.4rem 1.2rem",
-              textAlign: "center",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(167, 139, 250, 0.1)"
+              background: "#ffffff",
+              border: "1px solid #e2e8f0",
+              borderTop: "4px solid #9333ea",
+              borderRadius: "16px",
+              padding: "1.25rem",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.03)"
             }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.3rem" }}>
-                Chi Nhánh
+              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                Môn Học & Ngôn Ngữ
               </div>
-              <div style={{
-                fontSize: "2.6rem",
-                fontWeight: 900,
-                color: "#a78bfa",
-                fontFamily: "var(--font-heading)",
-                textShadow: "0 0 25px rgba(167, 139, 250, 0.5)",
-                lineHeight: 1.1
-              }}>
+              <div style={{ fontSize: "2.3rem", fontWeight: 900, color: "#7e22ce", lineHeight: 1.2, marginTop: "0.2rem" }}>
+                {subjects.length || 7}
+              </div>
+              <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.2rem" }}>
+                Tích hợp sẵn bộ đề & ngân hàng ôn
+              </div>
+            </div>
+
+            <div style={{
+              background: "#ffffff",
+              border: "1px solid #e2e8f0",
+              borderTop: "4px solid #ea580c",
+              borderRadius: "16px",
+              padding: "1.25rem",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.03)"
+            }}>
+              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
+                Cơ Sở & Chi Nhánh
+              </div>
+              <div style={{ fontSize: "2.3rem", fontWeight: 900, color: "#c2410c", lineHeight: 1.2, marginTop: "0.2rem" }}>
                 {branches.length || 4}
               </div>
-            </div>
-
-            <div style={{
-              background: "rgba(4, 12, 34, 0.82)",
-              backdropFilter: "blur(20px)",
-              border: "1.5px solid rgba(0, 245, 200, 0.25)",
-              borderRadius: "18px",
-              padding: "1.4rem 1.2rem",
-              textAlign: "center",
-              boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.1)"
-            }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.3rem" }}>
-                Kỳ Thi
-              </div>
-              <div style={{
-                fontSize: "2.6rem",
-                fontWeight: 900,
-                color: "#00f5c8",
-                fontFamily: "var(--font-heading)",
-                textShadow: "0 0 25px rgba(0, 245, 200, 0.5)",
-                lineHeight: 1.1
-              }}>
-                {examResults.length > 0 ? examResults.length : 23}
+              <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.2rem" }}>
+                4 Cơ sở phòng máy chuẩn
               </div>
             </div>
           </div>
 
-      {/* TAB 1: QUESTIONS */}
-      {activeTab === "questions" && (
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.8rem" }}>
-            <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
-              <select
-                value={selectedSubjectId}
-                onChange={(e) => setSelectedSubjectId(e.target.value)}
-                className="input"
-                style={{ fontWeight: 700, fontSize: "0.85rem" }}
-              >
-                <option value="all">📚 Tất Cả Môn Học ({questions.length})</option>
-                {subjects.map(s => (
-                  <option key={s.id} value={s.id}>{s.name} ({s.code})</option>
-                ))}
-              </select>
+          {/* ========================================================================= */}
+          {/* TAB 1: NGÂN HÀNG CÂU HỎI (Questions) */}
+          {/* ========================================================================= */}
+          {activeTab === "questions" && (
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.2rem", flexWrap: "wrap", gap: "0.8rem" }}>
+                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
+                  <select
+                    value={selectedSubjectId}
+                    onChange={(e) => setSelectedSubjectId(e.target.value)}
+                    style={{
+                      padding: "0.55rem 0.85rem",
+                      borderRadius: "10px",
+                      border: "1px solid #cbd5e1",
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      fontWeight: 700,
+                      fontSize: "0.85rem"
+                    }}
+                  >
+                    <option value="all">📚 Tất Cả Môn Học ({questions.length})</option>
+                    {subjects.map(s => (
+                      <option key={s.id} value={s.id}>{s.name} ({s.code}) - {getSubjectQuestionCount(s.id)} câu</option>
+                    ))}
+                  </select>
 
-              <select
-                value={questionTypeFilter}
-                onChange={(e) => setQuestionTypeFilter(e.target.value)}
-                className="input"
-                style={{ fontSize: "0.85rem" }}
-              >
-                <option value="all">Tất Cả 6 Dạng</option>
-                <option value="single_choice">Trắc nghiệm ABCD</option>
-                <option value="true_false">Đúng / Sai</option>
-                <option value="multiple_choice">Nhiều đáp án</option>
-                <option value="fill_blank">Điền từ</option>
-                <option value="sequence_order">Sắp xếp dòng lệnh</option>
-                <option value="matching">Ghép cặp</option>
-              </select>
-            </div>
+                  <select
+                    value={questionTypeFilter}
+                    onChange={(e) => setQuestionTypeFilter(e.target.value)}
+                    style={{
+                      padding: "0.55rem 0.85rem",
+                      borderRadius: "10px",
+                      border: "1px solid #cbd5e1",
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      fontSize: "0.85rem"
+                    }}
+                  >
+                    <option value="all">Tất Cả 6 Dạng</option>
+                    <option value="single_choice">Trắc nghiệm ABCD</option>
+                    <option value="true_false">Đúng / Sai</option>
+                    <option value="multiple_choice">Nhiều đáp án</option>
+                    <option value="fill_blank">Điền từ</option>
+                    <option value="sequence_order">Sắp xếp dòng lệnh</option>
+                    <option value="matching">Ghép cặp</option>
+                  </select>
+                </div>
 
-            <div style={{ display: "flex", gap: "0.5rem" }}>
-              <button
-                onClick={() => setShowExcelModal(true)}
-                className="btn btn-primary btn-sm"
-                style={{ background: "linear-gradient(135deg, var(--brand-primary), var(--brand-emerald))" }}
-              >
-                <FileSpreadsheet size={15} />
-                <span>📥 Nhập Từ Excel</span>
-              </button>
+                <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => {
+                      setExcelTargetSubject(selectedSubjectId === "all" ? "python" : selectedSubjectId);
+                      setShowExcelModal(true);
+                    }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      padding: "0.55rem 1rem",
+                      borderRadius: "10px",
+                      border: "none",
+                      background: "linear-gradient(135deg, #10b981, #059669)",
+                      color: "#ffffff",
+                      fontWeight: 700,
+                      fontSize: "0.84rem",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <FileSpreadsheet size={15} />
+                    <span>📥 Nhập Từ Excel</span>
+                  </button>
 
-              <button
-                onClick={handleExportQuestionsExcel}
-                className="btn btn-secondary btn-sm"
-              >
-                <Download size={15} />
-                <span>📤 Xuất Ra Excel</span>
-              </button>
+                  <button
+                    onClick={handleExportQuestionsExcel}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      padding: "0.55rem 1rem",
+                      borderRadius: "10px",
+                      border: "1px solid #cbd5e1",
+                      background: "#ffffff",
+                      color: "#334155",
+                      fontWeight: 600,
+                      fontSize: "0.84rem",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <Download size={15} />
+                    <span>📤 Xuất Excel</span>
+                  </button>
 
-              <button
-                onClick={() => { setEditingQuestion(null); setShowQuestionModal(true); }}
-                className="btn btn-secondary btn-sm"
-              >
-                <Plus size={15} />
-                <span>Thêm Câu Mới</span>
-              </button>
-            </div>
-          </div>
+                  <button
+                    onClick={() => { setEditingQuestion(null); setShowQuestionModal(true); }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      padding: "0.55rem 1rem",
+                      borderRadius: "10px",
+                      border: "none",
+                      background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                      color: "#ffffff",
+                      fontWeight: 700,
+                      fontSize: "0.84rem",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <Plus size={15} />
+                    <span>Thêm Câu Mới</span>
+                  </button>
+                </div>
+              </div>
 
-          <div style={{ marginBottom: "1rem" }}>
-            <input
-              type="text"
-              value={questionSearch}
-              onChange={(e) => setQuestionSearch(e.target.value)}
-              placeholder="🔍 Tìm kiếm câu hỏi..."
-              className="input"
-              style={{ width: "100%" }}
-            />
-          </div>
+              <div style={{ marginBottom: "1rem" }}>
+                <input
+                  type="text"
+                  value={questionSearch}
+                  onChange={(e) => setQuestionSearch(e.target.value)}
+                  placeholder="🔍 Tìm kiếm câu hỏi theo nội dung, ID, giải thích logic..."
+                  style={{
+                    width: "100%",
+                    padding: "0.65rem 0.9rem",
+                    borderRadius: "10px",
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontSize: "0.88rem"
+                  }}
+                />
+              </div>
 
-          <div className="q-card" style={{ padding: 0, overflow: "hidden" }}>
-            <div style={{ maxHeight: "600px", overflowY: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-                <thead>
-                  <tr style={{ background: "var(--bg-light)", borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
-                    <th style={{ padding: "0.75rem 1rem", width: "60px" }}>ID</th>
-                    <th style={{ padding: "0.75rem 1rem", width: "130px" }}>Dạng Câu</th>
-                    <th style={{ padding: "0.75rem 1rem" }}>Nội Dung Câu Hỏi & Các Lựa Chọn</th>
-                    <th style={{ padding: "0.75rem 1rem", width: "110px" }}>Đáp Án</th>
-                    <th style={{ padding: "0.75rem 1rem", width: "90px", textAlign: "right" }}>Thao Tác</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredQuestions.map((q) => (
-                    <tr key={q.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                      <td style={{ padding: "0.75rem 1rem", fontWeight: 700 }}>#{q.id}</td>
-                      <td style={{ padding: "0.75rem 1rem" }}>
-                        <span className="badge badge-primary" style={{ fontSize: "0.72rem" }}>
-                          {q.type}
-                        </span>
-                      </td>
-                      <td style={{ padding: "0.75rem 1rem" }}>
-                        <div style={{ fontWeight: 600, color: "var(--text-primary)", marginBottom: "0.3rem" }}>
-                          {q.question}
-                        </div>
-                        {q.options && q.options.length > 0 && (
-                          <div style={{ fontSize: "0.78rem", color: "var(--text-muted)", display: "flex", gap: "0.8rem", flexWrap: "wrap" }}>
-                            {q.options.map((opt, i) => (
-                              <span key={i} style={{ background: "var(--bg-light)", padding: "0.15rem 0.4rem", borderRadius: "4px" }}>
-                                {String.fromCharCode(65 + i)}. {opt}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        <div style={{ fontSize: "0.75rem", color: "var(--brand-emerald-dark)", marginTop: "0.2rem", fontStyle: "italic" }}>
-                          💡 {q.explanation}
-                        </div>
-                      </td>
-                      <td style={{ padding: "0.75rem 1rem", fontWeight: 700, color: "var(--brand-emerald-dark)" }}>
-                        {JSON.stringify(q.correct_answer)}
-                      </td>
-                      <td style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
-                        <div style={{ display: "flex", gap: "0.3rem", justifyContent: "flex-end" }}>
-                          <button onClick={() => { setEditingQuestion(q); setShowQuestionModal(true); }} className="btn btn-secondary btn-sm" style={{ padding: "0.3rem" }}>
-                            <Edit3 size={13} />
-                          </button>
-                          <button onClick={() => handleDeleteQuestion(q.id)} className="btn btn-danger btn-sm" style={{ padding: "0.3rem" }}>
-                            <Trash2 size={13} />
-                          </button>
-                        </div>
-                      </td>
+              {/* Table */}
+              <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: "12px" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", background: "#ffffff" }}>
+                  <thead>
+                    <tr style={{ background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", textAlign: "left", color: "#334155" }}>
+                      <th style={{ padding: "0.75rem 1rem", width: "60px" }}>ID</th>
+                      <th style={{ padding: "0.75rem 1rem", width: "130px" }}>Dạng Câu</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Nội Dung Câu Hỏi & Các Lựa Chọn</th>
+                      <th style={{ padding: "0.75rem 1rem", width: "120px" }}>Đáp Án</th>
+                      <th style={{ padding: "0.75rem 1rem", width: "90px", textAlign: "right" }}>Thao Tác</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredQuestions.map((q) => (
+                      <tr key={q.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "0.75rem 1rem", fontWeight: 800, color: "#64748b" }}>#{q.id}</td>
+                        <td style={{ padding: "0.75rem 1rem" }}>
+                          <span style={{
+                            padding: "0.2rem 0.5rem",
+                            borderRadius: "6px",
+                            background: "#eff6ff",
+                            color: "#1d4ed8",
+                            fontSize: "0.72rem",
+                            fontWeight: 700
+                          }}>
+                            {q.type}
+                          </span>
+                        </td>
+                        <td style={{ padding: "0.75rem 1rem" }}>
+                          <div style={{ fontWeight: 700, color: "#0f172a", marginBottom: "0.3rem" }}>
+                            {q.question}
+                          </div>
+                          {q.options && q.options.length > 0 && (
+                            <div style={{ fontSize: "0.78rem", color: "#64748b", display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+                              {q.options.map((opt, i) => (
+                                <span key={i} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", padding: "0.15rem 0.45rem", borderRadius: "6px", color: "#334155" }}>
+                                  <strong>{String.fromCharCode(65 + i)}.</strong> {opt}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          <div style={{ fontSize: "0.75rem", color: "#059669", marginTop: "0.3rem", fontWeight: 500 }}>
+                            💡 {q.explanation}
+                          </div>
+                        </td>
+                        <td style={{ padding: "0.75rem 1rem", fontWeight: 700, color: "#059669" }}>
+                          {JSON.stringify(q.correct_answer)}
+                        </td>
+                        <td style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
+                          <div style={{ display: "flex", gap: "0.35rem", justifyContent: "flex-end" }}>
+                            <button
+                              onClick={() => { setEditingQuestion(q); setShowQuestionModal(true); }}
+                              style={{ padding: "0.35rem 0.5rem", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#ffffff", color: "#2563eb", cursor: "pointer" }}
+                              title="Sửa câu hỏi"
+                            >
+                              <Edit3 size={13} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteQuestion(q.id)}
+                              style={{ padding: "0.35rem 0.5rem", borderRadius: "6px", border: "1px solid #fecaca", background: "#fef2f2", color: "#dc2626", cursor: "pointer" }}
+                              title="Xóa câu hỏi"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          )}
 
-      {/* TAB 2: USERS */}
-      {activeTab === "users" && (
-        <div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.8rem" }}>
-            <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
-              <select
-                value={userRoleFilter}
-                onChange={(e) => setUserRoleFilter(e.target.value)}
-                className="input"
-                style={{ fontSize: "0.85rem", fontWeight: 700 }}
-              >
-                <option value="all">👥 Tất Cả Vai Trò ({users.length})</option>
-                <option value="admin">👑 Tổng Quản Trị</option>
-                <option value="branch_manager">🏫 Quản Lý Chi Nhánh</option>
-                <option value="student">🎓 Học Viên</option>
-              </select>
+          {/* ========================================================================= */}
+          {/* TAB 2: BÀI THI THỰC HÀNH (Practicals) */}
+          {/* ========================================================================= */}
+          {activeTab === "practicals" && (
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.2rem", flexWrap: "wrap", gap: "0.8rem" }}>
+                <div>
+                  <h2 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "#0f172a" }}>
+                    Ngân Hàng 10 Bài Thi Thực Hành Viết Code
+                  </h2>
+                  <p style={{ fontSize: "0.82rem", color: "#64748b", margin: "0.2rem 0 0" }}>
+                    Các đề thi tự luận lập trình chấm điểm qua test cases tự động.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => { setEditingPractical(null); setShowPracticalModal(true); }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    padding: "0.55rem 1.1rem",
+                    borderRadius: "10px",
+                    border: "none",
+                    background: "linear-gradient(135deg, #059669, #047857)",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    fontSize: "0.85rem",
+                    cursor: "pointer"
+                  }}
+                >
+                  <Plus size={15} />
+                  <span>Thêm Bài Thực Hành Mới</span>
+                </button>
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
+                {practicals.map((p) => (
+                  <div key={p.id} style={{ border: "1px solid #e2e8f0", borderRadius: "14px", padding: "1.2rem", background: "#ffffff" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "0.6rem" }}>
+                      <div>
+                        <span style={{ fontSize: "0.72rem", padding: "0.15rem 0.5rem", borderRadius: "6px", background: "#ecfdf5", color: "#059669", fontWeight: 800 }}>
+                          Bài Thực Hành #{p.id}
+                        </span>
+                        <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", margin: "0.3rem 0 0" }}>
+                          {p.title}
+                        </h3>
+                      </div>
+                      <div style={{ display: "flex", gap: "0.4rem" }}>
+                        <button
+                          onClick={() => { setEditingPractical(p); setShowPracticalModal(true); }}
+                          style={{ padding: "0.35rem 0.6rem", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#ffffff", color: "#2563eb", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.78rem" }}
+                        >
+                          <Edit3 size={13} />
+                          <span>Sửa</span>
+                        </button>
+                        <button
+                          onClick={() => handleDeletePractical(p.id)}
+                          style={{ padding: "0.35rem 0.6rem", borderRadius: "6px", border: "1px solid #fecaca", background: "#fef2f2", color: "#dc2626", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem", fontSize: "0.78rem" }}
+                        >
+                          <Trash2 size={13} />
+                          <span>Xóa</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    <p style={{ fontSize: "0.85rem", color: "#475569", marginBottom: "0.8rem", lineHeight: 1.5 }}>
+                      {p.description}
+                    </p>
+
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+                      <div style={{ background: "#0f172a", borderRadius: "10px", padding: "0.8rem", color: "#38bdf8", fontFamily: "var(--font-mono)", fontSize: "0.78rem" }}>
+                        <div style={{ color: "#94a3b8", fontSize: "0.7rem", fontWeight: 700, marginBottom: "0.3rem" }}>MÃ KHỞI TẠO (STARTER CODE):</div>
+                        <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>{p.starter_code}</pre>
+                      </div>
+
+                      <div style={{ background: "#0f172a", borderRadius: "10px", padding: "0.8rem", color: "#34d399", fontFamily: "var(--font-mono)", fontSize: "0.78rem" }}>
+                        <div style={{ color: "#94a3b8", fontSize: "0.7rem", fontWeight: 700, marginBottom: "0.3rem" }}>MÃ NGUỒN CHUẨN (SOLUTION):</div>
+                        <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>{p.solution_code}</pre>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+          )}
 
-            <button onClick={() => setShowAddUserModal(true)} className="btn btn-primary btn-sm">
-              <UserPlus size={15} />
-              <span>Cấp Tài Khoản Học Viên Mới</span>
-            </button>
-          </div>
+          {/* ========================================================================= */}
+          {/* TAB 3: MÔN HỌC & NGÂN HÀNG ĐỀ THI (Subjects Hub) */}
+          {/* ========================================================================= */}
+          {activeTab === "subjects" && (
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", flexWrap: "wrap", gap: "1rem" }}>
+                <div>
+                  <h2 style={{ fontSize: "1.25rem", fontWeight: 800, margin: 0, color: "#0f172a" }}>
+                    Quản Lý Môn Học & Bộ Đề Khảo Thí
+                  </h2>
+                  <p style={{ fontSize: "0.82rem", color: "#64748b", margin: "0.2rem 0 0" }}>
+                    Mỗi môn học gắn liền với ngân hàng câu hỏi ôn tập, đề thi trắc nghiệm và bài thực hành.
+                  </p>
+                </div>
 
-          <div style={{ marginBottom: "1rem" }}>
-            <input
-              type="text"
-              value={userSearch}
-              onChange={(e) => setUserSearch(e.target.value)}
-              placeholder="🔍 Tìm kiếm học viên theo tên, SĐT, lớp..."
-              className="input"
-              style={{ width: "100%" }}
-            />
-          </div>
+                <button
+                  onClick={() => { setEditingSubject(null); setShowSubjectModal(true); }}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    padding: "0.6rem 1.2rem",
+                    borderRadius: "10px",
+                    border: "none",
+                    background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    fontSize: "0.86rem",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)"
+                  }}
+                >
+                  <Plus size={16} />
+                  <span>Thêm Môn Học & Ngân Hàng Đề</span>
+                </button>
+              </div>
 
-          <div className="q-card" style={{ padding: 0, overflow: "hidden" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-              <thead>
-                <tr style={{ background: "var(--bg-light)", borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
-                  <th style={{ padding: "0.75rem 1rem" }}>Họ Và Tên</th>
-                  <th style={{ padding: "0.75rem 1rem" }}>SĐT / Tên Đăng Nhập</th>
-                  <th style={{ padding: "0.75rem 1rem" }}>Chi Nhánh & Lớp</th>
-                  <th style={{ padding: "0.75rem 1rem" }}>Môn Được Cấp</th>
-                  <th style={{ padding: "0.75rem 1rem" }}>Thời Lượng Học</th>
-                  <th style={{ padding: "0.75rem 1rem" }}>Mật Khẩu</th>
-                  <th style={{ padding: "0.75rem 1rem", textAlign: "right" }}>Thao Tác</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((u) => (
-                  <tr key={u.id} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                    <td style={{ padding: "0.75rem 1rem", fontWeight: 700 }}>{u.fullName}</td>
-                    <td style={{ padding: "0.75rem 1rem" }}>
-                      <code>{u.username}</code>
-                      {u.phone && <div style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>SĐT: {u.phone}</div>}
-                    </td>
-                    <td style={{ padding: "0.75rem 1rem", color: "var(--text-secondary)" }}>
-                      <div>{u.branchName || "Chi Nhánh Thủ Đức"}</div>
-                      <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{u.class || "Khóa 26"}</div>
-                    </td>
-                    <td style={{ padding: "0.75rem 1rem" }}>
-                      <div style={{ display: "flex", gap: "0.3rem", flexWrap: "wrap" }}>
-                        {(u.enrolledSubjects || ["python"]).map((subId) => (
-                          <span
-                            key={subId}
+              {/* Grid of Subject Cards */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(360px, 1fr))", gap: "1.25rem" }}>
+                {subjects.map(s => {
+                  const qCount = getSubjectQuestionCount(s.id);
+                  const pCount = getSubjectPracticalCount(s.id);
+                  const isPython = s.id === "python";
+
+                  return (
+                    <div
+                      key={s.id}
+                      style={{
+                        background: "#ffffff",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: "16px",
+                        padding: "1.3rem",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)"
+                      }}
+                    >
+                      <div>
+                        {/* Top Meta */}
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "0.6rem" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                            <div style={{
+                              width: "38px",
+                              height: "38px",
+                              borderRadius: "10px",
+                              background: isPython ? "#ecfdf5" : "#eff6ff",
+                              color: isPython ? "#059669" : "#2563eb",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center"
+                            }}>
+                              <Code2 size={20} />
+                            </div>
+                            <div>
+                              <span style={{ fontSize: "0.72rem", fontWeight: 800, padding: "0.15rem 0.45rem", borderRadius: "6px", background: "#f1f5f9", color: "#475569" }}>
+                                {s.code}
+                              </span>
+                              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", margin: "0.15rem 0 0" }}>
+                                {s.name}
+                              </h3>
+                            </div>
+                          </div>
+
+                          <span style={{
+                            fontSize: "0.72rem",
+                            fontWeight: 700,
+                            padding: "0.2rem 0.55rem",
+                            borderRadius: "9999px",
+                            background: s.isActive !== false ? "#ecfdf5" : "#fef2f2",
+                            color: s.isActive !== false ? "#15803d" : "#b91c1c"
+                          }}>
+                            {s.isActive !== false ? "Đang Mở" : "Tạm Đóng"}
+                          </span>
+                        </div>
+
+                        {/* Description */}
+                        <p style={{ fontSize: "0.82rem", color: "#64748b", margin: "0.6rem 0 0.8rem", lineHeight: 1.5, minHeight: "38px" }}>
+                          {s.description}
+                        </p>
+
+                        {/* Question Bank & Exam Status Metrics */}
+                        <div style={{ background: "#f8fafc", padding: "0.85rem", borderRadius: "12px", border: "1px solid #e2e8f0", marginBottom: "1rem" }}>
+                          <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#334155", marginBottom: "0.4rem", textTransform: "uppercase" }}>
+                            📊 NGÂN HÀNG HỌC LIỆU & ĐỀ THI:
+                          </div>
+                          
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", fontSize: "0.8rem" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <BookOpen size={14} color="#2563eb" />
+                              <span>Câu hỏi ôn: <strong style={{ color: qCount > 0 ? "#15803d" : "#ea580c" }}>{qCount} câu</strong></span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <Terminal size={14} color="#059669" />
+                              <span>Thực hành: <strong style={{ color: pCount > 0 ? "#15803d" : "#64748b" }}>{pCount} bài</strong></span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <Clock size={14} color="#9333ea" />
+                              <span>Đề thi: <strong>40 câu / 45p</strong></span>
+                            </div>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <Layers size={14} color="#d97706" />
+                              <span>Chương học: <strong>{s.totalModules || 5} bài</strong></span>
+                            </div>
+                          </div>
+
+                          {qCount === 0 && (
+                            <div style={{ marginTop: "0.5rem", fontSize: "0.74rem", color: "#d97706", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                              <AlertCircle size={13} />
+                              <span>Chưa có câu hỏi ôn tập. Nhấn "Nạp Đề" bên dưới để bổ sung.</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Action Button Strip */}
+                      <div>
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem", marginBottom: "0.5rem" }}>
+                          <button
+                            onClick={() => {
+                              setExcelTargetSubject(s.id);
+                              setShowExcelModal(true);
+                            }}
                             style={{
-                              padding: "0.15rem 0.45rem",
-                              borderRadius: "4px",
-                              background: "rgba(37, 99, 235, 0.1)",
-                              color: "var(--brand-primary)",
-                              fontSize: "0.72rem",
-                              fontWeight: 700
+                              padding: "0.45rem 0.6rem",
+                              borderRadius: "8px",
+                              border: "1px solid #10b981",
+                              background: "#ecfdf5",
+                              color: "#059669",
+                              fontWeight: 700,
+                              fontSize: "0.78rem",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "0.3rem",
+                              cursor: "pointer"
                             }}
                           >
-                            {subId.toUpperCase()}
-                          </span>
-                        ))}
+                            <FileSpreadsheet size={13} />
+                            <span>Nạp Đề & Câu Hỏi</span>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setSelectedSubjectId(s.id);
+                              setActiveTab("questions");
+                            }}
+                            style={{
+                              padding: "0.45rem 0.6rem",
+                              borderRadius: "8px",
+                              border: "1px solid #cbd5e1",
+                              background: "#ffffff",
+                              color: "#2563eb",
+                              fontWeight: 700,
+                              fontSize: "0.78rem",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "0.3rem",
+                              cursor: "pointer"
+                            }}
+                          >
+                            <BookOpen size={13} />
+                            <span>Soạn Câu Hỏi Ôn</span>
+                          </button>
+                        </div>
+
+                        <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.4rem", borderTop: "1px solid #f1f5f9", paddingTop: "0.6rem" }}>
+                          <button
+                            onClick={() => { setEditingSubject(s); setShowSubjectModal(true); }}
+                            style={{ padding: "0.35rem 0.6rem", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#ffffff", color: "#475569", cursor: "pointer", fontSize: "0.75rem", fontWeight: 600 }}
+                          >
+                            Sửa Thông Tin
+                          </button>
+                          {s.id !== "python" && (
+                            <button
+                              onClick={() => handleDeleteSubject(s.id)}
+                              style={{ padding: "0.35rem 0.6rem", borderRadius: "6px", border: "1px solid #fecaca", background: "#fef2f2", color: "#dc2626", cursor: "pointer", fontSize: "0.75rem", fontWeight: 600 }}
+                            >
+                              Xóa Môn
+                            </button>
+                          )}
+                        </div>
                       </div>
-                    </td>
-                    <td style={{ padding: "0.75rem 1rem", color: "var(--brand-primary)", fontWeight: 700 }}>
-                      ⏱️ {formatStudyDuration(u.totalStudySeconds || 0)}
-                    </td>
-                    <td style={{ padding: "0.75rem 1rem" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                        <span>{visiblePasswordIds.includes(u.id) ? u.password : "••••••••"}</span>
-                        <button onClick={() => togglePasswordVisibility(u.id)} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}>
-                          {visiblePasswordIds.includes(u.id) ? <EyeOff size={13} /> : <Eye size={13} />}
-                        </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 4: PHÂN CẤP TÀI KHOẢN (Users Hierarchy) */}
+          {/* ========================================================================= */}
+          {activeTab === "users" && (
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.2rem", flexWrap: "wrap", gap: "0.8rem" }}>
+                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
+                  <select
+                    value={userRoleFilter}
+                    onChange={(e) => setUserRoleFilter(e.target.value)}
+                    style={{
+                      padding: "0.55rem 0.85rem",
+                      borderRadius: "10px",
+                      border: "1px solid #cbd5e1",
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      fontWeight: 700,
+                      fontSize: "0.85rem"
+                    }}
+                  >
+                    <option value="all">👥 Tất Cả Vai Trò ({users.length})</option>
+                    <option value="admin">👑 Tổng Quản Trị (Super Admin)</option>
+                    <option value="branch_manager">🏢 Quản Lý Chi Nhánh</option>
+                    <option value="student">🎓 Học Viên</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => setShowAddUserModal(true)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    padding: "0.6rem 1.2rem",
+                    borderRadius: "10px",
+                    border: "none",
+                    background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    fontSize: "0.85rem",
+                    cursor: "pointer",
+                    boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)"
+                  }}
+                >
+                  <UserPlus size={16} />
+                  <span>Cấp Tài Khoản Mới (Phân Cấp)</span>
+                </button>
+              </div>
+
+              <div style={{ marginBottom: "1rem" }}>
+                <input
+                  type="text"
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="🔍 Tìm kiếm tài khoản theo tên, SĐT, lớp học, chi nhánh..."
+                  style={{
+                    width: "100%",
+                    padding: "0.65rem 0.9rem",
+                    borderRadius: "10px",
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontSize: "0.88rem"
+                  }}
+                />
+              </div>
+
+              {/* Table Users */}
+              <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: "12px" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", background: "#ffffff" }}>
+                  <thead>
+                    <tr style={{ background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", textAlign: "left", color: "#334155" }}>
+                      <th style={{ padding: "0.75rem 1rem" }}>Họ Và Tên</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Phân Cấp / Vai Trò</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>SĐT / Tên Đăng Nhập</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Cơ Sở Trực Thuộc & Lớp</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Môn Được Phép</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Mật Khẩu</th>
+                      <th style={{ padding: "0.75rem 1rem", textAlign: "right" }}>Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map((u) => {
+                      const isSuperAdmin = u.role === "admin";
+                      const isManager = u.role === "branch_manager";
+                      const isStudent = u.role === "student" || !u.role;
+
+                      return (
+                        <tr key={u.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                          <td style={{ padding: "0.75rem 1rem", fontWeight: 800, color: "#0f172a" }}>
+                            {u.fullName}
+                          </td>
+                          <td style={{ padding: "0.75rem 1rem" }}>
+                            {isSuperAdmin && (
+                              <span style={{ padding: "0.2rem 0.55rem", borderRadius: "6px", background: "#f3e8ff", color: "#7e22ce", fontSize: "0.74rem", fontWeight: 800, border: "1px solid #d8b4fe" }}>
+                                👑 Super Admin
+                              </span>
+                            )}
+                            {isManager && (
+                              <span style={{ padding: "0.2rem 0.55rem", borderRadius: "6px", background: "#eff6ff", color: "#1d4ed8", fontSize: "0.74rem", fontWeight: 800, border: "1px solid #bfdbfe" }}>
+                                🏢 Quản Lý Chi Nhánh
+                              </span>
+                            )}
+                            {isStudent && (
+                              <span style={{ padding: "0.2rem 0.55rem", borderRadius: "6px", background: "#ecfdf5", color: "#15803d", fontSize: "0.74rem", fontWeight: 700, border: "1px solid #bbf7d0" }}>
+                                🎓 Học Viên
+                              </span>
+                            )}
+                          </td>
+                          <td style={{ padding: "0.75rem 1rem" }}>
+                            <code style={{ background: "#f8fafc", padding: "0.15rem 0.4rem", borderRadius: "4px", border: "1px solid #e2e8f0", color: "#0f172a", fontWeight: 700 }}>
+                              {u.username}
+                            </code>
+                            {u.phone && <div style={{ fontSize: "0.74rem", color: "#64748b", marginTop: "0.15rem" }}>SĐT: {u.phone}</div>}
+                          </td>
+                          <td style={{ padding: "0.75rem 1rem", color: "#334155" }}>
+                            <div style={{ fontWeight: 600 }}>{u.branchName || "Chi Nhánh Thủ Đức"}</div>
+                            {u.class && <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{u.class}</div>}
+                          </td>
+                          <td style={{ padding: "0.75rem 1rem" }}>
+                            <div style={{ display: "flex", gap: "0.3rem", flexWrap: "wrap" }}>
+                              {(u.enrolledSubjects || ["python"]).map((subId) => (
+                                <span
+                                  key={subId}
+                                  style={{
+                                    padding: "0.12rem 0.4rem",
+                                    borderRadius: "4px",
+                                    background: "#eff6ff",
+                                    color: "#1d4ed8",
+                                    fontSize: "0.72rem",
+                                    fontWeight: 700
+                                  }}
+                                >
+                                  {subId.toUpperCase()}
+                                </span>
+                              ))}
+                            </div>
+                          </td>
+                          <td style={{ padding: "0.75rem 1rem" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.82rem" }}>
+                                {visiblePasswordIds.includes(u.id) ? u.password : "••••••••"}
+                              </span>
+                              <button
+                                onClick={() => togglePasswordVisibility(u.id)}
+                                style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8" }}
+                              >
+                                {visiblePasswordIds.includes(u.id) ? <EyeOff size={13} /> : <Eye size={13} />}
+                              </button>
+                            </div>
+                          </td>
+                          <td style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
+                            <div style={{ display: "flex", gap: "0.35rem", justifyContent: "flex-end" }}>
+                              <button
+                                onClick={() => setEditingUser(u)}
+                                style={{ padding: "0.35rem 0.5rem", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#ffffff", color: "#2563eb", cursor: "pointer" }}
+                                title="Sửa tài khoản"
+                              >
+                                <Edit3 size={13} />
+                              </button>
+                              {u.username !== "admin" && (
+                                <button
+                                  onClick={() => handleDeleteUser(u.id)}
+                                  style={{ padding: "0.35rem 0.5rem", borderRadius: "6px", border: "1px solid #fecaca", background: "#fef2f2", color: "#dc2626", cursor: "pointer" }}
+                                  title="Xóa tài khoản"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 5: CƠ SỞ PHÒNG LAB (Branches) */}
+          {/* ========================================================================= */}
+          {activeTab === "branches" && (
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.2rem", flexWrap: "wrap", gap: "0.8rem" }}>
+                <div>
+                  <h2 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "#0f172a" }}>
+                    Danh Sách 4 Cơ Sở Đào Tạo Thực Hành
+                  </h2>
+                  <p style={{ fontSize: "0.82rem", color: "#64748b", margin: "0.2rem 0 0" }}>
+                    Phân bổ quản lý chi nhánh, phòng lab và mã PIN giáo viên.
+                  </p>
+                </div>
+
+                {currentUser.role === "admin" && (
+                  <button
+                    onClick={() => { setEditingBranch(null); setShowBranchModal(true); }}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      padding: "0.55rem 1.1rem",
+                      borderRadius: "10px",
+                      border: "none",
+                      background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                      color: "#ffffff",
+                      fontWeight: 700,
+                      fontSize: "0.85rem",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <Plus size={15} />
+                    <span>Thêm Chi Nhánh Mới</span>
+                  </button>
+                )}
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1rem" }}>
+                {branches.map((b) => (
+                  <div key={b.id} style={{ border: "1px solid #e2e8f0", borderRadius: "14px", padding: "1.2rem", background: "#ffffff" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "0.6rem" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "#eff6ff", color: "#2563eb", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <Building2 size={20} />
+                        </div>
+                        <div>
+                          <span style={{ fontSize: "0.72rem", fontWeight: 800, padding: "0.15rem 0.45rem", borderRadius: "6px", background: "#f1f5f9", color: "#475569" }}>{b.code}</span>
+                          <h3 style={{ fontSize: "1.05rem", fontWeight: 800, color: "#0f172a", margin: "0.15rem 0 0" }}>{b.name}</h3>
+                        </div>
                       </div>
-                    </td>
-                    <td style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
-                      <div style={{ display: "flex", gap: "0.3rem", justifyContent: "flex-end" }}>
-                        <button onClick={() => setEditingUser(u)} className="btn btn-secondary btn-sm" style={{ padding: "0.3rem" }}>
-                          <Edit3 size={13} />
-                        </button>
-                        {u.username !== "admin" && (
-                          <button onClick={() => handleDeleteUser(u.id)} className="btn btn-danger btn-sm" style={{ padding: "0.3rem" }}>
+                      {currentUser.role === "admin" && (
+                        <div style={{ display: "flex", gap: "0.3rem" }}>
+                          <button
+                            onClick={() => { setEditingBranch(b); setShowBranchModal(true); }}
+                            style={{ padding: "0.3rem 0.5rem", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#ffffff", color: "#2563eb", cursor: "pointer", fontSize: "0.75rem" }}
+                          >
+                            <Edit3 size={13} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteBranch(b.id)}
+                            style={{ padding: "0.3rem 0.5rem", borderRadius: "6px", border: "1px solid #fecaca", background: "#fef2f2", color: "#dc2626", cursor: "pointer", fontSize: "0.75rem" }}
+                          >
                             <Trash2 size={13} />
                           </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+                        </div>
+                      )}
+                    </div>
+
+                    <div style={{ fontSize: "0.82rem", color: "#475569", display: "flex", flexDirection: "column", gap: "0.35rem", marginTop: "0.8rem" }}>
+                      <div>📍 {b.address}</div>
+                      <div>📞 Hotline: <strong>{b.phone}</strong></div>
+                      <div>👤 Phụ trách: <strong>{b.managerName}</strong></div>
+                      <div>🔢 Mã PIN GV: <strong style={{ color: "#2563eb", letterSpacing: "2px" }}>{b.defaultTeacherPin}</strong></div>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 3: SUBJECTS */}
-      {activeTab === "subjects" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "1rem" }}>
-          {subjects.map(s => (
-            <div key={s.id} className="q-card" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-              <div>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                  <div style={{ padding: "0.4rem", background: "rgba(37, 99, 235, 0.1)", borderRadius: "var(--radius-md)", color: "var(--brand-primary)" }}>
-                    <Code2 size={20} />
-                  </div>
-                  <div>
-                    <span className="badge badge-primary" style={{ fontSize: "0.72rem" }}>{s.code}</span>
-                    <h3 style={{ fontSize: "1.05rem", fontWeight: 800, margin: "0.2rem 0 0" }}>{s.name}</h3>
-                  </div>
-                </div>
-                <p style={{ fontSize: "0.84rem", color: "var(--text-muted)", margin: "0.5rem 0" }}>
-                  {s.description}
-                </p>
-              </div>
-              <div style={{ borderTop: "1px solid var(--border-light)", paddingTop: "0.6rem", display: "flex", justifyContent: "space-between", fontSize: "0.82rem" }}>
-                <span>Runtime: <code>{s.runtime}</code></span>
-                <span>Khóa: <strong>{s.totalModules} bài</strong></span>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      {/* TAB 4: BRANCHES */}
-      {activeTab === "branches" && (
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: "1rem" }}>
-          {branches.map(b => (
-            <div key={b.id} className="q-card">
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.5rem" }}>
-                <Building2 size={18} color="var(--brand-primary)" />
-                <h3 style={{ fontSize: "1rem", fontWeight: 800, margin: 0 }}>{b.name}</h3>
-              </div>
-              <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", marginBottom: "0.5rem" }}>
-                📍 {b.address}
-              </p>
-              <div style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
-                📞 Hotline: {b.phone}
+          {/* ========================================================================= */}
+          {/* TAB 6: KẾT QUẢ KHẢO THÍ (Exam Results) */}
+          {/* ========================================================================= */}
+          {activeTab === "results" && (
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
+              <h2 style={{ fontSize: "1.2rem", fontWeight: 800, margin: "0 0 1rem", color: "#0f172a" }}>
+                Bảng Điểm & Kết Quả Thi Khảo Thí Online
+              </h2>
+
+              <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: "12px" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", background: "#ffffff" }}>
+                  <thead>
+                    <tr style={{ background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", textAlign: "left", color: "#334155" }}>
+                      <th style={{ padding: "0.75rem 1rem" }}>Học Viên</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Chi Nhánh</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Điểm Số</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Số Câu Đúng</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Thời Gian Làm</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Trạng Thái</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {examResults.length > 0 ? (
+                      examResults.map((r, i) => (
+                        <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                          <td style={{ padding: "0.75rem 1rem", fontWeight: 700 }}>{r.studentName}</td>
+                          <td style={{ padding: "0.75rem 1rem", color: "#64748b" }}>{r.branchName || "Thủ Đức"}</td>
+                          <td style={{ padding: "0.75rem 1rem", fontWeight: 900, color: (r.score || 0) >= 8 ? "#15803d" : "#ea580c", fontSize: "1rem" }}>
+                            {r.score} / 10
+                          </td>
+                          <td style={{ padding: "0.75rem 1rem" }}>{r.correctCount} / {r.totalQuestions} câu</td>
+                          <td style={{ padding: "0.75rem 1rem", color: "#64748b" }}>{Math.floor((r.timeSpentSeconds || 0) / 60)} phút</td>
+                          <td style={{ padding: "0.75rem 1rem" }}>
+                            <span style={{
+                              padding: "0.2rem 0.5rem",
+                              borderRadius: "6px",
+                              background: (r.score || 0) >= 5 ? "#ecfdf5" : "#fef2f2",
+                              color: (r.score || 0) >= 5 ? "#15803d" : "#b91c1c",
+                              fontWeight: 700,
+                              fontSize: "0.74rem"
+                            }}>
+                              {(r.score || 0) >= 8 ? "🏆 Xuất Sắc" : (r.score || 0) >= 5 ? "✅ Đạt Yêu Cầu" : "⚠️ Cần Ôn Lại"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={6} style={{ padding: "2rem", textAlign: "center", color: "#94a3b8" }}>
+                          Chưa có lịch sử bài thi nào được nộp gần đây.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          )}
 
-      {/* TAB 5: RESULTS */}
-      {activeTab === "results" && (
-        <div className="q-card" style={{ padding: 0, overflow: "hidden" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem" }}>
-            <thead>
-              <tr style={{ background: "var(--bg-light)", borderBottom: "1px solid var(--border-light)", textAlign: "left" }}>
-                <th style={{ padding: "0.75rem 1rem" }}>Học Viên</th>
-                <th style={{ padding: "0.75rem 1rem" }}>Môn Thi</th>
-                <th style={{ padding: "0.75rem 1rem" }}>Tổng Điểm</th>
-                <th style={{ padding: "0.75rem 1rem" }}>Kết Quả</th>
-                <th style={{ padding: "0.75rem 1rem" }}>Mã Chứng Chỉ</th>
-                <th style={{ padding: "0.75rem 1rem" }}>Ngày Thi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {examResults.map((r, i) => (
-                <tr key={i} style={{ borderBottom: "1px solid var(--border-light)" }}>
-                  <td style={{ padding: "0.75rem 1rem", fontWeight: 700 }}>{r.userName}</td>
-                  <td style={{ padding: "0.75rem 1rem" }}>{r.subjectId?.toUpperCase()}</td>
-                  <td style={{ padding: "0.75rem 1rem", fontWeight: 800 }}>{r.score} / 10</td>
-                  <td style={{ padding: "0.75rem 1rem" }}>
-                    <span className={`badge ${r.passed ? "badge-emerald" : "badge-rose"}`} style={{ fontSize: "0.72rem" }}>
-                      {r.passed ? "ĐẠT CHUẨN" : "CHƯA ĐẠT"}
-                    </span>
-                  </td>
-                  <td style={{ padding: "0.75rem 1rem" }}><code>{r.certificateCode || "---"}</code></td>
-                  <td style={{ padding: "0.75rem 1rem" }}>{r.completedDate}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+        </main>
+      </div>
 
-      {/* Modals */}
-      {showExcelModal && (
-        <ExcelQuestionImporter
-          subjects={subjects}
-          branches={branches}
-          currentSubjectId={selectedSubjectId}
-          onClose={() => setShowExcelModal(false)}
-          onImportSuccess={() => {
-            setShowExcelModal(false);
-            loadAllData();
-          }}
-        />
-      )}
-
+      {/* ========================================================================= */}
+      {/* MODALS */}
+      {/* ========================================================================= */}
       {showAddUserModal && (
         <AddUserModal
           onClose={() => setShowAddUserModal(false)}
-          onUserAdded={() => {
-            setShowAddUserModal(false);
-            loadAllData();
-          }}
-          defaultBranchId={currentUser.role === "branch_manager" && currentUser.branchId ? currentUser.branchId : "branch_thuduc"}
-          isBranchLocked={currentUser.role === "branch_manager"}
+          onUserAdded={loadAllData}
+          defaultBranchId={currentUser?.role === "branch_manager" ? currentUser.branchId : "branch_thuduc"}
+          isBranchLocked={currentUser?.role === "branch_manager"}
         />
       )}
 
@@ -932,29 +1598,53 @@ export default function AdminPage() {
         <UserEditModal
           user={editingUser}
           onClose={() => setEditingUser(null)}
-          onUserUpdated={() => {
-            setEditingUser(null);
-            loadAllData();
-          }}
+          onUserUpdated={loadAllData}
         />
       )}
 
       {showQuestionModal && (
         <QuestionFormModal
           question={editingQuestion}
-          onClose={() => {
-            setShowQuestionModal(false);
-            setEditingQuestion(null);
-          }}
-          onSaved={() => {
-            setShowQuestionModal(false);
-            setEditingQuestion(null);
-            loadAllData();
-          }}
+          defaultSubjectId={selectedSubjectId === "all" ? "python" : selectedSubjectId}
+          onClose={() => { setShowQuestionModal(false); setEditingQuestion(null); }}
+          onSaved={loadAllData}
         />
       )}
-        </main>
-      </div>
+
+      {showPracticalModal && (
+        <PracticalFormModal
+          problem={editingPractical}
+          defaultSubjectId={selectedSubjectId === "all" ? "python" : selectedSubjectId}
+          onClose={() => { setShowPracticalModal(false); setEditingPractical(null); }}
+          onSaved={loadAllData}
+        />
+      )}
+
+      {showExcelModal && (
+        <ExcelQuestionImporter
+          subjects={subjects}
+          branches={branches}
+          currentSubjectId={excelTargetSubject}
+          onImportSuccess={() => loadAllData()}
+          onClose={() => setShowExcelModal(false)}
+        />
+      )}
+
+      {showBranchModal && (
+        <BranchModal
+          branch={editingBranch}
+          onSave={handleSaveBranch}
+          onClose={() => { setShowBranchModal(false); setEditingBranch(null); }}
+        />
+      )}
+
+      {showSubjectModal && (
+        <SubjectModal
+          subject={editingSubject}
+          onSave={handleSaveSubject}
+          onClose={() => { setShowSubjectModal(false); setEditingSubject(null); }}
+        />
+      )}
     </div>
   );
 }

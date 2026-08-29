@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { User, UserRole } from "@/types";
-import { DEFAULT_BRANCHES, DEFAULT_SUBJECTS, getUsers, saveUsers } from "@/lib/usersData";
-import { UserCheck, X, Eye, EyeOff } from "lucide-react";
+import { DEFAULT_BRANCHES, DEFAULT_SUBJECTS, getUsers, saveUsers, updateUser } from "@/lib/usersData";
+import { UserCheck, X, Eye, EyeOff, ShieldCheck, Building2, GraduationCap } from "lucide-react";
 
 interface UserEditModalProps {
   user: User;
@@ -40,24 +40,18 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
 
     const selectedBranch = branches.find(b => b.id === branchId);
 
-    const users = getUsers();
-    const idx = users.findIndex(u => u.id === user.id);
-    if (idx !== -1) {
-      users[idx] = {
-        ...users[idx],
-        fullName: fullName.trim(),
-        phone: phone.trim(),
-        class: className.trim(),
-        password: password.trim(),
-        role: role,
-        branchId: branchId,
-        branchName: selectedBranch?.name || "Chi Nhánh Thủ Đức",
-        pin: role !== "student" ? pin.trim() : undefined,
-        status: status,
-        enrolledSubjects: role === "student" ? enrolledSubjects : ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"]
-      };
-      saveUsers(users);
-    }
+    updateUser(user.id, {
+      fullName: fullName.trim(),
+      phone: phone.trim(),
+      class: role === "student" ? className.trim() : undefined,
+      password: password.trim(),
+      role: role,
+      branchId: branchId,
+      branchName: selectedBranch?.name || "Chi Nhánh Thủ Đức",
+      pin: role !== "student" ? pin.trim() : undefined,
+      status: status,
+      enrolledSubjects: role === "student" ? enrolledSubjects : ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"]
+    });
 
     try {
       await fetch("/api/users", {
@@ -67,7 +61,7 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
           id: user.id,
           fullName: fullName.trim(),
           phone: phone.trim(),
-          className: className.trim(),
+          className: role === "student" ? className.trim() : undefined,
           password: password.trim(),
           role: role,
           branchId: branchId,
@@ -89,7 +83,7 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
     <div style={{
       position: "fixed",
       inset: 0,
-      background: "rgba(15, 23, 42, 0.65)",
+      background: "rgba(15, 23, 42, 0.6)",
       backdropFilter: "blur(6px)",
       display: "flex",
       alignItems: "center",
@@ -97,67 +91,163 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
       zIndex: 1000,
       padding: "1rem"
     }}>
-      <div className="q-card" style={{ maxWidth: "560px", width: "100%", maxHeight: "90vh", overflowY: "auto", padding: "2rem", position: "relative" }}>
+      <div style={{
+        background: "#ffffff",
+        color: "#0f172a",
+        maxWidth: "580px",
+        width: "100%",
+        maxHeight: "92vh",
+        overflowY: "auto",
+        padding: "2rem",
+        borderRadius: "20px",
+        border: "1px solid #e2e8f0",
+        boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 0, 0, 0.05)",
+        position: "relative"
+      }}>
+        {/* Close Button */}
         <button
           onClick={onClose}
           style={{
             position: "absolute",
             top: "1.2rem",
             right: "1.2rem",
-            background: "none",
+            background: "#f1f5f9",
             border: "none",
+            borderRadius: "50%",
+            width: "32px",
+            height: "32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
             cursor: "pointer",
-            color: "var(--text-muted)"
+            color: "#64748b"
           }}
         >
-          <X size={20} />
+          <X size={18} />
         </button>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", borderBottom: "1px solid var(--border-light)", paddingBottom: "0.8rem", marginBottom: "1.2rem" }}>
-          <div style={{ padding: "0.4rem", background: "rgba(37, 99, 235, 0.12)", color: "var(--brand-primary)", borderRadius: "var(--radius-md)" }}>
-            <UserCheck size={22} />
+        {/* Modal Header */}
+        <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "1.25rem" }}>
+          <div style={{
+            width: "46px",
+            height: "46px",
+            borderRadius: "14px",
+            background: "#eff6ff",
+            color: "#2563eb",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center"
+          }}>
+            <UserCheck size={24} />
           </div>
           <div>
-            <h3 style={{ fontSize: "1.15rem", fontWeight: 800, margin: 0 }}>Chỉnh Sửa Tài Khoản</h3>
-            <p style={{ fontSize: "0.82rem", color: "var(--text-muted)", margin: 0 }}>
-              Tên đăng nhập: <strong style={{ color: "var(--brand-primary)" }}>{user.username}</strong>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
+              Chỉnh Sửa Tài Khoản
+            </h3>
+            <p style={{ fontSize: "0.82rem", color: "#64748b", margin: "0.2rem 0 0" }}>
+              Tên đăng nhập: <strong style={{ color: "#2563eb", fontFamily: "var(--font-mono)" }}>{user.username}</strong>
             </p>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "0.9rem" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "0.8rem" }}>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", gap: "0.85rem" }}>
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
-                Họ và Tên:
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+                Họ và Tên: *
               </label>
               <input
                 type="text"
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="input"
-                style={{ width: "100%" }}
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontSize: "0.88rem"
+                }}
               />
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
                 Số Điện Thoại:
               </label>
               <input
                 type="text"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="input"
-                style={{ width: "100%" }}
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontSize: "0.88rem"
+                }}
               />
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+                Vai Trò Tài Khoản:
+              </label>
+              <select
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontWeight: 600,
+                  fontSize: "0.85rem"
+                }}
+                value={role}
+                disabled={user.username === "admin"}
+                onChange={(e) => setRole(e.target.value as UserRole)}
+              >
+                <option value="student">🎓 Học Viên (Student)</option>
+                <option value="branch_manager">🏢 Quản Lý Chi Nhánh (Manager)</option>
+                <option value="admin">👑 Super Admin</option>
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+                Trạng Thái Hoạt Động:
+              </label>
+              <select
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: status === "active" ? "#15803d" : "#b91c1c",
+                  fontWeight: 700,
+                  fontSize: "0.85rem"
+                }}
+                value={status}
+                onChange={(e) => setStatus(e.target.value as "active" | "locked")}
+              >
+                <option value="active">🟢 Đang Hoạt Động</option>
+                <option value="locked">🔴 Tạm Khóa Tài Khoản</option>
+              </select>
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
                 Mật Khẩu Đăng Nhập:
               </label>
               <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
@@ -165,93 +255,191 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input"
-                  style={{ width: "100%", paddingRight: "38px", fontFamily: "var(--font-mono)" }}
+                  style={{
+                    width: "100%",
+                    padding: "0.65rem 2.4rem 0.65rem 0.85rem",
+                    borderRadius: "10px",
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#0f172a",
+                    fontWeight: 600,
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.88rem"
+                  }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  style={{ position: "absolute", right: "8px", background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}
+                  style={{
+                    position: "absolute",
+                    right: "10px",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "#94a3b8"
+                  }}
                 >
-                  {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </div>
             </div>
 
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
-                Trạng Thái Hoạt Động:
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+                Chi Nhánh Quản Lý:
               </label>
               <select
-                className="input"
-                style={{ width: "100%" }}
-                value={status}
-                onChange={(e) => setStatus(e.target.value as "active" | "locked")}
-              >
-                <option value="active">Hoạt Động Bình Thường</option>
-                <option value="locked">Tạm Khóa Tài Khoản</option>
-              </select>
-            </div>
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem" }}>
-            <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
-                Chi Nhánh Trực Thuộc:
-              </label>
-              <select
-                className="input"
-                style={{ width: "100%" }}
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontWeight: 600,
+                  fontSize: "0.85rem"
+                }}
                 value={branchId}
                 onChange={(e) => setBranchId(e.target.value)}
               >
                 {branches.map(b => (
-                  <option key={b.id} value={b.id}>{b.name}</option>
+                  <option key={b.id} value={b.id}>🏢 {b.name}</option>
                 ))}
               </select>
             </div>
+          </div>
 
+          {role === "student" ? (
             <div>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
                 Lớp Học / Khóa Học:
               </label>
               <input
                 type="text"
                 value={className}
                 onChange={(e) => setClassName(e.target.value)}
-                className="input"
-                style={{ width: "100%" }}
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontSize: "0.88rem"
+                }}
               />
             </div>
-          </div>
-
-          <div>
-            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--brand-primary)" }}>
-              Phân Quyền Các Môn Học Được Phép:
-            </label>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem", background: "var(--surface-subtle)", padding: "0.8rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-light)" }}>
-              {DEFAULT_SUBJECTS.map(subj => {
-                const isChecked = enrolledSubjects.includes(subj.id);
-                return (
-                  <label key={subj.id} style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.8rem", cursor: "pointer" }}>
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => toggleSubject(subj.id)}
-                    />
-                    <span style={{ fontWeight: isChecked ? 700 : 500 }}>{subj.name}</span>
-                  </label>
-                );
-              })}
+          ) : (
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+                Mã PIN Quản Trị / Giáo Viên:
+              </label>
+              <input
+                type="text"
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                placeholder="8888"
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontWeight: 700,
+                  fontSize: "0.88rem",
+                  letterSpacing: "0.1em"
+                }}
+              />
             </div>
-          </div>
+          )}
 
-          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.6rem", marginTop: "0.6rem" }}>
-            <button type="button" onClick={onClose} className="btn btn-secondary btn-md">
+          {/* Subject Permissions for Student */}
+          {role === "student" && (
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#2563eb", marginBottom: "0.4rem" }}>
+                Phân Quyền Các Môn Học Được Phép (Chỉ được học/thi môn được tích):
+              </label>
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "0.45rem",
+                background: "#f8fafc",
+                padding: "0.85rem",
+                borderRadius: "12px",
+                border: "1px solid #e2e8f0"
+              }}>
+                {DEFAULT_SUBJECTS.map(subj => {
+                  const isChecked = enrolledSubjects.includes(subj.id);
+                  return (
+                    <label
+                      key={subj.id}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        fontSize: "0.82rem",
+                        cursor: "pointer",
+                        padding: "0.35rem 0.5rem",
+                        borderRadius: "8px",
+                        background: isChecked ? "#eff6ff" : "transparent",
+                        border: isChecked ? "1px solid #bfdbfe" : "1px solid transparent",
+                        color: isChecked ? "#1d4ed8" : "#334155"
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleSubject(subj.id)}
+                        style={{ accentColor: "#2563eb" }}
+                      />
+                      <span style={{ fontWeight: isChecked ? 700 : 500 }}>{subj.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "0.75rem",
+            marginTop: "0.5rem",
+            borderTop: "1px solid #e2e8f0",
+            paddingTop: "1rem"
+          }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: "0.65rem 1.25rem",
+                borderRadius: "10px",
+                border: "1px solid #cbd5e1",
+                background: "#ffffff",
+                color: "#475569",
+                fontWeight: 600,
+                fontSize: "0.85rem",
+                cursor: "pointer"
+              }}
+            >
               Hủy
             </button>
-            <button type="submit" disabled={isLoading} className="btn btn-primary btn-md">
-              <span>{isLoading ? "Đang lưu..." : "Lưu Thay Đổi"}</span>
+            <button
+              type="submit"
+              disabled={isLoading}
+              style={{
+                padding: "0.65rem 1.35rem",
+                borderRadius: "10px",
+                border: "none",
+                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                color: "#ffffff",
+                fontWeight: 700,
+                fontSize: "0.85rem",
+                cursor: "pointer"
+              }}
+            >
+              {isLoading ? "Đang lưu..." : "Lưu Thay Đổi"}
             </button>
           </div>
         </form>

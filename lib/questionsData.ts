@@ -2127,16 +2127,18 @@ const CUSTOM_QUESTIONS_KEY = "NEXT_SAOVIET_CUSTOM_QUESTIONS";
 const CUSTOM_PRACTICALS_KEY = "NEXT_SAOVIET_CUSTOM_PRACTICALS";
 
 export function getQuestionsData(): Question[] {
-  if (typeof window === "undefined") return QUESTIONS_DATA;
+  const defaultList = QUESTIONS_DATA.map(q => ({ ...q, subjectId: q.subjectId || "python" }));
+  if (typeof window === "undefined") return defaultList;
   try {
     const raw = localStorage.getItem(CUSTOM_QUESTIONS_KEY);
     if (!raw) {
-      localStorage.setItem(CUSTOM_QUESTIONS_KEY, JSON.stringify(QUESTIONS_DATA));
-      return QUESTIONS_DATA;
+      localStorage.setItem(CUSTOM_QUESTIONS_KEY, JSON.stringify(defaultList));
+      return defaultList;
     }
-    return JSON.parse(raw);
+    const parsed: Question[] = JSON.parse(raw);
+    return parsed.map(q => ({ ...q, subjectId: q.subjectId || "python" }));
   } catch (e) {
-    return QUESTIONS_DATA;
+    return defaultList;
   }
 }
 
@@ -2149,6 +2151,7 @@ export function addQuestionData(q: Omit<Question, "id"> & { id?: number }): Ques
   const list = getQuestionsData();
   const newQ: Question = {
     ...q,
+    subjectId: q.subjectId || "python",
     id: q.id || (list.length > 0 ? Math.max(...list.map(x => x.id)) + 1 : 1)
   };
   list.push(newQ);
@@ -2175,16 +2178,18 @@ export function deleteQuestionData(id: number): boolean {
 }
 
 export function getPracticalsData(): PracticalProblem[] {
-  if (typeof window === "undefined") return PRACTICAL_DATA;
+  const defaultList = PRACTICAL_DATA.map(p => ({ ...p, subjectId: p.subjectId || "python" }));
+  if (typeof window === "undefined") return defaultList;
   try {
     const raw = localStorage.getItem(CUSTOM_PRACTICALS_KEY);
     if (!raw) {
-      localStorage.setItem(CUSTOM_PRACTICALS_KEY, JSON.stringify(PRACTICAL_DATA));
-      return PRACTICAL_DATA;
+      localStorage.setItem(CUSTOM_PRACTICALS_KEY, JSON.stringify(defaultList));
+      return defaultList;
     }
-    return JSON.parse(raw);
+    const parsed: PracticalProblem[] = JSON.parse(raw);
+    return parsed.map(p => ({ ...p, subjectId: p.subjectId || "python" }));
   } catch (e) {
-    return PRACTICAL_DATA;
+    return defaultList;
   }
 }
 

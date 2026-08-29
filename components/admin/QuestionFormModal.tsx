@@ -1,19 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { Question, QuestionType } from "@/types";
+import { Question, QuestionType, Subject } from "@/types";
 import { addQuestionData, updateQuestionData } from "@/lib/questionsData";
+import { DEFAULT_SUBJECTS } from "@/lib/usersData";
 import { HelpCircle, X, CheckCircle2, Plus, Trash2, Code2, BookOpen } from "lucide-react";
 
 interface QuestionFormModalProps {
   question?: Question | null;
+  defaultSubjectId?: string;
   onClose: () => void;
   onSaved: () => void;
 }
 
-export default function QuestionFormModal({ question, onClose, onSaved }: QuestionFormModalProps) {
+export default function QuestionFormModal({ 
+  question, 
+  defaultSubjectId = "python",
+  onClose, 
+  onSaved 
+}: QuestionFormModalProps) {
   const isEdit = !!question;
 
+  const [subjectId, setSubjectId] = useState(question?.subjectId || defaultSubjectId);
   const [type, setType] = useState<QuestionType>(question?.type || "single_choice");
   const [questionText, setQuestionText] = useState(question?.question || "");
   const [explanation, setExplanation] = useState(question?.explanation || "");
@@ -72,6 +80,7 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
     }
 
     const questionPayload: any = {
+      subjectId: subjectId,
       type,
       type_name: getTypeName(type),
       question: questionText.trim(),
@@ -96,29 +105,23 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
       questionPayload.id = question.id;
       updateQuestionData(question.id, questionPayload);
 
-      // Call API PUT
       try {
         await fetch("/api/questions", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ target: "question", data: questionPayload })
         });
-      } catch (err) {
-        console.warn("MongoDB API sync error, saved to local cache.");
-      }
+      } catch (err) {}
     } else {
       const created = addQuestionData(questionPayload);
 
-      // Call API POST
       try {
         await fetch("/api/questions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ target: "question", data: { ...questionPayload, id: created.id } })
         });
-      } catch (err) {
-        console.warn("MongoDB API sync error, saved to local cache.");
-      }
+      } catch (err) {}
     }
 
     setIsLoading(false);
@@ -128,9 +131,32 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-dialog modal-lg" onClick={(e) => e.stopPropagation()} style={{ maxHeight: "90vh", overflowY: "auto" }}>
+    <div style={{
+      position: "fixed",
+      inset: 0,
+      background: "rgba(15, 23, 42, 0.6)",
+      backdropFilter: "blur(6px)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 1000,
+      padding: "1rem"
+    }}>
+      <div style={{
+        background: "#ffffff",
+        color: "#0f172a",
+        maxWidth: "680px",
+        width: "100%",
+        maxHeight: "92vh",
+        overflowY: "auto",
+        padding: "2rem",
+        borderRadius: "20px",
+        border: "1px solid #e2e8f0",
+        boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.2)",
+        position: "relative"
+      }}>
         <button
+          onClick={onClose}
           style={{
             position: "absolute",
             top: "1.2rem",
@@ -146,70 +172,112 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
             cursor: "pointer",
             color: "#64748b"
           }}
-          onClick={onClose}
         >
           <X size={18} />
         </button>
 
-        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.85rem", marginBottom: "1.25rem" }}>
           <div style={{
-            width: "56px",
-            height: "56px",
-            background: "rgba(37, 99, 235, 0.12)",
-            color: "var(--brand-primary)",
-            borderRadius: "16px",
+            width: "46px",
+            height: "46px",
+            borderRadius: "14px",
+            background: "#eff6ff",
+            color: "#2563eb",
             display: "flex",
             alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 1rem auto"
+            justifyContent: "center"
           }}>
-            <HelpCircle size={28} />
+            <HelpCircle size={24} />
           </div>
-          <h3 style={{ fontSize: "1.35rem", fontWeight: 800 }}>
-            {isEdit ? `Chỉnh Sửa Câu Hỏi #${question?.id}` : "Thêm Câu Hỏi Trắc Nghiệm Mới"}
-          </h3>
-          <p style={{ fontSize: "0.88rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>
-            Hỗ trợ đầy đủ 6 dạng tương tác chuẩn giáo trình Python Nâng Cao
-          </p>
+          <div>
+            <h3 style={{ fontSize: "1.3rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
+              {isEdit ? `Chỉnh Sửa Câu Hỏi #${question?.id}` : "Thêm Câu Hỏi Trắc Nghiệm Mới"}
+            </h3>
+            <p style={{ fontSize: "0.82rem", color: "#64748b", margin: "0.2rem 0 0" }}>
+              Soạn thảo câu hỏi trắc nghiệm tương tác cao 6 dạng chuẩn khảo thí.
+            </p>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          {/* Question Type Selector */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-              Dạng Câu Hỏi:
-            </label>
-            <select
-              className="form-input"
-              value={type}
-              onChange={(e) => {
-                const newT = e.target.value as QuestionType;
-                setType(newT);
-                if (newT === "true_false") {
-                  setOptions(["Đúng (True)", "Sai (False)"]);
-                } else if (newT === "single_choice" || newT === "multiple_choice") {
-                  if (options.length < 4) setOptions(["Lựa chọn A", "Lựa chọn B", "Lựa chọn C", "Lựa chọn D"]);
-                }
-              }}
-              disabled={isEdit}
-            >
-              <option value="single_choice">1. Trắc nghiệm ABCD (1 đáp án đúng)</option>
-              <option value="true_false">2. Đúng / Sai (True / False)</option>
-              <option value="multiple_choice">3. Nhiều đáp án đúng (Checkbox)</option>
-              <option value="fill_blank">4. Điền từ khóa còn thiếu</option>
-              <option value="sequence_order">5. Sắp xếp thứ tự dòng lệnh</option>
-              <option value="matching">6. Ghép cặp câu lệnh & chức năng</option>
-            </select>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+          
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.85rem" }}>
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+                Thuộc Môn Học: *
+              </label>
+              <select
+                value={subjectId}
+                onChange={(e) => setSubjectId(e.target.value)}
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontWeight: 600,
+                  fontSize: "0.85rem"
+                }}
+              >
+                {DEFAULT_SUBJECTS.map(s => (
+                  <option key={s.id} value={s.id}>{s.name} ({s.code})</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+                Dạng Câu Hỏi: *
+              </label>
+              <select
+                value={type}
+                onChange={(e) => {
+                  const newT = e.target.value as QuestionType;
+                  setType(newT);
+                  if (newT === "true_false") {
+                    setOptions(["Đúng (True)", "Sai (False)"]);
+                  } else if (newT === "single_choice" || newT === "multiple_choice") {
+                    if (options.length < 4) setOptions(["Lựa chọn A", "Lựa chọn B", "Lựa chọn C", "Lựa chọn D"]);
+                  }
+                }}
+                disabled={isEdit}
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontWeight: 600,
+                  fontSize: "0.85rem"
+                }}
+              >
+                <option value="single_choice">1. Trắc nghiệm ABCD (1 đáp án đúng)</option>
+                <option value="true_false">2. Đúng / Sai (True / False)</option>
+                <option value="multiple_choice">3. Nhiều đáp án đúng (Checkbox)</option>
+                <option value="fill_blank">4. Điền từ khóa còn thiếu</option>
+                <option value="sequence_order">5. Sắp xếp thứ tự dòng lệnh</option>
+                <option value="matching">6. Ghép cặp câu lệnh & chức năng</option>
+              </select>
+            </div>
           </div>
 
-          {/* Question Title Textarea */}
-          <div style={{ marginBottom: "1rem" }}>
-            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-              Nội Dung Đề Bài Câu Hỏi:
+          <div>
+            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
+              Nội Dung Đề Bài Câu Hỏi: *
             </label>
             <textarea
-              className="form-input"
-              style={{ minHeight: "80px", resize: "vertical" }}
+              style={{
+                width: "100%",
+                padding: "0.65rem 0.85rem",
+                borderRadius: "10px",
+                border: "1px solid #cbd5e1",
+                background: "#ffffff",
+                color: "#0f172a",
+                fontSize: "0.88rem",
+                minHeight: "75px"
+              }}
               value={questionText}
               onChange={(e) => setQuestionText(e.target.value)}
               placeholder="Nhập nội dung đề bài câu hỏi..."
@@ -217,14 +285,14 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
             />
           </div>
 
-          {/* Dạng 1 & 3: ABCD / Checkbox */}
+          {/* Type ABCD / Checkbox / True False */}
           {(type === "single_choice" || type === "multiple_choice" || type === "true_false") && (
-            <div style={{ background: "var(--surface-subtle)", padding: "1rem", borderRadius: "var(--radius-md)", marginBottom: "1rem", border: "1px solid var(--border-light)" }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "0.6rem" }}>
-                Các Phương Án Lựa Chọn & Đáp Án Đúng:
+            <div style={{ background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1e40af", marginBottom: "0.6rem" }}>
+                Các Phương Án Lựa Chọn & Đánh Dấu Đáp Án Đúng:
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
                 {options.map((opt, idx) => {
                   const labels = ["A", "B", "C", "D"];
                   const isChecked = type === "multiple_choice" 
@@ -233,22 +301,29 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
 
                   return (
                     <div key={idx} style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                      <span style={{ fontWeight: 800, width: "24px", color: "var(--brand-primary)" }}>{labels[idx] || idx + 1}.</span>
+                      <span style={{ fontWeight: 800, width: "24px", color: "#2563eb" }}>{labels[idx] || idx + 1}.</span>
                       <input
                         type="text"
-                        className="form-input"
                         value={opt}
                         onChange={(e) => {
                           const next = [...options];
                           next[idx] = e.target.value;
                           setOptions(next);
                         }}
-                        style={{ flex: 1 }}
+                        style={{
+                          flex: 1,
+                          padding: "0.55rem 0.75rem",
+                          borderRadius: "8px",
+                          border: "1px solid #cbd5e1",
+                          background: "#ffffff",
+                          color: "#0f172a",
+                          fontSize: "0.85rem"
+                        }}
                         required
                       />
 
                       {type === "multiple_choice" ? (
-                        <label style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.78rem", cursor: "pointer" }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.78rem", cursor: "pointer", fontWeight: 600, color: "#334155" }}>
                           <input
                             type="checkbox"
                             checked={isChecked}
@@ -258,16 +333,18 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
                               else list = list.filter(x => x !== idx);
                               setCorrectAnswer(list);
                             }}
+                            style={{ accentColor: "#2563eb" }}
                           />
                           <span>Đúng</span>
                         </label>
                       ) : (
-                        <label style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.78rem", cursor: "pointer" }}>
+                        <label style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.78rem", cursor: "pointer", fontWeight: 600, color: "#334155" }}>
                           <input
                             type="radio"
                             name="correct_choice"
                             checked={isChecked}
                             onChange={() => setCorrectAnswer(idx)}
+                            style={{ accentColor: "#2563eb" }}
                           />
                           <span>Đáp án đúng</span>
                         </label>
@@ -279,43 +356,61 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
             </div>
           )}
 
-          {/* Dạng 4: Điền từ */}
+          {/* Type 4: Điền từ */}
           {type === "fill_blank" && (
-            <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
+            <div style={{ background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+              <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#1e40af", marginBottom: "0.35rem" }}>
                 Từ Khóa Đáp Án Cần Điền Chính Xác:
               </label>
               <input
                 type="text"
-                className="form-input"
                 value={fillAnswer}
                 onChange={(e) => setFillAnswer(e.target.value)}
                 placeholder="Ví dụ: len(s) hoặc return"
+                style={{
+                  width: "100%",
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontWeight: 600,
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.88rem"
+                }}
                 required
               />
             </div>
           )}
 
-          {/* Dạng 5: Sequence Order */}
+          {/* Type 5: Sequence Order */}
           {type === "sequence_order" && (
-            <div style={{ background: "var(--surface-subtle)", padding: "1rem", borderRadius: "var(--radius-md)", marginBottom: "1rem", border: "1px solid var(--border-light)" }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "0.6rem" }}>
+            <div style={{ background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1e40af", marginBottom: "0.6rem" }}>
                 Các dòng lệnh theo thứ tự chuẩn:
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 {items.map((it, idx) => (
                   <div key={idx} style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <span style={{ fontSize: "0.8rem", fontWeight: 800, width: "20px" }}>{idx + 1}.</span>
+                    <span style={{ fontSize: "0.8rem", fontWeight: 800, width: "20px", color: "#2563eb" }}>{idx + 1}.</span>
                     <input
                       type="text"
-                      className="form-input"
                       value={it}
                       onChange={(e) => {
                         const next = [...items];
                         next[idx] = e.target.value;
                         setItems(next);
                       }}
-                      style={{ fontFamily: "var(--font-mono)", fontSize: "0.88rem" }}
+                      style={{
+                        flex: 1,
+                        padding: "0.55rem 0.75rem",
+                        borderRadius: "8px",
+                        border: "1px solid #cbd5e1",
+                        background: "#ffffff",
+                        color: "#0f172a",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.85rem"
+                      }}
                       required
                     />
                   </div>
@@ -324,18 +419,17 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
             </div>
           )}
 
-          {/* Dạng 6: Matching */}
+          {/* Type 6: Matching */}
           {type === "matching" && (
-            <div style={{ background: "var(--surface-subtle)", padding: "1rem", borderRadius: "var(--radius-md)", marginBottom: "1rem", border: "1px solid var(--border-light)" }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "0.6rem" }}>
+            <div style={{ background: "#f8fafc", padding: "1rem", borderRadius: "12px", border: "1px solid #e2e8f0" }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 700, color: "#1e40af", marginBottom: "0.6rem" }}>
                 Các Cặp Nối Cột Trái (Câu lệnh) - Cột Phải (Chức năng):
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
                 {leftItems.map((left, idx) => (
                   <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem" }}>
                     <input
                       type="text"
-                      className="form-input"
                       value={left}
                       onChange={(e) => {
                         const next = [...leftItems];
@@ -343,12 +437,19 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
                         setLeftItems(next);
                       }}
                       placeholder={`Lệnh ${idx + 1}`}
-                      style={{ fontFamily: "var(--font-mono)" }}
+                      style={{
+                        padding: "0.55rem 0.75rem",
+                        borderRadius: "8px",
+                        border: "1px solid #cbd5e1",
+                        background: "#ffffff",
+                        color: "#0f172a",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.85rem"
+                      }}
                       required
                     />
                     <input
                       type="text"
-                      className="form-input"
                       value={rightItems[idx] || ""}
                       onChange={(e) => {
                         const next = [...rightItems];
@@ -356,6 +457,14 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
                         setRightItems(next);
                       }}
                       placeholder={`Ý nghĩa ${idx + 1}`}
+                      style={{
+                        padding: "0.55rem 0.75rem",
+                        borderRadius: "8px",
+                        border: "1px solid #cbd5e1",
+                        background: "#ffffff",
+                        color: "#0f172a",
+                        fontSize: "0.85rem"
+                      }}
                       required
                     />
                   </div>
@@ -364,14 +473,21 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
             </div>
           )}
 
-          {/* Explanation */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
+          <div>
+            <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, color: "#334155", marginBottom: "0.35rem" }}>
               Phương Pháp Suy Luận Logic & Chú Thích Giảng Giải:
             </label>
             <textarea
-              className="form-input"
-              style={{ minHeight: "75px", resize: "vertical" }}
+              style={{
+                width: "100%",
+                padding: "0.65rem 0.85rem",
+                borderRadius: "10px",
+                border: "1px solid #cbd5e1",
+                background: "#ffffff",
+                color: "#0f172a",
+                fontSize: "0.85rem",
+                minHeight: "70px"
+              }}
               value={explanation}
               onChange={(e) => setExplanation(e.target.value)}
               placeholder="Giải thích vì sao đáp án này đúng để hỗ trợ học viên tự học..."
@@ -379,10 +495,47 @@ export default function QuestionFormModal({ question, onClose, onSaved }: Questi
             />
           </div>
 
-          <button type="submit" className="btn btn-primary btn-block btn-lg" disabled={isLoading}>
-            <CheckCircle2 size={18} />
-            <span>{isLoading ? "Đang lưu..." : isEdit ? "Cập Nhật Câu Hỏi" : "Thêm Câu Hỏi Vào Ngân Hàng"}</span>
-          </button>
+          <div style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: "0.75rem",
+            marginTop: "0.5rem",
+            borderTop: "1px solid #e2e8f0",
+            paddingTop: "1rem"
+          }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                padding: "0.65rem 1.25rem",
+                borderRadius: "10px",
+                border: "1px solid #cbd5e1",
+                background: "#ffffff",
+                color: "#475569",
+                fontWeight: 600,
+                fontSize: "0.85rem",
+                cursor: "pointer"
+              }}
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              style={{
+                padding: "0.65rem 1.35rem",
+                borderRadius: "10px",
+                border: "none",
+                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                color: "#ffffff",
+                fontWeight: 700,
+                fontSize: "0.85rem",
+                cursor: "pointer"
+              }}
+            >
+              {isLoading ? "Đang lưu..." : isEdit ? "Cập Nhật Câu Hỏi" : "Thêm Câu Hỏi Vào Ngân Hàng"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

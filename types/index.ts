@@ -124,6 +124,7 @@ export interface ExamResult {
   studentName?: string;
   studentClass?: string;
   branchId: string;
+  branchName?: string;
   subjectId: string;
   score: number;
   totalScore?: number;
