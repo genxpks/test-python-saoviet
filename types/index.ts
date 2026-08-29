@@ -56,6 +56,8 @@ export interface Question {
   pairs?: MatchingPair[];   // for matching
   left_items?: string[];
   right_items?: string[];
+  code?: string;
+  chapter?: number;
   explanation: string;
   difficulty?: 'easy' | 'medium' | 'hard';
   createdAt?: string;

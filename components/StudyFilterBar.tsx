@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, X, Filter } from "lucide-react";
+import { Search, X, Filter, Sparkles } from "lucide-react";
 
 interface FilterChip {
   id: string;
@@ -44,7 +44,7 @@ export default function StudyFilterBar({
           style={{
             paddingLeft: "2.75rem",
             paddingRight: search ? "2.5rem" : "1rem",
-            height: "44px",
+            height: "46px",
             fontSize: "0.92rem",
             borderRadius: "var(--radius-md)"
           }}
@@ -62,8 +62,8 @@ export default function StudyFilterBar({
               background: "#e2e8f0",
               border: "none",
               borderRadius: "50%",
-              width: "22px",
-              height: "22px",
+              width: "24px",
+              height: "24px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -72,7 +72,7 @@ export default function StudyFilterBar({
             }}
             title="Xóa tìm kiếm"
           >
-            <X size={13} />
+            <X size={14} />
           </button>
         )}
       </div>
@@ -89,7 +89,7 @@ export default function StudyFilterBar({
           marginRight: "0.3rem"
         }}>
           <Filter size={14} />
-          <span>Lọc dạng:</span>
+          <span>Phân loại câu:</span>
         </div>
 
         {chips.map((chip) => {
@@ -98,24 +98,25 @@ export default function StudyFilterBar({
             <button
               key={chip.id}
               className={`btn btn-sm ${isActive ? "btn-primary" : "btn-secondary"}`}
+              onClick={() => onFilterChange(chip.id)}
               style={{
                 borderRadius: "var(--radius-full)",
-                padding: "0.4rem 0.95rem",
-                fontWeight: isActive ? 700 : 600,
-                border: isActive ? "1px solid var(--brand-primary)" : "1px solid var(--border-light)"
+                padding: "0.35rem 0.85rem",
+                fontSize: "0.8rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.4rem"
               }}
-              onClick={() => onFilterChange(chip.id)}
             >
               <span>{chip.label}</span>
               <span
                 style={{
-                  background: isActive ? "rgba(255,255,255,0.25)" : "#f1f5f9",
-                  color: isActive ? "#ffffff" : "var(--text-muted)",
-                  padding: "1px 7px",
-                  borderRadius: "10px",
                   fontSize: "0.72rem",
-                  fontWeight: 700,
-                  marginLeft: "4px"
+                  padding: "0.1rem 0.4rem",
+                  borderRadius: "var(--radius-full)",
+                  background: isActive ? "rgba(255, 255, 255, 0.25)" : "rgba(15, 23, 42, 0.08)",
+                  color: isActive ? "#ffffff" : "var(--text-secondary)",
+                  fontWeight: 800
                 }}
               >
                 {chip.count}

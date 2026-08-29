@@ -102,7 +102,7 @@ export default function Navbar() {
           {/* Brand Identity */}
           <Link href="/" className="brand-box">
             <div className="brand-logo-icon">
-              <Terminal size={24} />
+              <Terminal size={22} />
             </div>
             <div className="brand-info">
               <h1>TIN HỌC SAO VIỆT</h1>
@@ -113,24 +113,24 @@ export default function Navbar() {
           {/* Navigation Links */}
           <nav className="nav-tabs">
             <Link href="/" className={`tab-link ${pathname === "/" ? "active" : ""}`}>
-              <Sparkles size={16} />
+              <Sparkles size={15} />
               <span>Trang Chủ</span>
             </Link>
             <Link href="/study" className={`tab-link ${pathname === "/study" ? "active" : ""}`}>
-              <BookOpen size={16} />
+              <BookOpen size={15} />
               <span>Ôn Tập 120 Câu</span>
             </Link>
             <Link href="/exam" className={`tab-link ${pathname === "/exam" ? "active" : ""}`}>
-              <Clock size={16} />
+              <Clock size={15} />
               <span>Thi Online</span>
             </Link>
             <Link href="/print-exam" className={`tab-link ${pathname === "/print-exam" ? "active" : ""}`}>
-              <Printer size={16} />
+              <Printer size={15} />
               <span>In Đề Chuẩn A4</span>
             </Link>
             {(user?.role === "admin" || user?.role === "branch_manager" || user?.role === "teacher") ? (
               <Link href="/admin" className={`tab-link ${pathname === "/admin" ? "active" : ""}`}>
-                <ShieldCheck size={16} />
+                <ShieldCheck size={15} />
                 <span>Quản Trị</span>
               </Link>
             ) : (
@@ -144,7 +144,7 @@ export default function Navbar() {
                   setShowLoginModal(true);
                 }}
               >
-                <ShieldCheck size={16} />
+                <ShieldCheck size={15} />
                 <span>Quản Trị</span>
               </button>
             )}
@@ -161,191 +161,213 @@ export default function Navbar() {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "4px",
-                    fontSize: "0.75rem",
-                    padding: "0.3rem 0.6rem",
-                    background: "var(--bg-light)",
-                    border: "1px solid var(--border-light)",
-                    borderRadius: "var(--radius-full)",
-                    color: "var(--text-secondary)"
+                    gap: "0.35rem",
+                    padding: "0.35rem 0.65rem",
+                    background: sessionRemainingSec < 900 ? "rgba(239, 68, 68, 0.1)" : "rgba(241, 245, 249, 0.8)",
+                    border: sessionRemainingSec < 900 ? "1px solid rgba(239, 68, 68, 0.3)" : "1px solid var(--border-light)",
+                    borderRadius: "var(--radius-sm)",
+                    fontSize: "0.76rem",
+                    fontWeight: 700,
+                    color: sessionRemainingSec < 900 ? "#b91c1c" : "var(--text-secondary)"
                   }}
                 >
-                  <Hourglass size={12} color="var(--brand-amber)" />
-                  <span>Phiên: <strong>{formatRemainingTime(sessionRemainingSec)}</strong></span>
+                  <Hourglass size={13} className={sessionRemainingSec < 900 ? "text-red-500" : ""} />
+                  <span>Phiên: {formatRemainingTime(sessionRemainingSec)}</span>
                 </div>
 
-                <div className="user-profile-badge">
-                  <div className="user-avatar">{user.fullName.charAt(0)}</div>
-                  <div className="user-details">
-                    <span className="u-name">{user.fullName}</span>
-                    <span className="u-role">
-                      {user.role === "admin" 
-                        ? "👑 Tổng Quản Trị" 
-                        : user.role === "branch_manager" 
-                          ? `🏫 Quản Lý: ${user.branchName || "Chi Nhánh"}` 
-                          : `🎓 ${user.class || "Học Viên"}`}
-                      {user.totalStudySeconds ? ` • ⏱️ ${formatStudyDuration(user.totalStudySeconds)}` : ""}
+                {/* Total Study Time badge */}
+                <div 
+                  className="hide-mobile"
+                  title="Tổng thời gian học tích lũy trên hệ thống"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.35rem",
+                    padding: "0.35rem 0.65rem",
+                    background: "rgba(16, 185, 129, 0.08)",
+                    border: "1px solid rgba(16, 185, 129, 0.25)",
+                    borderRadius: "var(--radius-sm)",
+                    fontSize: "0.76rem",
+                    fontWeight: 800,
+                    color: "var(--brand-emerald-dark)"
+                  }}
+                >
+                  <Clock size={13} />
+                  <span>Đã học: {formatStudyDuration(user.totalStudySeconds || 0)}</span>
+                </div>
+
+                <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    padding: "0.35rem 0.75rem",
+                    background: "var(--surface-subtle)",
+                    borderRadius: "var(--radius-sm)",
+                    fontSize: "0.82rem",
+                    fontWeight: 700
+                  }}>
+                    <UserIcon size={14} color="var(--brand-primary)" />
+                    <span style={{ maxWidth: "120px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {user.fullName}
+                    </span>
+                    <span style={{
+                      fontSize: "0.68rem",
+                      fontWeight: 800,
+                      padding: "0.15rem 0.45rem",
+                      borderRadius: "var(--radius-full)",
+                      background: user.role === "admin" ? "linear-gradient(135deg, #7c3aed, #4f46e5)" : user.role === "branch_manager" ? "linear-gradient(135deg, #059669, #0891b2)" : "#e2e8f0",
+                      color: (user.role === "admin" || user.role === "branch_manager") ? "#ffffff" : "var(--text-secondary)"
+                    }}>
+                      {user.role === "admin" ? "Admin" : user.role === "branch_manager" ? "QL Chi Nhánh" : user.role === "teacher" ? "Giáo Viên" : "Học Viên"}
                     </span>
                   </div>
+
+                  <button
+                    onClick={handleLogout}
+                    className="btn btn-secondary btn-sm"
+                    title="Đăng xuất tài khoản"
+                  >
+                    <LogOut size={14} />
+                    <span className="hide-mobile">Thoát</span>
+                  </button>
                 </div>
-                <button className="btn btn-secondary btn-sm" onClick={handleLogout} title="Đăng xuất">
-                  <LogOut size={14} />
-                  <span>Thoát</span>
-                </button>
               </>
             ) : (
-              <div>
-                <button className="btn btn-primary btn-sm" onClick={() => {
+              <button
+                onClick={() => {
                   setUsername("");
                   setPassword("");
-                  setLoginError("");
                   setShowLoginModal(true);
-                }}>
-                  <LogIn size={15} />
-                  <span>Đăng Nhập</span>
-                </button>
-              </div>
+                }}
+                className="btn btn-primary btn-sm"
+              >
+                <LogIn size={15} />
+                <span>Đăng Nhập</span>
+              </button>
             )}
           </div>
         </div>
       </header>
 
-      {/* Modern Secure Login Modal */}
+      {/* LOGIN MODAL */}
       {showLoginModal && (
-        <div className="modal-overlay" onClick={() => setShowLoginModal(false)}>
-          <div className="modal-dialog" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "460px" }}>
-            <button
-              style={{
-                position: "absolute",
-                top: "1.2rem",
-                right: "1.2rem",
-                background: "#f1f5f9",
-                border: "none",
-                borderRadius: "50%",
-                width: "32px",
-                height: "32px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                color: "#64748b"
-              }}
-              onClick={() => setShowLoginModal(false)}
-            >
-              <X size={18} />
-            </button>
+        <div style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(15, 23, 42, 0.65)",
+          backdropFilter: "blur(6px)",
+          zIndex: 999,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: "1rem"
+        }}>
+          <div className="q-card" style={{ maxWidth: "440px", width: "100%", padding: "2.2rem" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.2rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <div style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "10px",
+                  background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(6, 182, 212, 0.15))",
+                  color: "var(--brand-primary)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center"
+                }}>
+                  <Lock size={18} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: "1.2rem", fontWeight: 800 }}>Đăng Nhập Hệ Thống</h3>
+                  <p style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Học viên & Cán bộ đào tạo Sao Việt</p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowLoginModal(false);
+                  setLoginError("");
+                }}
+                style={{ background: "none", border: "none", cursor: "pointer", color: "var(--text-muted)" }}
+              >
+                <X size={20} />
+              </button>
+            </div>
 
-            <div style={{ textAlign: "center", marginBottom: "1.2rem" }}>
+            {loginError && (
               <div style={{
-                width: "56px",
-                height: "56px",
-                background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(6, 182, 212, 0.15))",
-                color: "var(--brand-primary)",
-                borderRadius: "16px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 0.8rem auto"
+                color: "#b91c1c",
+                fontSize: "0.82rem",
+                background: "#fef2f2",
+                border: "1px solid #fecaca",
+                padding: "0.6rem 0.8rem",
+                borderRadius: "var(--radius-sm)",
+                marginBottom: "1rem",
+                lineHeight: "1.4"
               }}>
-                <Lock size={26} />
+                {loginError}
               </div>
-              <h3 style={{ fontSize: "1.3rem", fontWeight: 800 }}>Đăng Nhập Hệ Thống</h3>
-              <p style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>
-                Học viên (SĐT), Quản lý chi nhánh & Tổng quản trị
-              </p>
-            </div>
+            )}
 
-            {/* Thông báo quy định cấp tài khoản */}
-            <div style={{
-              background: "rgba(37, 99, 235, 0.05)",
-              border: "1px solid rgba(37, 99, 235, 0.15)",
-              borderRadius: "var(--radius-sm)",
-              padding: "0.7rem 0.9rem",
-              marginBottom: "1.2rem",
-              fontSize: "0.82rem",
-              color: "var(--text-secondary)",
-              lineHeight: 1.45
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, color: "var(--brand-primary)", marginBottom: "0.2rem" }}>
-                <Sparkles size={13} />
-                <span>Quy chuẩn đào tạo Tin Học Sao Việt:</span>
-              </div>
-              <div>• Bắt buộc đăng nhập để ôn tập, làm bài thi và in đề chuẩn.</div>
-              <div>• Hệ thống tự động ghi nhận thời gian học tập của học viên.</div>
-              <div>• ⏱️ Phiên đăng nhập sẽ tự động đăng xuất sau <strong>3 giờ</strong> để bảo vệ tài khoản.</div>
-            </div>
-
-            <form onSubmit={handleLogin}>
-              <div style={{ marginBottom: "1rem" }}>
-                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-                  Tên Đăng Nhập / SĐT:
+            <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <div>
+                <label className="form-label">
+                  Tên đăng nhập (Số điện thoại học viên hoặc mã tài khoản)
                 </label>
                 <input
                   type="text"
+                  required
+                  placeholder="Ví dụ: 0912345671 hoặc admin"
                   className="form-input"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Nhập số điện thoại hoặc mã quản trị..."
-                  required
                   autoFocus
                 />
               </div>
 
-              <div style={{ marginBottom: "1.3rem" }}>
-                <label style={{ display: "block", fontSize: "0.82rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-secondary)" }}>
-                  Mật Khẩu Đăng Nhập:
-                </label>
-                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+              <div>
+                <label className="form-label">Mật khẩu</label>
+                <div style={{ position: "relative" }}>
                   <input
                     type={showPassword ? "text" : "password"}
+                    required
+                    placeholder="Nhập mật khẩu..."
                     className="form-input"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Nhập mật khẩu..."
-                    required
-                    style={{ paddingRight: "40px" }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     style={{
                       position: "absolute",
-                      right: "10px",
+                      right: "0.75rem",
+                      top: "50%",
+                      transform: "translateY(-50%)",
                       background: "none",
                       border: "none",
                       cursor: "pointer",
-                      color: "#64748b",
-                      padding: "4px",
-                      display: "flex",
-                      alignItems: "center"
+                      color: "var(--text-muted)"
                     }}
-                    title={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
                   >
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
               </div>
 
-              {loginError && (
-                <div style={{
-                  color: "#e11d48",
-                  fontSize: "0.85rem",
-                  marginBottom: "1.2rem",
-                  background: "#fff1f2",
-                  border: "1px solid #fecdd3",
-                  padding: "0.65rem 0.9rem",
-                  borderRadius: "var(--radius-xs)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.5rem"
-                }}>
-                  <span>⚠️</span>
-                  <span>{loginError}</span>
-                </div>
-              )}
+              <div style={{
+                fontSize: "0.76rem",
+                color: "var(--text-muted)",
+                background: "var(--surface-subtle)",
+                padding: "0.6rem 0.8rem",
+                borderRadius: "var(--radius-xs)",
+                lineHeight: "1.4"
+              }}>
+                💡 Tài khoản học viên do Trung tâm cấp theo hồ sơ đăng ký. Phiên học tự động bảo vệ sau 3 giờ liên tục.
+              </div>
 
-              <button type="submit" className="btn btn-primary btn-block btn-lg">
-                <CheckCircle2 size={18} />
+              <button type="submit" className="btn btn-primary" style={{ marginTop: "0.5rem" }}>
+                <LogIn size={16} />
                 <span>Xác Nhận Đăng Nhập</span>
               </button>
             </form>

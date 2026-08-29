@@ -14,7 +14,10 @@ import {
   X, 
   Copy,
   ChevronRight,
-  Code2
+  Code2,
+  ListOrdered,
+  Link as LinkIcon,
+  ToggleLeft
 } from "lucide-react";
 
 interface QuestionCardProps {
@@ -122,187 +125,222 @@ export default function QuestionCard({
 
   const qNum = index !== undefined ? index + 1 : question.id;
 
-  // Type badge styling
-  const getTypeBadgeColor = () => {
-    switch (question.type) {
-      case "single_choice": return { bg: "rgba(37, 99, 235, 0.1)", text: "var(--brand-primary)", border: "rgba(37, 99, 235, 0.25)" };
-      case "true_false": return { bg: "rgba(16, 185, 129, 0.1)", text: "var(--brand-emerald)", border: "rgba(16, 185, 129, 0.25)" };
-      case "multiple_choice": return { bg: "rgba(139, 92, 246, 0.1)", text: "var(--brand-violet)", border: "rgba(139, 92, 246, 0.25)" };
-      case "fill_blank": return { bg: "rgba(245, 158, 11, 0.1)", text: "var(--brand-amber)", border: "rgba(245, 158, 11, 0.25)" };
-      case "sequence_order": return { bg: "rgba(6, 182, 212, 0.1)", text: "var(--brand-cyan)", border: "rgba(6, 182, 212, 0.25)" };
-      case "matching": return { bg: "rgba(244, 63, 94, 0.1)", text: "var(--brand-rose)", border: "rgba(244, 63, 94, 0.25)" };
-      default: return { bg: "rgba(100, 116, 139, 0.1)", text: "var(--text-muted)", border: "rgba(100, 116, 139, 0.25)" };
+  // Distinct theme per question archetype
+  const getBadgeTheme = (type?: string) => {
+    switch (type) {
+      case "single_choice":
+        return { bg: "rgba(37, 99, 235, 0.08)", color: "#1d4ed8", border: "rgba(37, 99, 235, 0.2)", icon: HelpCircle };
+      case "true_false":
+        return { bg: "rgba(8, 145, 178, 0.08)", color: "#0e7490", border: "rgba(8, 145, 178, 0.2)", icon: ToggleLeft };
+      case "multiple_choice":
+        return { bg: "rgba(124, 58, 237, 0.08)", color: "#6d28d9", border: "rgba(124, 58, 237, 0.2)", icon: CheckCircle2 };
+      case "fill_blank":
+        return { bg: "rgba(217, 119, 6, 0.08)", color: "#b45309", border: "rgba(217, 119, 6, 0.2)", icon: Code2 };
+      case "sequence_order":
+        return { bg: "rgba(5, 150, 105, 0.08)", color: "#047857", border: "rgba(5, 150, 105, 0.2)", icon: ListOrdered };
+      case "matching":
+        return { bg: "rgba(225, 29, 72, 0.08)", color: "#be123c", border: "rgba(225, 29, 72, 0.2)", icon: LinkIcon };
+      default:
+        return { bg: "rgba(100, 116, 139, 0.08)", color: "#334155", border: "rgba(100, 116, 139, 0.2)", icon: HelpCircle };
     }
   };
 
-  const badgeStyle = getTypeBadgeColor();
+  const badgeTheme = getBadgeTheme(question.type);
+  const BadgeIcon = badgeTheme.icon;
 
   return (
-    <div className="q-card">
-      {/* Header Info */}
+    <div className="q-card" id={`question-${qNum}`}>
+      {/* Question Header */}
       <div className="q-card-header">
-        <span
-          className="q-badge"
-          style={{
-            background: badgeStyle.bg,
-            color: badgeStyle.text,
-            borderColor: badgeStyle.border
-          }}
-        >
-          <Code2 size={13} />
-          <span>CÂU {qNum} • {question.type_name.toUpperCase()}</span>
-        </span>
-
-        {!isExamMode && (
-          <span style={{ fontSize: "0.78rem", color: "var(--text-muted)", fontWeight: 600 }}>
-            Kho 120 Câu Sao Việt
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
+          <span
+            className="q-badge"
+            style={{
+              background: badgeTheme.bg,
+              color: badgeTheme.color,
+              borderColor: badgeTheme.border
+            }}
+          >
+            <BadgeIcon size={14} />
+            <span>CÂU {qNum}</span>
           </span>
-        )}
+          <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--text-muted)" }}>
+            {question.type_name || "Trắc nghiệm"}
+          </span>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          {question.chapter && (
+            <span style={{
+              fontSize: "0.75rem",
+              fontWeight: 700,
+              padding: "0.2rem 0.55rem",
+              borderRadius: "var(--radius-xs)",
+              background: "var(--surface-subtle)",
+              color: "var(--text-secondary)"
+            }}>
+              Chương {question.chapter}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Question Title */}
-      <div style={{ fontSize: "1.08rem", fontWeight: 700, color: "var(--text-primary)", marginBottom: "1.2rem", lineHeight: "1.55" }}>
+      <h3 style={{ fontSize: "1.08rem", fontWeight: 800, marginBottom: "0.85rem", color: "var(--text-primary)", lineHeight: "1.5" }}>
         {question.question}
-      </div>
+      </h3>
 
-      {/* 1. Single Choice or True / False */}
-      {(question.type === "single_choice" || question.type === "true_false") && question.options && (
-        <div className="options-list">
+      {/* Code Snippet if present */}
+      {question.code && (
+        <div className="code-container-dark">
+          <div className="code-header-bar">
+            <div className="terminal-dots">
+              <span className="dot dot-red" />
+              <span className="dot dot-yellow" />
+              <span className="dot dot-green" />
+            </div>
+            <span>Python 3.12 Engine</span>
+          </div>
+          <pre style={{ margin: 0, overflowX: "auto", color: "#38bdf8", lineHeight: "1.5" }}>
+            {question.code}
+          </pre>
+        </div>
+      )}
+
+      {/* RENDER FORM BY TYPE */}
+      {/* 1. SINGLE CHOICE & TRUE/FALSE */}
+      {(question.type === "single_choice" || question.type === "true_false" || !question.type) && question.options && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", margin: "1rem 0" }}>
           {question.options.map((opt, idx) => {
+            const letter = String.fromCharCode(65 + idx);
             const isSelected = userAnswer === idx;
-            const labels = ["A", "B", "C", "D"];
+            const isCorrect = showExp && question.correct_answer === idx;
+            const isWrong = showExp && isSelected && !isCorrect;
+
+            let itemClass = "option-item";
+            if (isSelected) itemClass += " selected";
+            if (isCorrect) itemClass += " correct";
+            if (isWrong) itemClass += " wrong";
+
             return (
               <div
                 key={idx}
-                className={`option-item ${isSelected ? "selected" : ""}`}
+                className={itemClass}
                 onClick={() => handleSingleSelect(idx)}
+                role="button"
+                tabIndex={0}
               >
-                <div className="opt-prefix">
-                  {question.type === "true_false" ? (idx === 0 ? "✓" : "✗") : labels[idx]}
+                <div className="option-letter">{letter}</div>
+                <div style={{ flex: 1, fontSize: "0.92rem", fontWeight: isSelected ? 700 : 500 }}>
+                  {opt}
                 </div>
-                <span style={{ flex: 1 }}>{opt}</span>
-                {isSelected && (
-                  <CheckCircle2 size={18} color="var(--brand-primary)" style={{ flexShrink: 0 }} />
-                )}
+                {showExp && isCorrect && <CheckCircle2 size={18} color="#059669" />}
+                {showExp && isWrong && <X size={18} color="#e11d48" />}
               </div>
             );
           })}
         </div>
       )}
 
-      {/* 2. Multiple Choice Checkbox */}
+      {/* 2. MULTIPLE CHOICE */}
       {question.type === "multiple_choice" && question.options && (
-        <div className="options-list">
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", margin: "1rem 0" }}>
+          <div style={{ fontSize: "0.78rem", color: "var(--brand-violet)", fontWeight: 700, marginBottom: "0.3rem" }}>
+            * Chọn tất cả các đáp án đúng:
+          </div>
           {question.options.map((opt, idx) => {
-            const isChecked = Array.isArray(userAnswer) && userAnswer.includes(idx);
-            const labels = ["A", "B", "C", "D"];
+            const isSelected = Array.isArray(userAnswer) && userAnswer.includes(idx);
+            const isCorrect = showExp && Array.isArray(question.correct_answer) && question.correct_answer.includes(idx);
+
+            let itemClass = "option-item";
+            if (isSelected) itemClass += " selected";
+            if (isCorrect) itemClass += " correct";
+
             return (
               <div
                 key={idx}
-                className={`option-item ${isChecked ? "selected" : ""}`}
+                className={itemClass}
                 onClick={() => handleMultiSelect(idx)}
+                role="button"
+                tabIndex={0}
               >
-                <div className="opt-prefix">
-                  {labels[idx]}
+                <div style={{
+                  width: "22px",
+                  height: "22px",
+                  borderRadius: "6px",
+                  border: isSelected ? "2px solid var(--brand-violet)" : "1.5px solid var(--border-medium)",
+                  background: isSelected ? "var(--brand-violet)" : "#ffffff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#ffffff"
+                }}>
+                  {isSelected && <Check size={14} />}
                 </div>
-                <span style={{ flex: 1 }}>{opt}</span>
-                <input
-                  type="checkbox"
-                  checked={isChecked}
-                  readOnly
-                  style={{
-                    width: "18px",
-                    height: "18px",
-                    accentColor: "var(--brand-primary)",
-                    cursor: "pointer"
-                  }}
-                />
+                <div style={{ flex: 1, fontSize: "0.92rem" }}>{opt}</div>
               </div>
             );
           })}
         </div>
       )}
 
-      {/* 3. Fill in the Blank */}
+      {/* 3. FILL IN THE BLANK */}
       {question.type === "fill_blank" && (
-        <div style={{ margin: "1.2rem 0" }}>
-          <label style={{ display: "block", fontSize: "0.86rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
-            Nhập câu trả lời hoặc từ khóa vào ô bên dưới:
+        <div style={{ margin: "1rem 0" }}>
+          <label className="form-label" style={{ color: "var(--brand-amber-dark)" }}>
+            Nhập kết quả hoặc từ khóa chính xác:
           </label>
           <input
             type="text"
             className="form-input"
-            defaultValue={userAnswer || ""}
+            style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: "1rem", color: "var(--brand-primary)" }}
+            placeholder="Ví dụ: len, append, range, [1, 2, 3]..."
+            value={userAnswer || ""}
             onChange={(e) => handleFillChange(e.target.value)}
-            placeholder="Gõ từ khóa còn thiếu..."
-            style={{ maxWidth: "420px" }}
           />
         </div>
       )}
 
-      {/* 4. Sequence Order */}
+      {/* 4. SEQUENCE ORDERING */}
       {question.type === "sequence_order" && question.items && (
-        <div style={{
-          background: "var(--surface-subtle)",
-          padding: "1rem 1.2rem",
-          borderRadius: "var(--radius-md)",
-          margin: "1.2rem 0",
-          border: "1px solid var(--border-light)"
-        }}>
-          <div style={{ color: "var(--text-muted)", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.6rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <Sparkles size={14} color="var(--brand-cyan)" />
-            <span>Bấm nút ▲ / ▼ để di chuyển sắp xếp lại các dòng lệnh theo logic thực thi:</span>
+        <div style={{ margin: "1rem 0" }}>
+          <div style={{ fontSize: "0.78rem", color: "var(--brand-emerald-dark)", fontWeight: 700, marginBottom: "0.4rem" }}>
+            * Sắp xếp các dòng lệnh theo đúng logic thực thi:
           </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
             {order.map((itemIdx, pos) => (
               <div
                 key={pos}
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  background: "#ffffff",
-                  padding: "0.6rem 1rem",
-                  borderRadius: "var(--radius-sm)",
+                  gap: "0.75rem",
+                  padding: "0.75rem 1rem",
+                  background: "var(--surface-subtle)",
                   border: "1px solid var(--border-light)",
-                  boxShadow: "var(--shadow-subtle)"
+                  borderRadius: "var(--radius-sm)"
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                  <span style={{
-                    width: "24px",
-                    height: "24px",
-                    borderRadius: "50%",
-                    background: "rgba(6, 182, 212, 0.15)",
-                    color: "var(--brand-cyan)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "0.8rem",
-                    fontWeight: 800
-                  }}>
-                    {pos + 1}
-                  </span>
-                  <code style={{ fontFamily: "var(--font-mono)", fontSize: "0.9rem", color: "#0f172a" }}>
-                    {question.items![itemIdx]}
-                  </code>
-                </div>
-
-                <div style={{ display: "flex", gap: "0.35rem" }}>
+                <span style={{ fontWeight: 800, color: "var(--brand-emerald)", fontSize: "0.85rem" }}>
+                  #{pos + 1}
+                </span>
+                <span style={{ flex: 1, fontFamily: "var(--font-mono)", fontSize: "0.88rem" }}>
+                  {question.items![itemIdx]}
+                </span>
+                <div style={{ display: "flex", gap: "0.2rem" }}>
                   <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => handleMoveOrder(pos, -1)}
                     disabled={pos === 0}
-                    title="Lên trên"
+                    onClick={() => handleMoveOrder(pos, -1)}
+                    className="btn btn-secondary btn-sm"
+                    style={{ padding: "0.25rem 0.4rem" }}
                   >
                     <ArrowUp size={14} />
                   </button>
                   <button
-                    className="btn btn-secondary btn-sm"
-                    onClick={() => handleMoveOrder(pos, 1)}
                     disabled={pos === order.length - 1}
-                    title="Xuống dưới"
+                    onClick={() => handleMoveOrder(pos, 1)}
+                    className="btn btn-secondary btn-sm"
+                    style={{ padding: "0.25rem 0.4rem" }}
                   >
                     <ArrowDown size={14} />
                   </button>
@@ -313,118 +351,126 @@ export default function QuestionCard({
         </div>
       )}
 
-      {/* 5. Matching */}
-      {question.type === "matching" && question.left_items && question.right_items && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", margin: "1.2rem 0" }}>
-          <div style={{ color: "var(--text-muted)", fontSize: "0.84rem", fontWeight: 700 }}>
-            Chọn chức năng ghép cặp tương ứng cho mỗi câu lệnh:
+      {/* 5. MATCHING PAIRS */}
+      {question.type === "matching" && (
+        <div style={{ margin: "1rem 0" }}>
+          <div style={{ fontSize: "0.78rem", color: "var(--brand-rose)", fontWeight: 700, marginBottom: "0.4rem" }}>
+            * Ghép cặp đúng giữa 2 cột:
           </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+            {(() => {
+              const leftList = Array.isArray(question.left_items) 
+                ? question.left_items 
+                : (Array.isArray(question.pairs) ? question.pairs.map(p => p.left) : (question.pairs as any)?.left || []);
+              const rightList = Array.isArray(question.right_items) 
+                ? question.right_items 
+                : (Array.isArray(question.pairs) ? question.pairs.map(p => p.right) : (question.pairs as any)?.right || []);
 
-          {question.left_items.map((left, idx) => (
-            <div
-              key={idx}
-              style={{
-                display: "grid",
-                gridTemplateColumns: "200px 1fr",
-                gap: "1rem",
-                alignItems: "center",
-                background: "var(--surface-subtle)",
-                padding: "0.65rem 1rem",
-                borderRadius: "var(--radius-sm)",
-                border: "1px solid var(--border-light)"
-              }}
-            >
-              <code style={{ fontFamily: "var(--font-mono)", fontSize: "0.9rem", fontWeight: 700, color: "var(--brand-rose)" }}>
-                {left}
-              </code>
-              <select
-                className="form-input"
-                value={pairs[left] || ""}
-                onChange={(e) => handleMatchSelect(left, e.target.value)}
-                style={{ height: "38px" }}
-              >
-                <option value="">-- Chọn chức năng phù hợp --</option>
-                {question.right_items!.map((r, rIdx) => (
-                  <option key={rIdx} value={r}>
-                    {r}
-                  </option>
-                ))}
-              </select>
-            </div>
-          ))}
+              return leftList.map((lVal: string, idx: number) => (
+                <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "center" }}>
+                  <div style={{ padding: "0.6rem 0.8rem", background: "#f8fafc", border: "1px solid var(--border-light)", borderRadius: "var(--radius-xs)", fontSize: "0.86rem", fontWeight: 700 }}>
+                    {lVal}
+                  </div>
+                  <select
+                    className="form-select"
+                    value={pairs[lVal] || ""}
+                    onChange={(e) => handleMatchSelect(lVal, e.target.value)}
+                  >
+                    <option value="">-- Chọn ghép cặp --</option>
+                    {rightList.map((rVal: string, rIdx: number) => (
+                      <option key={rIdx} value={rVal}>{rVal}</option>
+                    ))}
+                  </select>
+                </div>
+              ));
+            })()}
+          </div>
         </div>
       )}
 
-      {/* Study Mode Explanations & AI Buttons */}
+      {/* BOTTOM ACTIONS IN STUDY MODE */}
       {!isExamMode && (
-        <div style={{ marginTop: "1rem", paddingTop: "0.8rem", borderTop: "1px solid var(--border-light)" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.5rem" }}>
-            <button className="exp-toggle-btn" onClick={() => setShowExp(!showExp)}>
-              <Lightbulb size={16} />
-              <span>{showExp ? "Thu gọn phân tích logic" : "Xem đáp án & suy luận logic"}</span>
-            </button>
+        <div style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginTop: "1.25rem",
+          paddingTop: "0.85rem",
+          borderTop: "1px solid var(--border-light)",
+          flexWrap: "wrap",
+          gap: "0.5rem"
+        }}>
+          <button
+            onClick={() => setShowExp(!showExp)}
+            className="btn btn-secondary btn-sm"
+          >
+            <Lightbulb size={15} color="var(--brand-amber-dark)" />
+            <span>{showExp ? "Ẩn Phân Tích Logic" : "Xem Phân Tích Logic"}</span>
+          </button>
 
+          <button
+            onClick={handleAskAIExplanation}
+            disabled={isAiLoading}
+            className="btn btn-sm"
+            style={{
+              background: "linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(37, 99, 235, 0.1))",
+              color: "var(--brand-violet)",
+              border: "1px solid rgba(124, 58, 237, 0.25)"
+            }}
+          >
+            <Bot size={15} />
+            <span>{isAiLoading ? "AI Đang Soạn Giải Thích..." : "Hỏi Thầy AI Gemini"}</span>
+          </button>
+        </div>
+      )}
+
+      {/* STANDARD EXPLANATION ACCORDION */}
+      {showExp && question.explanation && !isExamMode && (
+        <div style={{
+          marginTop: "1rem",
+          padding: "1rem 1.25rem",
+          borderRadius: "var(--radius-md)",
+          background: "#f0fdf4",
+          border: "1px solid #bbf7d0",
+          fontSize: "0.9rem",
+          lineHeight: "1.6",
+          color: "#166534"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, marginBottom: "0.4rem" }}>
+            <CheckCircle2 size={16} />
+            <span>Phân tích đáp án chuẩn:</span>
+          </div>
+          <div>{question.explanation}</div>
+        </div>
+      )}
+
+      {/* AI EXPLANATION DRAWER */}
+      {aiExplanation && !isExamMode && (
+        <div style={{
+          marginTop: "1rem",
+          padding: "1.1rem 1.25rem",
+          borderRadius: "var(--radius-md)",
+          background: "#faf5ff",
+          border: "1px solid #e9d5ff",
+          fontSize: "0.9rem",
+          lineHeight: "1.6",
+          color: "#581c87"
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", fontWeight: 800 }}>
+              <Sparkles size={16} color="var(--brand-violet)" />
+              <span>Trợ Lý Sư Phạm AI Gemini 2.0:</span>
+            </div>
             <button
-              className="btn btn-ai btn-sm"
-              onClick={handleAskAIExplanation}
-              disabled={isAiLoading}
+              onClick={handleCopyExplanation}
+              className="btn btn-secondary btn-sm"
+              style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem" }}
             >
-              <Bot size={15} />
-              <span>Thầy AI Chữa Bài Chi Tiết</span>
+              {copied ? <Check size={12} color="green" /> : <Copy size={12} />}
+              <span>{copied ? "Đã chép" : "Sao chép"}</span>
             </button>
           </div>
-
-          {/* Standard Logic Explanation */}
-          {showExp && (
-            <div className="exp-box">
-              <div style={{ fontWeight: 800, color: "#065f46", marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                <Check size={16} />
-                <span>
-                  {question.type === "single_choice" && `Đáp án chuẩn: ${["A", "B", "C", "D"][question.correct_answer]}. ${question.options?.[question.correct_answer]}`}
-                  {question.type === "true_false" && `Đáp án chuẩn: ${question.correct_answer === 0 ? "Đúng (True)" : "Sai (False)"}`}
-                  {question.type === "multiple_choice" && `Các đáp án đúng: ${question.correct_answer.map((i: number) => ["A", "B", "C", "D"][i]).join(", ")}`}
-                  {question.type === "fill_blank" && `Từ khóa cần điền: '${question.correct_answer}'`}
-                  {question.type === "sequence_order" && `Thứ tự chuẩn: ${question.correct_order?.map((i: number) => question.items?.[i]).join(" ➔ ")}`}
-                  {question.type === "matching" && `Ghép cặp: ${question.pairs?.map((p: any) => `${p.left} ➔ ${p.right}`).join(" | ")}`}
-                </span>
-              </div>
-              <div style={{ fontSize: "0.88rem", lineHeight: "1.6" }}>
-                <strong>🔍 Phương pháp tư duy logic:</strong> {question.explanation}
-              </div>
-            </div>
-          )}
-
-          {/* AI Explanation Box */}
-          {aiExplanation && (
-            <div className="ai-feedback-box">
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.6rem" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 800, color: "#86198f" }}>
-                  <Bot size={18} />
-                  <span>Lời Giảng & Bí Quyết Nhớ Lâu Của Thầy AI Sao Việt:</span>
-                </div>
-                <div style={{ display: "flex", gap: "0.4rem" }}>
-                  <button
-                    onClick={handleCopyExplanation}
-                    className="btn btn-secondary btn-sm"
-                    style={{ fontSize: "0.75rem", padding: "0.2rem 0.6rem" }}
-                  >
-                    {copied ? <Check size={12} color="green" /> : <Copy size={12} />}
-                    <span>{copied ? "Đã chép" : "Sao chép"}</span>
-                  </button>
-                  <button
-                    onClick={() => setAiExplanation(null)}
-                    style={{ background: "none", border: "none", color: "#a21caf", cursor: "pointer", padding: "0.2rem" }}
-                    title="Đóng"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              </div>
-              <div style={{ whiteSpace: "pre-wrap", fontSize: "0.88rem", lineHeight: "1.65" }}>
-                {aiExplanation}
-              </div>
-            </div>
-          )}
+          <div style={{ whiteSpace: "pre-line" }}>{aiExplanation}</div>
         </div>
       )}
     </div>
