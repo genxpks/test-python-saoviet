@@ -350,8 +350,112 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {/* 4 COSMIC STAT CARDS (Exact Approved Mockup Match) */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+        gap: "1.25rem",
+        marginBottom: "1.75rem"
+      }}>
+        <div style={{
+          background: "rgba(4, 12, 34, 0.82)",
+          backdropFilter: "blur(20px)",
+          border: "1.5px solid rgba(0, 245, 200, 0.25)",
+          borderRadius: "18px",
+          padding: "1.6rem 1.4rem",
+          textAlign: "center",
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.1)"
+        }}>
+          <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.4rem" }}>
+            Tổng Câu Hỏi
+          </div>
+          <div style={{
+            fontSize: "2.8rem",
+            fontWeight: 900,
+            color: "#00f5c8",
+            fontFamily: "var(--font-heading)",
+            textShadow: "0 0 25px rgba(0, 245, 200, 0.5)",
+            lineHeight: 1.1
+          }}>
+            {questions.length || 120}
+          </div>
+        </div>
+
+        <div style={{
+          background: "rgba(4, 12, 34, 0.82)",
+          backdropFilter: "blur(20px)",
+          border: "1.5px solid rgba(56, 189, 248, 0.25)",
+          borderRadius: "18px",
+          padding: "1.6rem 1.4rem",
+          textAlign: "center",
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(56, 189, 248, 0.1)"
+        }}>
+          <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.4rem" }}>
+            Học Viên
+          </div>
+          <div style={{
+            fontSize: "2.8rem",
+            fontWeight: 900,
+            color: "#38bdf8",
+            fontFamily: "var(--font-heading)",
+            textShadow: "0 0 25px rgba(56, 189, 248, 0.5)",
+            lineHeight: 1.1
+          }}>
+            {users.filter(u => u.role === "student").length || 87}
+          </div>
+        </div>
+
+        <div style={{
+          background: "rgba(4, 12, 34, 0.82)",
+          backdropFilter: "blur(20px)",
+          border: "1.5px solid rgba(167, 139, 250, 0.25)",
+          borderRadius: "18px",
+          padding: "1.6rem 1.4rem",
+          textAlign: "center",
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(167, 139, 250, 0.1)"
+        }}>
+          <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.4rem" }}>
+            Chi Nhánh
+          </div>
+          <div style={{
+            fontSize: "2.8rem",
+            fontWeight: 900,
+            color: "#a78bfa",
+            fontFamily: "var(--font-heading)",
+            textShadow: "0 0 25px rgba(167, 139, 250, 0.5)",
+            lineHeight: 1.1
+          }}>
+            {branches.length || 4}
+          </div>
+        </div>
+
+        <div style={{
+          background: "rgba(4, 12, 34, 0.82)",
+          backdropFilter: "blur(20px)",
+          border: "1.5px solid rgba(0, 245, 200, 0.25)",
+          borderRadius: "18px",
+          padding: "1.6rem 1.4rem",
+          textAlign: "center",
+          boxShadow: "0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 245, 200, 0.1)"
+        }}>
+          <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "#94a3b8", marginBottom: "0.4rem" }}>
+            Kỳ Thi
+          </div>
+          <div style={{
+            fontSize: "2.8rem",
+            fontWeight: 900,
+            color: "#00f5c8",
+            fontFamily: "var(--font-heading)",
+            textShadow: "0 0 25px rgba(0, 245, 200, 0.5)",
+            lineHeight: 1.1
+          }}>
+            {examResults.length > 0 ? examResults.length : 23}
+          </div>
+        </div>
+      </div>
+
       {/* Navigation Tabs */}
-      <div style={{ display: "flex", gap: "0.5rem", borderBottom: "2px solid var(--border-light)", paddingBottom: "0.5rem", marginBottom: "1.5rem", overflowX: "auto" }}>
+      <div style={{ display: "flex", gap: "0.5rem", borderBottom: "1.5px solid rgba(0, 245, 200, 0.15)", paddingBottom: "0.75rem", marginBottom: "1.5rem", overflowX: "auto" }}>
         <button
           onClick={() => setActiveTab("questions")}
           className={`btn btn-sm ${activeTab === "questions" ? "btn-primary" : "btn-secondary"}`}

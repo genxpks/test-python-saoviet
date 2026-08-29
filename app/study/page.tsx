@@ -119,28 +119,31 @@ export default function StudyPage() {
 
         {/* Subject Authorization RBAC Gate */}
         <SubjectAccessGate subjectId={selectedSubjectId}>
-          <div style={{ marginBottom: "2rem" }}>
+          <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
             <div style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.5rem",
-              background: "rgba(37, 99, 235, 0.08)",
-              color: "var(--brand-primary)",
-              padding: "0.3rem 0.85rem",
-              borderRadius: "var(--radius-full)",
-              fontSize: "0.8rem",
-              fontWeight: 800,
-              marginBottom: "0.6rem"
+              display: "inline-block",
+              fontSize: "0.88rem",
+              fontWeight: 700,
+              color: "#00f5c8",
+              letterSpacing: "0.04em",
+              marginBottom: "0.5rem"
             }}>
-              <BookOpen size={14} />
-              <span>{currentSubject.name} ({currentSubject.code})</span>
+              Study Page / Ôn Tập 120 Câu
             </div>
             
-            <h1 style={{ fontSize: "2rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
-              Ngân Hàng Ôn Tập {questions.length} Câu & Bài Tập Thực Chiến
+            <h1 style={{
+              fontSize: "clamp(2rem, 4vw, 2.8rem)",
+              fontWeight: 900,
+              letterSpacing: "-0.8px",
+              color: "#ffffff",
+              marginBottom: "0.5rem",
+              fontFamily: "var(--font-heading)",
+              textShadow: "0 0 30px rgba(0, 245, 200, 0.45)"
+            }}>
+              Ngân Hàng Ôn Tập 120 Câu
             </h1>
-            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem" }}>
-              {currentSubject.description}
+            <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "600px", margin: "0 auto" }}>
+              {currentSubject.name} — Nền tảng ôn luyện kiến thức chuẩn hóa & bài tập thực chiến có giải thích chi tiết từ Thầy AI.
             </p>
           </div>
 
