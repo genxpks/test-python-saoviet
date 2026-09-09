@@ -414,3 +414,226 @@ export function getWhyWrongExplanation(question: Question, selectedIndex: number
   // 5. Fallback chung cho mọi dạng câu hỏi
   return `Lựa chọn của em chưa chính xác. Hãy xem xét kỹ các quy tắc cú pháp và cấu trúc dữ liệu của Python trong câu hỏi này.`;
 }
+
+/**
+ * Phân tích sư phạm vì sao thứ tự sắp xếp dòng lệnh chưa chính xác
+ */
+export function analyzeSequenceOrderFailure(question: Question, userOrder: number[]): string {
+  const qid = question.id;
+  const target = question.correct_order || Array.from({ length: question.items?.length || 0 }, (_, i) => i);
+  const items = question.items || [];
+
+  if (qid === 96) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi NameError: Biến 'hoc_sinh' cần được khởi tạo rỗng ('hoc_sinh = {}') trước khi thực hiện gán các thuộc tính 'ten' hay 'diem'.";
+    }
+    const printPos = userOrder.indexOf(3);
+    const tenPos = userOrder.indexOf(1);
+    const diemPos = userOrder.indexOf(2);
+    if (printPos !== -1 && (printPos < tenPos || printPos < diemPos)) {
+      return "Lỗi Logic: Lệnh 'print(hoc_sinh)' được gọi quá sớm trước khi hoàn tất việc gán 'ten' và 'diem', dẫn đến dữ liệu in ra màn hình bị thiếu trường thông tin.";
+    }
+    return "Thứ tự thực thi chưa chuẩn: Luồng chuẩn của Python là Tạo Dict rỗng -> Gán thuộc tính -> In ra kết quả.";
+  }
+
+  if (qid === 97) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi NameError: Cần nạp thư viện 'import turtle' ở đầu chương trình trước khi khởi tạo bút vẽ.";
+    }
+    const turtleObjPos = userOrder.indexOf(1);
+    const loopPos = userOrder.indexOf(2);
+    if (turtleObjPos > loopPos) {
+      return "Lỗi: Bút vẽ 'but_ve = turtle.Turtle()' phải được khởi tạo trước vòng lặp for thì mới có đối tượng để thực hiện di chuyển.";
+    }
+    if (userOrder[userOrder.length - 1] !== 5) {
+      return "Lỗi: Lệnh 'turtle.done()' phải đặt ở dòng cuối cùng để giữ cửa sổ đồ họa sau khi hoàn tất nét vẽ.";
+    }
+    return "Lỗi Logic: Hai câu lệnh dịch chuyển 'forward(100)' và quay góc 'right(90)' phải nằm trong thân vòng lặp 4 lần.";
+  }
+
+  if (qid === 98) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi UnboundLocalError: Biến tích lũy 'tong' phải được gán giá trị khởi tạo bằng 0 trước khi bước vào vòng lặp cộng dồn.";
+    }
+    const printPos = userOrder.indexOf(3);
+    const addPos = userOrder.indexOf(2);
+    if (printPos < addPos) {
+      return "Lỗi Logic: Lệnh in 'print('Tong la:', tong)' chỉ được thực thi sau khi vòng lặp đã cộng dồn xong tất cả các số từ 1 đến 5.";
+    }
+    return "Thứ tự chưa chuẩn: Cần Khởi tạo tổng = 0 -> Vòng lặp cộng dồn -> In kết quả.";
+  }
+
+  if (qid === 99) {
+    const defPos = userOrder.indexOf(0);
+    const retPos = userOrder.indexOf(1);
+    const callPos = userOrder.indexOf(2);
+    const printPos = userOrder.indexOf(3);
+    if (defPos > callPos || retPos > callPos) {
+      return "Lỗi NameError: Hàm 'tinh_dien_tich' phải được định nghĩa 'def' và trả về 'return' trước khi được gọi thực thi.";
+    }
+    if (printPos < callPos) {
+      return "Lỗi NameError: Biến 'ket_qua' phải được gán kết quả gọi hàm trước khi đem in ra màn hình.";
+    }
+    return "Thứ tự chưa chuẩn: Định nghĩa hàm -> Gọi hàm và lưu kết quả -> In kết quả.";
+  }
+
+  if (qid === 100) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi NameError: Cần nạp thư viện 'import random' trước khi gọi hàm 'random.choice()'.";
+    }
+    const listPos = userOrder.indexOf(1);
+    const choicePos = userOrder.indexOf(2);
+    if (choicePos < listPos) {
+      return "Lỗi NameError: Danh sách quà tặng 'qua_tang' phải được tạo trước khi hàm 'random.choice' tiến hành bốc thăm.";
+    }
+    return "Thứ tự chưa chuẩn: Import thư viện -> Tạo danh sách -> Bốc thăm ngẫu nhiên -> In phần thưởng.";
+  }
+
+  if (qid === 101) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi: Cần nhận giá trị số nguyên 'n' từ bàn phím trước khi kiểm tra điều kiện chẵn lẻ.";
+    }
+    const ifPos = userOrder.indexOf(1);
+    const elsePos = userOrder.indexOf(3);
+    if (elsePos < ifPos) {
+      return "Lỗi SyntaxError: Cấu trúc rẽ nhánh bắt buộc khối lệnh 'if' đứng trước, khối 'else:' đứng sau.";
+    }
+    return "Thứ tự chưa chuẩn: Nhập n -> Kiểm tra if chẵn -> In chẵn -> Nhánh else -> In lẻ.";
+  }
+
+  if (qid === 102) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi: Cần khởi tạo danh sách rỗng 'ds = []' trước khi lặp nhập và thêm phần tử bằng '.append()'.";
+    }
+    const sortPos = userOrder.indexOf(4);
+    const appendPos = userOrder.indexOf(3);
+    if (sortPos < appendPos) {
+      return "Lỗi Logic: Phải thu thập đủ các số vào danh sách trước khi tiến hành sắp xếp tăng dần bằng '.sort()'.";
+    }
+    return "Thứ tự chưa chuẩn: Khởi tạo ds rỗng -> Vòng lặp nhập số & append -> Sắp xếp ds.sort() -> In danh sách.";
+  }
+
+  if (qid === 103) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi NameError: Chuỗi gốc 's' cần được khai báo trước khi áp dụng các phương thức xử lý chuỗi.";
+    }
+    const printPos = userOrder.indexOf(3);
+    const titlePos = userOrder.indexOf(2);
+    if (printPos < titlePos) {
+      return "Lỗi Logic: Chuỗi phải được làm sạch khoảng trắng thừa và viết hoa chuẩn trước khi in ra.";
+    }
+    return "Thứ tự chưa chuẩn: Khai báo chuỗi -> Cắt khoảng trắng .strip() -> Viết hoa .title() -> In chuỗi chuẩn hóa.";
+  }
+
+  if (qid === 104) {
+    const beginPos = userOrder.indexOf(1);
+    const loopPos = userOrder.indexOf(2);
+    const endPos = userOrder.indexOf(5);
+    if (beginPos > loopPos) {
+      return "Lỗi: Cần gọi 'begin_fill()' trước khi bắt đầu vẽ các cạnh để đánh dấu vùng tô màu.";
+    }
+    if (endPos < loopPos) {
+      return "Lỗi: Lệnh 'end_fill()' chỉ được gọi khi đã hoàn thành vẽ xong 3 cạnh của tam giác.";
+    }
+    return "Thứ tự chưa chuẩn: Chọn màu -> Bắt đầu tô begin_fill -> Vòng lặp vẽ 3 cạnh -> Kết thúc tô end_fill.";
+  }
+
+  if (qid === 105) {
+    const demPos = userOrder.indexOf(1);
+    const loopPos = userOrder.indexOf(2);
+    const printPos = userOrder.indexOf(5);
+    if (demPos > loopPos) {
+      return "Lỗi: Biến đếm 'dem' phải được khởi tạo bằng 0 trước khi vòng lặp duyệt từng ký tự bắt đầu.";
+    }
+    if (printPos < loopPos) {
+      return "Lỗi Logic: Lệnh in tổng số chữ số chỉ được gọi sau khi vòng lặp hoàn tất kiểm tra cả chuỗi.";
+    }
+    return "Thứ tự chưa chuẩn: Khai báo chuỗi -> Khởi tạo biến đếm = 0 -> Duyệt chuỗi kiểm tra isdigit() -> In kết quả.";
+  }
+
+  if (qid === 106) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi NameError: Cần nạp thư viện 'import math' trước khi gọi hàm tính căn bậc hai 'math.sqrt()'.";
+    }
+    const inputPos = userOrder.indexOf(1);
+    const sqrtPos = userOrder.indexOf(2);
+    if (sqrtPos < inputPos) {
+      return "Lỗi: Cần nhận giá trị số 'x' từ bàn phím trước khi đưa vào hàm 'math.sqrt(x)'.";
+    }
+    return "Thứ tự chưa chuẩn: Import math -> Nhập x -> Tính math.sqrt(x) -> In kết quả.";
+  }
+
+  if (qid === 107) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi: Biến 'n' cần được gán giá trị trước khi dùng trong tiêu đề và vòng lặp tính bảng cửu chương.";
+    }
+    return "Thứ tự chưa chuẩn: Gán n = 5 -> In tiêu đề -> Vòng lặp 1 đến 10 tính tích -> In từng phép nhân.";
+  }
+
+  if (qid === 108) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi: Cần khởi tạo từ điển danh bạ trước khi tiến hành tra cứu số điện thoại.";
+    }
+    const checkPos = userOrder.indexOf(2);
+    const printPos = userOrder.indexOf(3);
+    if (printPos < checkPos) {
+      return "Lỗi KeyError: Cần kiểm tra 'if ten in danh_ba' trước khi truy xuất giá trị 'danh_ba[ten]' để tránh lỗi văng chương trình.";
+    }
+    return "Thứ tự chưa chuẩn: Tạo danh bạ -> Nhập tên cần tra -> Kiểm tra điều kiện có trong danh bạ -> In số điện thoại.";
+  }
+
+  if (qid === 109) {
+    if (userOrder[0] !== 0) {
+      return "Lỗi: Cần nạp thư viện 'import datetime' trước khi lấy ngày giờ hiện tại.";
+    }
+    const printPos = userOrder.indexOf(5);
+    if (printPos < 4) {
+      return "Lỗi: Phải trích xuất đầy đủ ngày, tháng, năm từ đối tượng 'now' trước khi ghép in ra chuỗi.";
+    }
+    return "Thứ tự chưa chuẩn: Import datetime -> Lấy now() -> Lấy ngày, tháng, năm -> In định dạng ngày/tháng/năm.";
+  }
+
+  if (qid === 110) {
+    const penupPos = userOrder.indexOf(1);
+    const moveBlankPos = userOrder.indexOf(2);
+    const pendownPos = userOrder.indexOf(3);
+    const circlePos = userOrder.indexOf(4);
+    if (penupPos > moveBlankPos) {
+      return "Lỗi Logic: Phải nhấc bút 'penup()' trước khi di chuyển khoảng cách 50 thì đoạn đường mới không để lại nét vẽ.";
+    }
+    if (pendownPos > circlePos) {
+      return "Lỗi Logic: Phải hạ bút 'pendown()' trước khi vẽ hình tròn thì nét vẽ mới xuất hiện trên khung đồ họa.";
+    }
+    return "Thứ tự chưa chuẩn: Vẽ nét 100 -> Nhấc bút penup() -> Dịch chuyển 50 -> Hạ bút pendown() -> Vẽ hình tròn.";
+  }
+
+  // Fallback chung
+  return "Thứ tự các dòng lệnh chưa phản ánh đúng quy trình logic thực thi của Python. Hãy xem xét luồng: Khởi tạo/Import -> Xử lý/Tính toán -> Xuất kết quả.";
+}
+
+/**
+ * Trả về kết quả thực thi mô phỏng giả lập của đoạn mã khi chạy đúng
+ */
+export function getSimulatedExecutionOutput(question: Question): string {
+  const qid = question.id;
+  const outputs: Record<number, string> = {
+    96: "{'ten': 'Minh', 'diem': 9.5}",
+    97: "[Turtle Graphics]: Bút vẽ hoàn thành hình vuông 4 cạnh độ dài 100 pixel, góc quay 90°.",
+    98: "Tong la: 15",
+    99: "Dien tich la: 20",
+    100: "Mon qua trung thuong la: Sach",
+    101: "Nhap n: 4\n4 la so chan",
+    102: "Nhap so: 9\nNhap so: 3\nNhap so: 7\n[3, 7, 9]",
+    103: "Ten chuan hoa: Nguyen Van An",
+    104: "[Turtle Graphics]: Bút vẽ tô màu đỏ kín (fill) hoàn thành tam giác đều 3 cạnh 100.",
+    105: "So chu so la: 4",
+    106: "Nhap so: 16\nCan bac hai la: 4.00",
+    107: "Bang cuu chuong 5:\n5 x 1 = 5\n5 x 2 = 10\n5 x 3 = 15\n5 x 4 = 20\n5 x 5 = 25\n5 x 6 = 30\n5 x 7 = 35\n5 x 8 = 40\n5 x 9 = 45\n5 x 10 = 50",
+    108: "Nhap ten can tra: An\nSDT: 090123",
+    109: "9/9/2026",
+    110: "[Turtle Graphics]: Vẽ nét thẳng 100px -> Nhấc bút đi 50px -> Hạ bút vẽ đường tròn bán kính 30px."
+  };
+
+  return outputs[qid] || "[Python 3.12]: Chương trình chạy thành công (Exit Code: 0).";
+}
+

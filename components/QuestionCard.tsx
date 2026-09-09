@@ -24,6 +24,7 @@ import {
   AlertCircle
 } from "lucide-react";
 import { getWhyWrongExplanation } from "@/lib/quizFeedbackEngine";
+import InteractiveSequenceOrdering from "./InteractiveSequenceOrdering";
 
 interface QuestionCardProps {
   question: Question;
@@ -1008,148 +1009,15 @@ export default function QuestionCard({
       )}
 
       {/* ========================================================================= */}
-      {/* 4. SEQUENCE ORDERING */}
+      {/* 4. SEQUENCE ORDERING (2 CỘT TƯƠNG TÁC KÉO THẢ & CHẠY THỬ) */}
       {/* ========================================================================= */}
       {question.type === "sequence_order" && question.items && (
-        <div style={{ margin: "1rem 0" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <span style={{ fontSize: "0.82rem", color: "#34d399", fontWeight: 700 }}>
-              * Dùng mũi tên ▲ ▼ để sắp xếp các dòng lệnh theo đúng logic thực thi:
-            </span>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
-            {order.map((itemIdx, pos) => (
-              <div
-                key={pos}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.75rem",
-                  padding: "0.75rem 1rem",
-                  background: "var(--surface-subtle)",
-                  border: orderChecked 
-                    ? (order[pos] === (question.correct_order || [])[pos] ? "1.5px solid #10b981" : "1.5px solid #ef4444")
-                    : "1.5px solid var(--border-medium)",
-                  borderRadius: "var(--radius-sm)",
-                  transition: "all 0.2s ease"
-                }}
-              >
-                <span style={{ fontWeight: 800, color: "#2563eb", fontSize: "0.85rem", width: "26px" }}>
-                  #{pos + 1}
-                </span>
-                <span style={{ flex: 1, fontFamily: "var(--font-mono)", fontSize: "0.88rem", color: "var(--text-primary)" }}>
-                  {question.items![itemIdx]}
-                </span>
-                <div style={{ display: "flex", gap: "0.3rem" }}>
-                  <button
-                    disabled={pos === 0}
-                    onClick={() => handleMoveOrder(pos, -1)}
-                    className="btn btn-secondary btn-sm"
-                    style={{ padding: "0.3rem 0.5rem", borderRadius: "6px" }}
-                    title="Di chuyển lên trên"
-                  >
-                    <ArrowUp size={14} />
-                  </button>
-                  <button
-                    disabled={pos === order.length - 1}
-                    onClick={() => handleMoveOrder(pos, 1)}
-                    className="btn btn-secondary btn-sm"
-                    style={{ padding: "0.3rem 0.5rem", borderRadius: "6px" }}
-                    title="Di chuyển xuống dưới"
-                  >
-                    <ArrowDown size={14} />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Sequence Order Check Button in Study Mode */}
-          {!isExamMode && (
-            <div style={{ marginTop: "0.75rem" }}>
-              {!orderChecked ? (
-                <button
-                  onClick={handleCheckOrder}
-                  className="btn btn-sm"
-                  style={{
-                    background: "linear-gradient(135deg, #059669, #047857)",
-                    color: "#ffffff",
-                    fontWeight: 800,
-                    padding: "0.55rem 1.2rem",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(5, 150, 105, 0.35)",
-                    cursor: "pointer"
-                  }}
-                >
-                  <ListOrdered size={16} />
-                  <span>🔍 Kiểm Tra Thứ Tự Đã Xếp</span>
-                </button>
-              ) : (
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  background: (() => {
-                    const target = question.correct_order || Array.from({ length: question.items?.length || 0 }, (_, i) => i);
-                    const isExact = order.every((v, i) => v === target[i]);
-                    return isExact ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.08)";
-                  })(),
-                  border: `1.5px solid ${(() => {
-                    const target = question.correct_order || Array.from({ length: question.items?.length || 0 }, (_, i) => i);
-                    const isExact = order.every((v, i) => v === target[i]);
-                    return isExact ? "#059669" : "#dc2626";
-                  })()}`,
-                  borderRadius: "8px",
-                  padding: "0.65rem 1rem",
-                  color: (() => {
-                    const target = question.correct_order || Array.from({ length: question.items?.length || 0 }, (_, i) => i);
-                    const isExact = order.every((v, i) => v === target[i]);
-                    return isExact ? "#065f46" : "#991b1b";
-                  })(),
-                  fontSize: "0.88rem",
-                  fontWeight: 700
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    {(() => {
-                      const target = question.correct_order || Array.from({ length: question.items?.length || 0 }, (_, i) => i);
-                      const isExact = order.every((v, i) => v === target[i]);
-                      if (isExact) {
-                        return (
-                          <>
-                            <CheckCircle2 size={17} color="#059669" style={{ flexShrink: 0 }} />
-                            <span>HOÀN TOÀN CHÍNH XÁC! Quy trình logic và thứ tự thực thi đã chuẩn 100%.</span>
-                          </>
-                        );
-                      }
-                      return (
-                        <>
-                          <X size={17} color="#dc2626" style={{ flexShrink: 0 }} />
-                          <span>THỨ TỰ CHƯA CHÍNH XÁC! Hãy xem thứ tự quy trình chuẩn trong mục phân tích bên dưới:</span>
-                        </>
-                      );
-                    })()}
-                  </div>
-                  <button
-                    onClick={() => {
-                      setOrder(Array.from({ length: question.items?.length || 0 }, (_, i) => i));
-                      setOrderChecked(false);
-                      setShowExp(false);
-                    }}
-                    className={(() => {
-                      const target = question.correct_order || Array.from({ length: question.items?.length || 0 }, (_, i) => i);
-                      const isExact = order.every((v, i) => v === target[i]);
-                      return isExact ? "btn-retry btn-retry-correct" : "btn-retry btn-retry-wrong";
-                    })()}
-                  >
-                    <RotateCcw size={13} />
-                    <span>Sắp xếp lại</span>
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+        <InteractiveSequenceOrdering
+          question={question}
+          userAnswer={currentAnswer}
+          onAnswerChange={updateAnswer}
+          isExamMode={isExamMode}
+        />
       )}
 
       {/* ========================================================================= */}
