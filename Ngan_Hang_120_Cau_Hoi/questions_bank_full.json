@@ -1,8 +1,8 @@
 {
-  "title": "Ngân hàng 120 Câu Trắc Nghiệm & 10 Bài Thực Hành Python Nâng Cao",
+  "title": "Ngân hàng 140 Câu Trắc Nghiệm & 21 Bài Thực Hành Python Nâng Cao",
   "center": "TIN HỌC SAO VIỆT THỦ ĐỨC",
-  "total_mcq": 120,
-  "total_practical": 15,
+  "total_mcq": 140,
+  "total_practical": 21,
   "questions": [
     {
       "id": 1,
@@ -1967,6 +1967,446 @@
         "Đặt đồng thời màu viền c1 và màu tô c2"
       ],
       "explanation": "Làm chủ các lệnh màu sắc giúp tạo nên những bức tranh đồ họa sinh động."
+    },
+    {
+      "id": 121,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Từ khóa nào dùng để định nghĩa hàm trong Python?",
+      "options": [
+        "define",
+        "def",
+        "function",
+        "func"
+      ],
+      "correct_answer": 1,
+      "explanation": "Trong Python, từ khóa chuẩn để định nghĩa một hàm là 'def' (viết tắt của define), cú pháp: def ten_ham(tham_so):",
+      "option_explanations": {
+        "0": "'define' là từ khóa trong một số ngôn ngữ khác (như C/C++ macro #define), không phải cú pháp định nghĩa hàm trong Python.",
+        "1": "Chính xác! 'def' là từ khóa chuẩn trong Python để bắt đầu định nghĩa hàm.",
+        "2": "'function' là từ khóa dùng trong JavaScript hoặc PHP, Python không sử dụng từ khóa này.",
+        "3": "'func' là từ khóa trong ngôn ngữ Go hoặc Swift, không hợp lệ trong Python."
+      }
+    },
+    {
+      "id": 122,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Lệnh nào dùng để nạp (import) thư viện math trong Python?",
+      "options": [
+        "include math",
+        "import math",
+        "require math",
+        "using math"
+      ],
+      "correct_answer": 1,
+      "explanation": "Trong Python, lệnh 'import' được sử dụng để nạp các module/thư viện chuẩn hoặc bên ngoài vào chương trình.",
+      "option_explanations": {
+        "0": "'include' được dùng trong C/C++ (#include <math.h>), Python không có từ khóa này.",
+        "1": "Chính xác! Cú pháp 'import ten_thu_vien' là chuẩn tắc trong Python.",
+        "2": "'require' là cú pháp trong Node.js / Ruby / PHP, không dùng trong Python.",
+        "3": "'using' là cú pháp trong C# / C++, không tồn tại trong Python."
+      }
+    },
+    {
+      "id": 123,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Hàm nào trong thư viện math dùng để tính căn bậc hai của một số?",
+      "options": [
+        "sqrt()",
+        "root()",
+        "square()",
+        "pow()"
+      ],
+      "correct_answer": 0,
+      "explanation": "Hàm math.sqrt(x) (viết tắt của Square Root) được dùng để tính căn bậc hai của số không âm x.",
+      "option_explanations": {
+        "0": "Chính xác! math.sqrt(x) tính căn bậc hai của x.",
+        "1": "Thư viện math không có hàm tên là 'root()'.",
+        "2": "'square()' không có trong thư viện math; nếu muốn tính bình phương ta dùng toán tử x ** 2 hoặc math.pow(x, 2).",
+        "3": "math.pow(x, y) dùng để tính lũy thừa x^y, không phải hàm chuyên dụng tính căn bậc hai."
+      }
+    },
+    {
+      "id": 124,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Kết quả của biểu thức cắt chuỗi (slicing) \"Python\"[1:4] là gì?",
+      "options": [
+        "\"Pyt\"",
+        "\"yth\"",
+        "\"thon\"",
+        "\"Python\""
+      ],
+      "correct_answer": 1,
+      "explanation": "Cú pháp slicing s[start:stop] lấy từ chỉ số start đến stop - 1. Với \"Python\": vị trí 1 là 'y', vị trí 2 là 't', vị trí 3 là 'h' (dừng trước 4) -> 'yth'.",
+      "option_explanations": {
+        "0": "\"Pyt\" tương ứng với lát cắt [0:3] (lấy từ chỉ số 0 đến 2), trong khi biểu thức bắt đầu từ chỉ số 1.",
+        "1": "Chính xác! Lấy ký tự tại chỉ số 1, 2, 3 tương ứng với các chữ cái 'y', 't', 'h'.",
+        "2": "\"thon\" tương ứng với lát cắt [2:] hoặc [2:6], không phải [1:4].",
+        "3": "\"Python\" là toàn bộ chuỗi ban đầu, trong khi slicing [1:4] chỉ lấy chuỗi con 3 ký tự."
+      }
+    },
+    {
+      "id": 125,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Phương thức nào dùng để chuyển tất cả ký tự trong chuỗi thành chữ hoa?",
+      "options": [
+        "upper()",
+        "capitalize()",
+        "toUpper()",
+        "uppercase()"
+      ],
+      "correct_answer": 0,
+      "explanation": "Phương thức s.upper() trả về bản sao của chuỗi s với toàn bộ ký tự được chuyển thành chữ in hoa.",
+      "option_explanations": {
+        "0": "Chính xác! s.upper() biến đổi toàn bộ các chữ cái trong chuỗi thành chữ hoa.",
+        "1": "s.capitalize() chỉ viết hoa chữ cái đầu tiên của chuỗi, các ký tự còn lại chuyển thành chữ thường.",
+        "2": "'toUpper()' hoặc 'toUpperCase()' là cú pháp của JavaScript / Java, không có trong Python.",
+        "3": "'uppercase' không phải là phương thức của kiểu dữ liệu chuỗi (str) trong Python."
+      }
+    },
+    {
+      "id": 126,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Cách nào sau đây là chuẩn xác nhất để khởi tạo một List rỗng trong Python?",
+      "options": [
+        "list = {}",
+        "list = []",
+        "list = ()",
+        "list = \"\""
+      ],
+      "correct_answer": 1,
+      "explanation": "Dấu ngoặc vuông [] (hoặc hàm list()) được dùng để khởi tạo danh sách (List) rỗng trong Python.",
+      "option_explanations": {
+        "0": "Dấu ngoặc nhọn {} dùng để tạo một Dictionary rỗng (hoặc Set nếu có phần tử), không phải List.",
+        "1": "Chính xác! Cặp dấu ngoặc vuông [] khởi tạo một List rỗng.",
+        "2": "Cặp dấu ngoặc đơn () dùng để tạo một Tuple rỗng.",
+        "3": "Cặp dấu nháy kép \"\" tạo một chuỗi rỗng (str), không phải List."
+      }
+    },
+    {
+      "id": 127,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Phương thức nào dùng để thêm một phần tử mới vào cuối danh sách (List)?",
+      "options": [
+        "insert()",
+        "append()",
+        "add()",
+        "push()"
+      ],
+      "correct_answer": 1,
+      "explanation": "Phương thức list.append(x) thêm phần tử x vào vị trí cuối cùng của danh sách.",
+      "option_explanations": {
+        "0": "list.insert(index, x) dùng để chèn phần tử vào một vị trí chỉ số cụ thể, cần truyền 2 đối số.",
+        "1": "Chính xác! list.append(x) thêm một phần tử vào vị trí cuối cùng của list.",
+        "2": "Phương thức .add() dùng cho tập hợp (Set), List không có phương thức .add().",
+        "3": "'push()' là phương thức trong JavaScript / C++, List trong Python dùng .append()."
+      }
+    },
+    {
+      "id": 128,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Khối lệnh nào được sử dụng để bắt và xử lý ngoại lệ (Exception) trong Python?",
+      "options": [
+        "if-else",
+        "try-except",
+        "for-in",
+        "while-do"
+      ],
+      "correct_answer": 1,
+      "explanation": "Python sử dụng cấu trúc try...except (kèm else, finally) để xử lý ngoại lệ khi chương trình gặp sự cố lúc runtime.",
+      "option_explanations": {
+        "0": "if-else là cấu trúc rẽ nhánh điều kiện logic, không có cơ chế bắt ngoại lệ (Exception handler).",
+        "1": "Chính xác! Khối try-except bắt và xử lý các lỗi runtime như ZeroDivisionError, ValueError...",
+        "2": "for-in là cấu trúc vòng lặp duyệt phần tử tuần tự.",
+        "3": "while là vòng lặp theo điều kiện, không phải cơ chế xử lý lỗi."
+      }
+    },
+    {
+      "id": 129,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Phương thức nào dùng để nối các phần tử chuỗi trong một List thành một chuỗi duy nhất?",
+      "options": [
+        "concat()",
+        "join()",
+        "merge()",
+        "combine()"
+      ],
+      "correct_answer": 1,
+      "explanation": "Cú pháp 'ky_tu_noi'.join(danh_sach) nối các phần tử chuỗi trong danh sách bằng ký tự phân cách chỉ định.",
+      "option_explanations": {
+        "0": "'concat()' không phải phương thức của chuỗi trong Python (thường gặp trong SQL hoặc JS).",
+        "1": "Chính xác! sep.join(iterable) là phương thức chuẩn để ghép danh sách chuỗi.",
+        "2": "Python không có phương thức .merge() cho kiểu chuỗi.",
+        "3": "'combine()' không phải là phương thức nối chuỗi trong Python."
+      }
+    },
+    {
+      "id": 130,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Lệnh print(\"Hello\" * 3) trong Python sẽ cho kết quả xuất ra là gì?",
+      "options": [
+        "HelloHelloHello",
+        "Hello Hello Hello",
+        "Hello * 3",
+        "Báo lỗi cú pháp"
+      ],
+      "correct_answer": 0,
+      "explanation": "Toán tử nhân (*) giữa chuỗi và số nguyên n sẽ lặp lại chuỗi đó n lần liên tiếp nhau không có khoảng trắng xen giữa.",
+      "option_explanations": {
+        "0": "Chính xác! Nhân chuỗi với số nguyên tạo chuỗi lặp lại liên tiếp nhau.",
+        "1": "Phép nhân chuỗi không tự động chèn khoảng trắng giữa các lần lặp.",
+        "2": "Biểu thức được tính toán trước khi in ra, không in nguyên văn phép toán.",
+        "3": "Python hỗ trợ toán tử nhân chuỗi hợp lệ, không gây lỗi cú pháp."
+      }
+    },
+    {
+      "id": 131,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Giá trị trả về mặc định của một hàm trong Python khi không có lệnh return là gì?",
+      "options": [
+        "0",
+        "None",
+        "False",
+        "Chuỗi rỗng \"\""
+      ],
+      "correct_answer": 1,
+      "explanation": "Trong Python, mọi hàm nếu kết thúc mà không gặp câu lệnh return (hoặc return không có giá trị) đều mặc định trả về đối tượng None.",
+      "option_explanations": {
+        "0": "Python không ngầm định trả về số 0 như hàm main() trong C.",
+        "1": "Chính xác! None đại diện cho sự vắng mặt của giá trị trả về trong Python.",
+        "2": "Hàm không tự động ép kiểu về Boolean False khi không có return.",
+        "3": "Python không tự động trả về chuỗi rỗng."
+      }
+    },
+    {
+      "id": 132,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Phương thức nào dùng để kiểm tra xem một chuỗi có hoàn toàn chỉ chứa các ký tự chữ số hay không?",
+      "options": [
+        "isdigit()",
+        "isnumber()",
+        "isdecimal_only()",
+        "isint()"
+      ],
+      "correct_answer": 0,
+      "explanation": "Phương thức s.isdigit() trả về True nếu tất cả các ký tự trong chuỗi s là chữ số (0-9) và chuỗi có độ dài tối thiểu 1 ký tự.",
+      "option_explanations": {
+        "0": "Chính xác! s.isdigit() kiểm tra chuỗi có hoàn toàn chứa chữ số hay không.",
+        "1": "Python không có phương thức chuỗi tên là 'isnumber()'.",
+        "2": "Tên phương thức này không tồn tại trong Python (phương thức chuẩn là .isdecimal()).",
+        "3": "Python không có phương thức 'isint()' cho kiểu chuỗi."
+      }
+    },
+    {
+      "id": 133,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Câu lệnh nào tạo một vòng lặp for duyệt các số nguyên từ 0 đến 4?",
+      "options": [
+        "for i in 5:",
+        "for i in range(5):",
+        "for i in (0, 5):",
+        "for i from 0 to 5:"
+      ],
+      "correct_answer": 1,
+      "explanation": "Hàm range(5) sinh dãy số nguyên tuần tự 0, 1, 2, 3, 4 (bắt đầu từ 0 và kết thúc trước 5, gồm đúng 5 phần tử).",
+      "option_explanations": {
+        "0": "Số nguyên 5 không phải là đối tượng Iterable nên không thể duyệt trực tiếp bằng vòng lặp for (sẽ sinh lỗi TypeError).",
+        "1": "Chính xác! range(5) sinh dãy 0, 1, 2, 3, 4.",
+        "2": "Cú pháp này duyệt qua một Tuple gồm 2 phần tử là số 0 và số 5, chỉ lặp 2 lần.",
+        "3": "'from ... to' không phải là cú pháp vòng lặp của Python (thường gặp trong Pascal hoặc Basic)."
+      }
+    },
+    {
+      "id": 134,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Hàm tích hợp (built-in) nào dùng để tính tổng tất cả các phần tử số trong một List?",
+      "options": [
+        "sum()",
+        "total()",
+        "add()",
+        "calculate()"
+      ],
+      "correct_answer": 0,
+      "explanation": "Hàm sum(iterable) là hàm tích hợp sẵn của Python, tính tổng các giá trị số trong danh sách hoặc cấu trúc lặp.",
+      "option_explanations": {
+        "0": "Chính xác! Hàm sum(list) trả về tổng của tất cả các phần tử trong list.",
+        "1": "Python không có hàm tích hợp sẵn tên là 'total()'.",
+        "2": "'add()' không phải hàm tính tổng danh sách trong Python.",
+        "3": "Python không có hàm built-in tên là 'calculate()'."
+      }
+    },
+    {
+      "id": 135,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Tên loại ngoại lệ (Exception) phát sinh khi thực hiện phép chia một số cho số 0 trong Python là gì?",
+      "options": [
+        "ZeroDivisionError",
+        "ValueError",
+        "MathError",
+        "ArithmeticOverflowError"
+      ],
+      "correct_answer": 0,
+      "explanation": "Khi thực hiện phép chia cho 0 (toán tử /, //, hoặc %), Python sẽ ném ngoại lệ chuẩn 'ZeroDivisionError'.",
+      "option_explanations": {
+        "0": "Chính xác! ZeroDivisionError là lớp ngoại lệ tiêu chuẩn khi chia cho 0.",
+        "1": "ValueError xảy ra khi hàm nhận tham số đúng kiểu nhưng giá trị không hợp lệ (ví dụ: int(\"abc\")).",
+        "2": "Không tồn tại lớp ngoại lệ tên là 'MathError' trong thư viện chuẩn Python.",
+        "3": "Lỗi chia cho 0 trong Python không ném ArithmeticOverflowError mà ném ZeroDivisionError."
+      }
+    },
+    {
+      "id": 136,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Phương thức nào dùng để đảo ngược thứ tự các phần tử của List ngay tại chỗ (in-place)?",
+      "options": [
+        "reverse()",
+        "invert()",
+        "flip()",
+        "backward()"
+      ],
+      "correct_answer": 0,
+      "explanation": "Phương thức list.reverse() đảo ngược thứ tự các phần tử của chính danh sách đó tại chỗ (thay đổi trực tiếp và trả về None).",
+      "option_explanations": {
+        "0": "Chính xác! list.reverse() đảo ngược thứ tự tại chỗ.",
+        "1": "List không có phương thức 'invert()'.",
+        "2": "'flip()' không phải phương thức của List trong Python.",
+        "3": "Python không có phương thức 'backward()' cho kiểu List."
+      }
+    },
+    {
+      "id": 137,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Hàm nào dùng để ép kiểu chuyển đổi một chuỗi ký tự hợp lệ thành số nguyên trong Python?",
+      "options": [
+        "int()",
+        "float()",
+        "str()",
+        "number()"
+      ],
+      "correct_answer": 0,
+      "explanation": "Hàm int(x) ép kiểu giá trị x (ví dụ chuỗi \"123\") thành số nguyên tương ứng 123.",
+      "option_explanations": {
+        "0": "Chính xác! int(\"123\") chuyển chuỗi thành số nguyên 123.",
+        "1": "float(\"123\") chuyển đổi thành số thực 123.0 chứ không phải số nguyên.",
+        "2": "str() dùng để chuyển đổi các kiểu dữ liệu khác thành chuỗi ký tự.",
+        "3": "Python không có hàm kiểu dữ liệu 'number()' (khác với TypeScript/JavaScript)."
+      }
+    },
+    {
+      "id": 138,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Biểu thức \"123\".isdigit() trong Python trả về kết quả là gì?",
+      "options": [
+        "True",
+        "False",
+        "\"123\"",
+        "Ném ngoại lệ TypeError"
+      ],
+      "correct_answer": 0,
+      "explanation": "Chuỗi \"123\" chỉ chứa toàn các ký tự chữ số từ '0' đến '9' nên phương thức .isdigit() trả về giá trị Boolean True.",
+      "option_explanations": {
+        "0": "Chính xác! Vì toàn bộ ký tự trong \"123\" đều là chữ số hợp lệ.",
+        "1": "Phương thức chỉ trả về False nếu có ít nhất 1 ký tự không phải chữ số hoặc chuỗi rỗng.",
+        "2": ".isdigit() là phương thức kiểm tra điều kiện logic, luôn trả về kiểu bool (True/False).",
+        "3": "Đây là phương thức hợp lệ của kiểu chuỗi str, không gây ra lỗi."
+      }
+    },
+    {
+      "id": 139,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Hàm nào sau đây dùng để tìm giá trị lớn nhất trong một List các số nguyên?",
+      "options": [
+        "max()",
+        "maximum()",
+        "largest()",
+        "biggest()"
+      ],
+      "correct_answer": 0,
+      "explanation": "Hàm max(iterable) là hàm tích hợp sẵn của Python, trả về phần tử có giá trị lớn nhất trong tập hợp hoặc danh sách.",
+      "option_explanations": {
+        "0": "Chính xác! max(list) trả về phần tử lớn nhất.",
+        "1": "Python không có hàm tích hợp tên là 'maximum()'.",
+        "2": "Python không có hàm tên là 'largest()'.",
+        "3": "Python không có hàm tên là 'biggest()'."
+      }
+    },
+    {
+      "id": 140,
+      "subjectId": "python",
+      "category": "python_advanced",
+      "type": "single_choice",
+      "type_name": "Trắc nghiệm ABCD",
+      "question": "Phương thức nào dùng để sắp xếp các phần tử của List ngay tại chỗ theo thứ tự tăng dần?",
+      "options": [
+        "sort()",
+        "order()",
+        "arrange()",
+        "align()"
+      ],
+      "correct_answer": 0,
+      "explanation": "Phương thức list.sort() sắp xếp danh sách tại chỗ (in-place) theo thứ tự tăng dần. Khác với sorted(list) trả về danh sách mới.",
+      "option_explanations": {
+        "0": "Chính xác! list.sort() sắp xếp danh sách trực tiếp tại chỗ.",
+        "1": "List trong Python không có phương thức 'order()'.",
+        "2": "Python không có phương thức 'arrange()' cho kiểu danh sách.",
+        "3": "'align()' không phải là phương thức sắp xếp trong Python."
+      }
     }
   ],
   "practical_problems": [
@@ -2199,6 +2639,103 @@
         }
       ],
       "title": "Vẽ họa tiết xoắn ốc nghệ thuật tăng dần bước đi (Turtle Graphics)"
+    },
+    {
+      "id": 16,
+      "subjectId": "python",
+      "title": "Vẽ chuỗi hình vuông kích thước tăng dần cách đều (Turtle & List)",
+      "description": "Xây dựng hàm ve_chuoi_hinh_vuong(danh_sach_canh, khoang_cach) nhận vào danh sách kích thước cạnh các hình vuông (VD: [40, 60, 80]) và khoảng cách dịch chuyển (VD: 20). Duyệt vòng lặp lồng nhau: vòng ngoài lấy từng cạnh, vòng trong vẽ hình vuông 4 cạnh. Vẽ xong nhấc bút tiến tới (cạnh + khoảng cách) rồi hạ bút chuẩn bị vẽ hình kế tiếp. In thông báo: 'Đang khởi chạy giao diện Turtle để vẽ chuỗi hình vuông...'",
+      "difficulty": "medium",
+      "category": "turtle_loop",
+      "initial_code": "import turtle\n\ndef ve_chuoi_hinh_vuong(danh_sach_canh, khoang_cach):\n    \"\"\"\n    danh_sach_canh: List các số nguyên (VD: [40, 60, 80])\n    khoang_cach: Số nguyên khoảng cách giữa các hình (VD: 20)\n    \"\"\"\n    print(\"Đang khởi chạy giao diện Turtle để vẽ chuỗi hình vuông...\")\n    t = turtle.Turtle()\n    t.speed(3)\n    # Hãy hoàn thiện vòng lặp vẽ các hình vuông tại đây\n    for canh in danh_sach_canh:\n        for _ in range(4):\n            t.forward(canh)\n            t.right(90)\n        t.penup()\n        t.forward(canh + khoang_cach)\n        t.pendown()\n\nif __name__ == '__main__':\n    ve_chuoi_hinh_vuong([40, 60, 80], 20)\n",
+      "test_cases": [
+        {
+          "input": "[40, 60, 80], 20",
+          "expected_output": "Đang khởi chạy giao diện Turtle để vẽ chuỗi hình vuông...",
+          "explanation": "Hàm in thông báo và vẽ 3 hình vuông cạnh 40, 60, 80 cách nhau 20 bước."
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "subjectId": "python",
+      "title": "Vẽ hoa văn đa sắc đối xứng từ Dictionary màu sắc (Turtle & Dict)",
+      "description": "Xây dựng hàm ve_da_giac_mau_sac(tu_dien_mau, so_hinh_lap) nhận vào Dictionary ánh xạ màu sắc (có thể bị lỗi khoảng trắng ở hai đầu) -> bán kính (VD: {' red ': 50, ' blue ': 80, ' green ': 110}) và số lượng hình tròn lặp lại tại mỗi tâm. Sử dụng vòng lặp for key, value in tu_dien_mau.items(), áp dụng .strip() để làm sạch chuỗi màu trước khi đổi màu nét vẽ t.color(). Sau mỗi hình tròn xoay góc 360 / so_hinh_lap tạo hoa văn đối xứng.",
+      "difficulty": "hard",
+      "category": "turtle_dict",
+      "initial_code": "import turtle\n\ndef ve_da_giac_mau_sac(tu_dien_mau, so_hinh_lap=4):\n    \"\"\"\n    tu_dien_mau: Dict tên màu -> bán kính (VD: {' red ': 50, ' blue ': 80})\n    so_hinh_lap: Số hình tròn xoay quanh tâm\n    \"\"\"\n    print(\"Đang mở giao diện Turtle để vẽ đa giác màu sắc...\")\n    t = turtle.Turtle()\n    t.speed(5)\n    goc_xoay = 360 / so_hinh_lap\n    for mau, ban_kinh in tu_dien_mau.items():\n        mau_sach = mau.strip()\n        try:\n            t.color(mau_sach)\n        except Exception:\n            t.color('blue')\n        for _ in range(so_hinh_lap):\n            t.circle(ban_kinh)\n            t.right(goc_xoay)\n\nif __name__ == '__main__':\n    ve_da_giac_mau_sac({' red ': 50, ' blue ': 80, ' green ': 110}, 4)\n",
+      "test_cases": [
+        {
+          "input": "{' red ': 50, ' blue ': 80, ' green ': 110}, 4",
+          "expected_output": "Đang mở giao diện Turtle để vẽ đa giác màu sắc...",
+          "explanation": "Làm sạch màu bằng .strip() và vẽ các cụm hoa văn 4 cánh đối xứng."
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "subjectId": "python",
+      "title": "Quản lý và phân loại học lực học sinh (List, Dict & Phân loại)",
+      "description": "Xây dựng hàm lap_danh_sach_lop(ds_hoc_sinh, bang_diem_nhap=None) nhận vào danh sách họ tên học sinh. Duyệt qua từng học sinh, lưu vào Dictionary với key là tên và value là điểm số. Phân loại học lực: nếu điểm >= 8.0 in 'Học sinh: [tên] - Điểm: [điểm] - Xếp loại: Giỏi', ngược lại in 'Học sinh: [tên] - Điểm: [điểm] - Xếp loại: Đạt'. Hàm trả về Dictionary kết quả.",
+      "difficulty": "medium",
+      "category": "dict_processing",
+      "initial_code": "def lap_danh_sach_lop(ds_hoc_sinh, bang_diem_nhap=None):\n    \"\"\"\n    ds_hoc_sinh: List họ tên học sinh\n    bang_diem_nhap: Dict điểm số có sẵn (None nếu chạy thực tế)\n    Trả về: Dict {ho_ten: diem_so}\n    \"\"\"\n    bang_diem = bang_diem_nhap if bang_diem_nhap is not None else {}\n    for ten in ds_hoc_sinh:\n        diem = bang_diem.get(ten, 8.0)\n        xep_loai = 'Giỏi' if diem >= 8.0 else 'Đạt'\n        print(f'Học sinh: {ten} - Điểm: {diem} - Xếp loại: {xep_loai}')\n    return bang_diem\n\nif __name__ == '__main__':\n    hs = ['Nguyễn Tri Dũng', 'Trần Thu Hà', 'Lê Minh Khôi']\n    diem = {'Nguyễn Tri Dũng': 8.5, 'Trần Thu Hà': 7.2, 'Lê Minh Khôi': 9.0}\n    lap_danh_sach_lop(hs, diem)\n",
+      "test_cases": [
+        {
+          "input": "['Nguyễn Tri Dũng', 'Trần Thu Hà', 'Lê Minh Khôi'], {'Nguyễn Tri Dũng': 8.5, 'Trần Thu Hà': 7.2, 'Lê Minh Khôi': 9.0}",
+          "expected_output": "Học sinh: Nguyễn Tri Dũng - Điểm: 8.5 - Xếp loại: Giỏi\nHọc sinh: Trần Thu Hà - Điểm: 7.2 - Xếp loại: Đạt\nHọc sinh: Lê Minh Khôi - Điểm: 9.0 - Xếp loại: Giỏi",
+          "explanation": "Phân loại đúng theo ngưỡng điểm >= 8.0 Giỏi, còn lại Đạt."
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "subjectId": "python",
+      "title": "Vẽ biểu đồ cột tăng trưởng phân cách đều (Turtle & List)",
+      "description": "Xây dựng hàm ve_bieu_do_tang_truong(danh_sach_chieu_cao, mau_sac='orange') nhận vào danh sách chiều cao các cột (VD: [50, 120, 80, 150, 95]) và màu nét vẽ. In ra dòng chữ 'Đang vẽ biểu đồ cột tăng trưởng trên Turtle...'. Điều khiển rùa vẽ các cột hình chữ nhật đứng (rộng 25 bước, cao theo danh sách). Giữa các cột liền kề nhấc bút tiến tới 15 bước rồi hạ bút để tạo khoảng cách đều đặn.",
+      "difficulty": "medium",
+      "category": "turtle_chart",
+      "initial_code": "import turtle\n\ndef ve_bieu_do_tang_truong(danh_sach_chieu_cao, mau_sac='orange'):\n    \"\"\"\n    danh_sach_chieu_cao: List số nguyên chiều cao các cột\n    mau_sac: Tên màu nét vẽ\n    \"\"\"\n    print('Đang vẽ biểu đồ cột tăng trưởng trên Turtle...')\n    t = turtle.Turtle()\n    t.speed(4)\n    try:\n        t.color(mau_sac)\n    except Exception:\n        t.color('orange')\n    do_rong = 25\n    khoang_cach = 15\n    for h in danh_sach_chieu_cao:\n        # Vẽ hình chữ nhật đứng\n        t.left(90)\n        t.forward(h)\n        t.right(90)\n        t.forward(do_rong)\n        t.right(90)\n        t.forward(h)\n        t.left(90)\n        # Khoảng trống giữa các cột\n        t.penup()\n        t.forward(khoang_cach)\n        t.pendown()\n\nif __name__ == '__main__':\n    ve_bieu_do_tang_truong([50, 120, 80, 150, 95], 'orange')\n",
+      "test_cases": [
+        {
+          "input": "[50, 120, 80, 150, 95], 'orange'",
+          "expected_output": "Đang vẽ biểu đồ cột tăng trưởng trên Turtle...",
+          "explanation": "In thông báo và vẽ 5 cột biểu đồ có khoảng cách 15 bước."
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "subjectId": "python",
+      "title": "Bộ lọc an ninh và quản lý thành viên câu lạc bộ (String .isalnum() & Dict)",
+      "description": "Xây dựng hàm bo_loc_dang_ky_clb(danh_sach_ma, thong_tin_nhap=None) nhận vào danh sách các mã đăng ký. Sử dụng .strip() xóa khoảng trắng thừa ở hai đầu. Dùng phương thức .isalnum() để kiểm tra: mã hợp lệ chỉ chứa chữ cái và số (không có khoảng trắng hay ký tự đặc biệt). Nếu không hợp lệ in 'Mã [mã] không hợp lệ, đã bị loại bỏ.'. Với mã hợp lệ, lưu vào Dictionary {ma: ho_ten} và in 'Đăng ký thành công: [ma] -> [ho_ten]'. Trả về Dictionary thành viên hợp lệ.",
+      "difficulty": "medium",
+      "category": "string_security",
+      "initial_code": "def bo_loc_dang_ky_clb(danh_sach_ma, thong_tin_nhap=None):\n    \"\"\"\n    danh_sach_ma: List mã đăng ký\n    thong_tin_nhap: Dict {ma: ho_ten}\n    Trả về: Dict {ma_hop_le: ho_ten}\n    \"\"\"\n    thanh_vien = {}\n    thong_tin = thong_tin_nhap if thong_tin_nhap is not None else {}\n    for raw_ma in danh_sach_ma:\n        ma = raw_ma.strip()\n        if ma.isalnum():\n            ten = thong_tin.get(ma, f'Thành viên {ma}')\n            thanh_vien[ma] = ten\n            print(f'Đăng ký thành công: {ma} -> {ten}')\n        else:\n            print(f'Mã {ma} không hợp lệ, đã bị loại bỏ.')\n    return thanh_vien\n\nif __name__ == '__main__':\n    ma_test = ['THPT2026', 'KHTN 123', 'CHUYEN_ANH', 'TIN2K9']\n    ten_test = {'THPT2026': 'Nguyễn Hoàng Long', 'TIN2K9': 'Phan Mỹ Linh'}\n    bo_loc_dang_ky_clb(ma_test, ten_test)\n",
+      "test_cases": [
+        {
+          "input": "['THPT2026', 'KHTN 123', 'CHUYEN_ANH', 'TIN2K9'], {'THPT2026': 'Nguyễn Hoàng Long', 'TIN2K9': 'Phan Mỹ Linh'}",
+          "expected_output": "Đăng ký thành công: THPT2026 -> Nguyễn Hoàng Long\nMã KHTN 123 không hợp lệ, đã bị loại bỏ.\nMã CHUYEN_ANH không hợp lệ, đã bị loại bỏ.\nĐăng ký thành công: TIN2K9 -> Phan Mỹ Linh",
+          "explanation": "Chỉ giữ lại mã thỏa mãn .isalnum(), loại bỏ mã chứa dấu cách hoặc gạch dưới."
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "subjectId": "python",
+      "title": "Vẽ hoa văn nghệ thuật xoay vòng từ đa giác đều (Turtle Nested Loops)",
+      "description": "Xây dựng hàm ve_hoa_van_xoay(so_canh=4, chieu_dai=60, do_day=2, mau='purple') nhận vào số cạnh của đa giác cánh hoa (3: tam giác, 4: hình vuông, 5: ngũ giác), chiều dài cạnh, độ dày nét vẽ và màu sắc. In ra dòng chữ 'Đang khởi tạo thuật toán xoay đa giác để tạo hoa văn nghệ thuật...'. Vòng lặp ngoài chạy 6 lần (6 cánh hoa quanh tâm). Vòng lặp trong vẽ đa giác đều (tiến tới chieu_dai, xoay phải 360 / so_canh). Vẽ xong một đa giác, xoay phải 60 độ quanh tâm để vẽ cánh tiếp theo.",
+      "difficulty": "hard",
+      "category": "turtle_art",
+      "initial_code": "import turtle\n\ndef ve_hoa_van_xoay(so_canh=4, chieu_dai=60, do_day=2, mau='purple'):\n    \"\"\"\n    so_canh: Số cạnh của đa giác đều (3, 4, 5...)\n    chieu_dai: Độ dài một cạnh\n    do_day: Độ dày nét vẽ (1 - 5)\n    mau: Màu sắc hoa văn\n    \"\"\"\n    print('Đang khởi tạo thuật toán xoay đa giác để tạo hoa văn nghệ thuật...')\n    t = turtle.Turtle()\n    t.speed(5)\n    t.pensize(do_day)\n    try:\n        t.color(mau)\n    except Exception:\n        t.color('purple')\n    goc_da_giac = 360 / so_canh\n    for _ in range(6):\n        for _ in range(so_canh):\n            t.forward(chieu_dai)\n            t.right(goc_da_giac)\n        t.right(60)\n\nif __name__ == '__main__':\n    ve_hoa_van_xoay(4, 60, 2, 'purple')\n",
+      "test_cases": [
+        {
+          "input": "4, 60, 2, 'purple'",
+          "expected_output": "Đang khởi tạo thuật toán xoay đa giác để tạo hoa văn nghệ thuật...",
+          "explanation": "In thông báo và vẽ đóa hoa đối xứng 6 cánh hình vuông xoay quanh tâm."
+        }
+      ]
     }
-  ]
+  ],
+  "total_questions": 140
 }

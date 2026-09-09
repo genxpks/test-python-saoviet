@@ -179,11 +179,11 @@ export default function StudyPage() {
               {currentSubject.name} — Ôn Tập & Luyện Code Web
             </h1>
             <p style={{ color: "var(--text-secondary)", fontSize: "1rem", fontWeight: 600, maxWidth: "680px", margin: "0 auto", lineHeight: "1.6" }}>
-              Nền tảng ôn luyện 120 câu trắc nghiệm chuẩn hóa và các bài toán thực hành vừa viết code vừa build chạy thử trực tiếp trên trình duyệt.
+              Nền tảng ôn luyện {questions.length > 0 ? questions.length : 140} câu trắc nghiệm chuẩn hóa và {practicals.length > 0 ? practicals.length : 21} bài toán thực hành vừa viết code vừa build chạy thử trực tiếp trên trình duyệt.
             </p>
           </div>
 
-          {/* Mode Switch: 120 Câu Trắc Nghiệm vs Luyện Code Thực Hành */}
+          {/* Mode Switch: Trắc Nghiệm vs Luyện Code Thực Hành */}
           <div style={{
             display: "flex",
             justifyContent: "center",
@@ -210,7 +210,7 @@ export default function StudyPage() {
               }}
             >
               <BookOpen size={18} />
-              <span>📚 120 Câu Hỏi Ôn Tập ({questions.length} câu)</span>
+              <span>📚 Kho Câu Hỏi Ôn Tập ({questions.length} câu)</span>
             </button>
 
             <button

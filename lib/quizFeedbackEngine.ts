@@ -246,6 +246,126 @@ const OPTION_WRONG_EXPLANATIONS: Record<number, Record<number, string>> = {
     0: "Nếu ra 5 là do em nhầm phương thức .append() với .extend(). Phương thức a.append([4, 5]) thêm NGUYÊN DANH SÁCH CON [4, 5] như 1 phần tử duy nhất tại đuôi, nên a trở thành [1, 2, 3, [4, 5]], độ dài len(a) là 4 chứ không phải 5!",
     2: "Danh sách ban đầu có 3 phần tử [1, 2, 3], sau khi append thêm 1 phần tử con thì số lượng tăng lên 4, không thể giữ nguyên là 3.",
     3: "Lệnh hoàn toàn hợp lệ trong Python (danh sách lồng nhau - Nested List), không có lỗi cú pháp."
+  },
+  // Câu 121: Từ khóa nào dùng để định nghĩa hàm trong Python?
+  121: {
+    0: "'define' là từ khóa trong một số ngôn ngữ khác (như C/C++ macro #define), không phải cú pháp định nghĩa hàm trong Python.",
+    2: "'function' là từ khóa dùng trong JavaScript hoặc PHP, Python không sử dụng từ khóa này.",
+    3: "'func' là từ khóa trong ngôn ngữ Go hoặc Swift, không hợp lệ trong Python."
+  },
+  // Câu 122: Lệnh nào dùng để nạp (import) thư viện math?
+  122: {
+    0: "'include' được dùng trong C/C++ (#include <math.h>), Python không có từ khóa này.",
+    2: "'require' là cú pháp trong Node.js / Ruby / PHP, không dùng trong Python.",
+    3: "'using' là cú pháp trong C# / C++, không tồn tại trong Python."
+  },
+  // Câu 123: Hàm nào trong thư viện math dùng để tính căn bậc hai?
+  123: {
+    1: "Thư viện math không có hàm tên là 'root()'.",
+    2: "'square()' không có trong thư viện math; nếu muốn tính bình phương ta dùng toán tử x ** 2 hoặc math.pow(x, 2).",
+    3: "math.pow(x, y) dùng để tính lũy thừa x^y, không phải hàm chuyên dụng tính căn bậc hai."
+  },
+  // Câu 124: Kết quả của biểu thức cắt chuỗi (slicing) \"Python\"[1:4]
+  124: {
+    0: "\"Pyt\" tương ứng với lát cắt [0:3] (lấy từ chỉ số 0 đến 2), trong khi biểu thức bắt đầu từ chỉ số 1.",
+    2: "\"thon\" tương ứng với lát cắt [2:] hoặc [2:6], không phải [1:4].",
+    3: "\"Python\" là toàn bộ chuỗi ban đầu, trong khi slicing [1:4] chỉ lấy chuỗi con 3 ký tự."
+  },
+  // Câu 125: Phương thức nào dùng để chuyển tất cả ký tự thành chữ in HOA?
+  125: {
+    1: "s.capitalize() chỉ viết hoa chữ cái đầu tiên của chuỗi, các ký tự còn lại chuyển thành chữ thường.",
+    2: "'toUpper()' hoặc 'toUpperCase()' là cú pháp của JavaScript / Java, không có trong Python.",
+    3: "'uppercase' không phải là phương thức của kiểu dữ liệu chuỗi (str) trong Python."
+  },
+  // Câu 126: Khởi tạo một List rỗng trong Python
+  126: {
+    0: "Dấu ngoặc nhọn {} dùng để tạo một Dictionary rỗng (hoặc Set nếu có phần tử), không phải List.",
+    2: "Cặp dấu ngoặc đơn () dùng để tạo một Tuple rỗng.",
+    3: "Cặp dấu nháy kép \"\" tạo một chuỗi rỗng (str), không phải List."
+  },
+  // Câu 127: Phương thức thêm phần tử mới vào cuối danh sách (List)
+  127: {
+    0: "list.insert(index, x) dùng để chèn phần tử vào một vị trí chỉ số cụ thể, cần truyền 2 đối số.",
+    2: "Phương thức .add() dùng cho tập hợp (Set), List không có phương thức .add().",
+    3: "'push()' là phương thức trong JavaScript / C++, List trong Python dùng .append()."
+  },
+  // Câu 128: Khối lệnh bắt và xử lý ngoại lệ (Exception)
+  128: {
+    0: "if-else là cấu trúc rẽ nhánh điều kiện logic, không có cơ chế bắt ngoại lệ (Exception handler).",
+    2: "for-in là cấu trúc vòng lặp duyệt phần tử tuần tự.",
+    3: "while là vòng lặp theo điều kiện, không phải cơ chế xử lý lỗi."
+  },
+  // Câu 129: Phương thức nối các phần tử chuỗi trong List thành chuỗi duy nhất
+  129: {
+    0: "'concat()' không phải phương thức của chuỗi trong Python (thường gặp trong SQL hoặc JS).",
+    2: "Python không có phương thức .merge() cho kiểu chuỗi.",
+    3: "'combine()' không phải là phương thức nối chuỗi trong Python."
+  },
+  // Câu 130: Lệnh print(\"Hello\" * 3)
+  130: {
+    1: "Phép nhân chuỗi không tự động chèn khoảng trắng giữa các lần lặp.",
+    2: "Biểu thức được tính toán trước khi in ra, không in nguyên văn phép toán.",
+    3: "Python hỗ trợ toán tử nhân chuỗi hợp lệ, không gây lỗi cú pháp."
+  },
+  // Câu 131: Giá trị trả về mặc định của hàm khi không có return
+  131: {
+    0: "Python không ngầm định trả về số 0 như hàm main() trong C.",
+    2: "Hàm không tự động ép kiểu về Boolean False khi không có return.",
+    3: "Python không tự động trả về chuỗi rỗng."
+  },
+  // Câu 132: Phương thức kiểm tra chuỗi hoàn toàn chỉ chứa các ký tự chữ số
+  132: {
+    1: "Python không có phương thức chuỗi tên là 'isnumber()'.",
+    2: "Tên phương thức này không tồn tại trong Python (phương thức chuẩn là .isdecimal()).",
+    3: "Python không có phương thức 'isint()' cho kiểu chuỗi."
+  },
+  // Câu 133: Vòng lặp for duyệt các số nguyên từ 0 đến 4
+  133: {
+    0: "Số nguyên 5 không phải là đối tượng Iterable nên không thể duyệt trực tiếp bằng vòng lặp for (sẽ sinh lỗi TypeError).",
+    2: "Cú pháp này duyệt qua một Tuple gồm 2 phần tử là số 0 và số 5, chỉ lặp 2 lần.",
+    3: "'from ... to' không phải là cú pháp vòng lặp của Python (thường gặp trong Pascal hoặc Basic)."
+  },
+  // Câu 134: Hàm built-in tính tổng tất cả các phần tử số trong List
+  134: {
+    1: "Python không có hàm tích hợp sẵn tên là 'total()'.",
+    2: "'add()' không phải hàm tính tổng danh sách trong Python.",
+    3: "Python không có hàm built-in tên là 'calculate()'."
+  },
+  // Câu 135: Tên loại ngoại lệ phát sinh khi chia một số cho số 0
+  135: {
+    1: "ValueError xảy ra khi hàm nhận tham số đúng kiểu nhưng giá trị không hợp lệ (ví dụ: int(\"abc\")).",
+    2: "Không tồn tại lớp ngoại lệ tên là 'MathError' trong thư viện chuẩn Python.",
+    3: "Lỗi chia cho 0 trong Python không ném ArithmeticOverflowError mà ném ZeroDivisionError."
+  },
+  // Câu 136: Phương thức đảo ngược thứ tự các phần tử List ngay tại chỗ
+  136: {
+    1: "List không có phương thức 'invert()'.",
+    2: "'flip()' không phải phương thức của List trong Python.",
+    3: "Python không có phương thức 'backward()' cho kiểu List."
+  },
+  // Câu 137: Hàm ép kiểu chuỗi thành số nguyên
+  137: {
+    1: "float(\"123\") chuyển đổi thành số thực 123.0 chứ không phải số nguyên.",
+    2: "str() dùng để chuyển đổi các kiểu dữ liệu khác thành chuỗi ký tự.",
+    3: "Python không có hàm kiểu dữ liệu 'number()' (khác với TypeScript/JavaScript)."
+  },
+  // Câu 138: Kết quả biểu thức \"123\".isdigit()
+  138: {
+    1: "Phương thức chỉ trả về False nếu có ít nhất 1 ký tự không phải chữ số hoặc chuỗi rỗng.",
+    2: ".isdigit() là phương thức kiểm tra điều kiện logic, luôn trả về kiểu bool (True/False).",
+    3: "Đây là phương thức hợp lệ của kiểu chuỗi str, không gây ra lỗi."
+  },
+  // Câu 139: Hàm tìm giá trị lớn nhất trong List
+  139: {
+    1: "Python không có hàm tích hợp tên là 'maximum()'.",
+    2: "Python không có hàm tên là 'largest()'.",
+    3: "Python không có hàm tên là 'biggest()'."
+  },
+  // Câu 140: Phương thức sắp xếp các phần tử List tại chỗ tăng dần
+  140: {
+    1: "List trong Python không có phương thức 'order()'.",
+    2: "Python không có phương thức 'arrange()' cho kiểu danh sách.",
+    3: "'align()' không phải là phương thức sắp xếp trong Python."
   }
 };
 

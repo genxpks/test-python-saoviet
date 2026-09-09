@@ -1,4 +1,4 @@
-// scripts/seed_mongodb.js - Script nạp toàn bộ 120 câu hỏi & 10 bài thực hành lên MongoDB Atlas
+// scripts/seed_mongodb.js - Script nạp toàn bộ ngân hàng câu hỏi & bài thực hành lên MongoDB Atlas
 // Đọc connection URI từ biến môi trường MONGODB_URI
 const { MongoClient } = require("mongodb");
 const fs = require("fs");

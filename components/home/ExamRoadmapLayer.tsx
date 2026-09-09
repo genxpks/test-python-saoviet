@@ -25,7 +25,7 @@ export default function ExamRoadmapLayer() {
     },
     {
       step: "BƯỚC 2",
-      title: "Luyện Tập 120 Câu",
+      title: "Luyện Tập 140 Câu & 21 Bài Code",
       desc: "Cọ xát toàn bộ 6 archetype câu hỏi có giải thích chi tiết và gợi ý logic sư phạm từ trợ lý Gemini 2.0 AI.",
       icon: BookOpen,
       color: "#059669"

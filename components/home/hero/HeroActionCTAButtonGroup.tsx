@@ -19,7 +19,7 @@ export default function HeroActionCTAButtonGroup() {
         }}
       >
         <BookOpen size={18} />
-        <span>Bắt Đầu Ôn Tập 120 Câu</span>
+        <span>Bắt Đầu Ôn Tập 140 Câu</span>
         <ArrowRight size={16} />
       </Link>
 

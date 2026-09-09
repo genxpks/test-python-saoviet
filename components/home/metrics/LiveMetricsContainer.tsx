@@ -22,8 +22,8 @@ export default function LiveMetricsContainer() {
     },
     {
       label: "Ngân Hàng Câu Hỏi Chuẩn",
-      value: "120 Câu",
-      trend: "6 Dạng tương tác",
+      value: "140 Câu",
+      trend: "6 Dạng & 21 Bài Code",
       icon: BookOpen,
       color: "#059669"
     },

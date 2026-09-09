@@ -166,7 +166,7 @@ export default function Navbar() {
               className={`nav-link ${pathname === "/study" ? "active" : ""}`}
             >
               <BookOpen size={16} />
-              <span>Ôn Tập 120 Câu</span>
+              <span>Ôn Tập & Luyện Code</span>
             </Link>
             
             <Link 
