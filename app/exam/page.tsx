@@ -508,6 +508,7 @@ export default function ExamPage() {
                     </p>
 
                     <PythonEditor
+                      key={examPracticals[currentIndex]?.id}
                       problem={examPracticals[currentIndex]}
                       initialCode={userPracticalCode[examPracticals[currentIndex]?.id]}
                       isExamMode={true}

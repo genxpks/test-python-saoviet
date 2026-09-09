@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PracticalProblem } from "@/types";
 import { PythonEngine, GradeResult } from "@/lib/pythonEngine";
 import { 
@@ -33,10 +33,17 @@ export default function PythonEditor({
   onSubmitGrade,
   isExamMode = false
 }: PythonEditorProps) {
-  const [code, setCode] = useState(initialCode || problem.starter_code);
+  const [code, setCode] = useState(initialCode || problem.starter_code || "");
   const [consoleOutput, setConsoleOutput] = useState("Sẵn sàng thực thi. Nhấn '▶️ Chạy Thử Code' để xem kết quả...");
   const [isRunning, setIsRunning] = useState(false);
   const [gradeStatus, setGradeStatus] = useState<GradeResult | null>(null);
+
+  useEffect(() => {
+    setCode(initialCode || problem.starter_code || "");
+    setConsoleOutput("Sẵn sàng thực thi. Nhấn '▶️ Chạy Thử Code' để xem kết quả...");
+    setGradeStatus(null);
+    setAiFeedback(null);
+  }, [problem.id, initialCode, problem.starter_code]);
 
   // AI Assistant State
   const [aiFeedback, setAiFeedback] = useState<string | null>(null);

@@ -286,18 +286,112 @@ export default function QuestionCard({
 
       {/* 3. FILL IN THE BLANK */}
       {question.type === "fill_blank" && (
-        <div style={{ margin: "1rem 0" }}>
-          <label className="form-label" style={{ color: "var(--brand-amber-dark)" }}>
-            Nhập kết quả hoặc từ khóa chính xác:
-          </label>
-          <input
-            type="text"
-            className="form-input"
-            style={{ fontFamily: "var(--font-mono)", fontWeight: 700, fontSize: "1rem", color: "var(--brand-primary)" }}
-            placeholder="Ví dụ: len, append, range, [1, 2, 3]..."
-            value={userAnswer || ""}
-            onChange={(e) => handleFillChange(e.target.value)}
-          />
+        <div style={{ margin: "1.2rem 0" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.45rem", flexWrap: "wrap", gap: "0.4rem" }}>
+            <label className="form-label" style={{ color: "#fbbf24", fontWeight: 800, fontSize: "0.88rem", margin: 0 }}>
+              ✍️ Nhập kết quả hoặc từ khóa chính xác:
+            </label>
+            <span style={{ fontSize: "0.75rem", color: "#94a3b8" }}>
+              (Hệ thống tự chuẩn hóa khoảng trắng khi chấm)
+            </span>
+          </div>
+
+          <div style={{ position: "relative" }}>
+            <input
+              type="text"
+              className="form-input"
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontWeight: 700,
+                fontSize: "1rem",
+                color: "#ffffff",
+                background: "#080e1e",
+                border: "1.5px solid #38bdf8",
+                padding: "0.75rem 1rem",
+                borderRadius: "8px",
+                boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.6)"
+              }}
+              placeholder="Ví dụ: def, len, append, range, [1, 2, 3]..."
+              value={userAnswer || ""}
+              onChange={(e) => handleFillChange(e.target.value)}
+            />
+          </div>
+
+          {/* Realtime / Explanation match badge */}
+          {userAnswer && (
+            <div style={{ marginTop: "0.6rem" }}>
+              {(() => {
+                const cleanUser = String(userAnswer).trim().toLowerCase();
+                const cleanCorrect = String(question.correct_answer).trim().toLowerCase();
+                const isMatched = cleanUser === cleanCorrect;
+
+                if (isMatched) {
+                  return (
+                    <div style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      padding: "0.35rem 0.75rem",
+                      borderRadius: "6px",
+                      background: "rgba(16, 185, 129, 0.18)",
+                      border: "1px solid #10b981",
+                      color: "#34d399",
+                      fontSize: "0.82rem",
+                      fontWeight: 700
+                    }}>
+                      <Check size={14} />
+                      <span>Chính xác 100%! Từ khóa khớp với đáp án chuẩn.</span>
+                    </div>
+                  );
+                }
+
+                if (showExp && !isExamMode) {
+                  return (
+                    <div style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.4rem",
+                      padding: "0.35rem 0.75rem",
+                      borderRadius: "6px",
+                      background: "rgba(245, 158, 11, 0.18)",
+                      border: "1px solid #f59e0b",
+                      color: "#fbbf24",
+                      fontSize: "0.82rem",
+                      fontWeight: 700
+                    }}>
+                      <span>Đáp án chuẩn cần điền:</span>
+                      <strong style={{ color: "#ffffff", fontFamily: "var(--font-mono)", background: "rgba(0,0,0,0.5)", padding: "2px 6px", borderRadius: "4px" }}>
+                        {question.correct_answer}
+                      </strong>
+                    </div>
+                  );
+                }
+
+                return null;
+              })()}
+            </div>
+          )}
+
+          {showExp && !userAnswer && !isExamMode && (
+            <div style={{
+              marginTop: "0.5rem",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.4rem",
+              padding: "0.35rem 0.75rem",
+              borderRadius: "6px",
+              background: "rgba(56, 189, 248, 0.15)",
+              border: "1px solid rgba(56, 189, 248, 0.35)",
+              color: "#38bdf8",
+              fontSize: "0.82rem",
+              fontWeight: 700
+            }}>
+              <span>Đáp án chuẩn cần điền:</span>
+              <strong style={{ color: "#ffffff", fontFamily: "var(--font-mono)", background: "rgba(0,0,0,0.5)", padding: "2px 6px", borderRadius: "4px" }}>
+                {question.correct_answer}
+              </strong>
+            </div>
+          )}
         </div>
       )}
 

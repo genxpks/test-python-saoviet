@@ -39,7 +39,16 @@ export default function FillBlankSimulator({ input, onChangeInput }: FillBlankSi
           type="text"
           placeholder="Gõ từ khóa vào đây (VD: def, function, fn...)"
           className="form-input"
-          style={{ fontFamily: "var(--font-mono)", fontWeight: 700 }}
+          style={{
+            fontFamily: "var(--font-mono)",
+            fontWeight: 700,
+            fontSize: "1rem",
+            color: "#ffffff",
+            background: "#080e1e",
+            border: "1.5px solid #38bdf8",
+            padding: "0.75rem 1rem",
+            borderRadius: "8px"
+          }}
           value={input}
           onChange={(e) => onChangeInput(e.target.value)}
         />
@@ -47,16 +56,17 @@ export default function FillBlankSimulator({ input, onChangeInput }: FillBlankSi
 
       {input && (
         <div style={{
-          padding: "0.8rem 1rem",
+          padding: "0.85rem 1.1rem",
           borderRadius: "var(--radius-md)",
-          background: isCorrect ? "#ecfdf5" : "#fef2f2",
-          border: isCorrect ? "1px solid #a7f3d0" : "1px solid #fecaca",
-          color: isCorrect ? "#047857" : "#b91c1c",
-          fontSize: "0.88rem"
+          background: isCorrect ? "rgba(16, 185, 129, 0.18)" : "rgba(239, 68, 68, 0.18)",
+          border: isCorrect ? "1px solid #10b981" : "1px solid #ef4444",
+          color: isCorrect ? "#6ee7b7" : "#fca5a5",
+          fontSize: "0.9rem",
+          lineHeight: "1.5"
         }}>
           {isCorrect 
-            ? "Chính xác 100%! Từ khóa `def` (viết tắt của define) dùng để định nghĩa hàm trong Python." 
-            : "Chưa đúng. Gợi ý: từ khóa gồm 3 ký tự bắt đầu bằng chữ 'd'."}
+            ? "🎉 Chính xác 100%! Từ khóa `def` (viết tắt của define) dùng để định nghĩa hàm trong Python." 
+            : "⚠️ Chưa đúng. Gợi ý: từ khóa gồm 3 ký tự bắt đầu bằng chữ 'd'."}
         </div>
       )}
     </div>

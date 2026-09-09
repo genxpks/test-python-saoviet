@@ -2,22 +2,30 @@
 // Đơn vị: HỆ THỐNG ĐÀO TẠO TIN HỌC SAO VIỆT TP. THỦ ĐỨC
 
 import { Question, PracticalProblem } from "@/types";
+import bankData from "@/Ngan_Hang_120_Cau_Hoi/questions_bank_full.json";
 
-export const QUESTIONS_DATA: Question[] = [];
-export const PRACTICAL_DATA: PracticalProblem[] = [];
+export const QUESTIONS_DATA: Question[] = (bankData.questions as any[]).map(q => ({
+  ...q,
+  subjectId: q.subjectId || "python"
+}));
+
+export const PRACTICAL_DATA: PracticalProblem[] = (bankData.practical_problems as any[]).map(p => ({
+  ...p,
+  subjectId: p.subjectId || "python"
+}));
 
 const CUSTOM_QUESTIONS_KEY = "NEXT_SAOVIET_CUSTOM_QUESTIONS";
 const CUSTOM_PRACTICALS_KEY = "NEXT_SAOVIET_CUSTOM_PRACTICALS";
 
 export function getQuestionsData(): Question[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return QUESTIONS_DATA;
   try {
     const raw = localStorage.getItem(CUSTOM_QUESTIONS_KEY);
-    if (!raw) return [];
+    if (!raw) return QUESTIONS_DATA;
     const parsed: Question[] = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.map(q => ({ ...q, subjectId: q.subjectId || "python" })) : [];
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed.map(q => ({ ...q, subjectId: q.subjectId || "python" })) : QUESTIONS_DATA;
   } catch (e) {
-    return [];
+    return QUESTIONS_DATA;
   }
 }
 
@@ -59,14 +67,14 @@ export function deleteQuestionData(id: number): boolean {
 }
 
 export function getPracticalsData(): PracticalProblem[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return PRACTICAL_DATA;
   try {
     const raw = localStorage.getItem(CUSTOM_PRACTICALS_KEY);
-    if (!raw) return [];
+    if (!raw) return PRACTICAL_DATA;
     const parsed: PracticalProblem[] = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed.map(p => ({ ...p, subjectId: p.subjectId || "python" })) : [];
+    return Array.isArray(parsed) && parsed.length > 0 ? parsed.map(p => ({ ...p, subjectId: p.subjectId || "python" })) : PRACTICAL_DATA;
   } catch (e) {
-    return [];
+    return PRACTICAL_DATA;
   }
 }
 

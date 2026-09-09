@@ -558,10 +558,10 @@ h1, h2, h3, h4, h5, h6 {
 .input, .form-input, .form-select, .form-textarea {
   width: 100%;
   padding: 0.65rem 0.95rem;
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-family: var(--font-sans);
-  color: var(--text-primary);
-  background: rgba(15, 23, 42, 0.9);
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.95);
   border: 1.5px solid #334155;
   border-radius: var(--radius-sm);
   transition: all 0.15s ease;
@@ -569,12 +569,170 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .input:focus, .form-input:focus, .form-select:focus, .form-textarea:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  border-color: #38bdf8;
+  background: rgba(15, 23, 42, 1);
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.22);
 }
 
 .input::placeholder, .form-input::placeholder {
-  color: var(--text-light);
+  color: #94a3b8;
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   WEB IDE & PYTHON COMPILER STYLES (Sao Viet Coding Platform)
+   ========================================================================== */
+.code-ide-card {
+  background: #050d21;
+  border: 1.5px solid rgba(56, 189, 248, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  margin-bottom: 1.25rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.code-ide-card:focus-within {
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 0 10px 36px rgba(0, 245, 200, 0.15), 0 0 0 1px rgba(56, 189, 248, 0.3);
+}
+
+.ide-header-tab {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: rgba(10, 22, 48, 0.95);
+  border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+}
+
+.ide-tab-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.75rem;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #38bdf8;
+  font-family: var(--font-mono);
+}
+
+.ide-engine-badge {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.02em;
+}
+
+.ide-editor-area {
+  display: flex;
+  min-height: 220px;
+  background: #030816;
+  position: relative;
+  font-family: var(--font-mono);
+}
+
+.ide-line-numbers {
+  padding: 0.85rem 0.55rem;
+  background: rgba(2, 6, 18, 0.8);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  color: #475569;
+  font-size: 0.84rem;
+  text-align: right;
+  user-select: none;
+  min-width: 42px;
+  line-height: 1.6;
+  font-family: var(--font-mono);
+}
+
+.ide-textarea {
+  flex: 1;
+  width: 100%;
+  min-height: 220px;
+  padding: 0.85rem 1rem;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #38bdf8;
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  resize: vertical;
+  tab-size: 4;
+  white-space: pre;
+  caret-color: #38bdf8;
+}
+
+.ide-textarea::placeholder {
+  color: #475569;
+  font-style: italic;
+}
+
+.ide-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.65rem 1rem;
+  background: rgba(6, 15, 36, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #d97706, #b45309);
+  color: #ffffff;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 0 2px 10px rgba(217, 119, 6, 0.25);
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  transform: translateY(-1px);
+}
+
+.btn-ai {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.25), rgba(37, 99, 235, 0.25));
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.btn-ai:hover {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(37, 99, 235, 0.4));
+  color: #e9d5ff;
+  transform: translateY(-1px);
+}
+
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 1rem;
+  background: #070c18;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #38bdf8;
+  font-family: var(--font-mono);
+}
+
+.terminal-output-box {
+  background: #02050e;
+  padding: 0.9rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  color: #f8fafc;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-all;
+  min-height: 80px;
+  max-height: 240px;
+  overflow-y: auto;
+  border-radius: 0 0 10px 10px;
 }
 
 .form-label {

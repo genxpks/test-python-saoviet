@@ -21,8 +21,8 @@ export async function GET() {
   } catch (error: any) {
     return NextResponse.json({
       success: true,
-      questions: [],
-      practical_problems: [],
+      questions: QUESTIONS_DATA,
+      practical_problems: PRACTICAL_DATA,
       isFallback: true,
       note: error.message
     });

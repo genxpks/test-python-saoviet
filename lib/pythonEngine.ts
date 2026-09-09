@@ -58,17 +58,34 @@ export class PythonEngine {
    * Trình thông dịch lõi tích hợp Sandbox an toàn
    */
   private static executePython(code: string): { output: string; svg?: string } {
-    const outputs: string[] = [];
+    let stdoutBuffer = "";
 
-    // Bộ in ấn tiêu chuẩn
-    const pyPrint = (...args: any[]) => {
-      outputs.push(args.map(a => {
+    // Bộ in ấn tiêu chuẩn hỗ trợ end, sep, và các kiểu dữ liệu Python
+    const pyPrint = (...rawArgs: any[]) => {
+      let sep = " ";
+      let end = "\n";
+      const args = [...rawArgs];
+
+      if (
+        args.length > 0 &&
+        typeof args[args.length - 1] === "object" &&
+        args[args.length - 1] !== null &&
+        ("__py_end" in args[args.length - 1] || "__py_sep" in args[args.length - 1])
+      ) {
+        const opt = args.pop();
+        if ("__py_end" in opt) end = String(opt.__py_end);
+        if ("__py_sep" in opt) sep = String(opt.__py_sep);
+      }
+
+      const formatted = args.map(a => {
         if (typeof a === "boolean") return a ? "True" : "False";
         if (a === null || a === undefined) return "None";
         if (Array.isArray(a)) return "[" + a.map(x => typeof x === "string" ? `'${x}'` : x).join(", ") + "]";
         if (typeof a === "object") return JSON.stringify(a).replace(/"/g, "'").replace(/:/g, ": ");
         return String(a);
-      }).join(" "));
+      }).join(sep);
+
+      stdoutBuffer += formatted + end;
     };
 
     // Mô phỏng hàm input() tự động cung cấp dữ liệu thử nghiệm
@@ -83,7 +100,7 @@ export class PythonEngine {
       "Ha Noi"
     ];
     const pyInput = (promptText: string = "") => {
-      if (promptText) outputs.push(String(promptText).trimEnd());
+      if (promptText) stdoutBuffer += String(promptText).trimEnd() + "\n";
       const val = defaultInputs[inputCounter % defaultInputs.length];
       inputCounter++;
       return val;
@@ -382,6 +399,12 @@ export class PythonEngine {
         jsCode
       );
 
+      const pyRound = (num: number, ndigits?: number) => {
+        if (ndigits === undefined || ndigits === 0) return Math.round(num);
+        const factor = Math.pow(10, ndigits);
+        return Math.round(num * factor) / factor;
+      };
+
       runner(
         pyPrint,
         pyInput,
@@ -394,7 +417,7 @@ export class PythonEngine {
         maxFunc,
         minFunc,
         Math.abs,
-        Math.round,
+        pyRound,
         String,
         (x: any) => parseInt(x, 10),
         (x: any) => parseFloat(x),
@@ -415,7 +438,7 @@ export class PythonEngine {
       throw new Error(e.message);
     }
 
-    let finalOutput = outputs.join("\n");
+    let finalOutput = stdoutBuffer.replace(/\n$/, "");
 
     // Nếu có nhật ký vẽ Turtle, tổng hợp kết quả trực quan
     if (turtleLogs.length > 0) {
@@ -445,6 +468,7 @@ export class PythonEngine {
 
     // Polyfill String / Array methods trong scope thực thi
     jsLines.push(`
+      var _res;
       if (!String.prototype.upper) String.prototype.upper = function() { return this.toUpperCase(); };
       if (!String.prototype.lower) String.prototype.lower = function() { return this.toLowerCase(); };
       if (!String.prototype.strip) String.prototype.strip = function() { return this.trim(); };
@@ -495,6 +519,13 @@ export class PythonEngine {
         jsContent = jsContent.replace(/\{([^}]+)\}/g, (m: string, expr: string) => `\${${expr}}`);
         return `\`${jsContent}\``;
       });
+
+      // Python print(..., end=' ') and print(..., sep=' ')
+      if (/print\s*\(/.test(trimmed)) {
+        trimmed = trimmed.replace(/,\s*end\s*=\s*(['"][^'"]*['"]|\w+)/g, ", { __py_end: $1 }");
+        trimmed = trimmed.replace(/\(\s*end\s*=\s*(['"][^'"]*['"]|\w+)\s*\)/g, "({ __py_end: $1 })");
+        trimmed = trimmed.replace(/,\s*sep\s*=\s*(['"][^'"]*['"]|\w+)/g, ", { __py_sep: $1 }");
+      }
 
       // Xử lý từ khóa Boolean / Logical Python
       trimmed = trimmed
@@ -558,11 +589,25 @@ export class PythonEngine {
         trimmed = trimmed.replace(/^while\s+(.*?):/, "while ($1) {");
         indentStack.push(currentIndent + 4);
       }
+      // return multiple values (e.g. return (dai + rong) * 2, dai * rong or return a, b)
+      else if (/^return\s+(.+)$/.test(trimmed) && trimmed.includes(",") && !trimmed.startsWith("return [")) {
+        const retExpr = trimmed.substring(7).trim();
+        trimmed = `return [${retExpr}];`;
+      }
       // Bỏ qua dòng import
       else if (/^import\s+/.test(trimmed) || /^from\s+/.test(trimmed)) {
         trimmed = "// " + trimmed;
       }
-      // Khai báo biến var
+      // Gán nhiều biến (tuple unpacking): cv, dt = func() hoặc a, b = 1, 2
+      else if (/^([a-zA-Z0-9_]+(?:\s*,\s*[a-zA-Z0-9_]+)+)\s*=\s*(.*)/.test(trimmed)) {
+        const m = trimmed.match(/^([a-zA-Z0-9_]+(?:\s*,\s*[a-zA-Z0-9_]+)+)\s*=\s*(.*)/);
+        if (m) {
+          const vars = m[1].trim();
+          const expr = m[2].trim();
+          trimmed = `var [${vars}] = Array.isArray(_res = ${expr}) ? _res : [_res];`;
+        }
+      }
+      // Khai báo biến var đơn
       else if (/^([a-zA-Z0-9_]+)\s*=\s*(.*)/.test(trimmed) && !trimmed.includes("==") && !trimmed.startsWith("function")) {
         trimmed = `var ${trimmed};`;
       }
@@ -595,8 +640,9 @@ export class PythonEngine {
 
     const code = userCode.toLowerCase();
     const hasDef = code.includes("def ");
+    const isTurtle = problemId >= 11 || code.includes("turtle") || code.includes("screen");
 
-    if (!hasDef) {
+    if (!hasDef && !isTurtle) {
       return {
         passed: false,
         score: 2.5,
