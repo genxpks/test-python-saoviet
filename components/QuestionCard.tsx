@@ -375,24 +375,24 @@ export default function QuestionCard({
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              background: String(currentAnswer) === String(question.correct_answer) ? "rgba(16, 185, 129, 0.16)" : "rgba(239, 68, 68, 0.16)",
-              border: `1px solid ${String(currentAnswer) === String(question.correct_answer) ? "#10b981" : "#ef4444"}`,
+              background: String(currentAnswer) === String(question.correct_answer) ? "rgba(16, 185, 129, 0.12)" : "rgba(239, 68, 68, 0.12)",
+              border: `1.5px solid ${String(currentAnswer) === String(question.correct_answer) ? "#059669" : "#dc2626"}`,
               borderRadius: "8px",
               padding: "0.6rem 1rem",
               marginTop: "0.4rem",
-              color: String(currentAnswer) === String(question.correct_answer) ? "#34d399" : "#fca5a5",
-              fontSize: "0.85rem",
-              fontWeight: 700
+              color: String(currentAnswer) === String(question.correct_answer) ? "#065f46" : "#991b1b",
+              fontSize: "0.86rem",
+              fontWeight: 800
             }}>
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 {String(currentAnswer) === String(question.correct_answer) ? (
                   <>
-                    <CheckCircle2 size={16} />
+                    <CheckCircle2 size={16} color="#059669" />
                     <span>🎉 CHÍNH XÁC! Em đã chọn đúng đáp án {String.fromCharCode(65 + Number(question.correct_answer))}.</span>
                   </>
                 ) : (
                   <>
-                    <X size={16} />
+                    <X size={16} color="#dc2626" />
                     <span>⚠️ CHƯA CHÍNH XÁC! Đáp án đúng là {String.fromCharCode(65 + Number(question.correct_answer))}. Xem phân tích bên dưới:</span>
                   </>
                 )}
@@ -402,8 +402,9 @@ export default function QuestionCard({
                 style={{
                   background: "transparent",
                   border: "none",
-                  color: String(currentAnswer) === String(question.correct_answer) ? "#6ee7b7" : "#fca5a5",
+                  color: String(currentAnswer) === String(question.correct_answer) ? "#047857" : "#b91c1c",
                   fontSize: "0.78rem",
+                  fontWeight: 700,
                   cursor: "pointer",
                   textDecoration: "underline",
                   whiteSpace: "nowrap"
@@ -506,22 +507,22 @@ export default function QuestionCard({
                   background: (() => {
                     const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
                     const user = [...multiSelected].sort().join(",");
-                    return corr === user ? "rgba(16, 185, 129, 0.16)" : "rgba(239, 68, 68, 0.16)";
+                    return corr === user ? "rgba(16, 185, 129, 0.12)" : "rgba(239, 68, 68, 0.12)";
                   })(),
-                  border: `1px solid ${(() => {
+                  border: `1.5px solid ${(() => {
                     const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
                     const user = [...multiSelected].sort().join(",");
-                    return corr === user ? "#10b981" : "#ef4444";
+                    return corr === user ? "#059669" : "#dc2626";
                   })()}`,
                   borderRadius: "8px",
                   padding: "0.6rem 1rem",
                   color: (() => {
                     const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
                     const user = [...multiSelected].sort().join(",");
-                    return corr === user ? "#34d399" : "#fca5a5";
+                    return corr === user ? "#065f46" : "#991b1b";
                   })(),
-                  fontSize: "0.85rem",
-                  fontWeight: 700
+                  fontSize: "0.86rem",
+                  fontWeight: 800
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     {(() => {
@@ -530,14 +531,14 @@ export default function QuestionCard({
                       if (corr === user) {
                         return (
                           <>
-                            <CheckCircle2 size={16} />
+                            <CheckCircle2 size={16} color="#059669" />
                             <span>🎉 CHÍNH XÁC 100%! Em đã chọn đầy đủ các phương án đúng.</span>
                           </>
                         );
                       }
                       return (
                         <>
-                          <X size={16} />
+                          <X size={16} color="#dc2626" />
                           <span>⚠️ CHƯA CHÍNH XÁC! Các đáp án đúng gồm: {Array.isArray(question.correct_answer) ? question.correct_answer.map(i => String.fromCharCode(65 + i)).join(", ") : ""}</span>
                         </>
                       );
@@ -553,8 +554,9 @@ export default function QuestionCard({
                     style={{
                       background: "transparent",
                       border: "none",
-                      color: "#cbd5e1",
+                      color: "var(--text-secondary)",
                       fontSize: "0.78rem",
+                      fontWeight: 700,
                       cursor: "pointer",
                       textDecoration: "underline",
                       whiteSpace: "nowrap"
@@ -655,14 +657,14 @@ export default function QuestionCard({
                       justifyContent: "space-between",
                       padding: "0.6rem 1rem",
                       borderRadius: "8px",
-                      background: "rgba(16, 185, 129, 0.18)",
-                      border: "1px solid #10b981",
-                      color: "#34d399",
-                      fontSize: "0.85rem",
-                      fontWeight: 700
+                      background: "rgba(16, 185, 129, 0.12)",
+                      border: "1.5px solid #059669",
+                      color: "#065f46",
+                      fontSize: "0.86rem",
+                      fontWeight: 800
                     }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                        <Check size={16} />
+                        <Check size={16} color="#059669" />
                         <span>🎉 CHÍNH XÁC 100%! Từ khóa '{fillInput}' khớp hoàn toàn với đáp án.</span>
                       </div>
                       <button
@@ -670,8 +672,9 @@ export default function QuestionCard({
                         style={{
                           background: "transparent",
                           border: "none",
-                          color: "#6ee7b7",
+                          color: "#047857",
                           fontSize: "0.78rem",
+                          fontWeight: 700,
                           cursor: "pointer",
                           textDecoration: "underline"
                         }}
@@ -689,16 +692,16 @@ export default function QuestionCard({
                     justifyContent: "space-between",
                     padding: "0.6rem 1rem",
                     borderRadius: "8px",
-                    background: "rgba(239, 68, 68, 0.18)",
-                    border: "1px solid #ef4444",
-                    color: "#fca5a5",
-                    fontSize: "0.85rem",
-                    fontWeight: 700
+                    background: "rgba(239, 68, 68, 0.12)",
+                    border: "1.5px solid #dc2626",
+                    color: "#991b1b",
+                    fontSize: "0.86rem",
+                    fontWeight: 800
                   }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", flexWrap: "wrap" }}>
-                      <X size={16} />
+                      <X size={16} color="#dc2626" />
                       <span>⚠️ CHƯA CHÍNH XÁC! Từ khóa chuẩn cần điền:</span>
-                      <strong style={{ color: "#ffffff", fontFamily: "var(--font-mono)", background: "rgba(0,0,0,0.6)", padding: "2px 8px", borderRadius: "4px" }}>
+                      <strong style={{ color: "#ffffff", fontFamily: "var(--font-mono)", background: "#dc2626", padding: "2px 8px", borderRadius: "4px" }}>
                         {question.correct_answer}
                       </strong>
                     </div>
@@ -707,8 +710,9 @@ export default function QuestionCard({
                       style={{
                         background: "transparent",
                         border: "none",
-                        color: "#fca5a5",
+                        color: "#b91c1c",
                         fontSize: "0.78rem",
+                        fontWeight: 700,
                         cursor: "pointer",
                         textDecoration: "underline"
                       }}
@@ -809,22 +813,22 @@ export default function QuestionCard({
                   background: (() => {
                     const target = question.correct_order || Array.from({ length: question.items?.length || 0 }, (_, i) => i);
                     const isExact = order.every((v, i) => v === target[i]);
-                    return isExact ? "rgba(16, 185, 129, 0.16)" : "rgba(239, 68, 68, 0.16)";
+                    return isExact ? "rgba(16, 185, 129, 0.12)" : "rgba(239, 68, 68, 0.12)";
                   })(),
-                  border: `1px solid ${(() => {
+                  border: `1.5px solid ${(() => {
                     const target = question.correct_order || Array.from({ length: question.items?.length || 0 }, (_, i) => i);
                     const isExact = order.every((v, i) => v === target[i]);
-                    return isExact ? "#10b981" : "#ef4444";
+                    return isExact ? "#059669" : "#dc2626";
                   })()}`,
                   borderRadius: "8px",
                   padding: "0.6rem 1rem",
                   color: (() => {
                     const target = question.correct_order || Array.from({ length: question.items?.length || 0 }, (_, i) => i);
                     const isExact = order.every((v, i) => v === target[i]);
-                    return isExact ? "#34d399" : "#fca5a5";
+                    return isExact ? "#065f46" : "#991b1b";
                   })(),
-                  fontSize: "0.85rem",
-                  fontWeight: 700
+                  fontSize: "0.86rem",
+                  fontWeight: 800
                 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     {(() => {
@@ -833,14 +837,14 @@ export default function QuestionCard({
                       if (isExact) {
                         return (
                           <>
-                            <CheckCircle2 size={16} />
+                            <CheckCircle2 size={16} color="#059669" />
                             <span>🎉 HOÀN TOÀN CHÍNH XÁC! Quy trình logic và thứ tự thực thi đã chuẩn 100%.</span>
                           </>
                         );
                       }
                       return (
                         <>
-                          <X size={16} />
+                          <X size={16} color="#dc2626" />
                           <span>⚠️ THỨ TỰ CHƯA CHÍNH XÁC! Hãy xem thứ tự quy trình chuẩn trong mục phân tích bên dưới:</span>
                         </>
                       );
@@ -855,8 +859,9 @@ export default function QuestionCard({
                     style={{
                       background: "transparent",
                       border: "none",
-                      color: "#cbd5e1",
+                      color: "var(--text-secondary)",
                       fontSize: "0.78rem",
+                      fontWeight: 700,
                       cursor: "pointer",
                       textDecoration: "underline",
                       whiteSpace: "nowrap"
@@ -876,7 +881,7 @@ export default function QuestionCard({
       {/* ========================================================================= */}
       {question.type === "matching" && (
         <div style={{ margin: "1rem 0" }}>
-          <div style={{ fontSize: "0.82rem", color: "#fb7185", fontWeight: 700, marginBottom: "0.5rem" }}>
+          <div style={{ fontSize: "0.82rem", color: "#e11d48", fontWeight: 800, marginBottom: "0.5rem" }}>
             * Chọn chức năng bên phải tương ứng với từng khái niệm / câu lệnh bên trái:
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
@@ -953,12 +958,30 @@ export default function QuestionCard({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  background: "rgba(15, 23, 42, 0.85)",
-                  border: "1px solid rgba(255, 255, 255, 0.15)",
+                  background: (() => {
+                    const total = Array.isArray(question.pairs) ? question.pairs.length : 4;
+                    let correctCount = 0;
+                    if (Array.isArray(question.pairs)) {
+                      question.pairs.forEach(p => {
+                        if (pairs[p.left] === p.right) correctCount++;
+                      });
+                    }
+                    return correctCount === total ? "rgba(16, 185, 129, 0.12)" : "rgba(225, 29, 72, 0.12)";
+                  })(),
+                  border: (() => {
+                    const total = Array.isArray(question.pairs) ? question.pairs.length : 4;
+                    let correctCount = 0;
+                    if (Array.isArray(question.pairs)) {
+                      question.pairs.forEach(p => {
+                        if (pairs[p.left] === p.right) correctCount++;
+                      });
+                    }
+                    return correctCount === total ? "1.5px solid #059669" : "1.5px solid #e11d48";
+                  })(),
                   borderRadius: "8px",
                   padding: "0.6rem 1rem",
-                  fontSize: "0.85rem",
-                  fontWeight: 700
+                  fontSize: "0.86rem",
+                  fontWeight: 800
                 }}>
                   {(() => {
                     const total = Array.isArray(question.pairs) ? question.pairs.length : 4;
@@ -970,8 +993,8 @@ export default function QuestionCard({
                     }
                     const isAll = correctCount === total;
                     return (
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px", color: isAll ? "#34d399" : "#fb7185" }}>
-                        {isAll ? <CheckCircle2 size={16} /> : <X size={16} />}
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", color: isAll ? "#065f46" : "#9f1239" }}>
+                        {isAll ? <CheckCircle2 size={16} color="#059669" /> : <X size={16} color="#e11d48" />}
                         <span>{isAll ? `🎉 TUYỆT VỜI! Ghép đúng toàn bộ ${correctCount}/${total} cặp.` : `⚠️ Ghép đúng ${correctCount}/${total} cặp. Xem đáp án chuẩn bên dưới:`}</span>
                       </div>
                     );
@@ -985,8 +1008,9 @@ export default function QuestionCard({
                     style={{
                       background: "transparent",
                       border: "none",
-                      color: "#cbd5e1",
+                      color: "var(--text-secondary)",
                       fontSize: "0.78rem",
+                      fontWeight: 700,
                       cursor: "pointer",
                       textDecoration: "underline",
                       whiteSpace: "nowrap"
@@ -1028,9 +1052,10 @@ export default function QuestionCard({
             disabled={isAiLoading}
             className="btn btn-sm"
             style={{
-              background: "linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(37, 99, 235, 0.15))",
-              color: "#c084fc",
-              border: "1px solid rgba(168, 85, 247, 0.35)"
+              background: "rgba(124, 58, 237, 0.1)",
+              color: "#7c3aed",
+              fontWeight: 800,
+              border: "1.5px solid rgba(124, 58, 237, 0.35)"
             }}
           >
             <Bot size={15} />

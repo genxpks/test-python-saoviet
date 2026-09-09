@@ -31,6 +31,10 @@
   --brand-rose: #e11d48;
   --brand-rose-light: rgba(225, 29, 72, 0.08);
 
+  /* High Contrast Educational Primary */
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+
   /* Light Crisp Backgrounds */
   --bg-main: #f8fafc;
   --bg-deep: #f1f5f9;
@@ -42,19 +46,19 @@
   --surface-card: #ffffff;
   --surface-card-solid: #ffffff;
   --surface-glass: rgba(255, 255, 255, 0.94);
-  --surface-glass-border: #e2e8f0;
+  --surface-glass-border: #cbd5e1;
   --surface-glass-border-teal: rgba(14, 165, 233, 0.25);
   --surface-subtle: #f8fafc;
   --surface-hover: #f1f5f9;
   --surface-dark: #f8fafc;
   --surface-dark-card: #ffffff;
-  --surface-dark-border: #e2e8f0;
+  --surface-dark-border: #cbd5e1;
 
-  /* High Contrast Deep Slate Typography */
-  --text-primary: #0f172a;
-  --text-secondary: #334155;
-  --text-muted: #64748b;
-  --text-light: #94a3b8;
+  /* Maximum Contrast Deep Obsidian Black Typography */
+  --text-primary: #090d16;
+  --text-secondary: #1e293b;
+  --text-muted: #475569;
+  --text-light: #64748b;
   --text-inverse: #ffffff;
   --text-teal: #0284c7;
   --text-accent: #2563eb;
@@ -62,7 +66,7 @@
   /* Clean Crisp Borders */
   --border-light: #e2e8f0;
   --border-medium: #cbd5e1;
-  --border-strong: #94a3b8;
+  --border-strong: #64748b;
   --border-focus: #2563eb;
   --border-teal: rgba(2, 132, 199, 0.25);
 
@@ -115,6 +119,9 @@
 
   --brand-rose: #e11d48;
   --brand-rose-light: rgba(225, 29, 72, 0.12);
+
+  --primary: #38bdf8;
+  --primary-hover: #0284c7;
 
   --bg-main: #0a0f1d;
   --bg-deep: #060913;

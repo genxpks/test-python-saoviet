@@ -129,9 +129,14 @@ export default function StudyPage() {
                   className={`btn btn-sm ${isActive ? "btn-primary" : "btn-secondary"}`}
                   style={{
                     borderRadius: "var(--radius-full)",
-                    padding: "0.35rem 0.85rem",
-                    fontSize: "0.78rem",
-                    whiteSpace: "nowrap"
+                    padding: "0.4rem 0.95rem",
+                    fontSize: "0.82rem",
+                    fontWeight: 700,
+                    whiteSpace: "nowrap",
+                    border: isActive ? "1.5px solid #1d4ed8" : "1.5px solid var(--border-medium)",
+                    background: isActive ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "var(--surface-card)",
+                    color: isActive ? "#ffffff" : "var(--text-primary)",
+                    boxShadow: isActive ? "0 2px 8px rgba(37, 99, 235, 0.3)" : "none"
                   }}
                 >
                   <span>{subj.name}</span>
@@ -145,14 +150,22 @@ export default function StudyPage() {
         <SubjectAccessGate subjectId={selectedSubjectId}>
           <div style={{ textAlign: "center", marginBottom: "2rem" }}>
             <div style={{
-              display: "inline-block",
-              fontSize: "0.88rem",
-              fontWeight: 700,
-              color: "var(--primary)",
-              letterSpacing: "0.04em",
-              marginBottom: "0.5rem"
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "0.82rem",
+              fontWeight: 800,
+              color: "#1d4ed8",
+              background: "rgba(37, 99, 235, 0.08)",
+              border: "1.5px solid rgba(37, 99, 235, 0.25)",
+              padding: "0.25rem 0.9rem",
+              borderRadius: "9999px",
+              marginBottom: "0.75rem",
+              letterSpacing: "0.02em"
             }}>
-              Study Center / Trung Tâm Ôn Luyện Chuẩn Khảo Thí
+              <span>✦ Study Center</span>
+              <span style={{ opacity: 0.4 }}>|</span>
+              <span>Trung Tâm Ôn Luyện Chuẩn Khảo Thí</span>
             </div>
             
             <h1 style={{
@@ -160,12 +173,12 @@ export default function StudyPage() {
               fontWeight: 900,
               letterSpacing: "-0.8px",
               color: "var(--text-primary)",
-              marginBottom: "0.5rem",
+              marginBottom: "0.6rem",
               fontFamily: "var(--font-heading)"
             }}>
               {currentSubject.name} — Ôn Tập & Luyện Code Web
             </h1>
-            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: "1rem", fontWeight: 600, maxWidth: "680px", margin: "0 auto", lineHeight: "1.6" }}>
               Nền tảng ôn luyện 120 câu trắc nghiệm chuẩn hóa và các bài toán thực hành vừa viết code vừa build chạy thử trực tiếp trên trình duyệt.
             </p>
           </div>
@@ -186,10 +199,10 @@ export default function StudyPage() {
                 gap: "0.6rem",
                 padding: "0.75rem 1.4rem",
                 borderRadius: "12px",
-                border: studyMode === "quiz" ? "1.5px solid #2563eb" : "1.5px solid var(--border-medium)",
+                border: studyMode === "quiz" ? "1.5px solid #1d4ed8" : "1.5px solid var(--border-medium)",
                 background: studyMode === "quiz" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "var(--surface-card)",
-                color: studyMode === "quiz" ? "#ffffff" : "var(--text-secondary)",
-                fontWeight: 700,
+                color: studyMode === "quiz" ? "#ffffff" : "var(--text-primary)",
+                fontWeight: 800,
                 fontSize: "0.92rem",
                 cursor: "pointer",
                 boxShadow: studyMode === "quiz" ? "0 4px 15px rgba(37, 99, 235, 0.35)" : "var(--shadow-card)",
@@ -208,10 +221,10 @@ export default function StudyPage() {
                 gap: "0.6rem",
                 padding: "0.75rem 1.4rem",
                 borderRadius: "12px",
-                border: studyMode === "coding" ? "1.5px solid #2563eb" : "1.5px solid var(--border-medium)",
+                border: studyMode === "coding" ? "1.5px solid #1d4ed8" : "1.5px solid var(--border-medium)",
                 background: studyMode === "coding" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "var(--surface-card)",
-                color: studyMode === "coding" ? "#ffffff" : "var(--text-secondary)",
-                fontWeight: 700,
+                color: studyMode === "coding" ? "#ffffff" : "var(--text-primary)",
+                fontWeight: 800,
                 fontSize: "0.92rem",
                 cursor: "pointer",
                 boxShadow: studyMode === "coding" ? "0 4px 15px rgba(37, 99, 235, 0.35)" : "var(--shadow-card)",

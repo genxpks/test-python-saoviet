@@ -268,9 +268,14 @@ export default function ExamPage() {
                       className={`btn btn-sm ${isActive ? "btn-primary" : "btn-secondary"}`}
                       style={{
                         borderRadius: "var(--radius-full)",
-                        padding: "0.35rem 0.85rem",
-                        fontSize: "0.78rem",
-                        whiteSpace: "nowrap"
+                        padding: "0.4rem 0.95rem",
+                        fontSize: "0.82rem",
+                        fontWeight: 700,
+                        whiteSpace: "nowrap",
+                        border: isActive ? "1.5px solid #1d4ed8" : "1.5px solid var(--border-medium)",
+                        background: isActive ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "var(--surface-card)",
+                        color: isActive ? "#ffffff" : "var(--text-primary)",
+                        boxShadow: isActive ? "0 2px 8px rgba(37, 99, 235, 0.3)" : "none"
                       }}
                     >
                       <span>{subj.name}</span>
