@@ -73,6 +73,7 @@ export interface PracticalProblem {
   description: string;
   starter_code: string;
   solution_code: string;
+  initial_code?: string;
   test_cases: PracticalTestCase[];
   difficulty?: 'easy' | 'medium' | 'hard';
   createdAt?: string;

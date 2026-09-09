@@ -46,16 +46,34 @@ export default function Canvas3DBackground() {
     };
     window.addEventListener("mousemove", handleMouseMove);
 
-    const colors = [
+    // Detect theme — light mode dùng màu pastel, dark mode dùng neon
+    const isLightMode = () => {
+      return document.documentElement.getAttribute("data-theme") !== "dark";
+    };
+
+    // Dark mode: neon vibrant | Light mode: muted blue/indigo pastel
+    const getDarkColors = () => [
       "rgba(0, 245, 200,",
       "rgba(59, 130, 246,",
       "rgba(34, 211, 238,",
       "rgba(139, 92, 246,"
     ];
 
+    const getLightColors = () => [
+      "rgba(37, 99, 235,",      // blue-600
+      "rgba(99, 102, 241,",     // indigo-500
+      "rgba(14, 165, 233,",     // sky-500
+      "rgba(124, 58, 237,"      // violet-600
+    ];
+
+    const getColors = () => isLightMode() ? getLightColors() : getDarkColors();
+    const getOpacity = () => isLightMode() ? 0.35 : 0.85;
+    const getParticleAlphaMultiplier = () => isLightMode() ? 0.45 : 1.0;
+
     // Generate 3D Particles
     const PARTICLE_COUNT = 60;
     const particles: Particle3D[] = [];
+    let colors = getColors();
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       particles.push({
@@ -83,6 +101,13 @@ export default function Canvas3DBackground() {
 
       const cx = width / 2;
       const cy = height / 2;
+
+      // Re-sample colors each frame to respond to theme changes
+      colors = getColors();
+      const alphaMultiplier = getParticleAlphaMultiplier();
+      const lineColor = isLightMode()
+        ? "rgba(37, 99, 235,"       // blue-600 lines on light
+        : "rgba(0, 245, 200,";      // teal lines on dark
 
       // Projected 2D particles list for line connections
       const projected: { x: number; y: number; alpha: number; color: string; size: number }[] = [];
@@ -113,27 +138,31 @@ export default function Canvas3DBackground() {
         const px = cx + adjX * scale;
         const py = cy + adjY * scale;
 
-        // Alpha based on depth
-        const depthAlpha = Math.max(0, Math.min(1, 1 - p.z / 950)) * p.baseAlpha;
+        // Alpha based on depth — giảm thêm khi light mode
+        const depthAlpha = Math.max(0, Math.min(1, 1 - p.z / 950)) * p.baseAlpha * alphaMultiplier;
         const renderSize = p.size * scale * 1.8;
 
-        projected.push({ x: px, y: py, alpha: depthAlpha, color: p.color, size: renderSize });
+        // Cycle màu theo theme
+        const particleColor = colors[Math.floor(Math.random() * 4)] ?? p.color;
+        projected.push({ x: px, y: py, alpha: depthAlpha, color: particleColor, size: renderSize });
 
         // Draw glowing particle dot
         ctx.beginPath();
         ctx.arc(px, py, Math.max(1, renderSize), 0, Math.PI * 2);
-        ctx.fillStyle = `${p.color} ${depthAlpha})`;
+        ctx.fillStyle = `${particleColor} ${depthAlpha})`;
         ctx.fill();
 
-        // Subtle soft outer glow
-        ctx.beginPath();
-        ctx.arc(px, py, Math.max(2, renderSize * 2.5), 0, Math.PI * 2);
-        ctx.fillStyle = `${p.color} ${depthAlpha * 0.25})`;
-        ctx.fill();
+        // Subtle soft outer glow (nhỏ hơn khi light mode)
+        if (!isLightMode()) {
+          ctx.beginPath();
+          ctx.arc(px, py, Math.max(2, renderSize * 2.5), 0, Math.PI * 2);
+          ctx.fillStyle = `${particleColor} ${depthAlpha * 0.25})`;
+          ctx.fill();
+        }
       }
 
       // Draw subtle connecting constellation lines
-      const maxDistance = 140;
+      const maxDistance = isLightMode() ? 100 : 140;
       for (let i = 0; i < projected.length; i++) {
         for (let j = i + 1; j < projected.length; j++) {
           const p1 = projected[i];
@@ -144,11 +173,11 @@ export default function Canvas3DBackground() {
           const dist = Math.sqrt(dx * dx + dy * dy);
 
           if (dist < maxDistance) {
-            const lineAlpha = (1 - dist / maxDistance) * Math.min(p1.alpha, p2.alpha) * 0.55;
+            const lineAlpha = (1 - dist / maxDistance) * Math.min(p1.alpha, p2.alpha) * (isLightMode() ? 0.3 : 0.55);
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(0, 245, 200, ${lineAlpha})`;
+            ctx.strokeStyle = `${lineColor} ${lineAlpha})`;
             ctx.lineWidth = 0.9;
             ctx.stroke();
           }
@@ -177,8 +206,7 @@ export default function Canvas3DBackground() {
         width: "100vw",
         height: "100vh",
         pointerEvents: "none",
-        zIndex: 0,
-        opacity: 0.85
+        zIndex: 0
       }}
     />
   );

@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Bot, Send, X, Sparkles, Terminal, Copy, Check, MessageSquare } from "lucide-react";
+import { Bot, Send, X, Sparkles, Terminal, Copy, Check, MessageSquare, ChevronRight } from "lucide-react";
 
 export default function AIChatAssistant() {
   const pathname = usePathname();
@@ -10,7 +10,7 @@ export default function AIChatAssistant() {
   const [messages, setMessages] = useState<Array<{ role: "user" | "ai"; text: string }>>([
     {
       role: "ai",
-      text: "👋 Chào em! Thầy là **Trợ Lý AI Tin Học Sao Việt**. Thầy có thể giúp em chữa bài tập, tìm lỗi sai trong code Python, giải thích thuật toán đệ quy, đồ họa Turtle hoặc xử lý danh sách List/Dict. Em đang vướng chỗ nào hãy nhắn cho Thầy nhé!"
+      text: "👋 Chào em! Tôi là **Chatbot AI Tin Học Sao Việt**. Tôi có thể giúp em chữa bài tập, tìm lỗi sai trong code Python, giải thích thuật toán đệ quy, đồ họa Turtle hoặc xử lý danh sách List/Dict. Em đang vướng chỗ nào hãy nhắn cho tôi nhé!"
     }
   ]);
   const [inputPrompt, setInputPrompt] = useState("");
@@ -30,29 +30,36 @@ export default function AIChatAssistant() {
     return null;
   }
 
-  const handleSendMessage = async (customText?: string) => {
-    const textToSend = customText || inputPrompt;
-    if (!textToSend.trim() || isLoading) return;
+  const handleSendMessage = async (customPrompt?: string) => {
+    const promptToSend = customPrompt || inputPrompt;
+    if (!promptToSend.trim() || isLoading) return;
 
-    const newMessages = [...messages, { role: "user" as const, text: textToSend }];
-    setMessages(newMessages);
-    if (!customText) setInputPrompt("");
+    const newMsgs = [...messages, { role: "user" as const, text: promptToSend }];
+    setMessages(newMsgs);
+    if (!customPrompt) setInputPrompt("");
     setIsLoading(true);
 
     try {
       const res = await fetch("/api/ai", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: textToSend, mode: "chat" })
+        body: JSON.stringify({
+          prompt: promptToSend,
+          mode: "general",
+          context: `Người dùng đang thao tác tại trang: ${pathname}`
+        })
       });
+
       const data = await res.json();
-      if (data.success) {
-        setMessages([...newMessages, { role: "ai", text: data.reply }]);
+      if (data.success && data.reply) {
+        setMessages([...newMsgs, { role: "ai", text: data.reply }]);
+      } else if (data.answer) {
+        setMessages([...newMsgs, { role: "ai", text: data.answer }]);
       } else {
-        setMessages([...newMessages, { role: "ai", text: "❌ Có chút gián đoạn kết nối tới AI. Em thử hỏi lại nhé!" }]);
+        setMessages([...newMsgs, { role: "ai", text: data.message || "⚠️ Thầy tạm thời không phản hồi được. Em hãy thử lại sau ít giây nhé!" }]);
       }
-    } catch (e) {
-      setMessages([...newMessages, { role: "ai", text: "❌ Không thể kết nối tới máy chủ AI." }]);
+    } catch {
+      setMessages([...newMsgs, { role: "ai", text: "❌ Có lỗi kết nối tới máy chủ AI. Em vui lòng kiểm tra mạng!" }]);
     } finally {
       setIsLoading(false);
     }
@@ -66,7 +73,7 @@ export default function AIChatAssistant() {
 
   return (
     <>
-      {/* Floating Glowing Button */}
+      {/* Floating Glowing Button - Tiệp màu Sao Việt & Chatbot AI > */}
       <button
         className="no-print"
         onClick={() => setIsOpen(!isOpen)}
@@ -75,33 +82,37 @@ export default function AIChatAssistant() {
           bottom: "24px",
           right: "24px",
           zIndex: 999,
-          background: "linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #8b5cf6 100%)",
+          background: "linear-gradient(135deg, #1e40af 0%, #2563eb 100%)",
           color: "#ffffff",
-          border: "1px solid rgba(255, 255, 255, 0.3)",
+          border: "1px solid rgba(255, 255, 255, 0.25)",
           borderRadius: "var(--radius-full)",
-          padding: "12px 22px",
+          padding: "11px 20px",
           display: "flex",
           alignItems: "center",
-          gap: "10px",
-          fontWeight: 800,
-          fontSize: "0.95rem",
-          boxShadow: "0 10px 30px rgba(37, 99, 235, 0.45)",
+          gap: "8px",
+          fontWeight: 700,
+          fontSize: "0.93rem",
+          letterSpacing: "0.01em",
+          boxShadow: "0 8px 25px -4px rgba(37, 99, 235, 0.45), 0 4px 12px -2px rgba(15, 23, 42, 0.25)",
           cursor: "pointer",
+          backdropFilter: "blur(12px)",
+          WebkitBackdropFilter: "blur(12px)",
           transition: "all 0.25s cubic-bezier(0.4, 0, 0.2, 1)"
         }}
       >
         <div style={{
-          width: "28px",
-          height: "28px",
+          width: "26px",
+          height: "26px",
           background: "rgba(255, 255, 255, 0.2)",
           borderRadius: "50%",
           display: "flex",
           alignItems: "center",
           justifyContent: "center"
         }}>
-          <Bot size={18} />
+          {isOpen ? <X size={16} /> : <Bot size={16} />}
         </div>
-        <span>{isOpen ? "Đóng Trợ Lý AI" : "Hỏi Thầy AI Sao Việt"}</span>
+        <span>{isOpen ? "Đóng Chatbot" : "Chatbot AI"}</span>
+        {!isOpen && <ChevronRight size={16} style={{ marginLeft: "-2px", opacity: 0.9 }} />}
       </button>
 
       {/* Floating Chat Drawer */}
@@ -146,7 +157,7 @@ export default function AIChatAssistant() {
                 width: "36px",
                 height: "36px",
                 borderRadius: "10px",
-                background: "linear-gradient(135deg, #2563eb, #8b5cf6)",
+                background: "linear-gradient(135deg, #1e40af, #2563eb)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -156,7 +167,7 @@ export default function AIChatAssistant() {
               </div>
               <div>
                 <strong style={{ fontSize: "0.95rem", display: "block", color: "#ffffff" }}>
-                  Trợ Lý AI Tin Học Sao Việt
+                  Chatbot AI Tin Học Sao Việt
                 </strong>
                 <small style={{ fontSize: "0.74rem", color: "#38bdf8", display: "flex", alignItems: "center", gap: "4px" }}>
                   <Sparkles size={11} />

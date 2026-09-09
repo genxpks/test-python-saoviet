@@ -2654,7 +2654,9 @@
           "expected_output": "Đang khởi chạy giao diện Turtle để vẽ chuỗi hình vuông...",
           "explanation": "Hàm in thông báo và vẽ 3 hình vuông cạnh 40, 60, 80 cách nhau 20 bước."
         }
-      ]
+      ],
+      "solution_code": "import turtle\n\ndef ve_chuoi_hinh_vuong(danh_sach_canh, khoang_cach):\n    \"\"\"\n    danh_sach_canh: List các số nguyên (VD: [40, 60, 80])\n    khoang_cach: Số nguyên khoảng cách giữa các hình (VD: 20)\n    \"\"\"\n    print(\"Đang khởi chạy giao diện Turtle để vẽ chuỗi hình vuông...\")\n    t = turtle.Turtle()\n    t.speed(3)\n    # Hãy hoàn thiện vòng lặp vẽ các hình vuông tại đây\n    for canh in danh_sach_canh:\n        for _ in range(4):\n            t.forward(canh)\n            t.right(90)\n        t.penup()\n        t.forward(canh + khoang_cach)\n        t.pendown()\n\nif __name__ == '__main__':\n    ve_chuoi_hinh_vuong([40, 60, 80], 20)\n",
+      "starter_code": "import turtle\n\ndef ve_chuoi_hinh_vuong(danh_sach_kich_thuoc, mau='blue'):\n    \"\"\"\n    danh_sach_kich_thuoc: List độ dài các cạnh hình vuông\n    mau: Tên màu nét vẽ\n    \"\"\"\n    # Viết code của em tại đây\n    pass\n\nif __name__ == '__main__':\n    ve_chuoi_hinh_vuong([30, 60, 90, 120], 'blue')"
     },
     {
       "id": 17,
@@ -2670,7 +2672,9 @@
           "expected_output": "Đang mở giao diện Turtle để vẽ đa giác màu sắc...",
           "explanation": "Làm sạch màu bằng .strip() và vẽ các cụm hoa văn 4 cánh đối xứng."
         }
-      ]
+      ],
+      "solution_code": "import turtle\n\ndef ve_da_giac_mau_sac(tu_dien_mau, so_hinh_lap=4):\n    \"\"\"\n    tu_dien_mau: Dict tên màu -> bán kính (VD: {' red ': 50, ' blue ': 80})\n    so_hinh_lap: Số hình tròn xoay quanh tâm\n    \"\"\"\n    print(\"Đang mở giao diện Turtle để vẽ đa giác màu sắc...\")\n    t = turtle.Turtle()\n    t.speed(5)\n    goc_xoay = 360 / so_hinh_lap\n    for mau, ban_kinh in tu_dien_mau.items():\n        mau_sach = mau.strip()\n        try:\n            t.color(mau_sach)\n        except Exception:\n            t.color('blue')\n        for _ in range(so_hinh_lap):\n            t.circle(ban_kinh)\n            t.right(goc_xoay)\n\nif __name__ == '__main__':\n    ve_da_giac_mau_sac({' red ': 50, ' blue ': 80, ' green ': 110}, 4)\n",
+      "starter_code": "import turtle\n\ndef ve_hoa_van_da_sac(dict_mau_sac):\n    \"\"\"\n    dict_mau_sac: Dict ánh xạ góc sang mã màu\n    \"\"\"\n    # Viết code của em tại đây\n    pass\n\nif __name__ == '__main__':\n    bang_mau = {'0': 'red', '90': 'green', '180': 'blue', '270': 'orange'}\n    ve_hoa_van_da_sac(bang_mau)"
     },
     {
       "id": 18,
@@ -2686,7 +2690,9 @@
           "expected_output": "Học sinh: Nguyễn Tri Dũng - Điểm: 8.5 - Xếp loại: Giỏi\nHọc sinh: Trần Thu Hà - Điểm: 7.2 - Xếp loại: Đạt\nHọc sinh: Lê Minh Khôi - Điểm: 9.0 - Xếp loại: Giỏi",
           "explanation": "Phân loại đúng theo ngưỡng điểm >= 8.0 Giỏi, còn lại Đạt."
         }
-      ]
+      ],
+      "solution_code": "def lap_danh_sach_lop(ds_hoc_sinh, bang_diem_nhap=None):\n    \"\"\"\n    ds_hoc_sinh: List họ tên học sinh\n    bang_diem_nhap: Dict điểm số có sẵn (None nếu chạy thực tế)\n    Trả về: Dict {ho_ten: diem_so}\n    \"\"\"\n    bang_diem = bang_diem_nhap if bang_diem_nhap is not None else {}\n    for ten in ds_hoc_sinh:\n        diem = bang_diem.get(ten, 8.0)\n        xep_loai = 'Giỏi' if diem >= 8.0 else 'Đạt'\n        print(f'Học sinh: {ten} - Điểm: {diem} - Xếp loại: {xep_loai}')\n    return bang_diem\n\nif __name__ == '__main__':\n    hs = ['Nguyễn Tri Dũng', 'Trần Thu Hà', 'Lê Minh Khôi']\n    diem = {'Nguyễn Tri Dũng': 8.5, 'Trần Thu Hà': 7.2, 'Lê Minh Khôi': 9.0}\n    lap_danh_sach_lop(hs, diem)\n",
+      "starter_code": "def lap_danh_sach_lop(ds_hoc_sinh, bang_diem_nhap=None):\n    \"\"\"\n    ds_hoc_sinh: List họ tên học sinh\n    bang_diem_nhap: Dict điểm số có sẵn\n    Trả về: Dict {ho_ten: diem_so}\n    \"\"\"\n    # Viết code của em tại đây\n    pass\n\nif __name__ == '__main__':\n    hs = ['Nguyễn Tri Dũng', 'Trần Thu Hà', 'Lê Minh Khôi']\n    diem = {'Nguyễn Tri Dũng': 8.5, 'Trần Thu Hà': 7.2, 'Lê Minh Khôi': 9.0}\n    lap_danh_sach_lop(hs, diem)"
     },
     {
       "id": 19,
@@ -2702,7 +2708,9 @@
           "expected_output": "Đang vẽ biểu đồ cột tăng trưởng trên Turtle...",
           "explanation": "In thông báo và vẽ 5 cột biểu đồ có khoảng cách 15 bước."
         }
-      ]
+      ],
+      "solution_code": "import turtle\n\ndef ve_bieu_do_tang_truong(danh_sach_chieu_cao, mau_sac='orange'):\n    \"\"\"\n    danh_sach_chieu_cao: List số nguyên chiều cao các cột\n    mau_sac: Tên màu nét vẽ\n    \"\"\"\n    print('Đang vẽ biểu đồ cột tăng trưởng trên Turtle...')\n    t = turtle.Turtle()\n    t.speed(4)\n    try:\n        t.color(mau_sac)\n    except Exception:\n        t.color('orange')\n    do_rong = 25\n    khoang_cach = 15\n    for h in danh_sach_chieu_cao:\n        # Vẽ hình chữ nhật đứng\n        t.left(90)\n        t.forward(h)\n        t.right(90)\n        t.forward(do_rong)\n        t.right(90)\n        t.forward(h)\n        t.left(90)\n        # Khoảng trống giữa các cột\n        t.penup()\n        t.forward(khoang_cach)\n        t.pendown()\n\nif __name__ == '__main__':\n    ve_bieu_do_tang_truong([50, 120, 80, 150, 95], 'orange')\n",
+      "starter_code": "import turtle\n\ndef ve_bieu_do_tang_truong(danh_sach_chieu_cao, mau_sac='orange'):\n    \"\"\"\n    danh_sach_chieu_cao: List số nguyên chiều cao các cột\n    mau_sac: Tên màu nét vẽ\n    \"\"\"\n    # Viết code của em tại đây\n    pass\n\nif __name__ == '__main__':\n    ve_bieu_do_tang_truong([50, 120, 80, 150, 95], 'orange')"
     },
     {
       "id": 20,
@@ -2718,7 +2726,9 @@
           "expected_output": "Đăng ký thành công: THPT2026 -> Nguyễn Hoàng Long\nMã KHTN 123 không hợp lệ, đã bị loại bỏ.\nMã CHUYEN_ANH không hợp lệ, đã bị loại bỏ.\nĐăng ký thành công: TIN2K9 -> Phan Mỹ Linh",
           "explanation": "Chỉ giữ lại mã thỏa mãn .isalnum(), loại bỏ mã chứa dấu cách hoặc gạch dưới."
         }
-      ]
+      ],
+      "solution_code": "def bo_loc_dang_ky_clb(danh_sach_ma, thong_tin_nhap=None):\n    \"\"\"\n    danh_sach_ma: List mã đăng ký\n    thong_tin_nhap: Dict {ma: ho_ten}\n    Trả về: Dict {ma_hop_le: ho_ten}\n    \"\"\"\n    thanh_vien = {}\n    thong_tin = thong_tin_nhap if thong_tin_nhap is not None else {}\n    for raw_ma in danh_sach_ma:\n        ma = raw_ma.strip()\n        if ma.isalnum():\n            ten = thong_tin.get(ma, f'Thành viên {ma}')\n            thanh_vien[ma] = ten\n            print(f'Đăng ký thành công: {ma} -> {ten}')\n        else:\n            print(f'Mã {ma} không hợp lệ, đã bị loại bỏ.')\n    return thanh_vien\n\nif __name__ == '__main__':\n    ma_test = ['THPT2026', 'KHTN 123', 'CHUYEN_ANH', 'TIN2K9']\n    ten_test = {'THPT2026': 'Nguyễn Hoàng Long', 'TIN2K9': 'Phan Mỹ Linh'}\n    bo_loc_dang_ky_clb(ma_test, ten_test)\n",
+      "starter_code": "def bo_loc_dang_ky_clb(danh_sach_ma, thong_tin_nhap=None):\n    \"\"\"\n    danh_sach_ma: List mã đăng ký\n    thong_tin_nhap: Dict {ma: ho_ten}\n    Trả về: Dict {ma_hop_le: ho_ten}\n    \"\"\"\n    # Viết code của em tại đây\n    pass\n\nif __name__ == '__main__':\n    ma_test = ['THPT2026', 'KHTN 123', 'CHUYEN_ANH', 'TIN2K9']\n    ten_test = {'THPT2026': 'Nguyễn Hoàng Long', 'TIN2K9': 'Phan Mỹ Linh'}\n    bo_loc_dang_ky_clb(ma_test, ten_test)"
     },
     {
       "id": 21,
@@ -2734,7 +2744,9 @@
           "expected_output": "Đang khởi tạo thuật toán xoay đa giác để tạo hoa văn nghệ thuật...",
           "explanation": "In thông báo và vẽ đóa hoa đối xứng 6 cánh hình vuông xoay quanh tâm."
         }
-      ]
+      ],
+      "solution_code": "import turtle\n\ndef ve_hoa_van_xoay(so_canh=4, chieu_dai=60, do_day=2, mau='purple'):\n    \"\"\"\n    so_canh: Số cạnh của đa giác đều (3, 4, 5...)\n    chieu_dai: Độ dài một cạnh\n    do_day: Độ dày nét vẽ (1 - 5)\n    mau: Màu sắc hoa văn\n    \"\"\"\n    print('Đang khởi tạo thuật toán xoay đa giác để tạo hoa văn nghệ thuật...')\n    t = turtle.Turtle()\n    t.speed(5)\n    t.pensize(do_day)\n    try:\n        t.color(mau)\n    except Exception:\n        t.color('purple')\n    goc_da_giac = 360 / so_canh\n    for _ in range(6):\n        for _ in range(so_canh):\n            t.forward(chieu_dai)\n            t.right(goc_da_giac)\n        t.right(60)\n\nif __name__ == '__main__':\n    ve_hoa_van_xoay(4, 60, 2, 'purple')\n",
+      "starter_code": "import turtle\n\ndef ve_hoa_van_xoay(so_canh=4, chieu_dai=60, do_day=2, mau='purple'):\n    \"\"\"\n    so_canh: Số cạnh của đa giác đều (3, 4, 5...)\n    chieu_dai: Độ dài một cạnh\n    do_day: Độ dày nét vẽ (1 - 5)\n    mau: Màu sắc hoa văn\n    \"\"\"\n    # Viết code của em tại đây\n    pass\n\nif __name__ == '__main__':\n    ve_hoa_van_xoay(4, 60, 2, 'purple')"
     }
   ],
   "total_questions": 140

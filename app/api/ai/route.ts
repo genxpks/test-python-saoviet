@@ -1,5 +1,87 @@
 import { NextResponse } from "next/server";
 
+// Danh sách các model fallback miễn phí ổn định nhất trên OpenRouter
+const FALLBACK_FREE_MODELS = [
+  "nex-agi/nex-n2.5-mini:free",
+  "nvidia/nemotron-3.5-lightning:free",
+  "liquid/lfm-2.5-2.6b:free"
+];
+
+function cleanAiOutput(text: string): string {
+  if (!text) return "";
+  // Xóa thinking process nếu model suy luận xuất ra
+  let cleaned = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+  cleaned = cleaned.replace(/Here's a thinking process:[\s\S]*?(?:Draft:|Response:|\n\n)/i, "");
+  return cleaned.trim() || text.trim();
+}
+
+async function callGoogleGemini(apiKey: string, prompt: string, systemInstruction: string, context?: any) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+  const userContent = context 
+    ? `[Thông tin ngữ cảnh / Đề bài]:\n${JSON.stringify(context, null, 2)}\n\n[Yêu cầu của học viên]:\n${prompt}`
+    : prompt;
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      systemInstruction: {
+        parts: [{ text: systemInstruction }]
+      },
+      contents: [
+        { role: "user", parts: [{ text: userContent }] }
+      ],
+      generationConfig: {
+        temperature: 0.6,
+        maxOutputTokens: 1500
+      }
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Google Gemini API error (${res.status}): ${err}`);
+  }
+
+  const data = await res.json();
+  return data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+}
+
+async function callOpenRouter(apiKey: string, model: string, prompt: string, systemInstruction: string, context?: any) {
+  const userContent = context 
+    ? `[Thông tin ngữ cảnh / Đề bài]:\n${JSON.stringify(context, null, 2)}\n\n[Yêu cầu của học viên]:\n${prompt}`
+    : prompt;
+
+  const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+      "HTTP-Referer": "https://test-python-saoviet.vercel.app",
+      "X-Title": "Tin Hoc Sao Viet AI Tutor"
+    },
+    body: JSON.stringify({
+      model: model,
+      messages: [
+        { role: "system", content: systemInstruction },
+        { role: "user", content: userContent }
+      ],
+      temperature: 0.6,
+      max_tokens: 1500
+    })
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    const error: any = new Error(errText);
+    error.status = res.status;
+    throw error;
+  }
+
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || "";
+}
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -9,15 +91,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, message: "Prompt is required" }, { status: 400 });
     }
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) {
+    const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+    const geminiApiKey = process.env.GEMINI_API_KEY;
+
+    if (!openRouterApiKey && !geminiApiKey) {
       return NextResponse.json({
         success: false,
-        message: "Chưa cấu hình biến môi trường OPENROUTER_API_KEY trên máy chủ."
+        message: "Chưa cấu hình biến môi trường OPENROUTER_API_KEY hoặc GEMINI_API_KEY trên máy chủ."
       }, { status: 500 });
     }
-
-    const model = process.env.OPENROUTER_MODEL || "google/gemini-2.0-flash-001";
 
     let systemInstruction = `Bạn là Trợ Lý AI Tin Học Sao Việt — giáo viên dạy lập trình tận tâm, thông minh và thân thiện của Hệ Thống Đào Tạo Tin Học Sao Việt.
 Phong cách giảng dạy:
@@ -47,40 +129,58 @@ QUY TẮC CHẤM THI CỦA SAO VIỆT:
 - 🚀 **Lời Khuyên Tối Ưu**: Đưa ra gợi ý nâng cao hoặc mẹo viết code Python đẹp chuẩn PEP 8.`;
     }
 
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://test-python-saoviet.vercel.app",
-        "X-Title": "Tin Hoc Sao Viet AI Tutor"
-      },
-      body: JSON.stringify({
-        model: model,
-        messages: [
-          { role: "system", content: systemInstruction },
-          { role: "user", content: context ? `[Thông tin ngữ cảnh / Đề bài]:\n${JSON.stringify(context, null, 2)}\n\n[Yêu cầu của học viên]:\n${prompt}` : prompt }
-        ],
-        temperature: 0.6,
-        max_tokens: 1500
-      })
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      return NextResponse.json({
-        success: false,
-        message: "Lỗi kết nối AI Gateway: " + errText
-      }, { status: response.status });
+    // 1. Ưu tiên gọi Google Gemini API trực tiếp nếu có GEMINI_API_KEY
+    if (geminiApiKey) {
+      try {
+        const geminiText = await callGoogleGemini(geminiApiKey, prompt, systemInstruction, context);
+        if (geminiText) {
+          return NextResponse.json({ success: true, reply: cleanAiOutput(geminiText) });
+        }
+      } catch (err: any) {
+        console.warn("Gemini API direct error, falling back to OpenRouter:", err.message);
+      }
     }
 
-    const data = await response.json();
-    const replyText = data.choices?.[0]?.message?.content || "Không có phản hồi từ AI Tutor.";
+    // 2. Gọi OpenRouter với model cấu hình và tự động fallback
+    if (openRouterApiKey) {
+      const primaryModel = process.env.OPENROUTER_MODEL || "nex-agi/nex-n2.5-mini:free";
+      const modelList = [primaryModel, ...FALLBACK_FREE_MODELS.filter(m => m !== primaryModel)];
+
+      let lastError: any = null;
+
+      for (const modelToTry of modelList) {
+        try {
+          const reply = await callOpenRouter(openRouterApiKey, modelToTry, prompt, systemInstruction, context);
+          if (reply) {
+            return NextResponse.json({
+              success: true,
+              reply: cleanAiOutput(reply),
+              modelUsed: modelToTry
+            });
+          }
+        } catch (err: any) {
+          lastError = err;
+          // Nếu gặp lỗi 404 (model không tìm thấy), 402 (hết credits), hoặc 429 (rate limit), tiếp tục thử model fallback tiếp theo
+          if (err.status === 404 || err.status === 402 || err.status === 429) {
+            console.warn(`Model ${modelToTry} gặp mã lỗi ${err.status}, thử model tiếp theo...`);
+            continue;
+          }
+          // Lỗi khác nghiêm trọng thì dừng
+          break;
+        }
+      }
+
+      return NextResponse.json({
+        success: false,
+        message: "Lỗi kết nối AI Gateway: " + (lastError?.message || "Không thể lấy phản hồi từ AI.")
+      }, { status: lastError?.status || 500 });
+    }
 
     return NextResponse.json({
-      success: true,
-      reply: replyText
-    });
+      success: false,
+      message: "Không có API Key khả dụng."
+    }, { status: 500 });
+
   } catch (error: any) {
     return NextResponse.json({
       success: false,
@@ -88,3 +188,4 @@ QUY TẮC CHẤM THI CỦA SAO VIỆT:
     }, { status: 500 });
   }
 }
+

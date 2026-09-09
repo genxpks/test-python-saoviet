@@ -11,6 +11,8 @@ export const QUESTIONS_DATA: Question[] = (bankData.questions as any[]).map(q =>
 
 export const PRACTICAL_DATA: PracticalProblem[] = (bankData.practical_problems as any[]).map(p => ({
   ...p,
+  starter_code: p.starter_code || p.initial_code || "",
+  solution_code: p.solution_code || p.initial_code || "",
   subjectId: p.subjectId || "python"
 }));
 
@@ -72,7 +74,14 @@ export function getPracticalsData(): PracticalProblem[] {
     const raw = localStorage.getItem(CUSTOM_PRACTICALS_KEY);
     if (!raw) return PRACTICAL_DATA;
     const parsed: PracticalProblem[] = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.length > 0 ? parsed.map(p => ({ ...p, subjectId: p.subjectId || "python" })) : PRACTICAL_DATA;
+    return Array.isArray(parsed) && parsed.length > 0
+      ? parsed.map(p => ({
+          ...p,
+          starter_code: p.starter_code || p.initial_code || "",
+          solution_code: p.solution_code || p.initial_code || "",
+          subjectId: p.subjectId || "python"
+        }))
+      : PRACTICAL_DATA;
   } catch (e) {
     return PRACTICAL_DATA;
   }

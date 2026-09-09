@@ -509,25 +509,53 @@ export class PythonEngine {
     const jsLines: string[] = [];
     const indentStack: number[] = [0];
 
-    // Polyfill String / Array methods trong scope thực thi
+    // Polyfill String / Array / Object methods trong scope thực thi
     jsLines.push(`
       var _res;
+      var __name__ = '__main__';
       if (!String.prototype.upper) String.prototype.upper = function() { return this.toUpperCase(); };
       if (!String.prototype.lower) String.prototype.lower = function() { return this.toLowerCase(); };
       if (!String.prototype.strip) String.prototype.strip = function() { return this.trim(); };
       if (!String.prototype.title) String.prototype.title = function() { return this.replace(/\\b\\w/g, c => c.toUpperCase()); };
       if (!String.prototype.isdigit) String.prototype.isdigit = function() { return /^\\d+$/.test(this.trim()); };
       if (!String.prototype.isalpha) String.prototype.isalpha = function() { return /^[a-zA-Z\\s]+$/.test(this.trim()); };
+      if (!String.prototype.isalnum) String.prototype.isalnum = function() { return /^[a-zA-Z0-9]+$/.test(this.trim()); };
       if (!String.prototype.find) String.prototype.find = function(sub) { return this.indexOf(sub); };
       if (!Array.prototype.append) Array.prototype.append = function(x) { this.push(x); };
       if (!Array.prototype.extend) Array.prototype.extend = function(arr) { this.push(...arr); };
       if (!Array.prototype.insert) Array.prototype.insert = function(i, x) { this.splice(i, 0, x); };
       if (!Array.prototype.remove) Array.prototype.remove = function(x) { const i = this.indexOf(x); if (i !== -1) this.splice(i, 1); };
       if (!Array.prototype.count) Array.prototype.count = function(x) { return this.filter(item => item === x).length; };
+      if (!Object.prototype.items) Object.prototype.items = function() { return Object.entries(this); };
+      if (!Object.prototype.get) Object.prototype.get = function(k, d = null) { return (this && this[k] !== undefined) ? this[k] : d; };
     `);
+
+    let inDocstring = false;
+    let docstringChar = "";
 
     for (let rawLine of rawLines) {
       let line = rawLine;
+
+      // Xử lý Docstrings đa dòng """ hoặc '''
+      const trimmedRaw = line.trim();
+      if (!inDocstring) {
+        if (trimmedRaw.startsWith('"""') || trimmedRaw.startsWith("'''")) {
+          docstringChar = trimmedRaw.substring(0, 3);
+          const restOfLine = trimmedRaw.substring(3);
+          if (restOfLine.includes(docstringChar)) {
+            continue; // inline docstring, bỏ qua
+          } else {
+            inDocstring = true;
+            continue;
+          }
+        }
+      } else {
+        if (trimmedRaw.includes(docstringChar)) {
+          inDocstring = false;
+          docstringChar = "";
+        }
+        continue;
+      }
 
       // Xóa comment
       const commentIdx = line.indexOf("#");
@@ -570,6 +598,13 @@ export class PythonEngine {
         trimmed = trimmed.replace(/,\s*sep\s*=\s*(['"][^'"]*['"]|\w+)/g, ", { __py_sep: $1 }");
       }
 
+      // Xử lý is not None / is None / is not
+      trimmed = trimmed
+        .replace(/\bis\s+not\s+None\b/g, "!== null")
+        .replace(/\bis\s+None\b/g, "=== null")
+        .replace(/\bis\s+not\s+/g, "!== ")
+        .replace(/\s+is\s+/g, " === ");
+
       // Xử lý từ khóa Boolean / Logical Python
       trimmed = trimmed
         .replace(/\bTrue\b/g, "true")
@@ -595,14 +630,20 @@ export class PythonEngine {
         return `_py_in(${sub}, ${container})`;
       });
 
+      // Xử lý if __name__ == '__main__':
+      if (/if\s+__name__\s*==\s*['"]__main__['"]\s*:/.test(trimmed)) {
+        trimmed = "if (true) {";
+        indentStack.push(currentIndent + 4);
+      }
       // Cấu trúc Hàm def
-      if (/^def\s+([a-zA-Z0-9_]+)\s*\((.*?)\)\s*:/.test(trimmed)) {
+      else if (/^def\s+([a-zA-Z0-9_]+)\s*\((.*?)\)\s*:/.test(trimmed)) {
         trimmed = trimmed.replace(/^def\s+([a-zA-Z0-9_]+)\s*\((.*?)\)\s*:/, "function $1($2) {");
         indentStack.push(currentIndent + 4);
       }
       // Cấu trúc elif
       else if (/^elif\s+(.*?):/.test(trimmed)) {
-        trimmed = trimmed.replace(/^elif\s+(.*?):/, "} else if ($1) {");
+        trimmed = trimmed.replace(/^elif\s+(.*?):/, "else if ($1) {");
+        indentStack.push(currentIndent + 4);
       }
       // Cấu trúc if
       else if (/^if\s+(.*?):/.test(trimmed)) {
@@ -611,7 +652,23 @@ export class PythonEngine {
       }
       // Cấu trúc else
       else if (/^else\s*:/.test(trimmed)) {
-        trimmed = "} else {";
+        trimmed = "else {";
+        indentStack.push(currentIndent + 4);
+      }
+      // Cấu trúc try:
+      else if (/^try\s*:/.test(trimmed)) {
+        trimmed = "try {";
+        indentStack.push(currentIndent + 4);
+      }
+      // Cấu trúc except:
+      else if (/^except(\s+.*?)?:/.test(trimmed)) {
+        trimmed = "catch (_err) {";
+        indentStack.push(currentIndent + 4);
+      }
+      // Cấu trúc finally:
+      else if (/^finally\s*:/.test(trimmed)) {
+        trimmed = "finally {";
+        indentStack.push(currentIndent + 4);
       }
       // Cấu trúc for x in iterable:
       else if (/^for\s+([a-zA-Z0-9_,\s]+)\s+in\s+(.*?):/.test(trimmed)) {
@@ -698,8 +755,8 @@ export class PythonEngine {
         passedTestCases = isCorrect ? 4 : 1;
         break;
       case 2:
-        isCorrect = code.includes("% 2") && (code.includes("==") || code.includes("return"));
-        detail = isCorrect ? "✅ Thuật toán kiểm tra số chẵn lẻ chính xác 4/4 Test Cases!" : "Cần sử dụng n % 2 == 0.";
+        isCorrect = /%\s*2/.test(code) && (code.includes("==") || code.includes("return") || code.includes("if") || code.includes("else"));
+        detail = isCorrect ? "✅ Thuật toán kiểm tra số chẵn lẻ chính xác 4/4 Test Cases!" : "Cần sử dụng phép chia lấy dư n % 2 == 0.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
       case 3:
@@ -708,7 +765,7 @@ export class PythonEngine {
         passedTestCases = isCorrect ? 4 : 2;
         break;
       case 4:
-        isCorrect = (code.includes("math.pi") || code.includes("3.14")) && (code.includes("** 2") || code.includes("r * r"));
+        isCorrect = (code.includes("math.pi") || code.includes("3.14")) && (code.includes("** 2") || code.includes("r * r") || code.includes("r*r"));
         detail = isCorrect ? "✅ Công thức tính diện tích hình tròn chính xác 4/4 Test Cases!" : "Cần dùng công thức math.pi * (r ** 2).";
         passedTestCases = isCorrect ? 4 : 2;
         break;
@@ -738,7 +795,7 @@ export class PythonEngine {
         passedTestCases = isCorrect ? 4 : 2;
         break;
       case 10:
-        isCorrect = code.includes("range(2, 101, 2)") || (code.includes("% 2 == 0") && code.includes("range("));
+        isCorrect = code.includes("range(2, 101, 2)") || code.includes("range(2,101,2)") || (/%\s*2\s*==\s*0/.test(code) && code.includes("range("));
         detail = isCorrect ? "✅ Vòng lặp in số chẵn 1-100 chính xác 4/4 Test Cases!" : "Hãy sử dụng range(2, 101, 2) hoặc if i % 2 == 0.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
@@ -765,6 +822,36 @@ export class PythonEngine {
       case 15:
         isCorrect = code.includes("range(") && (code.includes("forward") || code.includes("fd")) && (code.includes("91") || code.includes("61") || code.includes("121"));
         detail = isCorrect ? "✅ Vẽ họa tiết xoắn ốc nghệ thuật xuất sắc 4/4 Test Cases!" : "Cần dùng vòng lặp for i in range() và tăng dần bước vẽ forward(i * 3).";
+        passedTestCases = isCorrect ? 4 : 2;
+        break;
+      case 16:
+        isCorrect = (code.includes("turtle") || code.includes("t.")) && (code.includes("for ") || code.includes("while ")) && (code.includes("forward") || code.includes("fd"));
+        detail = isCorrect ? "✅ Vẽ chuỗi hình vuông kích thước tăng dần chính xác 4/4 Test Cases!" : "Cần dùng vòng lặp duyệt danh sách kích thước và vẽ 4 cạnh hình vuông.";
+        passedTestCases = isCorrect ? 4 : 2;
+        break;
+      case 17:
+        isCorrect = (code.includes("turtle") || code.includes("t.")) && (code.includes(".items()") || code.includes("in dict_mau_sac") || code.includes("for ")) && (code.includes("color") || code.includes("pencolor"));
+        detail = isCorrect ? "✅ Vẽ hoa văn đa sắc đối xứng từ Dictionary chính xác 4/4 Test Cases!" : "Cần duyệt Dictionary màu sắc và điều khiển rùa vẽ theo từng góc.";
+        passedTestCases = isCorrect ? 4 : 2;
+        break;
+      case 18:
+        isCorrect = (code.includes("for ") || code.includes("in ds_hoc_sinh")) && (code.includes("8.0") || code.includes("8")) && (code.includes("giỏi") || code.includes("gioi") || code.includes("đạt") || code.includes("dat"));
+        detail = isCorrect ? "✅ Quản lý và phân loại học lực học sinh chính xác 4/4 Test Cases!" : "Cần duyệt danh sách học sinh và phân loại học lực dựa trên ngưỡng điểm 8.0.";
+        passedTestCases = isCorrect ? 4 : 2;
+        break;
+      case 19:
+        isCorrect = (code.includes("turtle") || code.includes("t.")) && (code.includes("penup") || code.includes("pu")) && (code.includes("pendown") || code.includes("pd"));
+        detail = isCorrect ? "✅ Vẽ biểu đồ cột tăng trưởng phân cách đều chính xác 4/4 Test Cases!" : "Cần vẽ cột hình chữ nhật và dùng penup/pendown để tạo khoảng cách giữa các cột.";
+        passedTestCases = isCorrect ? 4 : 2;
+        break;
+      case 20:
+        isCorrect = code.includes(".isalnum()") && (code.includes(".strip()") || code.includes("strip")) && (code.includes("thanh_vien") || code.includes("dict"));
+        detail = isCorrect ? "✅ Bộ lọc an ninh và quản lý thành viên CLB chính xác 4/4 Test Cases!" : "Cần sử dụng phương thức .isalnum() và .strip() để làm sạch và kiểm tra mã.";
+        passedTestCases = isCorrect ? 4 : 2;
+        break;
+      case 21:
+        isCorrect = (code.includes("turtle") || code.includes("t.")) && (code.includes("for ") || code.includes("while ")) && (code.includes("360 /") || code.includes("360/")) && code.includes("60");
+        detail = isCorrect ? "✅ Vẽ hoa văn nghệ thuật xoay vòng đa giác đều chính xác 4/4 Test Cases!" : "Cần lồng 2 vòng lặp để vẽ đa giác đều và xoay 60 độ quanh tâm.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
       default:

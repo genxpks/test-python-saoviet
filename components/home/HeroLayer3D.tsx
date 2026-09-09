@@ -3,19 +3,19 @@
 import Link from "next/link";
 import CyberPlanet3D from "./hero/CyberPlanet3D";
 import CosmicSubjectDeck from "./hero/CosmicSubjectDeck";
-import { Sparkles, ArrowRight, BookOpen, Clock } from "lucide-react";
+import { BookOpen, Clock } from "lucide-react";
 
 export default function HeroLayer3D() {
   return (
     <section style={{ position: "relative", marginBottom: "2.5rem", perspective: "1200px" }}>
-      {/* Dynamic Cosmic Aurora Glows */}
+      {/* Adaptive Aurora Glows — hoạt động tốt cả dark & light */}
       <div style={{
         position: "absolute",
         top: "-80px",
         left: "0%",
         width: "500px",
         height: "500px",
-        background: "radial-gradient(circle, rgba(0, 245, 200, 0.18) 0%, transparent 70%)",
+        background: "radial-gradient(circle, var(--hero-glow-teal, rgba(37, 99, 235, 0.12)) 0%, transparent 70%)",
         filter: "blur(75px)",
         pointerEvents: "none",
         zIndex: 0
@@ -27,13 +27,13 @@ export default function HeroLayer3D() {
         right: "0%",
         width: "550px",
         height: "550px",
-        background: "radial-gradient(circle, rgba(14, 165, 233, 0.2) 0%, rgba(99, 102, 241, 0.12) 50%, transparent 70%)",
+        background: "radial-gradient(circle, var(--hero-glow-blue, rgba(14, 165, 233, 0.15)) 0%, rgba(99, 102, 241, 0.08) 50%, transparent 70%)",
         filter: "blur(70px)",
         pointerEvents: "none",
         zIndex: 0
       }} />
 
-      <div 
+      <div
         className="hero-grid-responsive"
         style={{
           position: "relative",
@@ -45,13 +45,13 @@ export default function HeroLayer3D() {
           minHeight: "520px"
         }}
       >
-        {/* Left Column: Typography & CTAs (Exact Mockup Layout) */}
+        {/* Left Column: Typography & CTAs */}
         <div className="animate-left" style={{ paddingRight: "1rem" }}>
-          {/* Eyebrow label */}
+          {/* Eyebrow label — dùng brand color, readable cả 2 theme */}
           <div style={{
             fontSize: "0.92rem",
             fontWeight: 700,
-            color: "#38bdf8",
+            color: "var(--brand-primary)",
             letterSpacing: "0.04em",
             marginBottom: "1rem",
             display: "inline-flex",
@@ -61,31 +61,32 @@ export default function HeroLayer3D() {
             <span>Tin Học Sao Việt</span>
           </div>
 
-          {/* Main Title */}
+          {/* Main Title — adaptive: dark trên light bg, trắng trên dark bg */}
           <h1 style={{
             fontSize: "clamp(2.5rem, 5vw, 3.8rem)",
             fontWeight: 900,
             lineHeight: 1.15,
             letterSpacing: "-1.5px",
-            color: "#ffffff",
+            color: "var(--text-primary)",
             marginBottom: "1.2rem",
             fontFamily: "var(--font-heading)"
           }}>
             Hệ Thống Đào Tạo &<br />
             Khảo Thí Lập Trình{" "}
             <span style={{
-              background: "linear-gradient(135deg, #60a5fa 0%, #38bdf8 100%)",
+              background: "linear-gradient(135deg, #2563eb 0%, #38bdf8 100%)",
               WebkitBackgroundClip: "text",
-              WebkitTextFillColor: "transparent"
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text"
             }}>
               3D
             </span>
           </h1>
 
-          {/* Subtitle */}
+          {/* Subtitle — dùng text-secondary thay vì hardcode màu nhạt */}
           <p style={{
             fontSize: "1.02rem",
-            color: "#cbd5e1",
+            color: "var(--text-muted)",
             lineHeight: 1.6,
             marginBottom: "2rem",
             maxWidth: "540px"
@@ -117,6 +118,7 @@ export default function HeroLayer3D() {
               <span>Bắt Đầu Ngay</span>
             </Link>
 
+            {/* Nút thứ 2: adaptive border button — đẹp cả light & dark */}
             <Link
               href="/exam"
               style={{
@@ -126,13 +128,13 @@ export default function HeroLayer3D() {
                 gap: "0.5rem",
                 padding: "0.85rem 1.8rem",
                 borderRadius: "10px",
-                background: "rgba(30, 41, 59, 0.8)",
-                border: "1.5px solid #334155",
-                color: "#ffffff",
+                background: "var(--surface-hover)",
+                border: "1.5px solid var(--surface-glass-border)",
+                color: "var(--text-primary)",
                 fontWeight: 700,
                 fontSize: "0.95rem",
                 textDecoration: "none",
-                boxShadow: "0 4px 15px rgba(0, 0, 0, 0.3)",
+                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
                 transition: "all 0.2s ease"
               }}
             >
@@ -142,13 +144,13 @@ export default function HeroLayer3D() {
           </div>
         </div>
 
-        {/* Right Column: 3D Holographic Cyber Planet (Borderless Floating in Space) */}
+        {/* Right Column: 3D Holographic Cyber Planet */}
         <div className="animate-right" style={{ position: "relative", minHeight: "520px" }}>
           <CyberPlanet3D />
         </div>
       </div>
 
-      {/* EXACT 3 CARDS AT BOTTOM OF HERO (Matching Mockup) */}
+      {/* 3 Subject Cards at Bottom of Hero */}
       <CosmicSubjectDeck />
     </section>
   );

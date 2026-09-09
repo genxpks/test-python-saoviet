@@ -55,8 +55,41 @@ import {
   FileText,
   Clock,
   ArrowRight,
-  AlertCircle
+  AlertCircle,
+  Crown,
+  Phone,
+  KeyRound,
+  Award,
+  Filter,
+  X,
+  ChevronRight,
+  Info
 } from "lucide-react";
+
+// Helper lấy chữ cái đầu cho Avatar người dùng
+function getInitials(name: string): string {
+  if (!name) return "SV";
+  const parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
+// Helper sinh màu gradient phong thủy hài hòa cho từng người dùng
+function getAvatarGradient(name: string): string {
+  const gradients = [
+    "linear-gradient(135deg, #1d4ed8, #3b82f6)",
+    "linear-gradient(135deg, #047857, #10b981)",
+    "linear-gradient(135deg, #6d28d9, #8b5cf6)",
+    "linear-gradient(135deg, #b45309, #f59e0b)",
+    "linear-gradient(135deg, #0e7490, #06b6d4)",
+    "linear-gradient(135deg, #4338ca, #6366f1)"
+  ];
+  let hash = 0;
+  for (let i = 0; i < (name || "").length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return gradients[Math.abs(hash) % gradients.length];
+}
 
 type AdminTab = "questions" | "practicals" | "users" | "subjects" | "branches" | "results";
 
@@ -112,10 +145,20 @@ export default function AdminPage() {
   useEffect(() => {
     const user = getCurrentUser();
     setCurrentUser(user);
-    if (user && user.role === "branch_manager" && user.branchId) {
-      setAdminBranchMode(user.branchId);
-    }
+    // Mặc định cho phép xem tất cả chi nhánh hoặc lọc theo nhu cầu
+    setAdminBranchMode("all");
     loadAllData();
+
+    // Kích hoạt admin full-width: xóa giới hạn max-width của app-container
+    const appContainer = document.querySelector(".app-container");
+    if (appContainer) {
+      appContainer.classList.add("admin-active");
+    }
+    return () => {
+      // Cleanup: gỡ bỏ khi rời trang admin
+      const el = document.querySelector(".app-container");
+      if (el) el.classList.remove("admin-active");
+    };
   }, []);
 
   const loadAllData = async () => {
@@ -305,21 +348,28 @@ export default function AdminPage() {
     });
   }, [questions, questionTypeFilter, selectedSubjectId, questionSearch]);
 
-  // Filtered Users
+  // Quick helper: đếm số người dùng theo từng chi nhánh
+  const getBranchUserCount = (branchId: string) => {
+    if (branchId === "all") return users.length;
+    return users.filter(u => u.branchId === branchId).length;
+  };
+
+  // Filtered Users: Xem được tất cả chi nhánh hoặc bất kỳ chi nhánh nào
   const filteredUsers = useMemo(() => {
     return users.filter((u) => {
       const matchRole = userRoleFilter === "all" || u.role === userRoleFilter;
-      const effectiveBranchFilter = currentUser?.role === "branch_manager" ? currentUser.branchId : adminBranchMode;
-      const matchBranch = effectiveBranchFilter === "all" || u.branchId === effectiveBranchFilter;
+      const matchBranch = adminBranchMode === "all" || u.branchId === adminBranchMode;
       const matchSearch =
         userSearch === "" ||
         u.fullName.toLowerCase().includes(userSearch.toLowerCase()) ||
         u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
         (u.phone && u.phone.includes(userSearch)) ||
-        (u.class && u.class.toLowerCase().includes(userSearch.toLowerCase()));
+        (u.class && u.class.toLowerCase().includes(userSearch.toLowerCase())) ||
+        (u.branchName && u.branchName.toLowerCase().includes(userSearch.toLowerCase())) ||
+        (u.branchId && u.branchId.toLowerCase().includes(userSearch.toLowerCase()));
       return matchRole && matchBranch && matchSearch;
     });
-  }, [users, userRoleFilter, adminBranchMode, currentUser, userSearch]);
+  }, [users, userRoleFilter, adminBranchMode, userSearch]);
 
   // Quick stats by subject
   const getSubjectQuestionCount = (subId: string) => {
@@ -443,8 +493,8 @@ export default function AdminPage() {
   }
 
   return (
-    <div style={{ background: "#f8fafc", minHeight: "100vh", padding: "1.5rem 1rem", color: "#0f172a" }}>
-      <div style={{ maxWidth: "1600px", margin: "0 auto", display: "grid", gridTemplateColumns: "270px 1fr", gap: "1.75rem", alignItems: "start" }}>
+    <div className="admin-full-page" style={{ background: "#f8fafc", minHeight: "100vh", padding: "1rem 1.25rem", color: "#0f172a", width: "100%", boxSizing: "border-box" }}>
+      <div style={{ width: "100%", maxWidth: "100%", margin: 0, display: "grid", gridTemplateColumns: "280px minmax(0, 1fr)", gap: "1.25rem", alignItems: "start" }}>
         
         {/* ========================================================================= */}
         {/* 1. LEFT SIDEBAR (Clean Corporate Light Mode) */}
@@ -487,7 +537,7 @@ export default function AdminPage() {
           </div>
 
           {/* Sidebar Menu Navigation */}
-          <nav style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+          <nav style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
             {[
               { id: "questions", label: "Ngân Hàng Câu Hỏi", count: questions.length, icon: BookOpen },
               { id: "practicals", label: "Bài Thi Thực Hành", count: practicals.length, icon: Terminal },
@@ -507,29 +557,29 @@ export default function AdminPage() {
                     alignItems: "center",
                     justifyContent: "space-between",
                     width: "100%",
-                    padding: "0.75rem 0.95rem",
+                    padding: "0.75rem 1rem",
                     borderRadius: "12px",
-                    border: "1px solid",
-                    borderColor: isActive ? "#bfdbfe" : "transparent",
-                    background: isActive ? "#eff6ff" : "transparent",
-                    color: isActive ? "#1d4ed8" : "#475569",
+                    border: isActive ? "1px solid #1d4ed8" : "1px solid transparent",
+                    background: isActive ? "linear-gradient(135deg, #1e40af 0%, #2563eb 100%)" : "transparent",
+                    color: isActive ? "#ffffff" : "#475569",
                     fontWeight: isActive ? 800 : 600,
-                    fontSize: "0.86rem",
+                    fontSize: "0.88rem",
                     cursor: "pointer",
                     textAlign: "left",
-                    transition: "all 0.15s"
+                    transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                    boxShadow: isActive ? "0 6px 16px -3px rgba(37, 99, 235, 0.4)" : "none"
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
-                    <IconComponent size={17} color={isActive ? "#2563eb" : "#64748b"} />
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.65rem" }}>
+                    <IconComponent size={18} color={isActive ? "#ffffff" : "#64748b"} />
                     <span>{tab.label}</span>
                   </div>
                   <span style={{
-                    fontSize: "0.72rem",
-                    padding: "0.15rem 0.5rem",
+                    fontSize: "0.74rem",
+                    padding: "0.15rem 0.55rem",
                     borderRadius: "9999px",
-                    background: isActive ? "#dbeafe" : "#f1f5f9",
-                    color: isActive ? "#1e40af" : "#64748b",
+                    background: isActive ? "rgba(255, 255, 255, 0.22)" : "#f1f5f9",
+                    color: isActive ? "#ffffff" : "#475569",
                     fontWeight: 800
                   }}>
                     {tab.count}
@@ -546,57 +596,102 @@ export default function AdminPage() {
             borderTop: "1px solid #e2e8f0",
             display: "flex",
             flexDirection: "column",
-            gap: "0.75rem"
+            gap: "0.85rem"
           }}>
-            <div style={{ background: "#f8fafc", padding: "0.75rem", borderRadius: "10px", border: "1px solid #e2e8f0" }}>
+            {/* User Profile Card */}
+            <div style={{
+              background: "#f8fafc",
+              padding: "0.85rem 1rem",
+              borderRadius: "14px",
+              border: "1px solid #e2e8f0",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px"
+            }}>
               <div style={{
-                fontSize: "0.68rem",
-                fontWeight: 800,
-                color: currentUser.role === "admin" ? "#7e22ce" : "#1d4ed8",
-                textTransform: "uppercase",
-                marginBottom: "0.15rem"
+                width: "40px",
+                height: "40px",
+                borderRadius: "10px",
+                background: getAvatarGradient(currentUser.fullName),
+                color: "#ffffff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontWeight: 900,
+                fontSize: "0.85rem",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                flexShrink: 0
               }}>
-                {currentUser.role === "admin" ? "👑 Super Admin" : "🏢 Quản Lý Chi Nhánh"}
+                {getInitials(currentUser.fullName)}
               </div>
-              <div style={{ fontSize: "0.88rem", fontWeight: 800, color: "#0f172a" }}>
-                {currentUser.fullName}
-              </div>
-              <div style={{ fontSize: "0.72rem", color: "#64748b" }}>
-                {currentUser.branchName || "Toàn Hệ Thống Sao Việt"}
-              </div>
-            </div>
-
-            <div>
-              <label style={{ display: "block", fontSize: "0.7rem", fontWeight: 800, color: "#475569", marginBottom: "0.3rem", textTransform: "uppercase" }}>
-                Xem Dữ Liệu Theo Chi Nhánh:
-              </label>
-              {currentUser.role === "admin" ? (
-                <select
-                  value={adminBranchMode}
-                  onChange={(e) => setAdminBranchMode(e.target.value)}
-                  style={{
-                    width: "100%",
-                    fontSize: "0.78rem",
-                    padding: "0.45rem 0.6rem",
-                    borderRadius: "8px",
-                    border: "1px solid #cbd5e1",
-                    background: "#ffffff",
-                    color: "#0f172a",
-                    fontWeight: 600
-                  }}
-                >
-                  <option value="all">🏢 Toàn Bộ Cơ Sở ({branches.length})</option>
-                  {branches.map(b => (
-                    <option key={b.id} value={b.id}>🏢 {b.name}</option>
-                  ))}
-                </select>
-              ) : (
-                <div style={{ fontSize: "0.78rem", color: "#2563eb", fontWeight: 700, padding: "0.4rem 0.5rem", background: "#eff6ff", borderRadius: "6px" }}>
-                  {currentUser.branchName || "Chi Nhánh Được Gán"}
+              <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  fontSize: "0.68rem",
+                  fontWeight: 800,
+                  color: currentUser.role === "admin" ? "#7c3aed" : "#2563eb",
+                  background: currentUser.role === "admin" ? "#f5f3ff" : "#eff6ff",
+                  padding: "1px 6px",
+                  borderRadius: "4px",
+                  marginBottom: "2px",
+                  whiteSpace: "nowrap"
+                }}>
+                  {currentUser.role === "admin" ? <Crown size={10} /> : <Building2 size={10} />}
+                  <span>{currentUser.role === "admin" ? "SUPER ADMIN" : "QUẢN LÝ CƠ SỞ"}</span>
                 </div>
-              )}
+                <div style={{ fontSize: "0.86rem", fontWeight: 800, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {currentUser.fullName}
+                </div>
+                <div style={{ fontSize: "0.72rem", color: "#64748b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                  {currentUser.branchName || "Toàn Hệ Thống Sao Việt"}
+                </div>
+              </div>
             </div>
 
+            {/* Branch Selector Dropdown */}
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.35rem" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "0.7rem", fontWeight: 800, color: "#475569", textTransform: "uppercase" }}>
+                  <Building2 size={12} color="#2563eb" />
+                  <span>Chi Nhánh Đang Xem:</span>
+                </label>
+                {adminBranchMode !== "all" && (
+                  <button
+                    onClick={() => setAdminBranchMode("all")}
+                    style={{ background: "none", border: "none", color: "#2563eb", fontSize: "0.68rem", fontWeight: 800, cursor: "pointer", padding: 0 }}
+                  >
+                    Xem tất cả ({users.length})
+                  </button>
+                )}
+              </div>
+              <select
+                value={adminBranchMode}
+                onChange={(e) => setAdminBranchMode(e.target.value)}
+                style={{
+                  width: "100%",
+                  fontSize: "0.82rem",
+                  padding: "0.55rem 0.75rem",
+                  borderRadius: "10px",
+                  border: "1px solid #cbd5e1",
+                  background: "#ffffff",
+                  color: "#0f172a",
+                  fontWeight: 700,
+                  outline: "none",
+                  cursor: "pointer"
+                }}
+              >
+                <option value="all">🏢 Toàn Bộ Chi Nhánh ({users.length} TK)</option>
+                {branches.map(b => (
+                  <option key={b.id} value={b.id}>
+                    🏢 {b.name} ({getBranchUserCount(b.id)} TK)
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Logout Button */}
             <button
               onClick={() => {
                 logoutUser();
@@ -604,8 +699,8 @@ export default function AdminPage() {
               }}
               style={{
                 width: "100%",
-                padding: "0.5rem",
-                borderRadius: "8px",
+                padding: "0.55rem",
+                borderRadius: "10px",
                 border: "1px solid #fecaca",
                 background: "#fef2f2",
                 color: "#dc2626",
@@ -615,11 +710,12 @@ export default function AdminPage() {
                 alignItems: "center",
                 justifyContent: "center",
                 gap: "0.4rem",
-                cursor: "pointer"
+                cursor: "pointer",
+                transition: "all 0.15s"
               }}
             >
               <LogOut size={14} />
-              <span>Đăng Xuất</span>
+              <span>Đăng Xuất Khỏi Portal</span>
             </button>
           </div>
         </aside>
@@ -629,22 +725,36 @@ export default function AdminPage() {
         {/* ========================================================================= */}
         <main style={{ minWidth: 0 }}>
           
-          {/* Top Bar Header */}
+          {/* Top Bar Header (Breadcrumb & Action Bar) */}
           <div style={{
             background: "#ffffff",
             border: "1px solid #e2e8f0",
             borderRadius: "18px",
-            padding: "1.2rem 1.5rem",
+            padding: "1.2rem 1.6rem",
             marginBottom: "1.5rem",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
             gap: "1rem",
-            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)"
+            boxShadow: "0 2px 10px -2px rgba(0, 0, 0, 0.04)"
           }}>
             <div>
-              <h1 style={{ fontSize: "1.45rem", fontWeight: 900, color: "#0f172a", margin: 0 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.74rem", fontWeight: 700, color: "#64748b", marginBottom: "0.2rem" }}>
+                <span>Trang Chủ</span>
+                <ChevronRight size={12} />
+                <span>Quản Trị Hệ Thống</span>
+                <ChevronRight size={12} />
+                <span style={{ color: "#2563eb" }}>
+                  {activeTab === "questions" && "Ngân Hàng Câu Hỏi"}
+                  {activeTab === "practicals" && "Bài Thi Thực Hành"}
+                  {activeTab === "subjects" && "Môn Học & Ngân Hàng Đề"}
+                  {activeTab === "users" && "Phân Cấp Tài Khoản"}
+                  {activeTab === "branches" && "Cơ Sở & Phòng Lab"}
+                  {activeTab === "results" && "Kết Quả Khảo Thí"}
+                </span>
+              </div>
+              <h1 style={{ fontSize: "1.45rem", fontWeight: 900, color: "#0f172a", margin: 0, letterSpacing: "-0.01em" }}>
                 Hệ Thống Quản Trị & Khảo Thí Trực Tuyến
               </h1>
               <p style={{ color: "#64748b", fontSize: "0.84rem", margin: "0.2rem 0 0" }}>
@@ -657,103 +767,177 @@ export default function AdminPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.4rem",
-                padding: "0.55rem 1rem",
+                gap: "0.5rem",
+                padding: "0.6rem 1.1rem",
                 borderRadius: "10px",
                 border: "1px solid #cbd5e1",
                 background: "#ffffff",
                 color: "#2563eb",
                 fontWeight: 700,
-                fontSize: "0.84rem",
-                cursor: "pointer"
+                fontSize: "0.85rem",
+                cursor: "pointer",
+                boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+                transition: "all 0.15s"
               }}
               title="Làm mới dữ liệu từ máy chủ"
             >
-              <RefreshCw size={14} />
+              <RefreshCw size={15} />
               <span>Làm Mới Dữ Liệu</span>
             </button>
           </div>
 
-          {/* 4 STAT CARDS (High-Contrast Clean Light Mode) */}
+          {/* 4 STAT CARDS (SaaS Enterprise Style) */}
           <div style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "1.1rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))",
+            gap: "1.2rem",
             marginBottom: "1.75rem"
           }}>
+            {/* Stat 1 */}
             <div style={{
               background: "#ffffff",
               border: "1px solid #e2e8f0",
-              borderTop: "4px solid #2563eb",
               borderRadius: "16px",
-              padding: "1.25rem",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.03)"
+              padding: "1.3rem 1.4rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              boxShadow: "0 2px 10px -2px rgba(0,0,0,0.04)"
             }}>
-              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
-                Tổng Câu Hỏi Khảo Thí
+              <div>
+                <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+                  Tổng Câu Hỏi Khảo Thí
+                </div>
+                <div style={{ fontSize: "2rem", fontWeight: 900, color: "#1e3a8a", lineHeight: 1.1, marginTop: "0.25rem" }}>
+                  {questions.length || 140}
+                </div>
+                <div style={{ fontSize: "0.74rem", color: "#2563eb", fontWeight: 600, marginTop: "0.25rem", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <CheckCircle2 size={12} />
+                  <span>Chuẩn 6 định dạng đề</span>
+                </div>
               </div>
-              <div style={{ fontSize: "2.3rem", fontWeight: 900, color: "#1d4ed8", lineHeight: 1.2, marginTop: "0.2rem" }}>
-                {questions.length || 120}
-              </div>
-              <div style={{ fontSize: "0.75rem", color: "#16a34a", fontWeight: 600, marginTop: "0.2rem" }}>
-                🐍 Python: 120 câu chuẩn 6 dạng
+              <div style={{
+                width: "48px",
+                height: "48px",
+                borderRadius: "14px",
+                background: "linear-gradient(135deg, #eff6ff, #dbeafe)",
+                color: "#2563eb",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <BookOpen size={24} />
               </div>
             </div>
 
+            {/* Stat 2 */}
             <div style={{
               background: "#ffffff",
               border: "1px solid #e2e8f0",
-              borderTop: "4px solid #16a34a",
               borderRadius: "16px",
-              padding: "1.25rem",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.03)"
+              padding: "1.3rem 1.4rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              boxShadow: "0 2px 10px -2px rgba(0,0,0,0.04)"
             }}>
-              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
-                Học Viên Đang Học
+              <div>
+                <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+                  Học Viên & Quản Lý
+                </div>
+                <div style={{ fontSize: "2rem", fontWeight: 900, color: "#065f46", lineHeight: 1.1, marginTop: "0.25rem" }}>
+                  {users.length}
+                </div>
+                <div style={{ fontSize: "0.74rem", color: "#059669", fontWeight: 600, marginTop: "0.25rem", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Users size={12} />
+                  <span>Phân cấp theo từng cơ sở</span>
+                </div>
               </div>
-              <div style={{ fontSize: "2.3rem", fontWeight: 900, color: "#15803d", lineHeight: 1.2, marginTop: "0.2rem" }}>
-                {users.filter(u => u.role === "student").length || 87}
-              </div>
-              <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.2rem" }}>
-                Phân quyền theo từng chi nhánh
+              <div style={{
+                width: "48px",
+                height: "48px",
+                borderRadius: "14px",
+                background: "linear-gradient(135deg, #ecfdf5, #d1fae5)",
+                color: "#059669",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <GraduationCap size={24} />
               </div>
             </div>
 
+            {/* Stat 3 */}
             <div style={{
               background: "#ffffff",
               border: "1px solid #e2e8f0",
-              borderTop: "4px solid #9333ea",
               borderRadius: "16px",
-              padding: "1.25rem",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.03)"
+              padding: "1.3rem 1.4rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              boxShadow: "0 2px 10px -2px rgba(0,0,0,0.04)"
             }}>
-              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
-                Môn Học & Ngôn Ngữ
+              <div>
+                <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+                  Học Phần & Ngôn Ngữ
+                </div>
+                <div style={{ fontSize: "2rem", fontWeight: 900, color: "#581c87", lineHeight: 1.1, marginTop: "0.25rem" }}>
+                  {subjects.length || 7}
+                </div>
+                <div style={{ fontSize: "0.74rem", color: "#7c3aed", fontWeight: 600, marginTop: "0.25rem", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Terminal size={12} />
+                  <span>{practicals.length} bài thực hành 3D</span>
+                </div>
               </div>
-              <div style={{ fontSize: "2.3rem", fontWeight: 900, color: "#7e22ce", lineHeight: 1.2, marginTop: "0.2rem" }}>
-                {subjects.length || 7}
-              </div>
-              <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.2rem" }}>
-                Tích hợp sẵn bộ đề & ngân hàng ôn
+              <div style={{
+                width: "48px",
+                height: "48px",
+                borderRadius: "14px",
+                background: "linear-gradient(135deg, #f5f3ff, #ede9fe)",
+                color: "#7c3aed",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <Code2 size={24} />
               </div>
             </div>
 
+            {/* Stat 4 */}
             <div style={{
               background: "#ffffff",
               border: "1px solid #e2e8f0",
-              borderTop: "4px solid #ea580c",
               borderRadius: "16px",
-              padding: "1.25rem",
-              boxShadow: "0 2px 6px rgba(0,0,0,0.03)"
+              padding: "1.3rem 1.4rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              boxShadow: "0 2px 10px -2px rgba(0,0,0,0.04)"
             }}>
-              <div style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase" }}>
-                Cơ Sở & Chi Nhánh
+              <div>
+                <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.03em" }}>
+                  Cơ Sở & Chi Nhánh
+                </div>
+                <div style={{ fontSize: "2rem", fontWeight: 900, color: "#9a3412", lineHeight: 1.1, marginTop: "0.25rem" }}>
+                  {branches.length}
+                </div>
+                <div style={{ fontSize: "0.74rem", color: "#ea580c", fontWeight: 600, marginTop: "0.25rem", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Building2 size={12} />
+                  <span>TP.HCM & Bình Dương & BRVT</span>
+                </div>
               </div>
-              <div style={{ fontSize: "2.3rem", fontWeight: 900, color: "#c2410c", lineHeight: 1.2, marginTop: "0.2rem" }}>
-                {branches.length || 4}
-              </div>
-              <div style={{ fontSize: "0.75rem", color: "#64748b", marginTop: "0.2rem" }}>
-                4 Cơ sở phòng máy chuẩn
+              <div style={{
+                width: "48px",
+                height: "48px",
+                borderRadius: "14px",
+                background: "linear-gradient(135deg, #fff7ed, #ffedd5)",
+                color: "#ea580c",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+              }}>
+                <Building2 size={24} />
               </div>
             </div>
           </div>
@@ -1263,12 +1447,94 @@ export default function AdminPage() {
           )}
 
           {/* ========================================================================= */}
-          {/* TAB 4: PHÂN CẤP TÀI KHOẢN (Users Hierarchy) */}
+          {/* TAB 4: PHÂN CẤP TÀI KHOẢN (Users Hierarchy - Modern SaaS Redesign) */}
           {/* ========================================================================= */}
           {activeTab === "users" && (
-            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.2rem", flexWrap: "wrap", gap: "0.8rem" }}>
-                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "1.6rem", boxShadow: "0 2px 10px -2px rgba(0,0,0,0.04)" }}>
+              {/* Header Title & Actions Strip */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.4rem", flexWrap: "wrap", gap: "1rem" }}>
+                <div>
+                  <h2 style={{ fontSize: "1.28rem", fontWeight: 800, margin: 0, color: "#0f172a", display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Users size={22} color="#2563eb" />
+                    <span>Quản Lý Phân Cấp Tài Khoản</span>
+                    <span style={{ fontSize: "0.75rem", padding: "2px 8px", borderRadius: "9999px", background: "#eff6ff", color: "#2563eb", fontWeight: 800 }}>
+                      {filteredUsers.length} tài khoản
+                    </span>
+                  </h2>
+                  <p style={{ fontSize: "0.83rem", color: "#64748b", margin: "0.25rem 0 0" }}>
+                    Phân quyền truy cập Tổng quản trị, Quản lý các cơ sở chi nhánh, Giảng viên và Học viên hệ thống.
+                  </p>
+                </div>
+
+                <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+                  <button
+                    onClick={() => setShowAddUserModal(true)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.45rem",
+                      padding: "0.65rem 1.3rem",
+                      borderRadius: "11px",
+                      border: "none",
+                      background: "linear-gradient(135deg, #1e40af 0%, #2563eb 100%)",
+                      color: "#ffffff",
+                      fontWeight: 700,
+                      fontSize: "0.86rem",
+                      cursor: "pointer",
+                      boxShadow: "0 4px 14px -2px rgba(37, 99, 235, 0.35)",
+                      transition: "all 0.15s"
+                    }}
+                  >
+                    <UserPlus size={16} />
+                    <span>Cấp Tài Khoản Mới</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Advanced Filter Toolbar */}
+              <div style={{
+                background: "#f8fafc",
+                border: "1px solid #e2e8f0",
+                borderRadius: "14px",
+                padding: "0.85rem 1rem",
+                marginBottom: "1.2rem",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.85rem",
+                flexWrap: "wrap"
+              }}>
+                {/* Search Bar with Icon */}
+                <div style={{ position: "relative", flex: "1 1 280px", minWidth: "220px" }}>
+                  <Search size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                  <input
+                    type="text"
+                    value={userSearch}
+                    onChange={(e) => setUserSearch(e.target.value)}
+                    placeholder="Tìm kiếm theo họ tên, username, SĐT, lớp..."
+                    style={{
+                      width: "100%",
+                      padding: "0.6rem 0.85rem 0.6rem 2.3rem",
+                      borderRadius: "10px",
+                      border: "1px solid #cbd5e1",
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      fontSize: "0.86rem",
+                      outline: "none"
+                    }}
+                  />
+                  {userSearch && (
+                    <button
+                      onClick={() => setUserSearch("")}
+                      style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", display: "flex", alignItems: "center" }}
+                    >
+                      <X size={14} />
+                    </button>
+                  )}
+                </div>
+
+                {/* Role Filter Dropdown */}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Filter size={15} color="#64748b" />
                   <select
                     value={userRoleFilter}
                     onChange={(e) => setUserRoleFilter(e.target.value)}
@@ -1279,163 +1545,498 @@ export default function AdminPage() {
                       background: "#ffffff",
                       color: "#0f172a",
                       fontWeight: 700,
-                      fontSize: "0.85rem"
+                      fontSize: "0.84rem",
+                      outline: "none",
+                      cursor: "pointer"
                     }}
                   >
-                    <option value="all">👥 Tất Cả Vai Trò ({users.length})</option>
-                    <option value="admin">👑 Tổng Quản Trị (Super Admin)</option>
-                    <option value="branch_manager">🏢 Quản Lý Chi Nhánh</option>
-                    <option value="student">🎓 Học Viên</option>
+                    <option value="all">Tất Cả Vai Trò ({users.length})</option>
+                    <option value="admin">Super Admin (Tổng Quản Trị)</option>
+                    <option value="branch_manager">Quản Lý Chi Nhánh</option>
+                    <option value="teacher">Giảng Viên Lập Trình</option>
+                    <option value="student">Học Viên Khóa Học</option>
                   </select>
                 </div>
 
+                {/* Branch Direct Filter for Everyone */}
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Building2 size={15} color="#64748b" />
+                  <select
+                    value={adminBranchMode}
+                    onChange={(e) => setAdminBranchMode(e.target.value)}
+                    style={{
+                      padding: "0.55rem 0.85rem",
+                      borderRadius: "10px",
+                      border: "1px solid #cbd5e1",
+                      background: "#ffffff",
+                      color: "#0f172a",
+                      fontWeight: 700,
+                      fontSize: "0.84rem",
+                      outline: "none",
+                      cursor: "pointer"
+                    }}
+                  >
+                    <option value="all">🏢 Toàn Bộ Chi Nhánh ({users.length} tài khoản)</option>
+                    {branches.map(b => (
+                      <option key={b.id} value={b.id}>
+                        🏢 {b.name} ({getBranchUserCount(b.id)} tài khoản)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Quick Branch Filter Chips / Pills (Chọn nhanh chi nhánh bất kỳ) */}
+              <div style={{
+                display: "flex",
+                gap: "0.45rem",
+                overflowX: "auto",
+                paddingBottom: "0.85rem",
+                marginBottom: "0.85rem",
+                alignItems: "center",
+                whiteSpace: "nowrap"
+              }}>
+                <span style={{ fontSize: "0.72rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", display: "inline-flex", alignItems: "center", gap: "4px", paddingRight: "4px" }}>
+                  <Building2 size={13} color="#2563eb" /> Lọc nhanh cơ sở:
+                </span>
+
                 <button
-                  onClick={() => setShowAddUserModal(true)}
+                  onClick={() => setAdminBranchMode("all")}
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.4rem",
-                    padding: "0.6rem 1.2rem",
-                    borderRadius: "10px",
-                    border: "none",
-                    background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
-                    color: "#ffffff",
+                    padding: "4px 12px",
+                    borderRadius: "9999px",
+                    border: adminBranchMode === "all" ? "1px solid #2563eb" : "1px solid #e2e8f0",
+                    background: adminBranchMode === "all" ? "linear-gradient(135deg, #1e40af, #2563eb)" : "#ffffff",
+                    color: adminBranchMode === "all" ? "#ffffff" : "#475569",
                     fontWeight: 700,
-                    fontSize: "0.85rem",
+                    fontSize: "0.76rem",
                     cursor: "pointer",
-                    boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)"
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    boxShadow: adminBranchMode === "all" ? "0 2px 8px rgba(37, 99, 235, 0.3)" : "none",
+                    transition: "all 0.15s"
                   }}
                 >
-                  <UserPlus size={16} />
-                  <span>Cấp Tài Khoản Mới (Phân Cấp)</span>
+                  <span>Toàn Bộ Cơ Sở</span>
+                  <span style={{
+                    padding: "1px 6px",
+                    borderRadius: "9999px",
+                    fontSize: "0.68rem",
+                    background: adminBranchMode === "all" ? "rgba(255,255,255,0.25)" : "#f1f5f9",
+                    color: adminBranchMode === "all" ? "#ffffff" : "#64748b",
+                    fontWeight: 800
+                  }}>
+                    {users.length}
+                  </span>
                 </button>
+
+                {branches.map(b => {
+                  const count = getBranchUserCount(b.id);
+                  const isSelected = adminBranchMode === b.id;
+                  return (
+                    <button
+                      key={b.id}
+                      onClick={() => setAdminBranchMode(b.id)}
+                      style={{
+                        padding: "4px 11px",
+                        borderRadius: "9999px",
+                        border: isSelected ? "1px solid #2563eb" : "1px solid #e2e8f0",
+                        background: isSelected ? "linear-gradient(135deg, #1e40af, #2563eb)" : (count > 0 ? "#ffffff" : "#f8fafc"),
+                        color: isSelected ? "#ffffff" : (count > 0 ? "#0f172a" : "#94a3b8"),
+                        fontWeight: isSelected || count > 0 ? 700 : 500,
+                        fontSize: "0.76rem",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "5px",
+                        boxShadow: isSelected ? "0 2px 8px rgba(37, 99, 235, 0.3)" : "none",
+                        transition: "all 0.15s"
+                      }}
+                      title={`Xem ${count} tài khoản tại ${b.name}`}
+                    >
+                      <span>{b.name.replace("Chi Nhánh ", "")}</span>
+                      <span style={{
+                        padding: "1px 5px",
+                        borderRadius: "9999px",
+                        fontSize: "0.68rem",
+                        background: isSelected ? "rgba(255,255,255,0.25)" : (count > 0 ? "#eff6ff" : "#f1f5f9"),
+                        color: isSelected ? "#ffffff" : (count > 0 ? "#2563eb" : "#94a3b8"),
+                        fontWeight: 800
+                      }}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
 
-              <div style={{ marginBottom: "1rem" }}>
-                <input
-                  type="text"
-                  value={userSearch}
-                  onChange={(e) => setUserSearch(e.target.value)}
-                  placeholder="🔍 Tìm kiếm tài khoản theo tên, SĐT, lớp học, chi nhánh..."
-                  style={{
-                    width: "100%",
-                    padding: "0.65rem 0.9rem",
-                    borderRadius: "10px",
-                    border: "1px solid #cbd5e1",
-                    background: "#ffffff",
-                    color: "#0f172a",
-                    fontSize: "0.88rem"
-                  }}
-                />
-              </div>
-
-              {/* Table Users */}
-              <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: "12px" }}>
-                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", background: "#ffffff" }}>
+              {/* Modern Enterprise Data Table */}
+              <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: "14px", boxShadow: "0 1px 4px rgba(0,0,0,0.02)" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.86rem", background: "#ffffff", textAlign: "left" }}>
                   <thead>
-                    <tr style={{ background: "#f1f5f9", borderBottom: "1px solid #e2e8f0", textAlign: "left", color: "#334155" }}>
-                      <th style={{ padding: "0.75rem 1rem" }}>Họ Và Tên</th>
-                      <th style={{ padding: "0.75rem 1rem" }}>Phân Cấp / Vai Trò</th>
-                      <th style={{ padding: "0.75rem 1rem" }}>SĐT / Tên Đăng Nhập</th>
-                      <th style={{ padding: "0.75rem 1rem" }}>Cơ Sở Trực Thuộc & Lớp</th>
-                      <th style={{ padding: "0.75rem 1rem" }}>Môn Được Phép</th>
-                      <th style={{ padding: "0.75rem 1rem" }}>Mật Khẩu</th>
-                      <th style={{ padding: "0.75rem 1rem", textAlign: "right" }}>Thao Tác</th>
+                    <tr style={{ background: "#f8fafc", borderBottom: "1px solid #e2e8f0", color: "#475569" }}>
+                      <th style={{ padding: "0.9rem 1.1rem", fontWeight: 800, textTransform: "uppercase", fontSize: "0.74rem", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
+                        Họ Và Tên
+                      </th>
+                      <th style={{ padding: "0.9rem 1.1rem", fontWeight: 800, textTransform: "uppercase", fontSize: "0.74rem", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
+                        Phân Cấp / Vai Trò
+                      </th>
+                      <th style={{ padding: "0.9rem 1.1rem", fontWeight: 800, textTransform: "uppercase", fontSize: "0.74rem", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
+                        Tài Khoản & Liên Hệ
+                      </th>
+                      <th style={{ padding: "0.9rem 1.1rem", fontWeight: 800, textTransform: "uppercase", fontSize: "0.74rem", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
+                        Cơ Sở Trực Thuộc
+                      </th>
+                      <th style={{ padding: "0.9rem 1.1rem", fontWeight: 800, textTransform: "uppercase", fontSize: "0.74rem", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
+                        Học Phần Cho Phép
+                      </th>
+                      <th style={{ padding: "0.9rem 1.1rem", fontWeight: 800, textTransform: "uppercase", fontSize: "0.74rem", letterSpacing: "0.04em", whiteSpace: "nowrap" }}>
+                        Mật Khẩu
+                      </th>
+                      <th style={{ padding: "0.9rem 1.1rem", fontWeight: 800, textTransform: "uppercase", fontSize: "0.74rem", letterSpacing: "0.04em", textAlign: "right", whiteSpace: "nowrap" }}>
+                        Thao Tác
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredUsers.map((u) => {
-                      const isSuperAdmin = u.role === "admin";
-                      const isManager = u.role === "branch_manager";
-                      const isStudent = u.role === "student" || !u.role;
+                    {filteredUsers.length === 0 ? (
+                      <tr>
+                        <td colSpan={7} style={{ padding: "3rem 1rem", textAlign: "center", color: "#64748b" }}>
+                          <Users size={36} color="#cbd5e1" style={{ margin: "0 auto 0.6rem" }} />
+                          <div style={{ fontWeight: 700, fontSize: "0.95rem", color: "#334155" }}>Không tìm thấy tài khoản phù hợp</div>
+                          <div style={{ fontSize: "0.8rem", color: "#94a3b8" }}>Hãy thử thay đổi từ khóa tìm kiếm hoặc bộ lọc vai trò/chi nhánh.</div>
+                        </td>
+                      </tr>
+                    ) : (
+                      filteredUsers.map((u) => {
+                        const isSuperAdmin = u.role === "admin";
+                        const isManager = u.role === "branch_manager";
+                        const isTeacher = u.role === "teacher";
+                        const isStudent = u.role === "student" || (!u.role && !isSuperAdmin && !isManager && !isTeacher);
+                        const enrolled = u.enrolledSubjects && u.enrolledSubjects.length > 0 ? u.enrolledSubjects : ["python"];
 
-                      return (
-                        <tr key={u.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                          <td style={{ padding: "0.75rem 1rem", fontWeight: 800, color: "#0f172a" }}>
-                            {u.fullName}
-                          </td>
-                          <td style={{ padding: "0.75rem 1rem" }}>
-                            {isSuperAdmin && (
-                              <span style={{ padding: "0.2rem 0.55rem", borderRadius: "6px", background: "#f3e8ff", color: "#7e22ce", fontSize: "0.74rem", fontWeight: 800, border: "1px solid #d8b4fe" }}>
-                                👑 Super Admin
-                              </span>
-                            )}
-                            {isManager && (
-                              <span style={{ padding: "0.2rem 0.55rem", borderRadius: "6px", background: "#eff6ff", color: "#1d4ed8", fontSize: "0.74rem", fontWeight: 800, border: "1px solid #bfdbfe" }}>
-                                🏢 Quản Lý Chi Nhánh
-                              </span>
-                            )}
-                            {isStudent && (
-                              <span style={{ padding: "0.2rem 0.55rem", borderRadius: "6px", background: "#ecfdf5", color: "#15803d", fontSize: "0.74rem", fontWeight: 700, border: "1px solid #bbf7d0" }}>
-                                🎓 Học Viên
-                              </span>
-                            )}
-                          </td>
-                          <td style={{ padding: "0.75rem 1rem" }}>
-                            <code style={{ background: "#f8fafc", padding: "0.15rem 0.4rem", borderRadius: "4px", border: "1px solid #e2e8f0", color: "#0f172a", fontWeight: 700 }}>
-                              {u.username}
-                            </code>
-                            {u.phone && <div style={{ fontSize: "0.74rem", color: "#64748b", marginTop: "0.15rem" }}>SĐT: {u.phone}</div>}
-                          </td>
-                          <td style={{ padding: "0.75rem 1rem", color: "#334155" }}>
-                            <div style={{ fontWeight: 600 }}>{u.branchName || "Chi Nhánh Thủ Đức"}</div>
-                            {u.class && <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{u.class}</div>}
-                          </td>
-                          <td style={{ padding: "0.75rem 1rem" }}>
-                            <div style={{ display: "flex", gap: "0.3rem", flexWrap: "wrap" }}>
-                              {(u.enrolledSubjects || ["python"]).map((subId) => (
-                                <span
-                                  key={subId}
+                        return (
+                          <tr
+                            key={u.id}
+                            style={{
+                              borderBottom: "1px solid #f1f5f9",
+                              transition: "background 0.15s"
+                            }}
+                          >
+                            {/* Họ Và Tên + Avatar */}
+                            <td style={{ padding: "0.85rem 1.1rem" }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                                <div style={{
+                                  width: "36px",
+                                  height: "36px",
+                                  borderRadius: "10px",
+                                  background: getAvatarGradient(u.fullName),
+                                  color: "#ffffff",
+                                  fontWeight: 800,
+                                  fontSize: "0.82rem",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                                  flexShrink: 0
+                                }}>
+                                  {getInitials(u.fullName)}
+                                </div>
+                                <div style={{ minWidth: 0 }}>
+                                  <div style={{ fontWeight: 800, color: "#0f172a", fontSize: "0.88rem", whiteSpace: "nowrap" }}>
+                                    {u.fullName}
+                                  </div>
+                                  {u.email ? (
+                                    <div style={{ fontSize: "0.74rem", color: "#64748b", whiteSpace: "nowrap" }}>
+                                      {u.email}
+                                    </div>
+                                  ) : (
+                                    <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
+                                      Mã: #{u.id.substring(0, 8)}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Phân Cấp / Vai Trò (No-Wrap SVG Badges) */}
+                            <td style={{ padding: "0.85rem 1.1rem", whiteSpace: "nowrap" }}>
+                              {isSuperAdmin && (
+                                <span style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "5px",
+                                  padding: "4px 10px",
+                                  borderRadius: "9999px",
+                                  background: "#f5f3ff",
+                                  color: "#6d28d9",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 800,
+                                  border: "1px solid #ddd6fe",
+                                  whiteSpace: "nowrap"
+                                }}>
+                                  <Crown size={13} color="#7c3aed" />
+                                  <span>Super Admin</span>
+                                </span>
+                              )}
+                              {isManager && (
+                                <span style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "5px",
+                                  padding: "4px 10px",
+                                  borderRadius: "9999px",
+                                  background: "#eff6ff",
+                                  color: "#1d4ed8",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 800,
+                                  border: "1px solid #bfdbfe",
+                                  whiteSpace: "nowrap"
+                                }}>
+                                  <Building2 size={13} color="#2563eb" />
+                                  <span>Quản Lý Chi Nhánh</span>
+                                </span>
+                              )}
+                              {isTeacher && (
+                                <span style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "5px",
+                                  padding: "4px 10px",
+                                  borderRadius: "9999px",
+                                  background: "#f0fdfa",
+                                  color: "#0f766e",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 800,
+                                  border: "1px solid #99f6e4",
+                                  whiteSpace: "nowrap"
+                                }}>
+                                  <Award size={13} color="#0d9488" />
+                                  <span>Giảng Viên</span>
+                                </span>
+                              )}
+                              {isStudent && (
+                                <span style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "5px",
+                                  padding: "4px 10px",
+                                  borderRadius: "9999px",
+                                  background: "#ecfdf5",
+                                  color: "#047857",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 700,
+                                  border: "1px solid #a7f3d0",
+                                  whiteSpace: "nowrap"
+                                }}>
+                                  <GraduationCap size={13} color="#059669" />
+                                  <span>Học Viên</span>
+                                </span>
+                              )}
+                            </td>
+
+                            {/* SĐT / Tên Đăng Nhập */}
+                            <td style={{ padding: "0.85rem 1.1rem" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "3px" }}>
+                                <div style={{ display: "inline-flex", alignItems: "center", gap: "5px" }}>
+                                  <KeyRound size={12} color="#64748b" />
+                                  <span style={{
+                                    fontFamily: "var(--font-mono)",
+                                    fontWeight: 700,
+                                    color: "#0f172a",
+                                    fontSize: "0.82rem",
+                                    background: "#f1f5f9",
+                                    padding: "2px 7px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #e2e8f0"
+                                  }}>
+                                    {u.username}
+                                  </span>
+                                </div>
+                                {u.phone && (
+                                  <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "0.74rem", color: "#64748b" }}>
+                                    <Phone size={11} color="#94a3b8" />
+                                    <span>{u.phone}</span>
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Cơ Sở Trực Thuộc & Lớp (Biết rõ tài khoản thuộc chi nhánh nào + Bấm để lọc) */}
+                            <td style={{ padding: "0.85rem 1.1rem" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                                <button
+                                  onClick={() => setAdminBranchMode(u.branchId || "all")}
+                                  title={`Nhấn để chỉ xem danh sách tài khoản thuộc ${u.branchName || "Toàn Hệ Thống"}`}
                                   style={{
-                                    padding: "0.12rem 0.4rem",
-                                    borderRadius: "4px",
-                                    background: "#eff6ff",
-                                    color: "#1d4ed8",
-                                    fontSize: "0.72rem",
-                                    fontWeight: 700
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "6px",
+                                    padding: "3px 8px",
+                                    borderRadius: "8px",
+                                    background: u.branchId ? "#eff6ff" : "#f5f3ff",
+                                    border: u.branchId ? "1px solid #bfdbfe" : "1px solid #ddd6fe",
+                                    color: u.branchId ? "#1d4ed8" : "#6d28d9",
+                                    fontWeight: 700,
+                                    fontSize: "0.82rem",
+                                    cursor: "pointer",
+                                    width: "fit-content",
+                                    textAlign: "left",
+                                    transition: "all 0.15s"
                                   }}
                                 >
-                                  {subId.toUpperCase()}
-                                </span>
-                              ))}
-                            </div>
-                          </td>
-                          <td style={{ padding: "0.75rem 1rem" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.82rem" }}>
-                                {visiblePasswordIds.includes(u.id) ? u.password : "••••••••"}
-                              </span>
-                              <button
-                                onClick={() => togglePasswordVisibility(u.id)}
-                                style={{ background: "none", border: "none", cursor: "pointer", color: "#94a3b8" }}
-                              >
-                                {visiblePasswordIds.includes(u.id) ? <EyeOff size={13} /> : <Eye size={13} />}
-                              </button>
-                            </div>
-                          </td>
-                          <td style={{ padding: "0.75rem 1rem", textAlign: "right" }}>
-                            <div style={{ display: "flex", gap: "0.35rem", justifyContent: "flex-end" }}>
-                              <button
-                                onClick={() => setEditingUser(u)}
-                                style={{ padding: "0.35rem 0.5rem", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#ffffff", color: "#2563eb", cursor: "pointer" }}
-                                title="Sửa tài khoản"
-                              >
-                                <Edit3 size={13} />
-                              </button>
-                              {u.username !== "admin" && (
-                                <button
-                                  onClick={() => handleDeleteUser(u.id)}
-                                  style={{ padding: "0.35rem 0.5rem", borderRadius: "6px", border: "1px solid #fecaca", background: "#fef2f2", color: "#dc2626", cursor: "pointer" }}
-                                  title="Xóa tài khoản"
-                                >
-                                  <Trash2 size={13} />
+                                  <Building2 size={13} color={u.branchId ? "#2563eb" : "#7c3aed"} />
+                                  <span>{u.branchName || "Toàn Hệ Thống Sao Việt"}</span>
                                 </button>
-                              )}
-                            </div>
-                          </td>
-                        </tr>
-                      );
-                    })}
+                                
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
+                                  {u.branchId && (
+                                    <span style={{
+                                      fontFamily: "var(--font-mono)",
+                                      fontSize: "0.68rem",
+                                      color: "#64748b",
+                                      background: "#f1f5f9",
+                                      padding: "1px 5px",
+                                      borderRadius: "4px",
+                                      border: "1px solid #e2e8f0"
+                                    }}>
+                                      #{branches.find(b => b.id === u.branchId)?.code || u.branchId.replace("branch_", "").toUpperCase()}
+                                    </span>
+                                  )}
+                                  {u.class && (
+                                    <span style={{ fontSize: "0.72rem", color: "#475569", background: "#f8fafc", padding: "1px 6px", borderRadius: "4px", width: "fit-content", border: "1px solid #e2e8f0" }}>
+                                      {u.class}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </td>
+
+                            {/* Môn Được Phép (Compact Tag Badges) */}
+                            <td style={{ padding: "0.85rem 1.1rem" }}>
+                              <div style={{ display: "flex", gap: "4px", flexWrap: "wrap", alignItems: "center", maxWidth: "230px" }}>
+                                {enrolled.slice(0, 3).map((subId) => (
+                                  <span
+                                    key={subId}
+                                    style={{
+                                      padding: "2px 7px",
+                                      borderRadius: "5px",
+                                      background: "#eff6ff",
+                                      color: "#1d4ed8",
+                                      fontSize: "0.7rem",
+                                      fontWeight: 700,
+                                      border: "1px solid #dbeafe"
+                                    }}
+                                  >
+                                    {subId.toUpperCase()}
+                                  </span>
+                                ))}
+                                {enrolled.length > 3 && (
+                                  <span
+                                    title={enrolled.slice(3).join(", ").toUpperCase()}
+                                    style={{
+                                      padding: "2px 6px",
+                                      borderRadius: "5px",
+                                      background: "#f1f5f9",
+                                      color: "#475569",
+                                      fontSize: "0.68rem",
+                                      fontWeight: 700,
+                                      cursor: "pointer"
+                                    }}
+                                  >
+                                    +{enrolled.length - 3} môn
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+
+                            {/* Mật Khẩu */}
+                            <td style={{ padding: "0.85rem 1.1rem", whiteSpace: "nowrap" }}>
+                              <div style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                background: "#f8fafc",
+                                padding: "3px 8px",
+                                borderRadius: "8px",
+                                border: "1px solid #e2e8f0"
+                              }}>
+                                <span style={{
+                                  fontFamily: "var(--font-mono)",
+                                  fontSize: "0.82rem",
+                                  letterSpacing: visiblePasswordIds.includes(u.id) ? "normal" : "2px",
+                                  color: "#334155"
+                                }}>
+                                  {visiblePasswordIds.includes(u.id) ? u.password : "••••••••"}
+                                </span>
+                                <button
+                                  onClick={() => togglePasswordVisibility(u.id)}
+                                  style={{
+                                    background: "none",
+                                    border: "none",
+                                    cursor: "pointer",
+                                    color: "#64748b",
+                                    padding: "2px",
+                                    display: "flex",
+                                    alignItems: "center"
+                                  }}
+                                  title={visiblePasswordIds.includes(u.id) ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
+                                >
+                                  {visiblePasswordIds.includes(u.id) ? <EyeOff size={13} /> : <Eye size={13} />}
+                                </button>
+                              </div>
+                            </td>
+
+                            {/* Thao Tác (Actions) */}
+                            <td style={{ padding: "0.85rem 1.1rem", textAlign: "right", whiteSpace: "nowrap" }}>
+                              <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end" }}>
+                                <button
+                                  onClick={() => setEditingUser(u)}
+                                  style={{
+                                    width: "32px",
+                                    height: "32px",
+                                    borderRadius: "8px",
+                                    border: "1px solid #bfdbfe",
+                                    background: "#eff6ff",
+                                    color: "#2563eb",
+                                    cursor: "pointer",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    transition: "all 0.15s"
+                                  }}
+                                  title="Chỉnh sửa tài khoản"
+                                >
+                                  <Edit3 size={14} />
+                                </button>
+                                {u.username !== "admin" && (
+                                  <button
+                                    onClick={() => handleDeleteUser(u.id)}
+                                    style={{
+                                      width: "32px",
+                                      height: "32px",
+                                      borderRadius: "8px",
+                                      border: "1px solid #fecaca",
+                                      background: "#fef2f2",
+                                      color: "#dc2626",
+                                      cursor: "pointer",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      transition: "all 0.15s"
+                                    }}
+                                    title="Xóa tài khoản"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
                   </tbody>
                 </table>
               </div>

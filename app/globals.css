@@ -87,6 +87,11 @@
   --shadow-glow-blue: 0 0 20px rgba(37, 99, 235, 0.15);
   --shadow-glow-teal: 0 0 20px rgba(14, 165, 233, 0.15);
   --shadow-glow-emerald: 0 0 20px rgba(5, 150, 105, 0.15);
+
+  /* Hero adaptive vars — light mode */
+  --hero-glow-teal: rgba(37, 99, 235, 0.1);
+  --hero-glow-blue: rgba(14, 165, 233, 0.12);
+  --subject-card-bg: #ffffff;
 }
 
 [data-theme="dark"] {
@@ -160,6 +165,11 @@
   --shadow-glow-blue: 0 0 20px rgba(37, 99, 235, 0.25);
   --shadow-glow-teal: 0 0 20px rgba(14, 165, 233, 0.2);
   --shadow-glow-emerald: 0 0 20px rgba(5, 150, 105, 0.2);
+
+  /* Hero adaptive vars — dark mode */
+  --hero-glow-teal: rgba(0, 245, 200, 0.18);
+  --hero-glow-blue: rgba(14, 165, 233, 0.2);
+  --subject-card-bg: rgba(15, 23, 42, 0.85);
 }
 
 *, *::before, *::after {
@@ -1044,3 +1054,43 @@ h1, h2, h3, h4, h5, h6 {
   background: rgba(5, 150, 105, 0.3);
 }
 
+/* ===== ADMIN FULL-WIDTH OVERRIDE ===== */
+/* Khi trang admin render, override app-container để full 100% viewport */
+.app-container:has(.admin-full-page) {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Fallback cho browser không hỗ trợ :has() */
+.admin-full-page {
+  /* Được áp dụng bởi JS trực tiếp lên .app-container */
+}
+
+/* Override trực tiếp khi app-container có class admin-active */
+.app-container.admin-active {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* ===== HOMEPAGE FULL-WIDTH OVERRIDE ===== */
+.app-container.homepage-active {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* :has() selector cho browser hiện đại */
+.app-container:has(.homepage-full) {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
