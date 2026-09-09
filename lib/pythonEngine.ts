@@ -682,18 +682,9 @@ export class PythonEngine {
     }
 
     const code = userCode.toLowerCase();
-    const hasDef = code.includes("def ");
+    // Chấp nhận mọi cách viết: def hàm tự do, lambda, hoặc script tính toán trực tiếp
+    const hasDef = code.includes("def ") || code.includes("lambda ");
     const isTurtle = problemId >= 11 || code.includes("turtle") || code.includes("screen");
-
-    if (!hasDef && !isTurtle) {
-      return {
-        passed: false,
-        score: 2.5,
-        feedback: "Thiếu định nghĩa hàm bằng từ khóa 'def'. Hãy khai báo hàm đúng theo tên đề bài yêu cầu.",
-        passedTestCases: 0,
-        totalTestCases: 4
-      };
-    }
 
     let isCorrect = false;
     let detail = "";

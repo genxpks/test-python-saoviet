@@ -6,6 +6,7 @@ import { getQuestionsData, getPracticalsData } from "@/lib/questionsData";
 import { getCurrentUser, DEFAULT_SUBJECTS } from "@/lib/usersData";
 import QuestionCard from "@/components/QuestionCard";
 import PythonEditor from "@/components/PythonEditor";
+import { PythonEngine } from "@/lib/pythonEngine";
 import ExamNavigator from "@/components/ExamNavigator";
 import PinUnlockModal from "@/components/PinUnlockModal";
 import ExamResultModal from "@/components/ExamResultModal";
@@ -163,6 +164,11 @@ export default function ExamPage() {
           if (Array.isArray(uAns) && Array.isArray(q.correct_order)) {
             if (uAns.map(String).join(",") === q.correct_order.map(String).join(",")) mcqCorrect++;
           }
+        } else if (q.type === "matching") {
+          if (uAns && typeof uAns === "object" && Array.isArray(q.pairs)) {
+            const allMatched = q.pairs.every((pair: any, idx: number) => uAns[idx] === pair.right);
+            if (allMatched) mcqCorrect++;
+          }
         }
       }
     });
@@ -171,7 +177,13 @@ export default function ExamPage() {
 
     let practicalScore = 0;
     examPracticals.forEach((p) => {
-      const pRes = practicalResults[p.id];
+      let pRes = practicalResults[p.id];
+      if (!pRes) {
+        const uCode = userPracticalCode[p.id];
+        if (uCode && uCode.trim().length > 10 && !uCode.startsWith("# Viết mã nguồn")) {
+          pRes = PythonEngine.gradeProblem(p.id, uCode);
+        }
+      }
       if (pRes && pRes.passed) {
         practicalScore += 3.0 / Math.max(1, examPracticals.length);
       }

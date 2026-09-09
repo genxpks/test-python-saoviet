@@ -16,7 +16,8 @@ import {
   Sparkles, 
   FileCode2,
   Cpu,
-  Bot
+  Bot,
+  Lightbulb
 } from "lucide-react";
 import { useState } from "react";
 
@@ -25,8 +26,10 @@ interface PracticalQuestionCardProps {
   index?: number;
 }
 
+const DEFAULT_PRACTICAL_CLEAN = "# Viết mã nguồn Python của em ở đây...\n";
+
 export default function PracticalQuestionCard({ problem, index }: PracticalQuestionCardProps) {
-  const [userCode, setUserCode] = useState(problem.starter_code || "");
+  const [userCode, setUserCode] = useState(DEFAULT_PRACTICAL_CLEAN);
   const [consoleOutput, setConsoleOutput] = useState<string>("");
   const [isRunning, setIsRunning] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -37,6 +40,7 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
   const [copied, setCopied] = useState(false);
   const [aiFeedback, setAiFeedback] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isAiGrading, setIsAiGrading] = useState(false);
 
   const pNum = index !== undefined ? index + 1 : problem.id;
 
@@ -96,12 +100,70 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
     }
   };
 
+  const handleLoadTemplate = () => {
+    if (problem.starter_code) {
+      if (confirm("Em có muốn tải khung gợi ý của bài này vào trình soạn thảo không?")) {
+        setUserCode(problem.starter_code);
+      }
+    }
+  };
+
   const handleResetCode = () => {
-    if (confirm("Em có muốn khôi phục lại code khởi tạo ban đầu không?")) {
-      setUserCode(problem.starter_code);
+    if (confirm("Em có chắc chắn muốn xóa trắng code để viết lại từ đầu không?")) {
+      setUserCode(DEFAULT_PRACTICAL_CLEAN);
       setConsoleOutput("");
       setGradeResult(null);
       setAiFeedback(null);
+    }
+  };
+
+  const handleGradeWithAI = async () => {
+    if (!userCode || userCode.trim().length < 5) {
+      alert("⚠️ Mã nguồn đang trống! Em hãy viết bài giải rồi bấm Chấm Điểm AI nhé.");
+      return;
+    }
+
+    setIsAiGrading(true);
+    setAiFeedback("⏳ Giám Khảo AI đang kiểm tra logic thuật toán và chấm điểm tự do...");
+
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "grade_code",
+          prompt: "Chấm điểm bài làm của học viên. Học viên được phép đặt tên hàm tùy ý hoặc viết script, miễn là logic giải quyết đúng bài toán.",
+          context: {
+            problem_id: problem.id,
+            problem_title: problem.title,
+            problem_description: problem.description,
+            student_code: userCode,
+            solution_code: problem.solution_code
+          }
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setAiFeedback(data.reply);
+        const scoreMatch = data.reply.match(/(\d+(?:\.\d+)?)\s*\/\s*10/);
+        const parsedScore = scoreMatch ? Math.min(10, Math.max(0, parseFloat(scoreMatch[1]))) : 10;
+        const isPassed = parsedScore >= 5;
+
+        setGradeResult({
+          passed: isPassed,
+          score: parsedScore,
+          feedback: `Chấm bằng AI: ${isPassed ? "Đạt chuẩn" : "Cần sửa lại"} (${parsedScore}/10đ)`,
+          passedTestCases: isPassed ? 4 : 2,
+          totalTestCases: 4
+        });
+      } else {
+        setAiFeedback("❌ Lỗi kết nối Giám khảo AI: " + (data.message || ""));
+      }
+    } catch (e: any) {
+      setAiFeedback("❌ Lỗi khi chấm điểm AI: " + e.message);
+    } finally {
+      setIsAiGrading(false);
     }
   };
 
@@ -220,6 +282,47 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
 
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <button
+              onClick={handleLoadTemplate}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "0.3rem 0.65rem",
+                borderRadius: "6px",
+                border: "1px solid rgba(56, 189, 248, 0.3)",
+                background: "rgba(56, 189, 248, 0.1)",
+                color: "#38bdf8",
+                fontSize: "0.75rem",
+                fontWeight: 700,
+                cursor: "pointer"
+              }}
+              title="Tải khung gợi ý nếu cần hỗ trợ"
+            >
+              <Lightbulb size={13} />
+              <span>Gợi Ý Khung Hàm</span>
+            </button>
+
+            <button
+              onClick={handleResetCode}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                padding: "0.3rem 0.65rem",
+                borderRadius: "6px",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+                background: "rgba(255, 255, 255, 0.05)",
+                color: "#94a3b8",
+                fontSize: "0.75rem",
+                cursor: "pointer"
+              }}
+              title="Xóa trắng để tự code lại"
+            >
+              <RotateCcw size={12} />
+              <span>Làm Sạch</span>
+            </button>
+
+            <button
               onClick={handleAskAI}
               disabled={isAiLoading}
               style={{
@@ -237,7 +340,7 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
               }}
             >
               <Bot size={13} />
-              <span>{isAiLoading ? "Đang phân tích..." : "Hỏi Thầy AI"}</span>
+              <span>{isAiLoading ? "Đang phân tích..." : "Nhờ AI Sửa Code"}</span>
             </button>
           </div>
         </div>
@@ -334,6 +437,29 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
             >
               <CheckCircle2 size={15} />
               <span>Chấm Điểm Test Cases</span>
+            </button>
+
+            <button
+              onClick={handleGradeWithAI}
+              disabled={isAiGrading}
+              title="Dùng AI kiểm tra tính đúng đắn của code (chấp nhận mọi cách đặt tên hàm)"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                padding: "0.5rem 1rem",
+                borderRadius: "8px",
+                border: "1px solid rgba(168, 85, 247, 0.5)",
+                background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
+                color: "#ffffff",
+                fontWeight: 800,
+                fontSize: "0.84rem",
+                cursor: isAiGrading ? "wait" : "pointer",
+                boxShadow: "0 2px 10px rgba(124, 58, 237, 0.35)"
+              }}
+            >
+              <Sparkles size={15} />
+              <span>{isAiGrading ? "AI Đang Chấm..." : "🤖 Chấm Điểm Bằng AI"}</span>
             </button>
 
             <span style={{ fontSize: "0.74rem", color: "#94a3b8", display: "inline-flex", alignItems: "center", gap: "4px" }}>

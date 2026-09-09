@@ -16,7 +16,9 @@ import {
   Copy, 
   Check, 
   X,
-  Sparkles
+  Sparkles,
+  FileEdit,
+  Lightbulb
 } from "lucide-react";
 
 interface PythonEditorProps {
@@ -27,6 +29,8 @@ interface PythonEditorProps {
   isExamMode?: boolean;
 }
 
+const DEFAULT_CLEAN_SLATE = "# Viết mã nguồn Python của em ở đây...\n";
+
 export default function PythonEditor({ 
   problem, 
   initialCode, 
@@ -34,7 +38,8 @@ export default function PythonEditor({
   onSubmitGrade,
   isExamMode = false
 }: PythonEditorProps) {
-  const [code, setCode] = useState(initialCode || problem.starter_code || "");
+  // Do NOT pre-fill with starter code solution; default to clean slate so student writes code by themselves
+  const [code, setCode] = useState(initialCode !== undefined && initialCode !== null ? initialCode : DEFAULT_CLEAN_SLATE);
   const [consoleOutput, setConsoleOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -43,24 +48,41 @@ export default function PythonEditor({
   const [gradeStatus, setGradeStatus] = useState<GradeResult | null>(null);
 
   useEffect(() => {
-    setCode(initialCode || problem.starter_code || "");
+    setCode(initialCode !== undefined && initialCode !== null ? initialCode : DEFAULT_CLEAN_SLATE);
     setConsoleOutput("");
     setIsError(false);
     setExecutionTimeMs(0);
     setTurtleSvg(undefined);
     setGradeStatus(null);
     setAiFeedback(null);
-  }, [problem.id, initialCode, problem.starter_code]);
+  }, [problem.id, initialCode]);
 
   // AI Assistant State
   const [aiFeedback, setAiFeedback] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
+  const [isAiGrading, setIsAiGrading] = useState(false);
   const [copied, setCopied] = useState(false);
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const val = e.target.value;
     setCode(val);
     if (onCodeChange) onCodeChange(val);
+  };
+
+  const handleLoadTemplate = () => {
+    if (problem.starter_code) {
+      if (confirm("Em có muốn tải khung gợi ý của bài này vào trình soạn thảo không? (Code hiện tại sẽ được thay thế)")) {
+        setCode(problem.starter_code);
+        if (onCodeChange) onCodeChange(problem.starter_code);
+      }
+    }
+  };
+
+  const handleClearCode = () => {
+    if (confirm("Em có chắc chắn muốn xóa toàn bộ code để viết lại từ đầu không?")) {
+      setCode(DEFAULT_CLEAN_SLATE);
+      if (onCodeChange) onCodeChange(DEFAULT_CLEAN_SLATE);
+    }
   };
 
   const handleRunCode = async () => {
@@ -99,6 +121,7 @@ export default function PythonEditor({
     }
   };
 
+  // Trợ lý AI sửa lỗi code
   const handleAskAI = async () => {
     setIsAiLoading(true);
     setAiFeedback("⏳ Thầy AI đang phân tích logic thuật toán và tìm lỗi trong code của em...");
@@ -113,7 +136,6 @@ export default function PythonEditor({
           context: {
             problem_title: problem.title,
             problem_description: problem.description,
-            starter_code: problem.starter_code,
             student_code: code,
             solution_code: problem.solution_code
           }
@@ -132,11 +154,65 @@ export default function PythonEditor({
     }
   };
 
+  // Giám khảo AI Chấm Điểm Thông Minh (Chấp nhận tên hàm tự do)
+  const handleGradeWithAI = async () => {
+    if (!code || code.trim().length < 5) {
+      alert("⚠️ Mã nguồn đang trống! Em hãy viết bài giải rồi bấm Chấm Điểm AI nhé.");
+      return;
+    }
+
+    setIsAiGrading(true);
+    setAiFeedback("⏳ Giám Khảo AI đang đối chiếu yêu cầu đề bài, kiểm tra logic thuật toán và chấm điểm tự do...");
+
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "grade_code",
+          prompt: "Chấm điểm bài làm của học viên. Học viên được phép đặt tên hàm tùy ý hoặc viết script, miễn là logic giải quyết đúng bài toán.",
+          context: {
+            problem_id: problem.id,
+            problem_title: problem.title,
+            problem_description: problem.description,
+            student_code: code,
+            solution_code: problem.solution_code
+          }
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        setAiFeedback(data.reply);
+        // Trích xuất điểm số nếu có trong phản hồi
+        const scoreMatch = data.reply.match(/(\d+(?:\.\d+)?)\s*\/\s*10/);
+        const parsedScore = scoreMatch ? Math.min(10, Math.max(0, parseFloat(scoreMatch[1]))) : 10;
+        const isPassed = parsedScore >= 5;
+
+        const gradeRes: GradeResult = {
+          passed: isPassed,
+          score: parsedScore,
+          feedback: `Chấm bằng AI: ${isPassed ? "Đạt chuẩn" : "Cần sửa lại"} (${parsedScore}/10 điểm)`,
+          passedTestCases: isPassed ? 4 : 2,
+          totalTestCases: 4
+        };
+        setGradeStatus(gradeRes);
+        if (onSubmitGrade) onSubmitGrade(gradeRes);
+      } else {
+        setAiFeedback("❌ Không thể kết nối tới Giám khảo AI: " + (data.message || ""));
+      }
+    } catch (e: any) {
+      setAiFeedback("❌ Lỗi khi chấm điểm AI: " + e.message);
+    } finally {
+      setIsAiGrading(false);
+    }
+  };
+
   const handleSubmit = () => {
     const res = PythonEngine.gradeProblem(problem.id, code);
     setGradeStatus(res);
     if (onSubmitGrade) onSubmitGrade(res);
-    alert(`✅ Đã nộp bài ${problem.id}!\nĐánh giá tự động: ${res.feedback}\nĐiểm dự kiến: ${res.score}/10`);
+    alert(`✅ Đã nộp bài ${problem.id}!\nĐánh giá: ${res.feedback}\nĐiểm hệ thống: ${res.score}/10`);
   };
 
   // Line numbers calculation
@@ -147,13 +223,55 @@ export default function PythonEditor({
     <div className="code-ide-card">
       {/* IDE Header */}
       <div className="ide-header-tab">
-        <div className="ide-tab-pill">
-          <FileCode2 size={15} />
-          <span>main.py</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <div className="ide-tab-pill">
+            <FileCode2 size={15} />
+            <span>main.py</span>
+          </div>
+          <button
+            onClick={handleLoadTemplate}
+            style={{
+              background: "rgba(56, 189, 248, 0.12)",
+              border: "1px solid rgba(56, 189, 248, 0.3)",
+              color: "#38bdf8",
+              fontSize: "0.75rem",
+              padding: "0.2rem 0.6rem",
+              borderRadius: "6px",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "4px",
+              fontWeight: 700
+            }}
+            title="Tải khung hàm mẫu gợi ý (nếu cần trợ giúp)"
+          >
+            <Lightbulb size={12} />
+            <span>Xem Gợi Ý Khung Hàm</span>
+          </button>
         </div>
 
-        <div className="ide-engine-badge">
-          <span>Python 3.12 Engine • UTF-8</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <button
+            onClick={handleClearCode}
+            style={{
+              background: "none",
+              border: "none",
+              color: "#94a3b8",
+              fontSize: "0.75rem",
+              cursor: "pointer",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "3px"
+            }}
+            title="Xóa trắng để viết lại"
+          >
+            <Trash2 size={13} />
+            <span>Làm sạch</span>
+          </button>
+
+          <div className="ide-engine-badge">
+            <span>Python 3.12 Engine • Tên Hàm Tự Do</span>
+          </div>
         </div>
       </div>
 
@@ -171,7 +289,7 @@ export default function PythonEditor({
           onChange={handleCodeChange}
           onKeyDown={handleKeyDown}
           spellCheck={false}
-          placeholder="# Viết mã nguồn Python của em tại đây..."
+          placeholder="# Tự do viết code Python tại đây. Đặt tên hàm tùy ý, giải quyết đúng đề bài..."
         />
       </div>
 
@@ -195,7 +313,29 @@ export default function PythonEditor({
             }}
           >
             <Play size={14} fill="#ffffff" />
-            <span>{isRunning ? "Đang biên dịch & chạy..." : "▶️ Chạy Thử / Build (F5)"}</span>
+            <span>{isRunning ? "Đang chạy..." : "▶️ Chạy Thử / Build (F5)"}</span>
+          </button>
+
+          {/* AI Chấm Điểm Thông Minh Button */}
+          <button
+            onClick={handleGradeWithAI}
+            disabled={isAiGrading}
+            className="btn btn-sm"
+            style={{
+              background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
+              color: "#ffffff",
+              fontWeight: 800,
+              border: "1px solid rgba(168, 85, 247, 0.5)",
+              boxShadow: "0 2px 10px rgba(124, 58, 237, 0.35)",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              cursor: isAiGrading ? "wait" : "pointer"
+            }}
+            title="Dùng AI kiểm tra tính đúng đắn của code (chấp nhận mọi cách đặt tên hàm)"
+          >
+            <Sparkles size={14} />
+            <span>{isAiGrading ? "AI Đang Chấm..." : "🤖 Chấm Điểm Bằng AI"}</span>
           </button>
 
           {!isExamMode && (
@@ -217,9 +357,9 @@ export default function PythonEditor({
       </div>
 
       {/* AI Feedback Panel */}
-      {!isExamMode && aiFeedback && (
+      {aiFeedback && (
         <div style={{
-          background: "linear-gradient(135deg, #2e1065, #1e1b4b)",
+          background: "linear-gradient(135deg, #1e1b4b, #0f172a)",
           color: "#f5d0fe",
           padding: "1rem 1.25rem",
           borderTop: "1px solid #6b21a8",
@@ -227,9 +367,9 @@ export default function PythonEditor({
           lineHeight: "1.6"
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 800, color: "#f0abfc" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 800, color: "#c084fc" }}>
               <Bot size={16} />
-              <span>Hướng Dẫn & Nhận Xét Của Thầy AI:</span>
+              <span>Đánh Giá & Nhận Xét Của Giám Khảo AI:</span>
             </div>
             <button
               onClick={() => setAiFeedback(null)}
@@ -247,14 +387,14 @@ export default function PythonEditor({
       {/* Auto Grade Notification */}
       {gradeStatus && (
         <div style={{
-          background: gradeStatus.passed ? "#064e3b" : "#4c0519",
-          color: gradeStatus.passed ? "#a7f3d0" : "#fecdd3",
+          background: gradeStatus.passed ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)",
+          color: gradeStatus.passed ? "#34d399" : "#fca5a5",
           padding: "0.65rem 1rem",
           fontSize: "0.85rem",
           display: "flex",
           alignItems: "center",
           gap: "0.5rem",
-          borderTop: "1px solid rgba(255, 255, 255, 0.1)"
+          borderTop: `1px solid ${gradeStatus.passed ? "#10b981" : "#ef4444"}`
         }}>
           {gradeStatus.passed ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
           <span>

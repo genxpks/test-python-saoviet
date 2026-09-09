@@ -40,7 +40,10 @@ export default function StudyPage() {
           }
         }
       })
-      .catch(() => null);
+    try {
+      const saved = localStorage.getItem("SAOVIET_STUDY_ANSWERS");
+      if (saved) setStudyAnswers(JSON.parse(saved));
+    } catch (e) {}
   }, []);
 
   const chips = [
@@ -232,39 +235,58 @@ export default function StudyPage() {
               />
 
               <div style={{ marginTop: "1.5rem" }}>
-                {/* Study Answers Progress Bar */}
-                {Object.keys(studyAnswers).length > 0 && (
-                  <div style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    padding: "0.6rem 1.1rem",
-                    marginBottom: "1rem",
-                    background: "rgba(56, 189, 248, 0.1)",
-                    border: "1px solid rgba(56, 189, 248, 0.25)",
-                    borderRadius: "8px",
-                    fontSize: "0.85rem",
-                    color: "#38bdf8"
-                  }}>
-                    <span style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 700 }}>
-                      <CheckCircle2 size={16} color="#38bdf8" />
-                      Tiến độ ôn tập: Đã làm {Object.keys(studyAnswers).length} / {questions.length} câu hỏi
-                    </span>
-                    <button
-                      onClick={() => setStudyAnswers({})}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#94a3b8",
-                        fontSize: "0.78rem",
-                        cursor: "pointer",
-                        textDecoration: "underline"
-                      }}
-                    >
-                      Làm mới kết quả ôn
-                    </button>
-                  </div>
-                )}
+                {/* Study Answers Progress Bar Container */}
+                <div style={{ minHeight: "44px", marginBottom: "1rem" }}>
+                  {Object.keys(studyAnswers).length > 0 ? (
+                    <div style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "0.6rem 1.1rem",
+                      background: "rgba(56, 189, 248, 0.1)",
+                      border: "1px solid rgba(56, 189, 248, 0.25)",
+                      borderRadius: "8px",
+                      fontSize: "0.85rem",
+                      color: "#38bdf8"
+                    }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 700 }}>
+                        <CheckCircle2 size={16} color="#38bdf8" />
+                        Tiến độ ôn tập: Đã làm {Object.keys(studyAnswers).length} / {questions.length} câu hỏi
+                      </span>
+                      <button
+                        onClick={() => {
+                          setStudyAnswers({});
+                          try { localStorage.removeItem("SAOVIET_STUDY_ANSWERS"); } catch (e) {}
+                        }}
+                        style={{
+                          background: "none",
+                          border: "none",
+                          color: "#94a3b8",
+                          fontSize: "0.78rem",
+                          cursor: "pointer",
+                          textDecoration: "underline"
+                        }}
+                      >
+                        Làm mới kết quả ôn
+                      </button>
+                    </div>
+                  ) : (
+                    <div style={{
+                      padding: "0.55rem 1rem",
+                      borderRadius: "8px",
+                      background: "rgba(15, 23, 42, 0.4)",
+                      border: "1px dashed rgba(255, 255, 255, 0.1)",
+                      color: "#94a3b8",
+                      fontSize: "0.82rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px"
+                    }}>
+                      <BookOpen size={14} color="#38bdf8" />
+                      <span>💡 Chọn đáp án, điền từ khóa hoặc sắp xếp bên dưới để kiểm tra và ghi nhận tiến độ ôn tập.</span>
+                    </div>
+                  )}
+                </div>
 
                 {paginatedQuestions.length > 0 ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
@@ -275,10 +297,11 @@ export default function StudyPage() {
                         index={(currentPage - 1) * PAGE_SIZE + idx}
                         userAnswer={studyAnswers[q.id]}
                         onAnswerChange={(ans) => {
-                          setStudyAnswers((prev) => ({
-                            ...prev,
-                            [q.id]: ans
-                          }));
+                          setStudyAnswers((prev) => {
+                            const next = { ...prev, [q.id]: ans };
+                            try { localStorage.setItem("SAOVIET_STUDY_ANSWERS", JSON.stringify(next)); } catch (e) {}
+                            return next;
+                          });
                         }}
                       />
                     ))}
