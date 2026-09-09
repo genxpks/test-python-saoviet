@@ -182,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (q.type === "single_choice" || q.type === "multiple_choice" || q.type === "true_false") {
         const labels = ["A", "B", "C", "D"];
         optionsHtml = `<div class="options-list">` + q.options.map((opt, i) => `
-          <div class="option-item" onclick="selectStudyOption(this)">
+          <div class="option-item" data-idx="${i}" onclick="selectStudyOption(this, ${q.id}, ${i})">
             <span style="font-weight: 700; width: 24px;">${q.type === 'true_false' ? (i === 0 ? '✓' : '✗') : labels[i]}.</span>
             <span>${opt}</span>
           </div>
@@ -254,10 +254,38 @@ document.addEventListener("DOMContentLoaded", () => {
     if (box) box.classList.toggle("open");
   };
 
-  window.selectStudyOption = function(el) {
+  window.selectStudyOption = function(el, qId, optIdx) {
     const parent = el.parentElement;
-    parent.querySelectorAll(".option-item").forEach(i => i.classList.remove("selected"));
-    el.classList.add("selected");
+    const allQuestions = window.QUIZ_DATA?.questions || [];
+    const q = allQuestions.find(item => item.id === qId);
+
+    if (!q) {
+      parent.querySelectorAll(".option-item").forEach(i => i.classList.remove("selected"));
+      el.classList.add("selected");
+      return;
+    }
+
+    if (q.type === "multiple_choice") {
+      el.classList.toggle("selected");
+    } else {
+      parent.querySelectorAll(".option-item").forEach(i => {
+        i.classList.remove("selected", "correct", "wrong");
+      });
+      el.classList.add("selected");
+
+      if (String(optIdx) === String(q.correct_answer)) {
+        el.classList.add("correct");
+      } else {
+        el.classList.add("wrong");
+        const items = parent.querySelectorAll(".option-item");
+        if (items[q.correct_answer]) {
+          items[q.correct_answer].classList.add("correct");
+        }
+      }
+
+      const box = document.getElementById("exp_" + qId);
+      if (box) box.classList.add("open");
+    }
   };
 
   // =========================================================================

@@ -415,6 +415,20 @@ body {
   font-weight: 500;
 }
 
+.option-item.correct {
+  background-color: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+  color: #065f46;
+  font-weight: 700;
+}
+
+.option-item.wrong {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+  border-color: #ef4444 !important;
+  color: #991b1b;
+  font-weight: 700;
+}
+
 .opt-radio {
   width: 18px;
   height: 18px;
