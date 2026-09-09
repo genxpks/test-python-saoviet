@@ -973,3 +973,74 @@ h1, h2, h3, h4, h5, h6 {
     break-after: page;
   }
 }
+
+/* Retry Button Styling in Feedback Banners */
+.btn-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  text-decoration: none !important;
+  line-height: 1;
+}
+
+.btn-retry:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.btn-retry:active {
+  transform: translateY(0);
+}
+
+.btn-retry-wrong {
+  background: #ffffff;
+  border: 1.5px solid rgba(220, 38, 38, 0.35);
+  color: #b91c1c;
+}
+
+.btn-retry-wrong:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #991b1b;
+}
+
+.btn-retry-correct {
+  background: #ffffff;
+  border: 1.5px solid rgba(5, 150, 105, 0.35);
+  color: #047857;
+}
+
+.btn-retry-correct:hover {
+  background: #ecfdf5;
+  border-color: #059669;
+  color: #065f46;
+}
+
+[data-theme="dark"] .btn-retry-wrong {
+  background: rgba(220, 38, 38, 0.15);
+  border-color: rgba(220, 38, 38, 0.5);
+  color: #fca5a5;
+}
+
+[data-theme="dark"] .btn-retry-wrong:hover {
+  background: rgba(220, 38, 38, 0.3);
+}
+
+[data-theme="dark"] .btn-retry-correct {
+  background: rgba(5, 150, 105, 0.15);
+  border-color: rgba(5, 150, 105, 0.5);
+  color: #6ee7b7;
+}
+
+[data-theme="dark"] .btn-retry-correct:hover {
+  background: rgba(5, 150, 105, 0.3);
+}
+
