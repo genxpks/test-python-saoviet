@@ -22,6 +22,7 @@ export default function StudyPage() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [practicals, setPracticals] = useState<PracticalProblem[]>([]);
+  const [studyAnswers, setStudyAnswers] = useState<Record<number, any>>({});
 
   useEffect(() => {
     setQuestions(getQuestionsData());
@@ -231,10 +232,55 @@ export default function StudyPage() {
               />
 
               <div style={{ marginTop: "1.5rem" }}>
+                {/* Study Answers Progress Bar */}
+                {Object.keys(studyAnswers).length > 0 && (
+                  <div style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "0.6rem 1.1rem",
+                    marginBottom: "1rem",
+                    background: "rgba(56, 189, 248, 0.1)",
+                    border: "1px solid rgba(56, 189, 248, 0.25)",
+                    borderRadius: "8px",
+                    fontSize: "0.85rem",
+                    color: "#38bdf8"
+                  }}>
+                    <span style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 700 }}>
+                      <CheckCircle2 size={16} color="#38bdf8" />
+                      Tiến độ ôn tập: Đã làm {Object.keys(studyAnswers).length} / {questions.length} câu hỏi
+                    </span>
+                    <button
+                      onClick={() => setStudyAnswers({})}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#94a3b8",
+                        fontSize: "0.78rem",
+                        cursor: "pointer",
+                        textDecoration: "underline"
+                      }}
+                    >
+                      Làm mới kết quả ôn
+                    </button>
+                  </div>
+                )}
+
                 {paginatedQuestions.length > 0 ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: "1.2rem" }}>
-                    {paginatedQuestions.map((q) => (
-                      <QuestionCard key={q.id} question={q} />
+                    {paginatedQuestions.map((q, idx) => (
+                      <QuestionCard
+                        key={q.id}
+                        question={q}
+                        index={(currentPage - 1) * PAGE_SIZE + idx}
+                        userAnswer={studyAnswers[q.id]}
+                        onAnswerChange={(ans) => {
+                          setStudyAnswers((prev) => ({
+                            ...prev,
+                            [q.id]: ans
+                          }));
+                        }}
+                      />
                     ))}
                   </div>
                 ) : (

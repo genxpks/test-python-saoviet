@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Question } from "@/types";
 import { 
   CheckCircle2, 
@@ -37,30 +37,63 @@ export default function QuestionCard({
   onAnswerChange,
   isExamMode = false
 }: QuestionCardProps) {
+  const [localAnswer, setLocalAnswer] = useState<any>(userAnswer);
   const [showExp, setShowExp] = useState(showExplanationInitially);
+
+  useEffect(() => {
+    setLocalAnswer(userAnswer);
+  }, [userAnswer, question.id]);
+
+  const currentAnswer = userAnswer !== undefined ? userAnswer : localAnswer;
+
   const [order, setOrder] = useState<number[]>(
-    Array.isArray(userAnswer) ? userAnswer : Array.from({ length: question.items?.length || 0 }, (_, i) => i)
+    Array.isArray(currentAnswer) ? currentAnswer : Array.from({ length: question.items?.length || 0 }, (_, i) => i)
   );
-  const [pairs, setPairs] = useState<Record<string, string>>(userAnswer || {});
+  const [pairs, setPairs] = useState<Record<string, string>>(
+    typeof currentAnswer === "object" && currentAnswer !== null && !Array.isArray(currentAnswer) ? currentAnswer : {}
+  );
+
+  useEffect(() => {
+    setOrder(Array.isArray(currentAnswer) ? currentAnswer : Array.from({ length: question.items?.length || 0 }, (_, i) => i));
+    setPairs(typeof currentAnswer === "object" && currentAnswer !== null && !Array.isArray(currentAnswer) ? currentAnswer : {});
+    setShowExp(showExplanationInitially);
+    setAiExplanation(null);
+  }, [question.id]);
 
   // AI Explanation State
   const [aiExplanation, setAiExplanation] = useState<string | null>(null);
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [copied, setCopied] = useState(false);
 
+  const updateAnswer = (newAns: any) => {
+    setLocalAnswer(newAns);
+    if (onAnswerChange) {
+      onAnswerChange(newAns);
+    }
+    // In study mode, automatically open explanation when an answer is chosen
+    if (!isExamMode && newAns !== undefined && newAns !== null && newAns !== "") {
+      setShowExp(true);
+    }
+  };
+
   const handleSingleSelect = (idx: number) => {
-    if (onAnswerChange) onAnswerChange(idx);
+    updateAnswer(idx);
   };
 
   const handleMultiSelect = (idx: number) => {
-    let list: number[] = Array.isArray(userAnswer) ? [...userAnswer] : [];
-    if (list.includes(idx)) list = list.filter(x => x !== idx);
-    else list.push(idx);
-    if (onAnswerChange) onAnswerChange(list);
+    let list: any[] = Array.isArray(currentAnswer) ? [...currentAnswer] : [];
+    const idxStr = String(idx);
+    const exists = list.some(x => String(x) === idxStr);
+    if (exists) {
+      list = list.filter(x => String(x) !== idxStr);
+    } else {
+      list.push(idx);
+    }
+    updateAnswer(list);
   };
 
   const handleFillChange = (val: string) => {
-    if (onAnswerChange) onAnswerChange(val.trim());
+    updateAnswer(val);
   };
 
   const handleMoveOrder = (pos: number, dir: number) => {
@@ -71,14 +104,14 @@ export default function QuestionCard({
       next[pos] = next[targetPos];
       next[targetPos] = temp;
       setOrder(next);
-      if (onAnswerChange) onAnswerChange(next);
+      updateAnswer(next);
     }
   };
 
   const handleMatchSelect = (left: string, right: string) => {
     const next = { ...pairs, [left]: right };
     setPairs(next);
-    if (onAnswerChange) onAnswerChange(next);
+    updateAnswer(next);
   };
 
   const handleAskAIExplanation = async () => {
@@ -210,17 +243,28 @@ export default function QuestionCard({
       {/* RENDER FORM BY TYPE */}
       {/* 1. SINGLE CHOICE & TRUE/FALSE */}
       {(question.type === "single_choice" || question.type === "true_false" || !question.type) && question.options && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", margin: "1rem 0" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", margin: "1rem 0" }}>
           {question.options.map((opt, idx) => {
             const letter = String.fromCharCode(65 + idx);
-            const isSelected = userAnswer === idx;
-            const isCorrect = showExp && question.correct_answer === idx;
-            const isWrong = showExp && isSelected && !isCorrect;
+            const hasAnswered = currentAnswer !== undefined && currentAnswer !== null && currentAnswer !== "";
+            const isSelected = hasAnswered && String(currentAnswer) === String(idx);
+            const isOptionCorrect = String(question.correct_answer) === String(idx);
 
             let itemClass = "option-item";
-            if (isSelected) itemClass += " selected";
-            if (isCorrect) itemClass += " correct";
-            if (isWrong) itemClass += " wrong";
+            if (isExamMode) {
+              if (isSelected) itemClass += " selected";
+            } else {
+              // Study Mode: reveal green/red once answered or if showExp
+              if (hasAnswered || showExp) {
+                if (isOptionCorrect) {
+                  itemClass += " correct";
+                } else if (isSelected) {
+                  itemClass += " wrong";
+                }
+              } else if (isSelected) {
+                itemClass += " selected";
+              }
+            }
 
             return (
               <div
@@ -229,32 +273,91 @@ export default function QuestionCard({
                 onClick={() => handleSingleSelect(idx)}
                 role="button"
                 tabIndex={0}
+                style={{ cursor: "pointer", userSelect: "none" }}
               >
                 <div className="option-letter">{letter}</div>
                 <div style={{ flex: 1, fontSize: "0.92rem", fontWeight: isSelected ? 700 : 500 }}>
                   {opt}
                 </div>
-                {showExp && isCorrect && <CheckCircle2 size={18} color="#059669" />}
-                {showExp && isWrong && <X size={18} color="#e11d48" />}
+                {!isExamMode && (hasAnswered || showExp) && isOptionCorrect && (
+                  <CheckCircle2 size={18} color="#10b981" />
+                )}
+                {!isExamMode && hasAnswered && isSelected && !isOptionCorrect && (
+                  <X size={18} color="#ef4444" />
+                )}
               </div>
             );
           })}
+
+          {/* Real-time Feedback Banner in Study Mode */}
+          {!isExamMode && currentAnswer !== undefined && currentAnswer !== null && currentAnswer !== "" && (
+            <div style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              background: String(currentAnswer) === String(question.correct_answer) ? "rgba(16, 185, 129, 0.16)" : "rgba(239, 68, 68, 0.16)",
+              border: `1px solid ${String(currentAnswer) === String(question.correct_answer) ? "#10b981" : "#ef4444"}`,
+              borderRadius: "8px",
+              padding: "0.6rem 1rem",
+              marginTop: "0.4rem",
+              color: String(currentAnswer) === String(question.correct_answer) ? "#34d399" : "#fca5a5",
+              fontSize: "0.85rem",
+              fontWeight: 700
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                {String(currentAnswer) === String(question.correct_answer) ? (
+                  <>
+                    <CheckCircle2 size={16} />
+                    <span>🎉 CHÍNH XÁC! Em đã chọn đúng đáp án {String.fromCharCode(65 + Number(question.correct_answer))}.</span>
+                  </>
+                ) : (
+                  <>
+                    <X size={16} />
+                    <span>⚠️ CHƯA CHÍNH XÁC! Đáp án đúng là {String.fromCharCode(65 + Number(question.correct_answer))}. Xem phân tích chi tiết bên dưới:</span>
+                  </>
+                )}
+              </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); updateAnswer(undefined); setShowExp(false); }}
+                style={{
+                  background: "transparent",
+                  border: "none",
+                  color: String(currentAnswer) === String(question.correct_answer) ? "#6ee7b7" : "#fca5a5",
+                  fontSize: "0.78rem",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                  whiteSpace: "nowrap"
+                }}
+              >
+                🔄 Chọn lại
+              </button>
+            </div>
+          )}
         </div>
       )}
 
       {/* 2. MULTIPLE CHOICE */}
       {question.type === "multiple_choice" && question.options && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", margin: "1rem 0" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", margin: "1rem 0" }}>
           <div style={{ fontSize: "0.78rem", color: "var(--brand-violet)", fontWeight: 700, marginBottom: "0.3rem" }}>
             * Chọn tất cả các đáp án đúng:
           </div>
           {question.options.map((opt, idx) => {
-            const isSelected = Array.isArray(userAnswer) && userAnswer.includes(idx);
-            const isCorrect = showExp && Array.isArray(question.correct_answer) && question.correct_answer.includes(idx);
+            const hasAnswered = Array.isArray(currentAnswer) && currentAnswer.length > 0;
+            const isSelected = Array.isArray(currentAnswer) && currentAnswer.some(x => String(x) === String(idx));
+            const isOptionCorrect = Array.isArray(question.correct_answer) && question.correct_answer.some(x => String(x) === String(idx));
 
             let itemClass = "option-item";
-            if (isSelected) itemClass += " selected";
-            if (isCorrect) itemClass += " correct";
+            if (isExamMode) {
+              if (isSelected) itemClass += " selected";
+            } else {
+              if (hasAnswered || showExp) {
+                if (isOptionCorrect) itemClass += " correct";
+                else if (isSelected) itemClass += " wrong";
+              } else if (isSelected) {
+                itemClass += " selected";
+              }
+            }
 
             return (
               <div
@@ -263,13 +366,14 @@ export default function QuestionCard({
                 onClick={() => handleMultiSelect(idx)}
                 role="button"
                 tabIndex={0}
+                style={{ cursor: "pointer", userSelect: "none" }}
               >
                 <div style={{
                   width: "22px",
                   height: "22px",
                   borderRadius: "6px",
                   border: isSelected ? "2px solid var(--brand-violet)" : "1.5px solid var(--border-medium)",
-                  background: isSelected ? "var(--brand-violet)" : "#ffffff",
+                  background: isSelected ? "var(--brand-violet)" : "rgba(15, 23, 42, 0.8)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -277,7 +381,13 @@ export default function QuestionCard({
                 }}>
                   {isSelected && <Check size={14} />}
                 </div>
-                <div style={{ flex: 1, fontSize: "0.92rem" }}>{opt}</div>
+                <div style={{ flex: 1, fontSize: "0.92rem", fontWeight: isSelected ? 700 : 500 }}>{opt}</div>
+                {!isExamMode && (hasAnswered || showExp) && isOptionCorrect && (
+                  <CheckCircle2 size={18} color="#10b981" />
+                )}
+                {!isExamMode && hasAnswered && isSelected && !isOptionCorrect && (
+                  <X size={18} color="#ef4444" />
+                )}
               </div>
             );
           })}
@@ -312,16 +422,16 @@ export default function QuestionCard({
                 boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.6)"
               }}
               placeholder="Ví dụ: def, len, append, range, [1, 2, 3]..."
-              value={userAnswer || ""}
+              value={currentAnswer !== undefined && currentAnswer !== null ? String(currentAnswer) : ""}
               onChange={(e) => handleFillChange(e.target.value)}
             />
           </div>
 
           {/* Realtime / Explanation match badge */}
-          {userAnswer && (
+          {currentAnswer && (
             <div style={{ marginTop: "0.6rem" }}>
               {(() => {
-                const cleanUser = String(userAnswer).trim().toLowerCase();
+                const cleanUser = String(currentAnswer).trim().toLowerCase();
                 const cleanCorrect = String(question.correct_answer).trim().toLowerCase();
                 const isMatched = cleanUser === cleanCorrect;
 
@@ -372,7 +482,7 @@ export default function QuestionCard({
             </div>
           )}
 
-          {showExp && !userAnswer && !isExamMode && (
+          {showExp && !currentAnswer && !isExamMode && (
             <div style={{
               marginTop: "0.5rem",
               display: "inline-flex",

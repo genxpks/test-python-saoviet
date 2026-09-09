@@ -146,13 +146,13 @@ export default function ExamPage() {
     let mcqCorrect = 0;
     examQuestions.forEach((q) => {
       const uAns = userAnswers[q.id];
-      if (uAns !== undefined) {
-        if (q.type === "single_choice" || q.type === "true_false") {
-          if (uAns === q.correct_answer) mcqCorrect++;
+      if (uAns !== undefined && uAns !== null) {
+        if (q.type === "single_choice" || q.type === "true_false" || !q.type) {
+          if (String(uAns) === String(q.correct_answer)) mcqCorrect++;
         } else if (q.type === "multiple_choice") {
           if (Array.isArray(uAns) && Array.isArray(q.correct_answer)) {
-            const sortedU = [...uAns].sort().join(",");
-            const sortedC = [...q.correct_answer].sort().join(",");
+            const sortedU = [...uAns].map(String).sort().join(",");
+            const sortedC = [...q.correct_answer].map(String).sort().join(",");
             if (sortedU === sortedC) mcqCorrect++;
           }
         } else if (q.type === "fill_blank") {
@@ -161,7 +161,7 @@ export default function ExamPage() {
           }
         } else if (q.type === "sequence_order") {
           if (Array.isArray(uAns) && Array.isArray(q.correct_order)) {
-            if (uAns.join(",") === q.correct_order.join(",")) mcqCorrect++;
+            if (uAns.map(String).join(",") === q.correct_order.map(String).join(",")) mcqCorrect++;
           }
         }
       }
@@ -450,6 +450,7 @@ export default function ExamPage() {
                 {currentPart === 1 && examQuestions[currentIndex] && (
                   <div>
                     <QuestionCard
+                      key={examQuestions[currentIndex].id}
                       question={examQuestions[currentIndex]}
                       index={currentIndex}
                       userAnswer={userAnswers[examQuestions[currentIndex].id]}

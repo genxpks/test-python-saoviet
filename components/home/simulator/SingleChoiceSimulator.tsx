@@ -43,9 +43,9 @@ export default function SingleChoiceSimulator({ answer, onSelectAnswer }: Single
         <div style={{
           padding: "0.8rem 1rem",
           borderRadius: "var(--radius-md)",
-          background: isCorrect ? "#ecfdf5" : "#fef2f2",
-          border: isCorrect ? "1px solid #a7f3d0" : "1px solid #fecaca",
-          color: isCorrect ? "#047857" : "#b91c1c",
+          background: isCorrect ? "rgba(16, 185, 129, 0.18)" : "rgba(239, 68, 68, 0.18)",
+          border: isCorrect ? "1px solid #10b981" : "1px solid #ef4444",
+          color: isCorrect ? "#34d399" : "#fca5a5",
           fontSize: "0.88rem",
           display: "flex",
           alignItems: "center",
