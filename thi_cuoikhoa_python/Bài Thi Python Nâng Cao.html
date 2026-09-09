@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài thi Python Nâng cao</title>
+    <style>
+        :root {
+            --mau-nen: #f0f8ff;
+            --mau-chu: #2b3a4a;
+            --mau-tieu-de: #ff6b6b;
+            --mau-phu: #4ecdc4;
+            --mau-nen-chuong: #ffffff;
+            --mau-vien: #ffd166;
+            --mau-dung: #4caf50;
+            --mau-sai: #f44336;
+        }
+        
+        body {
+            font-family: 'Comic Sans MS', 'Arial Rounded MT Bold', sans-serif;
+            background-color: var(--mau-nen);
+            color: var(--mau-chu);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            max-width: 1000px;
+            margin: auto;
+            font-size: 1.1em;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--mau-tieu-de), var(--mau-phu));
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "🐍";
+            position: absolute;
+            font-size: 100px;
+            opacity: 0.1;
+            right: 20px;
+            top: 30px;
+        }
+        
+        .ldv-full-screen-div {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            z-index: 9999;
+            overflow-y: auto;
+            color: var(--text-color);
+        }
+        
+        .custom-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+            background: #f9f9f9;
+            padding: 20px;
+            margin-top: 10px;
+        }
+        
+        h1 {
+            margin: 0;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        h2 {
+            color: var(--mau-tieu-de);
+            border-bottom: 3px dotted var(--mau-phu);
+            padding-bottom: 10px;
+            margin-top: 40px;
+            font-size: 1.8em;
+        }
+        
+        h3 {
+            color: var(--mau-phu);
+            margin-top: 25px;
+            font-size: 1.4em;
+        }
+        
+        .chuong {
+            background-color: var(--mau-nen-chuong);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            border-left: 8px solid var(--mau-vien);
+            position: relative;
+        }
+        
+        .baitap {
+            background-color: #e8f4fc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--mau-phu);
+            position: relative;
+        }
+        
+        .baitap::before {
+            content: " Bài Tập";
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: var(--mau-phu);
+            color: white;
+            padding: 3px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .cuphap {
+            background-color: #f0f7ff;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            border-left: 5px solid #6bb9ff;
+            white-space: pre;
+            overflow-x: auto;
+        }
+        
+        .vidu {
+            background-color: #fff0f5;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            margin: 15px 0;
+            border-left: 5px solid #ff6b9e;
+            white-space: pre;
+            overflow-x: auto;
+            position: relative;
+        }
+        
+        .vidu::before {
+            content: "🐍 Thử Ngay";
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            background-color: #ff6b9e;
+            color: white;
+            padding: 3px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .ghichu {
+            background-color: #fff9e6;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 5px solid #ffcc5c;
+            position: relative;
+        }
+        
+        .ghichu::before {
+            content: "💡";
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background-color: #ffcc5c;
+            color: white;
+            padding: 3px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        nav {
+            background-color: white;
+            padding: 15px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        
+        nav ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        nav li {
+            margin: 5px;
+        }
+        
+        nav a {
+            text-decoration: none;
+            color: white;
+            font-weight: bold;
+            background-color: var(--mau-tieu-de);
+            padding: 8px 20px;
+            border-radius: 25px;
+            display: inline-block;
+            transition: all 0.3s;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        }
+        
+        nav a:hover {
+            background-color: var(--mau-phu);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--mau-phu), var(--mau-tieu-de));
+            color: white;
+            border-radius: 15px;
+            position: relative;
+        }
+        
+        footer::before {
+            content: "";
+            position: absolute;
+            top: -20px;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 10" preserveAspectRatio="none"><path fill="white" d="M0,0 Q50,10 100,0 L100,10 L0,10 Z"/></svg>');
+            background-size: 100% 100%;
+        }
+        
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        .keyword {
+            color: #d81b60;
+            font-weight: bold;
+        }
+        
+        .string {
+            color: #43a047;
+        }
+        
+        .comment {
+            color: #9e9e9e;
+            font-style: italic;
+        }
+        
+        .number {
+            color: #3949ab;
+        }
+        
+        .function {
+            color: #6d4c41;
+        }
+        
+        @media (max-width: 768px) {
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            nav li {
+                width: 100%;
+            }
+            
+            nav a {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+            }
+        }
+        
+        .cauhoi {
+            background-color: #e8f4fc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid var(--mau-phu);
+        }
+        
+        .cauhoi h3 {
+            color: var(--mau-phu);
+            margin-top: 0;
+            font-size: 1.2em;
+        }
+        
+        .dapan {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #ddd;
+        }
+        
+        .dapan:hover {
+            background-color: #f0f7ff;
+            border-color: var(--mau-phu);
+        }
+        
+        .dapan.dung {
+            background-color: var(--mau-dung);
+            border-color: var(--mau-dung);
+            color: white;
+        }
+        
+        .dapan.sai {
+            background-color: var(--mau-sai);
+            border-color: var(--mau-sai);
+            color: white;
+        }
+        
+        .kiemtra {
+            background-color: var(--mau-tieu-de);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+        
+        .kiemtra:hover {
+            background-color: var(--mau-phu);
+            transform: translateY(-2px);
+        }
+        
+        .thuchanh {
+            background-color: #fff0f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #ff6b9e;
+        }
+        
+        .thuchanh h3 {
+            color: #ff6b9e;
+            margin-top: 0;
+        }
+        
+        .emoji {
+            font-size: 1.2em;
+            margin-right: 5px;
+        }
+        
+        .ketqua {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .dung {
+            background-color: var(--mau-dung);
+            color: white;
+        }
+        
+        .sai {
+            background-color: var(--mau-sai);
+            color: white;
+        }
+        
+        .diemso {
+            text-align: center;
+            font-size: 1.5em;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: var(--mau-phu);
+            color: white;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .giaithich {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border-left: 4px solid var(--mau-phu);
+            display: none;
+            font-style: italic;
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="ldv-full-screen-div">
+        <div class="custom-container">
+            <header>
+                <h1><span class="emoji">🐍</span> Bài Kiểm Tra Python Nâng cao</h1>
+                <p>Kiểm tra kiến thức lập trình Python của bạn!</p>
+            </header>
+
+            <div id="tracnghiem">
+                <h2><span class="emoji">📝</span> Phần 1: Trắc nghiệm (10 câu)</h2>
+                <div id="tracnghiem-container"></div>
+                <button id="kiemtra-tracnghiem" class="kiemtra" onclick="tinhDiemTracNghiem()">Kiểm tra kết quả</button>
+                <div id="diemso-tracnghiem" class="diemso"></div>
+            </div>
+
+            <div id="thuchanh">
+                <h2><span class="emoji">💻</span> Phần 2: Thực hành (5 câu)</h2>
+                <h3>Viết hàm và xử lý các lỗi có thể gặp phải.</h3>
+                <div id="thuchanh-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Kho câu hỏi trắc nghiệm (20 câu)
+        const tracnghiemKho = [
+            {
+                cauhoi: "Từ khóa nào dùng để định nghĩa hàm trong Python?",
+                dapan: [
+                    { text: "A. define", dung: false },
+                    { text: "B. def", dung: true },
+                    { text: "C. function", dung: false },
+                    { text: "D. func", dung: false }
+                ],
+                giaithich: "Đáp án đúng là B. def. Trong Python, chúng ta dùng từ khóa 'def' để định nghĩa hàm, ví dụ: def ten_ham():"
+            },
+            {
+                cauhoi: "Lệnh nào dùng để nhập thư viện math trong Python?",
+                dapan: [
+                    { text: "A. include math", dung: false },
+                    { text: "B. import math", dung: true },
+                    { text: "C. require math", dung: false },
+                    { text: "D. using math", dung: false }
+                ],
+                giaithich: "Đáp án đúng là B. import math. Trong Python, chúng ta dùng 'import' để nhập thư viện."
+            },
+            {
+                cauhoi: "Hàm nào trong thư viện math dùng để tính căn bậc hai?",
+                dapan: [
+                    { text: "A. sqrt()", dung: true },
+                    { text: "B. root()", dung: false },
+                    { text: "C. square()", dung: false },
+                    { text: "D. pow()", dung: false }
+                ],
+                giaithich: "Đáp án đúng là A. sqrt(). Hàm sqrt() trong thư viện math dùng để tính căn bậc hai của một số."
+            },
+            {
+                cauhoi: "Kết quả của \"Python\"[1:4] là gì?",
+                dapan: [
+                    { text: "A. \"Pyt\"", dung: false },
+                    { text: "B. \"yth\"", dung: true },
+                    { text: "C. \"thon\"", dung: false },
+                    { text: "D. \"Python\"", dung: false }
+                ],
+                giaithich: "Đáp án đúng là B. \"yth\". Trong Python, cắt chuỗi [1:4] lấy từ ký tự vị trí 1 đến trước vị trí 4."
+            },
+            {
+                cauhoi: "Hàm nào dùng để chuyển xâu thành chữ hoa?",
+                dapan: [
+                    { text: "A. upper()", dung: true },
+                    { text: "B. capitalize()", dung: false },
+                    { text: "C. toUpper()", dung: false },
+                    { text: "D. uppercase()", dung: false }
+                ],
+                giaithich: "Đáp án đúng là A. upper(). Phương thức upper() chuyển tất cả ký tự trong xâu thành chữ hoa."
+            },
+            {
+                cauhoi: "Cách nào đúng để tạo list rỗng?",
+                dapan: [
+                    { text: "A. list = {}", dung: false },
+                    { text: "B. list = []", dung: true },
+                    { text: "C. list = ()", dung: false },
+                    { text: "D. list = \"\"", dung: false }
+                ],
+                giaithich: "Đáp án đúng là B. list = []. Dấu ngoặc vuông [] dùng để tạo list trong Python."
+            },
+            {
+                cauhoi: "Phương thức nào thêm phần tử vào cuối list?",
+                dapan: [
+                    { text: "A. insert()", dung: false },
+                    { text: "B. append()", dung: true },
+                    { text: "C. add()", dung: false },
+                    { text: "D. push()", dung: false }
+                ],
+                giaithich: "Đáp án đúng là B. append(). Phương thức append() thêm phần tử vào cuối list."
+            },
+            {
+                cauhoi: "Lệnh nào dùng để xử lý ngoại lệ (exception) trong Python?",
+                dapan: [
+                    { text: "A. if-else", dung: false },
+                    { text: "B. try-except", dung: true },
+                    { text: "C. for", dung: false },
+                    { text: "D. while", dung: false }
+                ],
+                giaithich: "Đáp án đúng là B. try-except. Khối try-except dùng để bắt và xử lý ngoại lệ trong Python."
+            },
+            {
+                cauhoi: "Hàm nào dùng để nối các phần tử list thành xâu?",
+                dapan: [
+                    { text: "A. concat()", dung: false },
+                    { text: "B. join()", dung: true },
+                    { text: "C. merge()", dung: false },
+                    { text: "D. combine()", dung: false }
+                ],
+                giaithich: "Đáp án đúng là B. join(). Phương thức join() nối các phần tử trong list thành một xâu."
+            },
+            {
+                cauhoi: "Lệnh nào in ra \"Hello\" 3 lần liên tiếp?",
+                dapan: [
+                    { text: "A. print(\"Hello\" * 3)", dung: true },
+                    { text: "B. print(\"Hello\" + \"Hello\" + \"Hello\")", dung: false },
+                    { text: "C. print(\"Hello\", \"Hello\", \"Hello\")", dung: false },
+                    { text: "D. print(3 * Hello)", dung: false }
+                ],
+                giaithich: "Đáp án đúng là A. Trong Python, có thể nhân chuỗi với số để lặp lại chuỗi."
+            },
+            {
+                cauhoi: "Giá trị trả về của hàm không có lệnh return là gì?",
+                dapan: [
+                    { text: "A. 0", dung: false },
+                    { text: "B. None", dung: true },
+                    { text: "C. False", dung: false },
+                    { text: "D. \"\"", dung: false }
+                ],
+                giaithich: "Đáp án đúng là B. None. Nếu hàm không có lệnh return, nó sẽ trả về giá trị None."
+            },
+            {
+                cauhoi: "Hàm nào kiểm tra xâu chỉ chứa chữ số?",
+                dapan: [
+                    { text: "A. isdigit()", dung: true },
+                    { text: "B. isnumber()", dung: false },
+                    { text: "C. isdecimal()", dung: false },
+                    { text: "D. isint()", dung: false }
+                ],
+                giaithich: "Đáp án đúng là A. isdigit(). Phương thức isdigit() trả về True nếu tất cả ký tự trong xâu là chữ số."
+            },
+            {
+                cauhoi: "Lệnh nào tạo vòng lặp từ 0 đến 4?",
+                dapan: [
+                    { text: "A. for i in 5:", dung: false },
+                    { text: "B. for i in range(5):", dung: true },
+                    { text: "C. for i in (0,5):", dung: false },
+                    { text: "D. for i from 0 to 5:", dung: false }
+                ],
+                giaithich: "Đáp án đúng là B. for i in range(5):. Hàm range(5) tạo dãy số từ 0 đến 4."
+            },
+            {
+                cauhoi: "Hàm nào tính tổng các phần tử trong list?",
+                dapan: [
+                    { text: "A. sum()", dung: true },
+                    { text: "B. total()", dung: false },
+                    { text: "C. add()", dung: false },
+                    { text: "D. calculate()", dung: false }
+                ],
+                giaithich: "Đáp án đúng là A. sum(). Hàm sum() tính tổng các phần tử trong list."
+            },
+            {
+                cauhoi: "Lỗi khi chia cho 0 là gì?",
+                dapan: [
+                    { text: "A. ZeroDivisionError", dung: true },
+                    { text: "B. ValueError", dung: false },
+                    { text: "C. MathError", dung: false },
+                    { text: "D. CalculationError", dung: false }
+                ],
+                giaithich: "Đáp án đúng là A. ZeroDivisionError. Đây là lỗi xảy ra khi chia một số cho 0."
+            },
+            {
+                cauhoi: "Phương thức nào đảo ngược list?",
+                dapan: [
+                    { text: "A. reverse()", dung: true },
+                    { text: "B. invert()", dung: false },
+                    { text: "C. flip()", dung: false },
+                    { text: "D. backward()", dung: false }
+                ],
+                giaithich: "Đáp án đúng là A. reverse(). Phương thức reverse() đảo ngược thứ tự các phần tử trong list."
+            },
+            {
+                cauhoi: "Hàm nào chuyển xâu thành số nguyên?",
+                dapan: [
+                    { text: "A. int()", dung: true },
+                    { text: "B. float()", dung: false },
+                    { text: "C. str()", dung: false },
+                    { text: "D. number()", dung: false }
+                ],
+                giaithich: "Đáp án đúng là A. int(). Hàm int() chuyển đổi xâu thành số nguyên."
+            },
+            {
+                cauhoi: "\"123\".isdigit() trả về gì?",
+                dapan: [
+                    { text: "A. True", dung: true },
+                    { text: "B. False", dung: false },
+                    { text: "C. \"123\"", dung: false },
+                    { text: "D. Lỗi", dung: false }
+                ],
+                giaithich: "Đáp án đúng là A. True. Vì \"123\" chỉ chứa các chữ số nên isdigit() trả về True."
+            },
+            {
+                cauhoi: "Hàm nào tìm giá trị lớn nhất trong list?",
+                dapan: [
+                    { text: "A. max()", dung: true },
+                    { text: "B. maximum()", dung: false },
+                    { text: "C. largest()", dung: false },
+                    { text: "D. biggest()", dung: false }
+                ],
+                giaithich: "Đáp án đúng là A. max(). Hàm max() trả về giá trị lớn nhất trong list."
+            },
+            {
+                cauhoi: "Hàm nào sắp xếp list?",
+                dapan: [
+                    { text: "A. sort()", dung: true },
+                    { text: "B. order()", dung: false },
+                    { text: "C. arrange()", dung: false },
+                    { text: "D. sorted()", dung: true }
+                ],
+                giaithich: "Có 2 đáp án đúng là A và D. sort() sắp xếp list gốc, sorted() trả về list mới đã sắp xếp."
+            }
+        ];
+
+        // Kho câu hỏi thực hành (10 câu)
+        const thuchanhKho = [
+            "Viết hàm tính tổng hai số a và b",
+            "Viết hàm kiểm tra một số có phải là số chẵn hay không",
+            "Viết hàm in ra bảng cửu chương của một số từ 1 đến 10",
+            "Viết hàm tính diện tích hình tròn với bán kính r (dùng math.pi)",
+            "Viết hàm đảo ngược một xâu ký tự",
+            "Viết hàm tính giai thừa của một số",
+            "Viết hàm kiểm tra số nguyên tố",
+            "Viết hàm tính chu vi hình chữ nhật",
+            "Viết hàm chuyển đổi độ C sang độ F",
+            "Viết hàm in các số chẵn từ 1 đến 100"
+        ];
+
+        // Chọn ngẫu nhiên câu hỏi
+        function layNgauNhien(arr, soLuong) {
+            const shuffled = [...arr].sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, soLuong);
+        }
+
+        // Hiển thị câu hỏi trắc nghiệm (10 câu ngẫu nhiên từ 20 câu)
+        function hienThiTracNghiem() {
+            const container = document.getElementById('tracnghiem-container');
+            const cauHoiDuocChon = layNgauNhien(tracnghiemKho, 10);
+            
+            cauHoiDuocChon.forEach((cauhoi, index) => {
+                const divCauHoi = document.createElement('div');
+                divCauHoi.className = 'cauhoi';
+                divCauHoi.innerHTML = `<h3>Câu ${index + 1}: ${cauhoi.cauhoi}</h3>`;
+                
+                cauhoi.dapan.forEach(dapan => {
+                    const divDapAn = document.createElement('div');
+                    divDapAn.className = 'dapan';
+                    divDapAn.textContent = dapan.text;
+                    divDapAn.onclick = function() {
+                        kiemTra(this, dapan.dung, index);
+                    };
+                    divCauHoi.appendChild(divDapAn);
+                });
+                
+                const ketQua = document.createElement('div');
+                ketQua.className = 'ketqua';
+                ketQua.id = `ketqua-${index}`;
+                divCauHoi.appendChild(ketQua);
+                
+                const giaiThich = document.createElement('div');
+                giaiThich.className = 'giaithich';
+                giaiThich.id = `giaithich-${index}`;
+                giaiThich.textContent = cauhoi.giaithich;
+                divCauHoi.appendChild(giaiThich);
+                
+                container.appendChild(divCauHoi);
+            });
+        }
+
+        // Hiển thị câu hỏi thực hành (5 câu ngẫu nhiên từ 10 câu)
+        function hienThiThucHanh() {
+            const container = document.getElementById('thuchanh-container');
+            const cauHoiDuocChon = layNgauNhien(thuchanhKho, 5);
+            
+            cauHoiDuocChon.forEach((cauhoi, index) => {
+                const divCauHoi = document.createElement('div');
+                divCauHoi.className = 'thuchanh';
+                divCauHoi.innerHTML = `<h3>Bài ${index + 1}: ${cauhoi}</h3>`;
+                container.appendChild(divCauHoi);
+            });
+        }
+
+        // Biến toàn cục để lưu điểm
+        let diem = 0;
+        let daTraLoi = Array(10).fill(false);
+        
+        // Hàm kiểm tra đáp án
+        function kiemTra(dapAnChon, laDung, cauHoiIndex) {
+            const cauHoi = dapAnChon.parentElement;
+            const ketQua = document.getElementById(`ketqua-${cauHoiIndex}`);
+            const giaiThich = document.getElementById(`giaithich-${cauHoiIndex}`);
+            
+            // Nếu đã trả lời câu này rồi thì không tính lại
+            if (daTraLoi[cauHoiIndex]) return;
+            
+            daTraLoi[cauHoiIndex] = true;
+            
+            // Đánh dấu tất cả đáp án trong câu hỏi này
+            const tatCaDapAn = cauHoi.querySelectorAll('.dapan');
+            tatCaDapAn.forEach(dapAn => {
+                dapAn.style.pointerEvents = 'none'; // Không cho chọn lại
+            });
+            
+            // Hiển thị kết quả và giải thích
+            if (laDung) {
+                dapAnChon.classList.add('dung');
+                ketQua.textContent = "Chính xác! 🎉";
+                ketQua.className = "ketqua dung";
+                diem += 1;
+            } else {
+                dapAnChon.classList.add('sai');
+                ketQua.textContent = "Chưa đúng rồi!";
+                ketQua.className = "ketqua sai";
+                
+                // Tìm và đánh dấu đáp án đúng
+                for (let dapAn of tatCaDapAn) {
+                    if (dapAn.getAttribute('onclick') && dapAn.getAttribute('onclick').includes('true')) {
+                        dapAn.classList.add('dung');
+                        break;
+                    }
+                }
+            }
+            
+            // Hiển thị kết quả và giải thích
+            ketQua.style.display = 'block';
+            giaiThich.style.display = 'block';
+        }
+        
+        // Hàm tính điểm trắc nghiệm
+        function tinhDiemTracNghiem() {
+            const diemSoElement = document.getElementById('diemso-tracnghiem');
+            const daTraLoiCount = daTraLoi.filter(x => x).length;
+            
+            if (daTraLoiCount < 10) {
+                diemSoElement.textContent = `Bạn mới trả lời ${daTraLoiCount}/10 câu. Hãy hoàn thành tất cả các câu trước khi kiểm tra!`;
+                diemSoElement.className = "diemso sai";
+            } else {
+                const phanTram = Math.round((diem / 10) * 100);
+                let danhGia = "";
+                
+                if (phanTram >= 90) danhGia = "Xuất sắc! 👏🌟";
+                else if (phanTram >= 70) danhGia = "Giỏi lắm! 😊";
+                else if (phanTram >= 50) danhGia = "Khá đấy! 👍";
+                else danhGia = "Cần luyện tập thêm nhé! 💪";
+                
+                diemSoElement.textContent = `Điểm của bạn: ${diem}/10 (${phanTram}%) - ${danhGia}`;
+                diemSoElement.className = "diemso";
+            }
+            
+            diemSoElement.style.display = 'block';
+            
+            // Cuộn xuống xem kết quả
+            diemSoElement.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Khởi tạo bài thi khi trang được tải
+        window.onload = function() {
+            hienThiTracNghiem();
+            hienThiThucHanh();
+        };
+    </script>
+</body>
+</html>

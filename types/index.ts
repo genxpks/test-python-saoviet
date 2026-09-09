@@ -56,6 +56,7 @@ export interface Question {
   code?: string;
   chapter?: number;
   explanation: string;
+  option_explanations?: Record<string | number, string>;
   difficulty?: 'easy' | 'medium' | 'hard';
   createdAt?: string;
 }

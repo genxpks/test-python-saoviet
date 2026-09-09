@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { User } from "@/types";
-import { getCurrentUser, loginUserAsync, logStudyTime } from "@/lib/usersData";
-import { Sparkles, Eye, EyeOff } from "lucide-react";
+import { getCurrentUser, loginUserAsync, logStudyTime, DEFAULT_USERS } from "@/lib/usersData";
+import { Sparkles, Eye, EyeOff, Zap } from "lucide-react";
 
 interface AuthGateProps {
   children: React.ReactNode;
@@ -70,16 +70,33 @@ export default function AuthGate({
       if (res.success && res.user) {
         setCurrentUser(res.user);
         setLoginError("");
-        if (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher") {
-          window.location.href = "/admin";
-        } else {
-          window.location.reload();
+        if (typeof window !== "undefined" && window.location.pathname === "/login") {
+          window.location.href = res.user.role === "student" ? "/study" : "/admin";
         }
       } else {
         setLoginError(res.message || "Sai tên đăng nhập hoặc mật khẩu!");
       }
     } catch (err: any) {
       setLoginError("Lỗi kết nối máy chủ: " + err.message);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleQuickDemoLogin = async () => {
+    setIsLoggingIn(true);
+    setLoginError("");
+    try {
+      const res = await loginUserAsync("0937482673", "123456");
+      if (res.success && res.user) {
+        setCurrentUser(res.user);
+      } else {
+        const demo = DEFAULT_USERS.find(u => u.role === "student") || DEFAULT_USERS[0];
+        setCurrentUser(demo);
+      }
+    } catch (e) {
+      const demo = DEFAULT_USERS.find(u => u.role === "student") || DEFAULT_USERS[0];
+      setCurrentUser(demo);
     } finally {
       setIsLoggingIn(false);
     }
@@ -287,8 +304,35 @@ export default function AuthGate({
           </button>
         </form>
 
+        <div style={{ margin: "0.8rem 0" }}>
+          <button
+            type="button"
+            onClick={handleQuickDemoLogin}
+            disabled={isLoggingIn}
+            style={{
+              width: "100%",
+              padding: "0.75rem 1.2rem",
+              borderRadius: "9999px",
+              background: "rgba(37, 99, 235, 0.08)",
+              color: "#2563eb",
+              fontWeight: 700,
+              fontSize: "0.88rem",
+              border: "1.5px dashed rgba(37, 99, 235, 0.45)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "6px",
+              transition: "all 0.2s ease"
+            }}
+          >
+            <Zap size={16} />
+            <span>Vào Nhanh Chế Độ Học Viên Thử Nghiệm</span>
+          </button>
+        </div>
+
         <div style={{
-          marginTop: "1.4rem",
+          marginTop: "1rem",
           fontSize: "0.85rem",
           color: "var(--text-muted)",
           fontWeight: 600

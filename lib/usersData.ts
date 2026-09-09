@@ -149,6 +149,17 @@ export const DEFAULT_USERS: User[] = [
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
     createdDate: "2026-08-29"
+  },
+  {
+    id: "student_demo",
+    username: "0937482673",
+    fullName: "Học Viên Sao Việt (Demo)",
+    role: "student",
+    phone: "0937482673",
+    status: "active",
+    totalStudySeconds: 0,
+    enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
+    createdDate: "2026-08-29"
   }
 ];
 

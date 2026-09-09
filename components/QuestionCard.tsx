@@ -19,8 +19,11 @@ import {
   Link as LinkIcon,
   ToggleLeft,
   RotateCcw,
-  CheckSquare
+  CheckSquare,
+  Eye,
+  AlertCircle
 } from "lucide-react";
+import { getWhyWrongExplanation } from "@/lib/quizFeedbackEngine";
 
 interface QuestionCardProps {
   question: Question;
@@ -41,6 +44,7 @@ export default function QuestionCard({
 }: QuestionCardProps) {
   const [localAnswer, setLocalAnswer] = useState<any>(userAnswer);
   const [showExp, setShowExp] = useState(showExplanationInitially);
+  const [showSolution, setShowSolution] = useState<boolean>(false);
 
   // 1. FILL IN THE BLANK STATES
   const [fillInput, setFillInput] = useState<string>(
@@ -80,6 +84,7 @@ export default function QuestionCard({
   // Reset question-level state only when switching to a different question
   useEffect(() => {
     setAiExplanation(null);
+    setShowSolution(false);
     if (!isExamMode && userAnswer !== undefined && userAnswer !== null && userAnswer !== "") {
       setShowExp(true);
     } else {
@@ -106,8 +111,19 @@ export default function QuestionCard({
     const hasAns = userAnswer !== undefined && userAnswer !== null && userAnswer !== "" && 
       (Array.isArray(userAnswer) ? userAnswer.length > 0 : true);
 
-    if (!isExamMode && hasAns) {
+    const isAnsCorrect = (() => {
+      if (!hasAns) return false;
+      if (Array.isArray(question.correct_answer)) {
+        const corr = [...question.correct_answer].sort().join(",");
+        const user = (Array.isArray(userAnswer) ? [...userAnswer] : []).sort().join(",");
+        return corr === user;
+      }
+      return String(userAnswer).trim().toLowerCase() === String(question.correct_answer).trim().toLowerCase();
+    })();
+
+    if (!isExamMode && hasAns && isAnsCorrect) {
       setShowExp(true);
+      setShowSolution(true);
     }
   }, [question.id, userAnswer, isExamMode]);
 
@@ -127,8 +143,16 @@ export default function QuestionCard({
   // A. Single Choice / True-False
   const handleSingleSelect = (idx: number) => {
     updateAnswer(idx);
+    const isCorrect = String(idx) === String(question.correct_answer);
     if (!isExamMode) {
-      setShowExp(true);
+      if (isCorrect) {
+        setShowExp(true);
+        setShowSolution(true);
+      } else {
+        // Khi chọn sai: KHÔNG mở đáp án chuẩn và giải thích chuẩn để tránh spoil đáp án
+        setShowExp(false);
+        setShowSolution(false);
+      }
     }
   };
 
@@ -148,7 +172,18 @@ export default function QuestionCard({
     if (multiSelected.length === 0) return;
     setMultiChecked(true);
     updateAnswer(multiSelected);
-    setShowExp(true);
+    const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
+    const user = [...multiSelected].sort().join(",");
+    const isAll = corr === user;
+    if (!isExamMode) {
+      if (isAll) {
+        setShowExp(true);
+        setShowSolution(true);
+      } else {
+        setShowExp(false);
+        setShowSolution(false);
+      }
+    }
   };
 
   // C. Fill in the blank
@@ -157,8 +192,15 @@ export default function QuestionCard({
     if (!val) return;
     setFillChecked(true);
     updateAnswer(val);
+    const isCorr = val.toLowerCase() === String(question.correct_answer || "").trim().toLowerCase();
     if (!isExamMode) {
-      setShowExp(true);
+      if (isCorr) {
+        setShowExp(true);
+        setShowSolution(true);
+      } else {
+        setShowExp(false);
+        setShowSolution(false);
+      }
     }
   };
 
@@ -167,6 +209,7 @@ export default function QuestionCard({
     setFillChecked(false);
     updateAnswer("");
     setShowExp(false);
+    setShowSolution(false);
   };
 
   // D. Sequence Order
@@ -339,112 +382,223 @@ export default function QuestionCard({
       {/* 1. SINGLE CHOICE & TRUE/FALSE */}
       {/* ========================================================================= */}
       {(question.type === "single_choice" || question.type === "true_false" || !question.type) && question.options && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem", margin: "1rem 0" }}>
-          {question.options.map((opt, idx) => {
-            const letter = String.fromCharCode(65 + idx);
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", margin: "1rem 0" }}>
+          {(() => {
             const hasAnswered = currentAnswer !== undefined && currentAnswer !== null && currentAnswer !== "";
-            const isSelected = hasAnswered && String(currentAnswer) === String(idx);
-            const isOptionCorrect = String(question.correct_answer) === String(idx);
-
-            let itemClass = "option-item";
-            if (isExamMode) {
-              if (isSelected) itemClass += " selected";
-            } else {
-              if (hasAnswered || showExp) {
-                if (isOptionCorrect) {
-                  itemClass += " correct";
-                } else if (isSelected) {
-                  itemClass += " wrong";
-                }
-              } else if (isSelected) {
-                itemClass += " selected";
-              }
-            }
+            const isAnswerCorrect = hasAnswered && String(currentAnswer) === String(question.correct_answer);
+            const shouldRevealCorrect = isExamMode ? false : (isAnswerCorrect || showSolution || (showExplanationInitially && !hasAnswered));
 
             return (
-              <div
-                key={idx}
-                className={itemClass}
-                onClick={() => handleSingleSelect(idx)}
-                role="button"
-                tabIndex={0}
-                style={{ cursor: "pointer", userSelect: "none" }}
-              >
-                <div className="option-letter">{letter}</div>
-                <div style={{ flex: 1, fontSize: "0.92rem", fontWeight: isSelected ? 700 : 500 }}>
-                  {opt}
-                </div>
-                {!isExamMode && (hasAnswered || showExp) && isOptionCorrect && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span style={{
-                      fontSize: "0.74rem",
-                      fontWeight: 700,
-                      padding: "2px 8px",
-                      borderRadius: "999px",
-                      background: "rgba(16, 185, 129, 0.12)",
-                      color: "#059669"
-                    }}>
-                      {isSelected ? "Chính xác (Em đã chọn)" : "Đáp án chuẩn"}
-                    </span>
-                    <CheckCircle2 size={18} color="#10b981" />
-                  </div>
-                )}
-                {!isExamMode && hasAnswered && isSelected && !isOptionCorrect && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span style={{
-                      fontSize: "0.74rem",
-                      fontWeight: 700,
-                      padding: "2px 8px",
-                      borderRadius: "999px",
-                      background: "rgba(239, 68, 68, 0.12)",
-                      color: "#dc2626"
-                    }}>
-                      Em đã chọn (Chưa đúng)
-                    </span>
-                    <X size={18} color="#ef4444" />
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              <>
+                {question.options.map((opt, idx) => {
+                  const letter = String.fromCharCode(65 + idx);
+                  const isSelected = hasAnswered && String(currentAnswer) === String(idx);
+                  const isOptionCorrect = String(question.correct_answer) === String(idx);
 
-          {/* Feedback Banner in Study Mode */}
-          {!isExamMode && currentAnswer !== undefined && currentAnswer !== null && currentAnswer !== "" && (
-            <div style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              background: String(currentAnswer) === String(question.correct_answer) ? "rgba(16, 185, 129, 0.1)" : "rgba(239, 68, 68, 0.08)",
-              border: `1.5px solid ${String(currentAnswer) === String(question.correct_answer) ? "#059669" : "#dc2626"}`,
-              borderRadius: "8px",
-              padding: "0.65rem 1rem",
-              marginTop: "0.5rem",
-              color: String(currentAnswer) === String(question.correct_answer) ? "#065f46" : "#991b1b",
-              fontSize: "0.88rem",
-              fontWeight: 700
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                {String(currentAnswer) === String(question.correct_answer) ? (
-                  <>
-                    <CheckCircle2 size={17} color="#059669" style={{ flexShrink: 0 }} />
-                    <span>CHÍNH XÁC! Em đã chọn đúng đáp án {String.fromCharCode(65 + Number(question.correct_answer))}.</span>
-                  </>
-                ) : (
-                  <>
-                    <X size={17} color="#dc2626" style={{ flexShrink: 0 }} />
-                    <span>CHƯA CHÍNH XÁC! Đáp án đúng là {String.fromCharCode(65 + Number(question.correct_answer))}. Xem phân tích chi tiết bên dưới:</span>
-                  </>
+                  let itemClass = "option-item";
+                  if (isExamMode) {
+                    if (isSelected) itemClass += " selected";
+                  } else {
+                    if (isSelected) {
+                      itemClass += isOptionCorrect ? " correct" : " wrong";
+                    } else if (shouldRevealCorrect && isOptionCorrect) {
+                      itemClass += " correct";
+                    }
+                  }
+
+                  return (
+                    <div
+                      key={idx}
+                      className={itemClass}
+                      onClick={() => handleSingleSelect(idx)}
+                      role="button"
+                      tabIndex={0}
+                      style={{ cursor: "pointer", userSelect: "none" }}
+                    >
+                      <div className="option-letter">{letter}</div>
+                      <div style={{ flex: 1, fontSize: "0.92rem", fontWeight: isSelected ? 700 : 500 }}>
+                        {opt}
+                      </div>
+
+                      {/* Khi học viên chọn đúng */}
+                      {!isExamMode && isSelected && isOptionCorrect && (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{
+                            fontSize: "0.74rem",
+                            fontWeight: 700,
+                            padding: "2px 8px",
+                            borderRadius: "999px",
+                            background: "rgba(16, 185, 129, 0.12)",
+                            color: "#059669"
+                          }}>
+                            Chính xác (Em đã chọn)
+                          </span>
+                          <CheckCircle2 size={18} color="#10b981" />
+                        </div>
+                      )}
+
+                      {/* Khi học viên chọn sai: chỉ làm nổi bật phương án này là sai, KHÔNG lộ phương án đúng */}
+                      {!isExamMode && isSelected && !isOptionCorrect && (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{
+                            fontSize: "0.74rem",
+                            fontWeight: 700,
+                            padding: "2px 8px",
+                            borderRadius: "999px",
+                            background: "rgba(239, 68, 68, 0.12)",
+                            color: "#dc2626"
+                          }}>
+                            Em đã chọn (Chưa đúng)
+                          </span>
+                          <X size={18} color="#ef4444" />
+                        </div>
+                      )}
+
+                      {/* Chỉ hiển thị nhãn Đáp án chuẩn khi đã chọn đúng hoặc bấm 'Xem đáp án chuẩn' */}
+                      {!isExamMode && !isSelected && shouldRevealCorrect && isOptionCorrect && (
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <span style={{
+                            fontSize: "0.74rem",
+                            fontWeight: 700,
+                            padding: "2px 8px",
+                            borderRadius: "999px",
+                            background: "rgba(16, 185, 129, 0.12)",
+                            color: "#059669"
+                          }}>
+                            Đáp án chuẩn
+                          </span>
+                          <CheckCircle2 size={18} color="#10b981" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Phản hồi sư phạm chế độ Ôn tập */}
+                {!isExamMode && hasAnswered && (
+                  <div>
+                    {isAnswerCorrect ? (
+                      /* 1. Khi học viên chọn đúng */
+                      <div style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        background: "rgba(16, 185, 129, 0.1)",
+                        border: "1.5px solid #059669",
+                        borderRadius: "8px",
+                        padding: "0.7rem 1.1rem",
+                        marginTop: "0.5rem",
+                        color: "#065f46",
+                        fontSize: "0.88rem",
+                        fontWeight: 700
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <CheckCircle2 size={18} color="#059669" style={{ flexShrink: 0 }} />
+                          <span>🎉 HOÀN TOÀN CHÍNH XÁC! Em đã chọn đúng phương án {String.fromCharCode(65 + Number(question.correct_answer))}.</span>
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); updateAnswer(undefined); setShowExp(false); setShowSolution(false); }}
+                          className="btn-retry btn-retry-correct"
+                        >
+                          <RotateCcw size={13} />
+                          <span>Làm lại</span>
+                        </button>
+                      </div>
+                    ) : (
+                      /* 2. Khi học viên chọn sai: Giảng giải TẠI SAO SAI, không vội vàng tiết lộ đáp án đúng */
+                      <div style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "0.65rem",
+                        background: "rgba(239, 68, 68, 0.08)",
+                        border: "1.5px solid #dc2626",
+                        borderRadius: "10px",
+                        padding: "0.9rem 1.15rem",
+                        marginTop: "0.6rem"
+                      }}>
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#991b1b", fontWeight: 800, fontSize: "0.92rem" }}>
+                            <X size={18} color="#dc2626" style={{ flexShrink: 0 }} />
+                            <span>LỰA CHỌN CHƯA CHÍNH XÁC: Em đã chọn "{String.fromCharCode(65 + Number(currentAnswer))}. {question.options[Number(currentAnswer)]}"</span>
+                          </div>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); updateAnswer(undefined); setShowExp(false); setShowSolution(false); }}
+                              className="btn-retry btn-retry-wrong"
+                            >
+                              <RotateCcw size={13} />
+                              <span>Thử chọn lại</span>
+                            </button>
+                            {!showSolution && (
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setShowSolution(true); setShowExp(true); }}
+                                className="btn btn-sm"
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "5px",
+                                  padding: "5px 12px",
+                                  borderRadius: "6px",
+                                  fontSize: "0.8rem",
+                                  fontWeight: 700,
+                                  background: "var(--surface-card)",
+                                  border: "1px solid var(--border-medium)",
+                                  color: "var(--text-secondary)",
+                                  cursor: "pointer",
+                                  boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                                }}
+                              >
+                                <Eye size={13} />
+                                <span>Xem đáp án chuẩn</span>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Hộp phân tích TẠI SAO PHƯƠNG ÁN HỌC VIÊN VỪA CHỌN LÀ SAI */}
+                        <div style={{
+                          background: "var(--surface-card)",
+                          border: "1px solid rgba(220, 38, 38, 0.25)",
+                          borderRadius: "8px",
+                          padding: "0.85rem 1.05rem",
+                          fontSize: "0.88rem",
+                          lineHeight: "1.6",
+                          color: "var(--text-primary)"
+                        }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#b91c1c", fontWeight: 800, marginBottom: "0.35rem" }}>
+                            <AlertCircle size={16} />
+                            <span>Phân tích vì sao phương án này chưa đúng:</span>
+                          </div>
+                          <div style={{ color: "var(--text-secondary)" }}>
+                            {getWhyWrongExplanation(question, currentAnswer)}
+                          </div>
+                        </div>
+
+                        {/* Nếu học viên bấm Xem đáp án chuẩn thì mới hiển thị đáp án đúng */}
+                        {showSolution && (
+                          <div style={{
+                            background: "rgba(16, 185, 129, 0.08)",
+                            border: "1px solid rgba(16, 185, 129, 0.3)",
+                            borderRadius: "8px",
+                            padding: "0.8rem 1.05rem",
+                            fontSize: "0.88rem",
+                            lineHeight: "1.6",
+                            color: "var(--text-primary)",
+                            animation: "fadeIn 0.2s ease"
+                          }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#059669", fontWeight: 800 }}>
+                              <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
+                              <span>Đáp án chuẩn xác là: <strong style={{ color: "#047857" }}>{String.fromCharCode(65 + Number(question.correct_answer))}. {question.options[Number(question.correct_answer)]}</strong> (Xem phân tích suy luận chi tiết bên dưới)</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 )}
-              </div>
-              <button
-                onClick={(e) => { e.stopPropagation(); updateAnswer(undefined); setShowExp(false); }}
-                className={String(currentAnswer) === String(question.correct_answer) ? "btn-retry btn-retry-correct" : "btn-retry btn-retry-wrong"}
-              >
-                <RotateCcw size={13} />
-                <span>Chọn lại</span>
-              </button>
-            </div>
-          )}
+              </>
+            );
+          })()}
         </div>
       )}
 
@@ -460,13 +614,19 @@ export default function QuestionCard({
           {question.options.map((opt, idx) => {
             const isSelected = multiSelected.includes(idx);
             const isOptionCorrect = Array.isArray(question.correct_answer) && question.correct_answer.includes(idx);
+            const isAllCorrect = (() => {
+              const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
+              const user = [...multiSelected].sort().join(",");
+              return corr === user;
+            })();
+            const shouldReveal = isAllCorrect || showSolution;
 
             let itemClass = "option-item";
             if (isExamMode) {
               if (isSelected) itemClass += " selected";
             } else {
               if (multiChecked) {
-                if (isOptionCorrect) itemClass += " correct";
+                if (isOptionCorrect && (isSelected || shouldReveal)) itemClass += " correct";
                 else if (isSelected && !isOptionCorrect) itemClass += " wrong";
               } else if (isSelected) {
                 itemClass += " selected";
@@ -499,7 +659,7 @@ export default function QuestionCard({
                 <div style={{ flex: 1, fontSize: "0.92rem", fontWeight: isSelected ? 700 : 500 }}>
                   {opt}
                 </div>
-                {!isExamMode && multiChecked && isOptionCorrect && (
+                {!isExamMode && multiChecked && isOptionCorrect && (isSelected || shouldReveal) && (
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                     <span style={{
                       fontSize: "0.74rem",
@@ -557,8 +717,8 @@ export default function QuestionCard({
               ) : (
                 <div style={{
                   display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
+                  flexDirection: "column",
+                  gap: "0.65rem",
                   background: (() => {
                     const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
                     const user = [...multiSelected].sort().join(",");
@@ -570,51 +730,107 @@ export default function QuestionCard({
                     return corr === user ? "#059669" : "#dc2626";
                   })()}`,
                   borderRadius: "8px",
-                  padding: "0.65rem 1rem",
-                  color: (() => {
-                    const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
-                    const user = [...multiSelected].sort().join(",");
-                    return corr === user ? "#065f46" : "#991b1b";
-                  })(),
-                  fontSize: "0.88rem",
-                  fontWeight: 700
+                  padding: "0.75rem 1.1rem"
                 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    {(() => {
-                      const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
-                      const user = [...multiSelected].sort().join(",");
-                      if (corr === user) {
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: "0.5rem"
+                  }}>
+                    <div style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      fontWeight: 800,
+                      fontSize: "0.9rem",
+                      color: (() => {
+                        const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
+                        const user = [...multiSelected].sort().join(",");
+                        return corr === user ? "#065f46" : "#991b1b";
+                      })()
+                    }}>
+                      {(() => {
+                        const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
+                        const user = [...multiSelected].sort().join(",");
+                        if (corr === user) {
+                          return (
+                            <>
+                              <CheckCircle2 size={18} color="#059669" style={{ flexShrink: 0 }} />
+                              <span>🎉 CHÍNH XÁC 100%! Em đã chọn đầy đủ các phương án đúng.</span>
+                            </>
+                          );
+                        }
                         return (
                           <>
-                            <CheckCircle2 size={17} color="#059669" style={{ flexShrink: 0 }} />
-                            <span>CHÍNH XÁC 100%! Em đã chọn đầy đủ các phương án đúng.</span>
+                            <X size={18} color="#dc2626" style={{ flexShrink: 0 }} />
+                            <span>LỰA CHỌN CHƯA ĐẦY ĐỦ / CHƯA ĐÚNG: Em hãy xem các phương án được đánh dấu đỏ/xanh hoặc thử chọn lại.</span>
                           </>
                         );
-                      }
-                      return (
-                        <>
-                          <X size={17} color="#dc2626" style={{ flexShrink: 0 }} />
-                          <span>CHƯA CHÍNH XÁC! Các đáp án đúng gồm: {Array.isArray(question.correct_answer) ? question.correct_answer.map(i => String.fromCharCode(65 + i)).join(", ") : ""}. Xem phân tích chi tiết bên dưới:</span>
-                        </>
-                      );
-                    })()}
+                      })()}
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <button
+                        onClick={() => {
+                          setMultiSelected([]);
+                          setMultiChecked(false);
+                          updateAnswer([]);
+                          setShowExp(false);
+                          setShowSolution(false);
+                        }}
+                        className={(() => {
+                          const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
+                          const user = [...multiSelected].sort().join(",");
+                          return corr === user ? "btn-retry btn-retry-correct" : "btn-retry btn-retry-wrong";
+                        })()}
+                      >
+                        <RotateCcw size={13} />
+                        <span>Thử chọn lại</span>
+                      </button>
+                      {!showSolution && (() => {
+                        const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
+                        const user = [...multiSelected].sort().join(",");
+                        return corr !== user;
+                      })() && (
+                        <button
+                          onClick={() => { setShowSolution(true); setShowExp(true); }}
+                          className="btn btn-sm"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "5px",
+                            padding: "5px 12px",
+                            borderRadius: "6px",
+                            fontSize: "0.8rem",
+                            fontWeight: 700,
+                            background: "var(--surface-card)",
+                            border: "1px solid var(--border-medium)",
+                            color: "var(--text-secondary)",
+                            cursor: "pointer",
+                            boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                          }}
+                        >
+                          <Eye size={13} />
+                          <span>Xem đáp án chuẩn</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <button
-                    onClick={() => {
-                      setMultiSelected([]);
-                      setMultiChecked(false);
-                      updateAnswer([]);
-                      setShowExp(false);
-                    }}
-                    className={(() => {
-                      const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
-                      const user = [...multiSelected].sort().join(",");
-                      return corr === user ? "btn-retry btn-retry-correct" : "btn-retry btn-retry-wrong";
-                    })()}
-                  >
-                    <RotateCcw size={13} />
-                    <span>Chọn lại</span>
-                  </button>
+
+                  {showSolution && (
+                    <div style={{
+                      background: "rgba(16, 185, 129, 0.08)",
+                      border: "1px solid rgba(16, 185, 129, 0.3)",
+                      borderRadius: "6px",
+                      padding: "0.6rem 0.85rem",
+                      fontSize: "0.86rem",
+                      color: "var(--text-primary)"
+                    }}>
+                      <strong style={{ color: "#059669" }}>Tất cả đáp án đúng gồm: </strong>
+                      {Array.isArray(question.correct_answer) ? question.correct_answer.map(i => `${String.fromCharCode(65 + i)} (${question.options![i]})`).join(", ") : ""}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -740,22 +956,49 @@ export default function QuestionCard({
                     border: "1.5px solid #dc2626",
                     color: "#991b1b",
                     fontSize: "0.88rem",
-                    fontWeight: 700
+                    fontWeight: 700,
+                    flexWrap: "wrap",
+                    gap: "0.5rem"
                   }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
                       <X size={17} color="#dc2626" style={{ flexShrink: 0 }} />
-                      <span>CHƯA CHÍNH XÁC! Từ khóa chuẩn cần điền:</span>
-                      <strong style={{ color: "#ffffff", fontFamily: "var(--font-mono)", background: "#dc2626", padding: "2px 8px", borderRadius: "4px" }}>
-                        {question.correct_answer}
-                      </strong>
+                      <span>CHƯA CHÍNH XÁC! Từ khóa "{fillInput}" chưa đúng với cú pháp Python.</span>
+                      {showSolution && (
+                        <span>Từ khóa chuẩn xác: <strong style={{ color: "#ffffff", fontFamily: "var(--font-mono)", background: "#059669", padding: "2px 8px", borderRadius: "4px" }}>{question.correct_answer}</strong></span>
+                      )}
                     </div>
-                    <button
-                      onClick={handleResetFill}
-                      className="btn-retry btn-retry-wrong"
-                    >
-                      <RotateCcw size={13} />
-                      <span>Điền lại</span>
-                    </button>
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                      <button
+                        onClick={handleResetFill}
+                        className="btn-retry btn-retry-wrong"
+                      >
+                        <RotateCcw size={13} />
+                        <span>Thử điền lại</span>
+                      </button>
+                      {!showSolution && (
+                        <button
+                          onClick={() => { setShowSolution(true); setShowExp(true); }}
+                          className="btn btn-sm"
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "5px",
+                            padding: "5px 12px",
+                            borderRadius: "6px",
+                            fontSize: "0.8rem",
+                            fontWeight: 700,
+                            background: "var(--surface-card)",
+                            border: "1px solid var(--border-medium)",
+                            color: "var(--text-secondary)",
+                            cursor: "pointer",
+                            boxShadow: "0 1px 2px rgba(0,0,0,0.05)"
+                          }}
+                        >
+                          <Eye size={13} />
+                          <span>Xem đáp án chuẩn</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 );
               })()}
@@ -1053,49 +1296,65 @@ export default function QuestionCard({
       )}
 
       {/* STANDARD EXPLANATION ACCORDION (Revealed under feedback banner in Study Mode) */}
-      {showExp && !isExamMode && (
-        <div style={{
-          marginTop: "0.85rem",
-          padding: "1rem 1.25rem",
-          borderRadius: "var(--radius-md)",
-          background: "rgba(16, 185, 129, 0.08)",
-          border: "1.5px solid rgba(16, 185, 129, 0.3)",
-          fontSize: "0.9rem",
-          lineHeight: "1.6",
-          color: "var(--text-primary)"
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", fontWeight: 800, marginBottom: "0.4rem", color: "#059669" }}>
-            <Lightbulb size={16} color="#059669" />
-            <span>Phân tích đáp án chuẩn & Phương pháp suy luận:</span>
+      {(() => {
+        const hasAnswered = currentAnswer !== undefined && currentAnswer !== null && currentAnswer !== "";
+        const isAnswerCorrect = (() => {
+          if (!hasAnswered) return false;
+          if (Array.isArray(question.correct_answer)) {
+            const corr = [...question.correct_answer].sort().join(",");
+            const user = (Array.isArray(currentAnswer) ? [...currentAnswer] : []).sort().join(",");
+            return corr === user;
+          }
+          return String(currentAnswer).trim().toLowerCase() === String(question.correct_answer).trim().toLowerCase();
+        })();
+        const shouldShowStandardExp = showExp && !isExamMode && (isAnswerCorrect || showSolution || !hasAnswered);
+
+        if (!shouldShowStandardExp) return null;
+
+        return (
+          <div style={{
+            marginTop: "0.85rem",
+            padding: "1rem 1.25rem",
+            borderRadius: "var(--radius-md)",
+            background: "rgba(16, 185, 129, 0.08)",
+            border: "1.5px solid rgba(16, 185, 129, 0.3)",
+            fontSize: "0.9rem",
+            lineHeight: "1.6",
+            color: "var(--text-primary)"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", fontWeight: 800, marginBottom: "0.4rem", color: "#059669" }}>
+              <Lightbulb size={16} color="#059669" />
+              <span>Phân tích đáp án chuẩn & Phương pháp suy luận:</span>
+            </div>
+            <div style={{ color: "var(--text-secondary)", whiteSpace: "pre-line" }}>{question.explanation}</div>
+
+            {question.type === "sequence_order" && question.items && question.correct_order && (
+              <div style={{ marginTop: "0.6rem", padding: "0.6rem 0.8rem", background: "var(--surface-card)", border: "1px solid var(--border-light)", borderRadius: "6px", fontFamily: "var(--font-mono)", fontSize: "0.84rem", color: "var(--text-primary)" }}>
+                <div style={{ color: "#2563eb", fontWeight: 700, marginBottom: "0.3rem" }}>Thứ tự logic chuẩn:</div>
+                {question.correct_order.map((itIdx, pos) => (
+                  <div key={pos} style={{ padding: "0.15rem 0" }}>
+                    <span style={{ color: "#059669", fontWeight: 700 }}>#{pos + 1}. </span>
+                    {question.items![itIdx]}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {question.type === "matching" && Array.isArray(question.pairs) && (
+              <div style={{ marginTop: "0.6rem", padding: "0.6rem 0.8rem", background: "var(--surface-card)", border: "1px solid var(--border-light)", borderRadius: "6px", fontSize: "0.84rem", color: "var(--text-primary)" }}>
+                <div style={{ color: "#e11d48", fontWeight: 700, marginBottom: "0.3rem" }}>Ghép cặp chuẩn xác:</div>
+                {question.pairs.map((p, pIdx) => (
+                  <div key={pIdx} style={{ padding: "0.2rem 0", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                    <strong style={{ fontFamily: "var(--font-mono)", color: "#2563eb" }}>{p.left}</strong>
+                    <span style={{ color: "var(--text-muted)" }}>──▶</span>
+                    <span style={{ color: "var(--text-secondary)" }}>{p.right}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-          <div style={{ color: "var(--text-secondary)", whiteSpace: "pre-line" }}>{question.explanation}</div>
-
-          {question.type === "sequence_order" && question.items && question.correct_order && (
-            <div style={{ marginTop: "0.6rem", padding: "0.6rem 0.8rem", background: "var(--surface-card)", border: "1px solid var(--border-light)", borderRadius: "6px", fontFamily: "var(--font-mono)", fontSize: "0.84rem", color: "var(--text-primary)" }}>
-              <div style={{ color: "#2563eb", fontWeight: 700, marginBottom: "0.3rem" }}>Thứ tự logic chuẩn:</div>
-              {question.correct_order.map((itIdx, pos) => (
-                <div key={pos} style={{ padding: "0.15rem 0" }}>
-                  <span style={{ color: "#059669", fontWeight: 700 }}>#{pos + 1}. </span>
-                  {question.items![itIdx]}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {question.type === "matching" && Array.isArray(question.pairs) && (
-            <div style={{ marginTop: "0.6rem", padding: "0.6rem 0.8rem", background: "var(--surface-card)", border: "1px solid var(--border-light)", borderRadius: "6px", fontSize: "0.84rem", color: "var(--text-primary)" }}>
-              <div style={{ color: "#e11d48", fontWeight: 700, marginBottom: "0.3rem" }}>Ghép cặp chuẩn xác:</div>
-              {question.pairs.map((p, pIdx) => (
-                <div key={pIdx} style={{ padding: "0.2rem 0", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                  <strong style={{ fontFamily: "var(--font-mono)", color: "#2563eb" }}>{p.left}</strong>
-                  <span style={{ color: "var(--text-muted)" }}>──▶</span>
-                  <span style={{ color: "var(--text-secondary)" }}>{p.right}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+        );
+      })()}
 
       {/* BOTTOM ACTIONS IN STUDY MODE */}
       {!isExamMode && (
@@ -1109,13 +1368,34 @@ export default function QuestionCard({
           flexWrap: "wrap",
           gap: "0.5rem"
         }}>
-          <button
-            onClick={() => setShowExp(!showExp)}
-            className="btn btn-secondary btn-sm"
-          >
-            <Lightbulb size={15} color="var(--brand-amber-dark)" />
-            <span>{showExp ? "Ẩn Phân Tích Logic" : "Xem Phân Tích Logic"}</span>
-          </button>
+          {(() => {
+            const hasAnswered = currentAnswer !== undefined && currentAnswer !== null && currentAnswer !== "";
+            const isAnswerCorrect = (() => {
+              if (!hasAnswered) return false;
+              if (Array.isArray(question.correct_answer)) {
+                const corr = [...question.correct_answer].sort().join(",");
+                const user = (Array.isArray(currentAnswer) ? [...currentAnswer] : []).sort().join(",");
+                return corr === user;
+              }
+              return String(currentAnswer).trim().toLowerCase() === String(question.correct_answer).trim().toLowerCase();
+            })();
+            const isRevealed = showExp && (isAnswerCorrect || showSolution || !hasAnswered);
+
+            return (
+              <button
+                onClick={() => {
+                  const next = !isRevealed;
+                  setShowExp(next);
+                  if (next) setShowSolution(true);
+                  else setShowSolution(false);
+                }}
+                className="btn btn-secondary btn-sm"
+              >
+                <Lightbulb size={15} color="var(--brand-amber-dark)" />
+                <span>{isRevealed ? "Ẩn Phân Tích Logic" : "Xem Phân Tích Logic"}</span>
+              </button>
+            );
+          })()}
 
           <button
             onClick={handleAskAIExplanation}
