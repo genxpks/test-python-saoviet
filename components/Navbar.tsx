@@ -29,7 +29,9 @@ import {
   Hourglass,
   KeyRound,
   Flame,
-  Check
+  Check,
+  Sun,
+  Moon
 } from "lucide-react";
 
 export default function Navbar() {
@@ -38,11 +40,27 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [sessionRemainingSec, setSessionRemainingSec] = useState<number>(0);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  useEffect(() => {
+    const curTheme = (document.documentElement.getAttribute("data-theme") as "light" | "dark") || "light";
+    setTheme(curTheme);
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    document.documentElement.setAttribute("data-theme", nextTheme);
+    try {
+      localStorage.setItem("saoviet_theme", nextTheme);
+    } catch (e) {}
+    window.dispatchEvent(new Event("themeChange"));
+  };
 
   useEffect(() => {
     const curUser = getCurrentUser();
@@ -129,8 +147,8 @@ export default function Navbar() {
               <Sparkles size={18} color="#ffffff" />
             </div>
             <div>
-              <div className="brand-title" style={{ fontSize: "1.05rem", letterSpacing: "-0.3px", color: "#f8fafc" }}>TIN HỌC SAO VIỆT</div>
-              <div className="brand-subtitle" style={{ color: "#94a3b8" }}>Hệ Thống Đào Tạo & Khảo Thí Lập Trình</div>
+              <div className="brand-title" style={{ fontSize: "1.05rem", letterSpacing: "-0.3px", color: "var(--text-primary)" }}>TIN HỌC SAO VIỆT</div>
+              <div className="brand-subtitle" style={{ color: "var(--text-muted)" }}>Hệ Thống Đào Tạo & Khảo Thí Lập Trình</div>
             </div>
           </Link>
 
@@ -179,40 +197,73 @@ export default function Navbar() {
           </nav>
 
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "5px",
+                padding: "0.38rem 0.75rem",
+                borderRadius: "var(--radius-full)",
+                border: "1.5px solid var(--border-medium)",
+                background: "var(--surface-card)",
+                color: "var(--text-primary)",
+                cursor: "pointer",
+                fontSize: "0.8rem",
+                fontWeight: 700,
+                boxShadow: "var(--shadow-subtle)",
+                transition: "all 0.2s ease"
+              }}
+              title={theme === "light" ? "Chuyển sang giao diện Tối (Dark mode)" : "Chuyển sang giao diện Sáng (Light mode)"}
+            >
+              {theme === "light" ? (
+                <>
+                  <Sun size={14} color="#d97706" />
+                  <span>Sáng</span>
+                </>
+              ) : (
+                <>
+                  <Moon size={14} color="#38bdf8" />
+                  <span>Tối</span>
+                </>
+              )}
+            </button>
+
             {user ? (
               <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
                 <div style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "0.5rem",
-                  background: "rgba(15, 23, 42, 0.8)",
+                  background: "var(--surface-card)",
                   padding: "0.35rem 0.75rem",
                   borderRadius: "var(--radius-full)",
-                  border: "1px solid rgba(0, 245, 200, 0.2)",
+                  border: "1.5px solid var(--border-medium)",
                   fontSize: "0.82rem",
-                  backdropFilter: "blur(12px)"
+                  boxShadow: "var(--shadow-subtle)"
                 }}>
                   <div style={{
                     width: "26px",
                     height: "26px",
                     borderRadius: "50%",
-                    background: user.role === "admin" ? "linear-gradient(135deg, #f43f5e, #be123c)" : user.role === "branch_manager" ? "linear-gradient(135deg, #8b5cf6, #6d28d9)" : "linear-gradient(135deg, #00f5c8, #0ea5e9)",
+                    background: user.role === "admin" ? "linear-gradient(135deg, #f43f5e, #be123c)" : user.role === "branch_manager" ? "linear-gradient(135deg, #8b5cf6, #6d28d9)" : "linear-gradient(135deg, #2563eb, #0284c7)",
                     color: "#ffffff",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: "0.7rem",
                     fontWeight: 900,
-                    boxShadow: user.role === "admin" ? "0 0 10px rgba(244,63,94,0.4)" : user.role === "branch_manager" ? "0 0 10px rgba(139,92,246,0.4)" : "0 0 10px rgba(0,245,200,0.4)"
+                    boxShadow: user.role === "admin" ? "0 0 10px rgba(244,63,94,0.4)" : user.role === "branch_manager" ? "0 0 10px rgba(139,92,246,0.4)" : "0 0 10px rgba(37,99,235,0.4)"
                   }}>
                     {user.role === "admin" ? "AD" : user.role === "branch_manager" ? "QL" : "HV"}
                   </div>
 
                   <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
-                    <span style={{ fontWeight: 800, color: "#f1f5f9" }}>
+                    <span style={{ fontWeight: 800, color: "var(--text-primary)" }}>
                       {user.fullName}
                     </span>
-                    <span style={{ fontSize: "0.7rem", color: "#94a3b8", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
                       <Building2 size={10} />
                       <span>{user.branchName || "Chi Nhánh Thủ Đức"}</span>
                     </span>
@@ -248,20 +299,17 @@ export default function Navbar() {
               </div>
             ) : (
               <button 
-                  onClick={() => setShowLoginModal(true)}
-                  className="btn btn-sm"
-                  style={{
-                    gap: "0.4rem",
-                    background: "rgba(0, 245, 200, 0.1)",
-                    color: "#00f5c8",
-                    border: "1px solid rgba(0, 245, 200, 0.3)",
-                    boxShadow: "0 0 15px rgba(0, 245, 200, 0.1)",
-                    backdropFilter: "blur(4px)"
-                  }}
-                >
-                  <LogIn size={15} />
-                  <span>Đăng Nhập</span>
-                </button>
+                onClick={() => setShowLoginModal(true)}
+                className="btn btn-sm btn-primary"
+                style={{
+                  gap: "0.4rem",
+                  fontSize: "0.82rem",
+                  borderRadius: "var(--radius-full)"
+                }}
+              >
+                <LogIn size={15} />
+                <span>Đăng Nhập</span>
+              </button>
             )}
           </div>
         </div>

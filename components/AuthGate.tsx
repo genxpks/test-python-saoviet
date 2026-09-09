@@ -88,7 +88,7 @@ export default function AuthGate({
   if (isChecking) {
     return (
       <div style={{ padding: "4rem 1rem", textAlign: "center" }}>
-        <div style={{ color: "#00f5c8", fontWeight: 700, fontSize: "1.1rem" }}>
+        <div style={{ color: "var(--primary)", fontWeight: 700, fontSize: "1.1rem" }}>
           Đang kiểm tra phiên đăng nhập...
         </div>
       </div>
@@ -106,14 +106,12 @@ export default function AuthGate({
       padding: "0 1rem"
     }}>
       <div style={{
-        background: "rgba(15, 23, 42, 0.92)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
-        border: "1px solid rgba(255, 255, 255, 0.12)",
+        background: "var(--surface-card)",
+        border: "1px solid var(--border-light)",
         borderRadius: "24px",
         padding: "2.6rem 2.2rem",
         textAlign: "center",
-        boxShadow: "0 20px 50px rgba(0, 0, 0, 0.6)",
+        boxShadow: "var(--shadow-card)",
         position: "relative",
         overflow: "hidden"
       }}>
@@ -144,7 +142,7 @@ export default function AuthGate({
             alignItems: "center",
             justifyContent: "center",
             color: "#ffffff",
-            boxShadow: "0 4px 18px rgba(37, 99, 235, 0.4)"
+            boxShadow: "0 4px 18px rgba(37, 99, 255, 0.25)"
           }}>
             <Sparkles size={28} />
           </div>
@@ -155,7 +153,7 @@ export default function AuthGate({
           fontWeight: 800,
           marginBottom: "1.5rem",
           letterSpacing: "-0.4px",
-          color: "#ffffff",
+          color: "var(--text-primary)",
           fontFamily: "var(--font-heading)"
         }}>
           {pageTitle}
@@ -164,10 +162,10 @@ export default function AuthGate({
         <form onSubmit={handleInlineLogin} style={{ display: "flex", flexDirection: "column", gap: "1.1rem", textAlign: "left" }}>
           {loginError && (
             <div style={{
-              color: "#fca5a5",
+              color: "#dc2626",
               fontSize: "0.84rem",
-              background: "rgba(220, 38, 38, 0.15)",
-              border: "1px solid rgba(239, 68, 68, 0.35)",
+              background: "rgba(239, 68, 68, 0.1)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
               padding: "0.65rem 0.9rem",
               borderRadius: "10px",
               textAlign: "center"
@@ -177,7 +175,7 @@ export default function AuthGate({
           )}
 
           <div>
-            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.4rem", color: "#e2e8f0" }}>
+            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
               Số Điện Thoại Học Viên
             </label>
             <input
@@ -189,20 +187,20 @@ export default function AuthGate({
               style={{
                 width: "100%",
                 padding: "0.85rem 1.1rem",
-                background: "rgba(30, 41, 59, 0.8)",
-                border: "1.5px solid #334155",
+                background: "var(--surface-subtle)",
+                border: "1.5px solid var(--border-medium)",
                 borderRadius: "12px",
-                color: "#ffffff",
+                color: "var(--text-primary)",
                 fontSize: "0.92rem",
                 outline: "none",
                 transition: "all 0.2s ease"
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = "#3b82f6";
-                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(37, 99, 235, 0.2)";
+                e.currentTarget.style.borderColor = "#2563eb";
+                e.currentTarget.style.boxShadow = "0 0 0 3px rgba(37, 99, 235, 0.15)";
               }}
               onBlur={(e) => {
-                e.currentTarget.style.borderColor = "#334155";
+                e.currentTarget.style.borderColor = "var(--border-medium)";
                 e.currentTarget.style.boxShadow = "none";
               }}
               autoFocus
@@ -210,7 +208,7 @@ export default function AuthGate({
           </div>
 
           <div>
-            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.4rem", color: "#e2e8f0" }}>
+            <label style={{ display: "block", fontSize: "0.84rem", fontWeight: 700, marginBottom: "0.4rem", color: "var(--text-secondary)" }}>
               Mật khẩu
             </label>
             <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
@@ -224,20 +222,20 @@ export default function AuthGate({
                   width: "100%",
                   padding: "0.85rem 1.1rem",
                   paddingRight: "44px",
-                  background: "rgba(30, 41, 59, 0.8)",
-                  border: "1.5px solid #334155",
+                  background: "var(--surface-subtle)",
+                  border: "1.5px solid var(--border-medium)",
                   borderRadius: "12px",
-                  color: "#ffffff",
+                  color: "var(--text-primary)",
                   fontSize: "0.92rem",
                   outline: "none",
                   transition: "all 0.2s ease"
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#3b82f6";
-                  e.currentTarget.style.boxShadow = "0 0 0 3px rgba(37, 99, 235, 0.2)";
+                  e.currentTarget.style.borderColor = "#2563eb";
+                  e.currentTarget.style.boxShadow = "0 0 0 3px rgba(37, 99, 235, 0.15)";
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "#334155";
+                  e.currentTarget.style.borderColor = "var(--border-medium)";
                   e.currentTarget.style.boxShadow = "none";
                 }}
               />
@@ -250,7 +248,7 @@ export default function AuthGate({
                   background: "none",
                   border: "none",
                   cursor: "pointer",
-                  color: "#94a3b8",
+                  color: "var(--text-muted)",
                   padding: "4px"
                 }}
               >
@@ -292,7 +290,7 @@ export default function AuthGate({
         <div style={{
           marginTop: "1.4rem",
           fontSize: "0.85rem",
-          color: "#94a3b8",
+          color: "var(--text-muted)",
           fontWeight: 600
         }}>
           💡 Mẹo: Mật khẩu mặc định = Tên + SĐT (VD: nam0937482673)

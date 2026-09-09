@@ -148,7 +148,7 @@ export default function StudyPage() {
               display: "inline-block",
               fontSize: "0.88rem",
               fontWeight: 700,
-              color: "#38bdf8",
+              color: "var(--primary)",
               letterSpacing: "0.04em",
               marginBottom: "0.5rem"
             }}>
@@ -159,13 +159,13 @@ export default function StudyPage() {
               fontSize: "clamp(2rem, 4vw, 2.6rem)",
               fontWeight: 900,
               letterSpacing: "-0.8px",
-              color: "#ffffff",
+              color: "var(--text-primary)",
               marginBottom: "0.5rem",
               fontFamily: "var(--font-heading)"
             }}>
               {currentSubject.name} — Ôn Tập & Luyện Code Web
             </h1>
-            <p style={{ color: "#cbd5e1", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
               Nền tảng ôn luyện 120 câu trắc nghiệm chuẩn hóa và các bài toán thực hành vừa viết code vừa build chạy thử trực tiếp trên trình duyệt.
             </p>
           </div>
@@ -186,13 +186,13 @@ export default function StudyPage() {
                 gap: "0.6rem",
                 padding: "0.75rem 1.4rem",
                 borderRadius: "12px",
-                border: studyMode === "quiz" ? "1.5px solid #3b82f6" : "1px solid #334155",
-                background: studyMode === "quiz" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "rgba(30, 41, 59, 0.7)",
-                color: studyMode === "quiz" ? "#ffffff" : "#cbd5e1",
+                border: studyMode === "quiz" ? "1.5px solid #2563eb" : "1.5px solid var(--border-medium)",
+                background: studyMode === "quiz" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "var(--surface-card)",
+                color: studyMode === "quiz" ? "#ffffff" : "var(--text-secondary)",
                 fontWeight: 700,
                 fontSize: "0.92rem",
                 cursor: "pointer",
-                boxShadow: studyMode === "quiz" ? "0 4px 15px rgba(37, 99, 235, 0.35)" : "none",
+                boxShadow: studyMode === "quiz" ? "0 4px 15px rgba(37, 99, 235, 0.35)" : "var(--shadow-card)",
                 transition: "all 0.2s ease"
               }}
             >
@@ -208,13 +208,13 @@ export default function StudyPage() {
                 gap: "0.6rem",
                 padding: "0.75rem 1.4rem",
                 borderRadius: "12px",
-                border: studyMode === "coding" ? "1.5px solid #3b82f6" : "1px solid #334155",
-                background: studyMode === "coding" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "rgba(30, 41, 59, 0.7)",
-                color: studyMode === "coding" ? "#ffffff" : "#cbd5e1",
+                border: studyMode === "coding" ? "1.5px solid #2563eb" : "1.5px solid var(--border-medium)",
+                background: studyMode === "coding" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "var(--surface-card)",
+                color: studyMode === "coding" ? "#ffffff" : "var(--text-secondary)",
                 fontWeight: 700,
                 fontSize: "0.92rem",
                 cursor: "pointer",
-                boxShadow: studyMode === "coding" ? "0 4px 15px rgba(37, 99, 235, 0.35)" : "none",
+                boxShadow: studyMode === "coding" ? "0 4px 15px rgba(37, 99, 235, 0.35)" : "var(--shadow-card)",
                 transition: "all 0.2s ease"
               }}
             >
@@ -243,14 +243,14 @@ export default function StudyPage() {
                       justifyContent: "space-between",
                       alignItems: "center",
                       padding: "0.6rem 1.1rem",
-                      background: "rgba(56, 189, 248, 0.1)",
-                      border: "1px solid rgba(56, 189, 248, 0.25)",
+                      background: "rgba(37, 99, 235, 0.08)",
+                      border: "1px solid rgba(37, 99, 235, 0.25)",
                       borderRadius: "8px",
                       fontSize: "0.85rem",
-                      color: "#38bdf8"
+                      color: "var(--primary)"
                     }}>
                       <span style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 700 }}>
-                        <CheckCircle2 size={16} color="#38bdf8" />
+                        <CheckCircle2 size={16} color="#2563eb" />
                         Tiến độ ôn tập: Đã làm {Object.keys(studyAnswers).length} / {questions.length} câu hỏi
                       </span>
                       <button
@@ -261,7 +261,7 @@ export default function StudyPage() {
                         style={{
                           background: "none",
                           border: "none",
-                          color: "#94a3b8",
+                          color: "var(--text-muted)",
                           fontSize: "0.78rem",
                           cursor: "pointer",
                           textDecoration: "underline"
@@ -274,15 +274,15 @@ export default function StudyPage() {
                     <div style={{
                       padding: "0.55rem 1rem",
                       borderRadius: "8px",
-                      background: "rgba(15, 23, 42, 0.4)",
-                      border: "1px dashed rgba(255, 255, 255, 0.1)",
-                      color: "#94a3b8",
+                      background: "var(--surface-subtle)",
+                      border: "1px dashed var(--border-medium)",
+                      color: "var(--text-muted)",
                       fontSize: "0.82rem",
                       display: "flex",
                       alignItems: "center",
                       gap: "6px"
                     }}>
-                      <BookOpen size={14} color="#38bdf8" />
+                      <BookOpen size={14} color="#2563eb" />
                       <span>💡 Chọn đáp án, điền từ khóa hoặc sắp xếp bên dưới để kiểm tra và ghi nhận tiến độ ôn tập.</span>
                     </div>
                   )}
@@ -336,8 +336,8 @@ export default function StudyPage() {
             <div>
               {/* Instructions banner */}
               <div style={{
-                background: "linear-gradient(135deg, rgba(0, 245, 200, 0.1), rgba(14, 165, 233, 0.1))",
-                border: "1px solid rgba(0, 245, 200, 0.3)",
+                background: "linear-gradient(135deg, rgba(2, 132, 199, 0.08), rgba(99, 102, 241, 0.08))",
+                border: "1px solid rgba(2, 132, 199, 0.25)",
                 borderRadius: "14px",
                 padding: "1rem 1.4rem",
                 marginBottom: "1.8rem",
@@ -348,11 +348,11 @@ export default function StudyPage() {
                 gap: "1rem"
               }}>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#00f5c8", fontWeight: 800, fontSize: "1.05rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#0284c7", fontWeight: 800, fontSize: "1.05rem" }}>
                     <Cpu size={20} />
                     <span>Trình Biên Dịch & Chấm Điểm Python 3.12 Trên Trình Duyệt</span>
                   </div>
-                  <div style={{ fontSize: "0.86rem", color: "#cbd5e1", marginTop: "0.3rem" }}>
+                  <div style={{ fontSize: "0.86rem", color: "var(--text-secondary)", marginTop: "0.3rem" }}>
                     Học viên vừa gõ code trực tiếp trên Web IDE, vừa bấm <strong>▶️ Chạy Thử Code</strong> để xem kết quả Console tức thì, sau đó bấm <strong>Chấm Điểm</strong> để kiểm tra qua 4/4 Test Cases!
                   </div>
                 </div>
@@ -360,9 +360,9 @@ export default function StudyPage() {
                 <div style={{
                   padding: "0.4rem 0.8rem",
                   borderRadius: "8px",
-                  background: "rgba(0, 245, 200, 0.15)",
-                  border: "1px solid rgba(0, 245, 200, 0.4)",
-                  color: "#00f5c8",
+                  background: "rgba(2, 132, 199, 0.12)",
+                  border: "1px solid rgba(2, 132, 199, 0.3)",
+                  color: "#0284c7",
                   fontSize: "0.82rem",
                   fontWeight: 800
                 }}>

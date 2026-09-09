@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Star {
   x: number;
@@ -242,6 +242,25 @@ function StarField() {
 }
 
 export default function WaveBackground() {
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+
+  useEffect(() => {
+    const updateTheme = () => {
+      const current = (document.documentElement.getAttribute("data-theme") as "light" | "dark") || "light";
+      setTheme(current);
+    };
+    updateTheme();
+
+    const observer = new MutationObserver(() => updateTheme());
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+    window.addEventListener("themeChange", updateTheme);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("themeChange", updateTheme);
+    };
+  }, []);
+
   return (
     <div
       style={{
@@ -250,96 +269,118 @@ export default function WaveBackground() {
         pointerEvents: "none",
         zIndex: 0,
         overflow: "hidden",
-        background: "#030612"
+        background: theme === "dark" 
+          ? "#030612" 
+          : "radial-gradient(ellipse 90% 60% at 50% -15%, rgba(37, 99, 235, 0.08) 0%, transparent 65%), radial-gradient(ellipse 70% 40% at 85% 60%, rgba(14, 165, 233, 0.05) 0%, transparent 55%), #f8fafc",
+        transition: "background 0.3s ease"
       }}
       aria-hidden="true"
     >
-      {/* 1. Dynamic Moving Starfield Canvas with Shooting Stars */}
-      <StarField />
+      {theme === "dark" ? (
+        <>
+          {/* 1. Dynamic Moving Starfield Canvas with Shooting Stars */}
+          <StarField />
 
-      {/* 2. Layered Cosmic Nebula Clouds (with subtle CSS pulse) */}
-      <div
-        className="nebula-cloud-purple"
-        style={{
-          position: "absolute",
-          top: "-10%",
-          right: "-5%",
-          width: "70vw",
-          height: "70vh",
-          background: "radial-gradient(ellipse at center, rgba(120, 50, 230, 0.2) 0%, rgba(70, 15, 160, 0.1) 40%, transparent 70%)",
-          filter: "blur(65px)",
-          borderRadius: "50%",
-          animation: "cosmicPulse 12s ease-in-out infinite alternate"
-        }}
-      />
+          {/* 2. Layered Cosmic Nebula Clouds */}
+          <div
+            className="nebula-cloud-purple"
+            style={{
+              position: "absolute",
+              top: "-10%",
+              right: "-5%",
+              width: "70vw",
+              height: "70vh",
+              background: "radial-gradient(ellipse at center, rgba(120, 50, 230, 0.2) 0%, rgba(70, 15, 160, 0.1) 40%, transparent 70%)",
+              filter: "blur(65px)",
+              borderRadius: "50%",
+              animation: "cosmicPulse 12s ease-in-out infinite alternate"
+            }}
+          />
 
-      <div
-        className="nebula-cloud-blue"
-        style={{
-          position: "absolute",
-          top: "15%",
-          left: "-12%",
-          width: "60vw",
-          height: "60vh",
-          background: "radial-gradient(ellipse at center, rgba(0, 80, 240, 0.18) 0%, rgba(0, 30, 140, 0.08) 45%, transparent 70%)",
-          filter: "blur(75px)",
-          borderRadius: "50%",
-          animation: "cosmicPulse 16s ease-in-out infinite alternate-reverse"
-        }}
-      />
+          <div
+            className="nebula-cloud-blue"
+            style={{
+              position: "absolute",
+              top: "15%",
+              left: "-12%",
+              width: "60vw",
+              height: "60vh",
+              background: "radial-gradient(ellipse at center, rgba(0, 80, 240, 0.18) 0%, rgba(0, 30, 140, 0.08) 45%, transparent 70%)",
+              filter: "blur(75px)",
+              borderRadius: "50%",
+              animation: "cosmicPulse 16s ease-in-out infinite alternate-reverse"
+            }}
+          />
 
-      <div
-        className="nebula-cloud-teal"
-        style={{
-          position: "absolute",
-          bottom: "2%",
-          left: "20%",
-          width: "65vw",
-          height: "50vh",
-          background: "radial-gradient(ellipse at center, rgba(0, 220, 180, 0.16) 0%, rgba(0, 120, 140, 0.06) 45%, transparent 70%)",
-          filter: "blur(70px)",
-          borderRadius: "50%",
-          animation: "cosmicPulse 14s ease-in-out infinite alternate"
-        }}
-      />
+          <div
+            className="nebula-cloud-teal"
+            style={{
+              position: "absolute",
+              bottom: "2%",
+              left: "20%",
+              width: "65vw",
+              height: "50vh",
+              background: "radial-gradient(ellipse at center, rgba(0, 220, 180, 0.16) 0%, rgba(0, 120, 140, 0.06) 45%, transparent 70%)",
+              filter: "blur(70px)",
+              borderRadius: "50%",
+              animation: "cosmicPulse 14s ease-in-out infinite alternate"
+            }}
+          />
 
-      <div
-        style={{
-          position: "absolute",
-          top: "40%",
-          right: "8%",
-          width: "45vw",
-          height: "45vh",
-          background: "radial-gradient(ellipse at center, rgba(34, 211, 238, 0.12) 0%, transparent 65%)",
-          filter: "blur(60px)",
-          borderRadius: "50%"
-        }}
-      />
+          <div
+            style={{
+              position: "absolute",
+              top: "40%",
+              right: "8%",
+              width: "45vw",
+              height: "45vh",
+              background: "radial-gradient(ellipse at center, rgba(34, 211, 238, 0.12) 0%, transparent 65%)",
+              filter: "blur(60px)",
+              borderRadius: "50%"
+            }}
+          />
 
-      {/* 3. Deep Horizon Celestial Aurora Shimmer */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: "35vh",
-          background: "linear-gradient(to top, rgba(0, 180, 160, 0.12) 0%, rgba(3, 6, 18, 0) 100%)"
-        }}
-      />
-
-      {/* 4. Fine Horizon Laser Orbit Line */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "25%",
-          left: 0,
-          right: 0,
-          height: "1px",
-          background: "linear-gradient(90deg, transparent 5%, rgba(0,245,200,0.18) 30%, rgba(120,200,255,0.22) 50%, rgba(0,245,200,0.18) 70%, transparent 95%)",
-          filter: "blur(0.5px)"
-        }}
-      />
+          {/* 3. Deep Horizon Celestial Aurora Shimmer */}
+          <div
+            style={{
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: "35vh",
+              background: "linear-gradient(to top, rgba(0, 180, 160, 0.12) 0%, rgba(3, 6, 18, 0) 100%)"
+            }}
+          />
+        </>
+      ) : (
+        <>
+          {/* Subtle Ambient Light Glows for Premium Educational Look */}
+          <div
+            style={{
+              position: "absolute",
+              top: "-20%",
+              left: "15%",
+              width: "55vw",
+              height: "45vh",
+              background: "radial-gradient(ellipse at center, rgba(37, 99, 235, 0.06) 0%, transparent 60%)",
+              filter: "blur(70px)",
+              borderRadius: "50%"
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "20%",
+              right: "-5%",
+              width: "45vw",
+              height: "45vh",
+              background: "radial-gradient(ellipse at center, rgba(14, 165, 233, 0.05) 0%, transparent 60%)",
+              filter: "blur(60px)",
+              borderRadius: "50%"
+            }}
+          />
+        </>
+      )}
     </div>
   );
 }

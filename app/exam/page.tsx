@@ -281,45 +281,45 @@ export default function ExamPage() {
             </div>
 
             <SubjectAccessGate subjectId={selectedSubjectId}>
-              <div className="q-card" style={{ padding: "2.5rem 2rem", textAlign: "center", maxWidth: "750px", margin: "0 auto", border: "1.5px solid rgba(0, 245, 200, 0.3)", background: "rgba(6, 14, 36, 0.85)" }}>
+              <div className="q-card" style={{ padding: "2.5rem 2rem", textAlign: "center", maxWidth: "750px", margin: "0 auto", border: "1.5px solid var(--border-light)", background: "var(--surface-card)", boxShadow: "var(--shadow-card)" }}>
                 <div style={{
                   width: "68px",
                   height: "68px",
                   borderRadius: "20px",
-                  background: "linear-gradient(135deg, rgba(0, 245, 200, 0.2), rgba(14, 165, 233, 0.2))",
-                  color: "#00f5c8",
+                  background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(14, 165, 233, 0.15))",
+                  color: "var(--primary)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   margin: "0 auto 1.2rem",
-                  border: "1px solid rgba(0, 245, 200, 0.4)",
-                  boxShadow: "0 0 25px rgba(0, 245, 200, 0.25)"
+                  border: "1px solid rgba(37, 99, 235, 0.3)",
+                  boxShadow: "0 0 20px rgba(37, 99, 235, 0.15)"
                 }}>
                   <Clock size={32} />
                 </div>
 
-                <h1 style={{ fontSize: "1.75rem", fontWeight: 900, marginBottom: "0.5rem", color: "#ffffff" }}>
+                <h1 style={{ fontSize: "1.75rem", fontWeight: 900, marginBottom: "0.5rem", color: "var(--text-primary)", fontFamily: "var(--font-heading)" }}>
                   Kỳ Thi Đánh Giá Chuẩn Đầu Ra: {currentSubject.name}
                 </h1>
-                <p style={{ color: "#94a3b8", fontSize: "0.92rem", marginBottom: "1.5rem", lineHeight: "1.6" }}>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.92rem", marginBottom: "1.5rem", lineHeight: "1.6" }}>
                   Đề thi gồm <strong>50 câu trắc nghiệm</strong> (7.0 điểm) và <strong>4 bài tập thực hành code</strong> (3.0 điểm). 
                   Thời gian làm bài: <strong>50 phút</strong>. Đạt từ 5.0 điểm trở lên được cấp Chứng chỉ Sao Việt.
                 </p>
 
                 <div style={{
-                  background: "rgba(15, 23, 42, 0.7)",
-                  border: "1px solid rgba(255, 255, 255, 0.1)",
+                  background: "var(--surface-subtle)",
+                  border: "1px solid var(--border-medium)",
                   borderRadius: "12px",
                   padding: "1rem 1.2rem",
                   marginBottom: "1.5rem",
                   textAlign: "left",
                   fontSize: "0.85rem"
                 }}>
-                  <div style={{ fontWeight: 800, color: "#38bdf8", marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <div style={{ fontWeight: 800, color: "var(--primary)", marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
                     <AlertCircle size={16} />
                     <span>Quy Định Phòng Thi Nghiêm Túc:</span>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", color: "#cbd5e1" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", color: "var(--text-secondary)" }}>
                     <div>• Học viên cần có <strong>Mã Phòng Thi / Mã Kích Hoạt</strong> do Giám thị hoặc Giáo viên chi nhánh cấp.</div>
                     <div>• Không chuyển tab hoặc mở tài liệu ngoài phạm vi cho phép.</div>
                     <div>• Nếu gặp sự cố phòng máy, chọn <strong>Tạm Dừng Thi</strong> để Giáo viên nhập mã PIN mở khóa.</div>
@@ -329,14 +329,14 @@ export default function ExamPage() {
 
                 {/* Exam Access Code Input */}
                 <div style={{
-                  background: "rgba(15, 23, 42, 0.85)",
-                  border: "1px solid rgba(255, 255, 255, 0.12)",
+                  background: "var(--surface-subtle)",
+                  border: "1px solid var(--border-medium)",
                   borderRadius: "14px",
                   padding: "1.2rem",
                   marginBottom: "1.5rem",
                   textAlign: "center"
                 }}>
-                  <label style={{ display: "block", fontSize: "0.88rem", fontWeight: 800, color: "#38bdf8", marginBottom: "0.6rem" }}>
+                  <label style={{ display: "block", fontSize: "0.88rem", fontWeight: 800, color: "var(--primary)", marginBottom: "0.6rem" }}>
                     🔑 NHẬP MÃ PHÒNG THI / MÃ ĐỀ THI ĐỂ MỞ KHÓA:
                   </label>
                   <input
@@ -349,9 +349,9 @@ export default function ExamPage() {
                       maxWidth: "420px",
                       padding: "0.75rem 1rem",
                       borderRadius: "10px",
-                      border: "1.5px solid #334155",
-                      background: "rgba(30, 41, 59, 0.8)",
-                      color: "#ffffff",
+                      border: "1.5px solid var(--border-medium)",
+                      background: "var(--surface-card)",
+                      color: "var(--text-primary)",
                       fontSize: "1rem",
                       fontWeight: 800,
                       textAlign: "center",
@@ -363,11 +363,11 @@ export default function ExamPage() {
                     }}
                   />
                   {accessError && (
-                    <div style={{ color: "#fca5a5", fontSize: "0.82rem", fontWeight: 700, marginTop: "0.5rem" }}>
+                    <div style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 700, marginTop: "0.5rem" }}>
                       {accessError}
                     </div>
                   )}
-                  <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "0.4rem" }}>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.4rem" }}>
                     (Mã phòng thi chuẩn: <code>SAOVIET2026</code>, <code>PYTHON2026</code> hoặc mã PIN Giám thị: <code>8888</code>)
                   </div>
                 </div>

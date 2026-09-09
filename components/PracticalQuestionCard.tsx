@@ -203,23 +203,23 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
   const lineNumbers = Array.from({ length: lineCount }, (_, i) => i + 1);
 
   return (
-    <div className="q-card" style={{ border: "1px solid rgba(0, 245, 200, 0.25)", background: "rgba(10, 18, 42, 0.75)" }}>
+    <div className="q-card" style={{ border: "1.5px solid var(--border-light)", background: "var(--surface-card)", boxShadow: "var(--shadow-card)" }}>
       {/* Header */}
       <div className="q-card-header" style={{ marginBottom: "0.8rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <span
             className="q-badge"
             style={{
-              background: "rgba(0, 245, 200, 0.12)",
-              color: "#00f5c8",
-              borderColor: "rgba(0, 245, 200, 0.35)",
+              background: "rgba(37, 99, 235, 0.1)",
+              color: "var(--brand-primary)",
+              borderColor: "rgba(37, 99, 235, 0.3)",
               fontWeight: 800
             }}
           >
             <Terminal size={14} />
             <span>BÀI LUYỆN CODE #{pNum}</span>
           </span>
-          <span style={{ fontSize: "0.78rem", color: "#38bdf8", fontWeight: 700 }}>
+          <span style={{ fontSize: "0.78rem", color: "var(--brand-primary)", fontWeight: 700 }}>
             Python Web Compiler & Auto-Grader
           </span>
         </div>
@@ -233,9 +233,9 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
               gap: "4px",
               padding: "0.3rem 0.65rem",
               borderRadius: "6px",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              background: "rgba(255, 255, 255, 0.05)",
-              color: "#94a3b8",
+              border: "1px solid var(--border-medium)",
+              background: "var(--surface-subtle)",
+              color: "var(--text-muted)",
               fontSize: "0.75rem",
               cursor: "pointer"
             }}
@@ -248,21 +248,21 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
       </div>
 
       {/* Title & Description */}
-      <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "0.5rem", color: "#ffffff" }}>
+      <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
         {problem.title}
       </h3>
 
-      <p style={{ color: "#cbd5e1", marginBottom: "1.2rem", fontSize: "0.94rem", lineHeight: "1.65" }}>
+      <p style={{ color: "var(--text-secondary)", marginBottom: "1.2rem", fontSize: "0.94rem", lineHeight: "1.65" }}>
         {problem.description}
       </p>
 
       {/* Interactive Web IDE Editor Area */}
       <div style={{
-        background: "#040b19",
-        border: "1.5px solid rgba(0, 245, 200, 0.3)",
+        background: "var(--surface-card)",
+        border: "1.5px solid var(--border-medium)",
         borderRadius: "14px",
         overflow: "hidden",
-        boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+        boxShadow: "var(--shadow-card)",
         marginBottom: "1rem"
       }}>
         {/* Editor Top Bar */}
@@ -271,13 +271,13 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
           justifyContent: "space-between",
           alignItems: "center",
           padding: "0.55rem 0.9rem",
-          background: "rgba(10, 25, 55, 0.8)",
-          borderBottom: "1px solid rgba(0, 245, 200, 0.18)"
+          background: "var(--surface-subtle)",
+          borderBottom: "1px solid var(--border-light)"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#00f5c8", fontSize: "0.82rem", fontWeight: 700 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "var(--brand-primary)", fontSize: "0.82rem", fontWeight: 700 }}>
             <FileCode2 size={16} />
             <span>main.py</span>
-            <span style={{ fontSize: "0.72rem", color: "#64748b" }}>(Python 3.12 Engine)</span>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)" }}>(Python 3.12 Engine)</span>
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -346,12 +346,12 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
         </div>
 
         {/* Code Lines & Textarea */}
-        <div style={{ display: "flex", minHeight: "150px", position: "relative", background: "#050d21" }}>
+        <div style={{ display: "flex", minHeight: "150px", position: "relative", background: "var(--surface-card)" }}>
           <div style={{
             padding: "0.85rem 0.5rem",
-            background: "rgba(2, 6, 18, 0.7)",
-            borderRight: "1px solid rgba(255, 255, 255, 0.08)",
-            color: "#475569",
+            background: "var(--surface-subtle)",
+            borderRight: "1px solid var(--border-light)",
+            color: "var(--text-muted)",
             fontFamily: "var(--font-mono)",
             fontSize: "0.85rem",
             textAlign: "right",
@@ -374,7 +374,7 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
               background: "transparent",
               border: "none",
               outline: "none",
-              color: "#38bdf8",
+              color: "var(--text-primary)",
               fontFamily: "var(--font-mono)",
               fontSize: "0.88rem",
               lineHeight: "1.6",
@@ -390,8 +390,8 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
           justifyContent: "space-between",
           alignItems: "center",
           padding: "0.65rem 1rem",
-          background: "rgba(6, 15, 36, 0.95)",
-          borderTop: "1px solid rgba(255, 255, 255, 0.08)",
+          background: "var(--surface-subtle)",
+          borderTop: "1px solid var(--border-light)",
           flexWrap: "wrap",
           gap: "0.6rem"
         }}>
@@ -406,13 +406,13 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
                 gap: "6px",
                 padding: "0.5rem 1.1rem",
                 borderRadius: "8px",
-                border: "1px solid rgba(56, 189, 248, 0.4)",
+                border: "1px solid rgba(2, 132, 199, 0.4)",
                 background: "linear-gradient(135deg, #0284c7, #0369a1)",
                 color: "#ffffff",
                 fontWeight: 700,
                 fontSize: "0.85rem",
                 cursor: "pointer",
-                boxShadow: "0 2px 10px rgba(2, 132, 199, 0.35)"
+                boxShadow: "0 2px 10px rgba(2, 132, 199, 0.25)"
               }}
             >
               <Play size={15} fill="#ffffff" />
@@ -428,8 +428,8 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
                 padding: "0.5rem 1rem",
                 borderRadius: "8px",
                 border: "1px solid rgba(16, 185, 129, 0.4)",
-                background: "rgba(16, 185, 129, 0.15)",
-                color: "#34d399",
+                background: "rgba(16, 185, 129, 0.12)",
+                color: "#059669",
                 fontWeight: 700,
                 fontSize: "0.84rem",
                 cursor: "pointer"
@@ -455,15 +455,15 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
                 fontWeight: 800,
                 fontSize: "0.84rem",
                 cursor: isAiGrading ? "wait" : "pointer",
-                boxShadow: "0 2px 10px rgba(124, 58, 237, 0.35)"
+                boxShadow: "0 2px 10px rgba(124, 58, 237, 0.25)"
               }}
             >
               <Sparkles size={15} />
               <span>{isAiGrading ? "AI Đang Chấm..." : "🤖 Chấm Điểm Bằng AI"}</span>
             </button>
 
-            <span style={{ fontSize: "0.74rem", color: "#94a3b8", display: "inline-flex", alignItems: "center", gap: "4px" }}>
-              Phím tắt: <kbd style={{ background: "rgba(255,255,255,0.12)", padding: "2px 6px", borderRadius: "4px", color: "#38bdf8", fontFamily: "var(--font-mono)" }}>F5</kbd> hoặc <kbd style={{ background: "rgba(255,255,255,0.12)", padding: "2px 6px", borderRadius: "4px", color: "#38bdf8", fontFamily: "var(--font-mono)" }}>Ctrl+Enter</kbd>
+            <span style={{ fontSize: "0.74rem", color: "var(--text-muted)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+              Phím tắt: <kbd style={{ background: "var(--surface-card)", border: "1px solid var(--border-medium)", padding: "2px 6px", borderRadius: "4px", color: "var(--primary)", fontFamily: "var(--font-mono)" }}>F5</kbd> hoặc <kbd style={{ background: "var(--surface-card)", border: "1px solid var(--border-medium)", padding: "2px 6px", borderRadius: "4px", color: "var(--primary)", fontFamily: "var(--font-mono)" }}>Ctrl+Enter</kbd>
             </span>
           </div>
 
@@ -474,13 +474,13 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
               gap: "0.5rem",
               padding: "0.35rem 0.75rem",
               borderRadius: "6px",
-              background: gradeResult.passed ? "rgba(16, 185, 129, 0.18)" : "rgba(245, 158, 11, 0.18)",
+              background: gradeResult.passed ? "rgba(16, 185, 129, 0.12)" : "rgba(245, 158, 11, 0.12)",
               border: `1px solid ${gradeResult.passed ? "#10b981" : "#f59e0b"}`
             }}>
-              <span style={{ fontWeight: 900, color: gradeResult.passed ? "#10b981" : "#f59e0b", fontSize: "0.85rem" }}>
+              <span style={{ fontWeight: 900, color: gradeResult.passed ? "#059669" : "#d97706", fontSize: "0.85rem" }}>
                 {gradeResult.passed ? `🎉 ĐẠT (${gradeResult.score}/10đ)` : `⚠️ CHƯA ĐẠT (${gradeResult.score}/10đ)`}
               </span>
-              <span style={{ fontSize: "0.78rem", color: "#e2e8f0" }}>
+              <span style={{ fontSize: "0.78rem", color: "var(--text-primary)" }}>
                 {gradeResult.feedback}
               </span>
             </div>
@@ -507,16 +507,16 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
       {/* AI Feedback Card */}
       {aiFeedback && (
         <div style={{
-          background: "rgba(24, 16, 48, 0.8)",
-          border: "1px solid rgba(168, 85, 247, 0.35)",
+          background: "rgba(124, 58, 237, 0.08)",
+          border: "1.5px solid rgba(124, 58, 237, 0.35)",
           borderRadius: "10px",
           padding: "0.9rem 1.1rem",
           marginBottom: "1rem",
-          color: "#e9d5ff",
+          color: "var(--text-primary)",
           fontSize: "0.88rem",
           lineHeight: "1.6"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#c084fc", fontWeight: 800, marginBottom: "0.4rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#7c3aed", fontWeight: 800, marginBottom: "0.4rem" }}>
             <Sparkles size={16} />
             <span>Thầy AI Hướng Dẫn & Đánh Giá:</span>
           </div>
@@ -526,8 +526,8 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
 
       {/* Solution Code Accordion */}
       <div style={{
-        background: "rgba(15, 23, 42, 0.6)",
-        border: "1px solid rgba(255, 255, 255, 0.1)",
+        background: "var(--surface-card)",
+        border: "1px solid var(--border-light)",
         borderRadius: "10px",
         overflow: "hidden"
       }}>
@@ -543,7 +543,7 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
             border: "none",
             cursor: "pointer",
             fontWeight: 700,
-            color: "#38bdf8",
+            color: "var(--primary)",
             fontSize: "0.85rem"
           }}
         >
@@ -559,20 +559,20 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
             <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "0.4rem" }}>
               <button
                 onClick={() => handleCopyCode(problem.solution_code)}
-                style={{ background: "none", border: "none", color: "#38bdf8", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontSize: "0.75rem" }}
+                style={{ background: "none", border: "none", color: "var(--primary)", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px", fontSize: "0.75rem" }}
               >
                 {copied ? <Check size={12} color="#10b981" /> : <Copy size={12} />}
                 <span>{copied ? "Đã sao chép" : "Sao chép code mẫu"}</span>
               </button>
             </div>
             <pre style={{
-              background: "#040916",
-              border: "1px solid rgba(255, 255, 255, 0.12)",
+              background: "var(--surface-subtle)",
+              border: "1px solid var(--border-medium)",
               padding: "0.85rem",
               borderRadius: "8px",
               fontFamily: "var(--font-mono)",
               fontSize: "0.85rem",
-              color: "#34d399",
+              color: "#059669",
               overflowX: "auto",
               lineHeight: "1.55",
               margin: 0

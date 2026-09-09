@@ -592,14 +592,14 @@ export default function QuestionCard({
                 fontFamily: "var(--font-mono)",
                 fontWeight: 700,
                 fontSize: "1rem",
-                color: "#ffffff",
-                background: "#080e1e",
+                color: "var(--text-primary)",
+                background: "var(--surface-card)",
                 border: fillChecked 
                   ? (fillInput.trim().toLowerCase() === String(question.correct_answer).trim().toLowerCase() ? "2px solid #10b981" : "2px solid #ef4444")
-                  : "1.5px solid #38bdf8",
+                  : "2px solid var(--border-medium)",
                 padding: "0.75rem 1rem",
                 borderRadius: "8px",
-                boxShadow: "inset 0 2px 6px rgba(0, 0, 0, 0.6)",
+                boxShadow: "var(--shadow-subtle)",
                 outline: "none"
               }}
               placeholder="Ví dụ: def, len, append, range, [1, 2, 3]..."
@@ -743,18 +743,18 @@ export default function QuestionCard({
                   alignItems: "center",
                   gap: "0.75rem",
                   padding: "0.75rem 1rem",
-                  background: "rgba(30, 41, 59, 0.85)",
+                  background: "var(--surface-subtle)",
                   border: orderChecked 
                     ? (order[pos] === (question.correct_order || [])[pos] ? "1.5px solid #10b981" : "1.5px solid #ef4444")
-                    : "1px solid #334155",
+                    : "1.5px solid var(--border-medium)",
                   borderRadius: "var(--radius-sm)",
                   transition: "all 0.2s ease"
                 }}
               >
-                <span style={{ fontWeight: 800, color: "#38bdf8", fontSize: "0.85rem", width: "26px" }}>
+                <span style={{ fontWeight: 800, color: "#2563eb", fontSize: "0.85rem", width: "26px" }}>
                   #{pos + 1}
                 </span>
-                <span style={{ flex: 1, fontFamily: "var(--font-mono)", fontSize: "0.88rem", color: "#f8fafc" }}>
+                <span style={{ flex: 1, fontFamily: "var(--font-mono)", fontSize: "0.88rem", color: "var(--text-primary)" }}>
                   {question.items![itemIdx]}
                 </span>
                 <div style={{ display: "flex", gap: "0.3rem" }}>
@@ -893,14 +893,14 @@ export default function QuestionCard({
                 const correctPair = Array.isArray(question.pairs) ? question.pairs.find(p => p.left === lVal) : null;
                 const isMatched = correctPair ? userChoice === correctPair.right : false;
 
-                let rowBorder = "1.5px solid #475569";
+                let rowBorder = "1.5px solid var(--border-medium)";
                 if (!isExamMode && matchingChecked) {
                   rowBorder = isMatched ? "1.5px solid #10b981" : "1.5px solid #ef4444";
                 }
 
                 return (
                   <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "center" }}>
-                    <div style={{ padding: "0.7rem 0.9rem", background: "rgba(30, 41, 59, 0.9)", color: "#ffffff", border: rowBorder, borderRadius: "8px", fontSize: "0.88rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+                    <div style={{ padding: "0.7rem 0.9rem", background: "var(--surface-subtle)", color: "var(--text-primary)", border: rowBorder, borderRadius: "8px", fontSize: "0.88rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
                       {lVal}
                     </div>
                     <select
@@ -908,8 +908,8 @@ export default function QuestionCard({
                       value={userChoice}
                       onChange={(e) => handleMatchSelect(lVal, e.target.value)}
                       style={{
-                        background: "rgba(15, 23, 42, 0.95)",
-                        color: userChoice ? "#f8fafc" : "#94a3b8",
+                        background: "var(--surface-card)",
+                        color: "var(--text-primary)",
                         border: rowBorder,
                         padding: "0.7rem 0.85rem",
                         borderRadius: "8px",
@@ -917,9 +917,9 @@ export default function QuestionCard({
                         outline: "none"
                       }}
                     >
-                      <option value="" style={{ background: "#0f172a", color: "#94a3b8" }}>-- Chọn ghép cặp --</option>
+                      <option value="">-- Chọn ghép cặp --</option>
                       {rightList.map((rVal: string, rIdx: number) => (
-                        <option key={rIdx} value={rVal} style={{ background: "#0f172a", color: "#f8fafc" }}>{rVal}</option>
+                        <option key={rIdx} value={rVal}>{rVal}</option>
                       ))}
                     </select>
                   </div>
@@ -1045,24 +1045,24 @@ export default function QuestionCard({
           marginTop: "1rem",
           padding: "1rem 1.25rem",
           borderRadius: "var(--radius-md)",
-          background: "rgba(5, 150, 105, 0.12)",
-          border: "1px solid rgba(16, 185, 129, 0.3)",
+          background: "rgba(16, 185, 129, 0.08)",
+          border: "1.5px solid rgba(16, 185, 129, 0.3)",
           fontSize: "0.9rem",
           lineHeight: "1.6",
-          color: "#bbf7d0"
+          color: "var(--text-primary)"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, marginBottom: "0.4rem", color: "#34d399" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, marginBottom: "0.4rem", color: "#059669" }}>
             <CheckCircle2 size={16} />
             <span>Phân tích đáp án chuẩn & Phương pháp suy luận:</span>
           </div>
-          <div>{question.explanation}</div>
+          <div style={{ color: "var(--text-secondary)" }}>{question.explanation}</div>
 
           {question.type === "sequence_order" && question.items && question.correct_order && (
-            <div style={{ marginTop: "0.6rem", padding: "0.6rem 0.8rem", background: "rgba(0, 0, 0, 0.35)", borderRadius: "6px", fontFamily: "var(--font-mono)", fontSize: "0.84rem", color: "#f8fafc" }}>
-              <div style={{ color: "#38bdf8", fontWeight: 700, marginBottom: "0.3rem" }}>Thứ tự logic chuẩn:</div>
+            <div style={{ marginTop: "0.6rem", padding: "0.6rem 0.8rem", background: "var(--surface-card)", border: "1px solid var(--border-light)", borderRadius: "6px", fontFamily: "var(--font-mono)", fontSize: "0.84rem", color: "var(--text-primary)" }}>
+              <div style={{ color: "#2563eb", fontWeight: 700, marginBottom: "0.3rem" }}>Thứ tự logic chuẩn:</div>
               {question.correct_order.map((itIdx, pos) => (
                 <div key={pos} style={{ padding: "0.15rem 0" }}>
-                  <span style={{ color: "#34d399", fontWeight: 700 }}>#{pos + 1}. </span>
+                  <span style={{ color: "#059669", fontWeight: 700 }}>#{pos + 1}. </span>
                   {question.items![itIdx]}
                 </div>
               ))}
@@ -1070,13 +1070,13 @@ export default function QuestionCard({
           )}
 
           {question.type === "matching" && Array.isArray(question.pairs) && (
-            <div style={{ marginTop: "0.6rem", padding: "0.6rem 0.8rem", background: "rgba(0, 0, 0, 0.35)", borderRadius: "6px", fontSize: "0.84rem", color: "#f8fafc" }}>
-              <div style={{ color: "#fb7185", fontWeight: 700, marginBottom: "0.3rem" }}>Ghép cặp chuẩn xác:</div>
+            <div style={{ marginTop: "0.6rem", padding: "0.6rem 0.8rem", background: "var(--surface-card)", border: "1px solid var(--border-light)", borderRadius: "6px", fontSize: "0.84rem", color: "var(--text-primary)" }}>
+              <div style={{ color: "#e11d48", fontWeight: 700, marginBottom: "0.3rem" }}>Ghép cặp chuẩn xác:</div>
               {question.pairs.map((p, pIdx) => (
                 <div key={pIdx} style={{ padding: "0.2rem 0", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                  <strong style={{ fontFamily: "var(--font-mono)", color: "#38bdf8" }}>{p.left}</strong>
-                  <span style={{ color: "#94a3b8" }}>──▶</span>
-                  <span style={{ color: "#e2e8f0" }}>{p.right}</span>
+                  <strong style={{ fontFamily: "var(--font-mono)", color: "#2563eb" }}>{p.left}</strong>
+                  <span style={{ color: "var(--text-muted)" }}>──▶</span>
+                  <span style={{ color: "var(--text-secondary)" }}>{p.right}</span>
                 </div>
               ))}
             </div>
@@ -1090,14 +1090,14 @@ export default function QuestionCard({
           marginTop: "1rem",
           padding: "1.1rem 1.25rem",
           borderRadius: "var(--radius-md)",
-          background: "rgba(124, 58, 237, 0.12)",
-          border: "1px solid rgba(168, 85, 247, 0.3)",
+          background: "rgba(124, 58, 237, 0.08)",
+          border: "1.5px solid rgba(124, 58, 237, 0.25)",
           fontSize: "0.9rem",
           lineHeight: "1.6",
-          color: "#e9d5ff"
+          color: "var(--text-primary)"
         }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", fontWeight: 800, color: "#c084fc" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", fontWeight: 800, color: "#7c3aed" }}>
               <Sparkles size={16} />
               <span>Trợ Lý Sư Phạm AI Gemini:</span>
             </div>
@@ -1106,11 +1106,11 @@ export default function QuestionCard({
               className="btn btn-secondary btn-sm"
               style={{ padding: "0.2rem 0.5rem", fontSize: "0.75rem" }}
             >
-              {copied ? <Check size={12} color="#34d399" /> : <Copy size={12} />}
+              {copied ? <Check size={12} color="#059669" /> : <Copy size={12} />}
               <span>{copied ? "Đã chép" : "Sao chép"}</span>
             </button>
           </div>
-          <div style={{ whiteSpace: "pre-line", color: "#f3e8ff" }}>{aiExplanation}</div>
+          <div style={{ whiteSpace: "pre-line", color: "var(--text-primary)" }}>{aiExplanation}</div>
         </div>
       )}
     </div>
