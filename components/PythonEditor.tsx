@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { PracticalProblem } from "@/types";
 import { PythonEngine, GradeResult } from "@/lib/pythonEngine";
+import VSCodeTerminal from "./VSCodeTerminal";
 import { 
   Play, 
   Bot, 
@@ -34,13 +35,19 @@ export default function PythonEditor({
   isExamMode = false
 }: PythonEditorProps) {
   const [code, setCode] = useState(initialCode || problem.starter_code || "");
-  const [consoleOutput, setConsoleOutput] = useState("Sẵn sàng thực thi. Nhấn '▶️ Chạy Thử Code' để xem kết quả...");
+  const [consoleOutput, setConsoleOutput] = useState("");
   const [isRunning, setIsRunning] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [executionTimeMs, setExecutionTimeMs] = useState(0);
+  const [turtleSvg, setTurtleSvg] = useState<string | undefined>(undefined);
   const [gradeStatus, setGradeStatus] = useState<GradeResult | null>(null);
 
   useEffect(() => {
     setCode(initialCode || problem.starter_code || "");
-    setConsoleOutput("Sẵn sàng thực thi. Nhấn '▶️ Chạy Thử Code' để xem kết quả...");
+    setConsoleOutput("");
+    setIsError(false);
+    setExecutionTimeMs(0);
+    setTurtleSvg(undefined);
     setGradeStatus(null);
     setAiFeedback(null);
   }, [problem.id, initialCode, problem.starter_code]);
@@ -56,7 +63,28 @@ export default function PythonEditor({
     if (onCodeChange) onCodeChange(val);
   };
 
+  const handleRunCode = async () => {
+    setIsRunning(true);
+    setConsoleOutput("");
+    const res = await PythonEngine.runCode(code);
+    setConsoleOutput(res.output);
+    setIsError(!res.success);
+    setExecutionTimeMs(res.executionTimeMs || 0);
+    setTurtleSvg(res.turtleCanvasSvg);
+    setIsRunning(false);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleRunCode();
+      return;
+    }
+    if (e.key === "F5") {
+      e.preventDefault();
+      handleRunCode();
+      return;
+    }
     if (e.key === "Tab") {
       e.preventDefault();
       const target = e.currentTarget;
@@ -69,14 +97,6 @@ export default function PythonEditor({
         target.selectionStart = target.selectionEnd = start + 4;
       }, 0);
     }
-  };
-
-  const handleRunCode = async () => {
-    setIsRunning(true);
-    setConsoleOutput("⏳ Đang biên dịch và thực thi Python 3.12 Engine...");
-    const res = await PythonEngine.runCode(code);
-    setConsoleOutput(res.output);
-    setIsRunning(false);
   };
 
   const handleAskAI = async () => {
@@ -157,10 +177,25 @@ export default function PythonEditor({
 
       {/* IDE Toolbar */}
       <div className="ide-toolbar">
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          <button className="btn btn-warning btn-sm" onClick={handleRunCode} disabled={isRunning}>
-            <Play size={14} />
-            <span>{isRunning ? "Đang chạy..." : "Chạy Thử Code"}</span>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>
+          <button 
+            className="btn btn-warning btn-sm" 
+            onClick={handleRunCode} 
+            disabled={isRunning}
+            title="Chạy thử code trên Terminal giả lập (F5 hoặc Ctrl+Enter)"
+            style={{
+              background: "linear-gradient(135deg, #0284c7, #0369a1)",
+              color: "#ffffff",
+              fontWeight: 700,
+              border: "1px solid rgba(56, 189, 248, 0.4)",
+              boxShadow: "0 2px 10px rgba(2, 132, 199, 0.35)",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px"
+            }}
+          >
+            <Play size={14} fill="#ffffff" />
+            <span>{isRunning ? "Đang biên dịch & chạy..." : "▶️ Chạy Thử / Build (F5)"}</span>
           </button>
 
           {!isExamMode && (
@@ -169,6 +204,10 @@ export default function PythonEditor({
               <span>{isAiLoading ? "AI Đang Phân Tích..." : "Nhờ AI Sửa Code"}</span>
             </button>
           )}
+
+          <span style={{ fontSize: "0.74rem", color: "#94a3b8", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+            Phím tắt: <kbd style={{ background: "rgba(255,255,255,0.12)", padding: "2px 6px", borderRadius: "4px", color: "#38bdf8", fontFamily: "var(--font-mono)" }}>F5</kbd> hoặc <kbd style={{ background: "rgba(255,255,255,0.12)", padding: "2px 6px", borderRadius: "4px", color: "#38bdf8", fontFamily: "var(--font-mono)" }}>Ctrl+Enter</kbd>
+          </span>
         </div>
 
         <button className="btn btn-success btn-sm" onClick={handleSubmit}>
@@ -224,32 +263,21 @@ export default function PythonEditor({
         </div>
       )}
 
-      {/* Terminal Console */}
-      <div className="terminal-header">
-        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
-          <Terminal size={14} />
-          <span>Cửa Sổ Console Output Giả Lập</span>
-        </div>
-        <button
-          onClick={() => setConsoleOutput("Đã xóa console.")}
-          style={{
-            background: "none",
-            border: "none",
-            color: "#64748b",
-            fontSize: "0.72rem",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "3px"
+      {/* VS Code Style Integrated Terminal */}
+      <div style={{ marginTop: "1rem" }}>
+        <VSCodeTerminal
+          output={consoleOutput}
+          isRunning={isRunning}
+          isError={isError}
+          executionTimeMs={executionTimeMs}
+          turtleSvg={turtleSvg}
+          onClear={() => {
+            setConsoleOutput("");
+            setIsError(false);
           }}
-          title="Xóa output"
-        >
-          <Trash2 size={12} />
-          <span>Xóa</span>
-        </button>
+          onRun={handleRunCode}
+        />
       </div>
-
-      <div className="terminal-output-box">{consoleOutput}</div>
     </div>
   );
 }

@@ -440,8 +440,51 @@ export class PythonEngine {
 
     let finalOutput = stdoutBuffer.replace(/\n$/, "");
 
-    // Nếu có nhật ký vẽ Turtle, tổng hợp kết quả trực quan
-    if (turtleLogs.length > 0) {
+    // Nếu có nhật ký vẽ Turtle, tổng hợp kết quả trực quan và xuất bản vẽ SVG
+    let svgOutput: string | undefined = undefined;
+    if (turtlePaths.length > 0) {
+      let minX = -120, maxX = 120, minY = -120, maxY = 120;
+      for (const p of turtlePaths) {
+        if (p.fromX < minX) minX = p.fromX - 25;
+        if (p.toX < minX) minX = p.toX - 25;
+        if (p.fromX > maxX) maxX = p.fromX + 25;
+        if (p.toX > maxX) maxX = p.toX + 25;
+        if (p.fromY < minY) minY = p.fromY - 25;
+        if (p.toY < minY) minY = p.toY - 25;
+        if (p.fromY > maxY) maxY = p.fromY + 25;
+        if (p.toY > maxY) maxY = p.toY + 25;
+      }
+      const spanX = Math.max(maxX - minX, 300);
+      const spanY = Math.max(maxY - minY, 300);
+      const centerX = (minX + maxX) / 2;
+      const centerY = (minY + maxY) / 2;
+      const halfSpan = Math.max(spanX, spanY) / 2 + 35;
+      const vx = Math.round(centerX - halfSpan);
+      const vy = Math.round(-(centerY + halfSpan));
+      const vw = Math.round(halfSpan * 2);
+      const vh = Math.round(halfSpan * 2);
+
+      const elements: string[] = [];
+      for (const p of turtlePaths) {
+        if (p.type === "line") {
+          elements.push(`<line x1="${p.fromX}" y1="${-p.fromY}" x2="${p.toX}" y2="${-p.toY}" stroke="${p.color}" stroke-width="${p.width}" stroke-linecap="round" />`);
+        } else if (p.type === "circle") {
+          elements.push(`<circle cx="${p.toX}" cy="${-p.toY}" r="35" stroke="${p.color}" stroke-width="${p.width}" fill="${p.fill || 'none'}" />`);
+        }
+      }
+
+      svgOutput = `<svg viewBox="${vx} ${vy} ${vw} ${vh}" width="100%" height="320" xmlns="http://www.w3.org/2000/svg" style="background: ${bgColor || '#ffffff'}; border-radius: 8px; box-shadow: inset 0 0 20px rgba(0,0,0,0.1);">
+        <defs>
+          <pattern id="turtle-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(0,0,0,0.06)" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect x="${vx}" y="${vy}" width="${vw}" height="${vh}" fill="url(#turtle-grid)" />
+        <line x1="${vx}" y1="0" x2="${vx + vw}" y2="0" stroke="rgba(0,0,0,0.18)" stroke-dasharray="4" stroke-width="1" />
+        <line x1="0" y1="${vy}" x2="0" y2="${vy + vh}" stroke="rgba(0,0,0,0.18)" stroke-dasharray="4" stroke-width="1" />
+        ${elements.join("\n        ")}
+      </svg>`;
+
       const turtleSummary = [
         "═══════════════════════════════════════════════════════════════",
         "🎨 [TRÌNH MÔ PHỎNG ĐỒ HỌA TURTLE GRAPHICS — SAO VIỆT IDE]",
@@ -455,7 +498,7 @@ export class PythonEngine {
       finalOutput = (finalOutput ? finalOutput + "\n\n" : "") + turtleSummary;
     }
 
-    return { output: finalOutput };
+    return { output: finalOutput, svg: svgOutput };
   }
 
   /**

@@ -2,6 +2,7 @@
 
 import { PracticalProblem } from "@/types";
 import { PythonEngine, RunResult, GradeResult } from "@/lib/pythonEngine";
+import VSCodeTerminal from "./VSCodeTerminal";
 import { 
   Terminal, 
   Code2, 
@@ -28,6 +29,9 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
   const [userCode, setUserCode] = useState(problem.starter_code || "");
   const [consoleOutput, setConsoleOutput] = useState<string>("");
   const [isRunning, setIsRunning] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [executionTimeMs, setExecutionTimeMs] = useState(0);
+  const [turtleSvg, setTurtleSvg] = useState<string | undefined>(undefined);
   const [gradeResult, setGradeResult] = useState<GradeResult | null>(null);
   const [showSolution, setShowSolution] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -42,7 +46,35 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleRunCode = async () => {
+    setIsRunning(true);
+    setConsoleOutput("");
+    try {
+      const res: RunResult = await PythonEngine.runCode(userCode);
+      setConsoleOutput(res.output);
+      setIsError(!res.success);
+      setExecutionTimeMs(res.executionTimeMs || 0);
+      setTurtleSvg(res.turtleCanvasSvg);
+    } catch (e: any) {
+      setConsoleOutput("❌ Lỗi: " + e.message);
+      setIsError(true);
+      setExecutionTimeMs(0);
+    } finally {
+      setIsRunning(false);
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      handleRunCode();
+      return;
+    }
+    if (e.key === "F5") {
+      e.preventDefault();
+      handleRunCode();
+      return;
+    }
     if (e.key === "Tab") {
       e.preventDefault();
       const target = e.currentTarget;
@@ -53,19 +85,6 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
       setTimeout(() => {
         target.selectionStart = target.selectionEnd = start + 4;
       }, 0);
-    }
-  };
-
-  const handleRunCode = async () => {
-    setIsRunning(true);
-    setConsoleOutput("⏳ Đang biên dịch & thực thi Python 3 Engine qua web...");
-    try {
-      const res: RunResult = await PythonEngine.runCode(userCode);
-      setConsoleOutput(res.output);
-    } catch (e: any) {
-      setConsoleOutput("❌ Lỗi: " + e.message);
-    } finally {
-      setIsRunning(false);
     }
   };
 
@@ -273,27 +292,28 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
           flexWrap: "wrap",
           gap: "0.6rem"
         }}>
-          <div style={{ display: "flex", gap: "0.6rem" }}>
+          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
             <button
               onClick={handleRunCode}
               disabled={isRunning}
+              title="Chạy thử code trên Terminal giả lập (F5 hoặc Ctrl+Enter)"
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: "6px",
                 padding: "0.5rem 1.1rem",
                 borderRadius: "8px",
-                border: "none",
-                background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                border: "1px solid rgba(56, 189, 248, 0.4)",
+                background: "linear-gradient(135deg, #0284c7, #0369a1)",
                 color: "#ffffff",
                 fontWeight: 700,
                 fontSize: "0.85rem",
                 cursor: "pointer",
-                boxShadow: "0 2px 10px rgba(37, 99, 235, 0.35)"
+                boxShadow: "0 2px 10px rgba(2, 132, 199, 0.35)"
               }}
             >
               <Play size={15} fill="#ffffff" />
-              <span>{isRunning ? "Đang Chạy..." : "▶️ Chạy Thử Code"}</span>
+              <span>{isRunning ? "Đang Chạy..." : "▶️ Chạy Thử / Build (F5)"}</span>
             </button>
 
             <button
@@ -315,6 +335,10 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
               <CheckCircle2 size={15} />
               <span>Chấm Điểm Test Cases</span>
             </button>
+
+            <span style={{ fontSize: "0.74rem", color: "#94a3b8", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+              Phím tắt: <kbd style={{ background: "rgba(255,255,255,0.12)", padding: "2px 6px", borderRadius: "4px", color: "#38bdf8", fontFamily: "var(--font-mono)" }}>F5</kbd> hoặc <kbd style={{ background: "rgba(255,255,255,0.12)", padding: "2px 6px", borderRadius: "4px", color: "#38bdf8", fontFamily: "var(--font-mono)" }}>Ctrl+Enter</kbd>
+            </span>
           </div>
 
           {gradeResult && (
@@ -338,34 +362,21 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
         </div>
       </div>
 
-      {/* Terminal Console Output */}
-      {consoleOutput && (
-        <div style={{
-          background: "#070c18",
-          border: "1px solid rgba(59, 130, 246, 0.25)",
-          borderRadius: "10px",
-          padding: "0.85rem 1rem",
-          marginBottom: "1rem",
-          fontFamily: "var(--font-mono)",
-          fontSize: "0.84rem"
-        }}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.4rem", color: "#94a3b8", fontSize: "0.74rem" }}>
-            <span style={{ display: "flex", alignItems: "center", gap: "4px", color: "#38bdf8", fontWeight: 700 }}>
-              <Terminal size={13} />
-              KẾT QUẢ ĐẦU RA (OUTPUT CONSOLE):
-            </span>
-            <button
-              onClick={() => setConsoleOutput("")}
-              style={{ background: "none", border: "none", color: "#94a3b8", cursor: "pointer", fontSize: "0.72rem" }}
-            >
-              Xóa màn hình
-            </button>
-          </div>
-          <pre style={{ margin: 0, whiteSpace: "pre-wrap", color: "#f8fafc", lineHeight: "1.5" }}>
-            {consoleOutput}
-          </pre>
-        </div>
-      )}
+      {/* VS Code Style Integrated Terminal */}
+      <div style={{ marginBottom: "1rem" }}>
+        <VSCodeTerminal
+          output={consoleOutput}
+          isRunning={isRunning}
+          isError={isError}
+          executionTimeMs={executionTimeMs}
+          turtleSvg={turtleSvg}
+          onClear={() => {
+            setConsoleOutput("");
+            setIsError(false);
+          }}
+          onRun={handleRunCode}
+        />
+      </div>
 
       {/* AI Feedback Card */}
       {aiFeedback && (
