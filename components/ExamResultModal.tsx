@@ -37,18 +37,18 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
       zIndex: 1000,
       padding: "1rem"
     }}>
-      <div className="q-card" style={{ maxWidth: "600px", width: "100%", padding: "2.2rem", position: "relative" }}>
+      <div className="q-card" style={{ maxWidth: "520px", width: "100%", padding: "1.4rem 1.6rem", position: "relative" }}>
         <button
           onClick={onClose}
           style={{
             position: "absolute",
-            top: "1.2rem",
-            right: "1.2rem",
+            top: "1rem",
+            right: "1rem",
             background: "#f1f5f9",
             border: "none",
             borderRadius: "50%",
-            width: "32px",
-            height: "32px",
+            width: "28px",
+            height: "28px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -56,108 +56,108 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
             color: "#64748b"
           }}
         >
-          <X size={18} />
+          <X size={16} />
         </button>
 
-        <div style={{ textAlign: "center", marginBottom: "1.8rem" }}>
+        <div style={{ textAlign: "center", marginBottom: "1.2rem" }}>
           <div style={{
-            width: "64px",
-            height: "64px",
+            width: "48px",
+            height: "48px",
             background: isPassed 
               ? "linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(59, 130, 246, 0.15))"
               : "linear-gradient(135deg, rgba(244, 63, 94, 0.15), rgba(245, 158, 11, 0.15))",
             color: isPassed ? "var(--brand-emerald)" : "var(--brand-rose)",
-            borderRadius: "20px",
+            borderRadius: "14px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            margin: "0 auto 1rem auto"
+            margin: "0 auto 0.75rem auto"
           }}>
-            {isPassed ? <Trophy size={32} /> : <Award size={32} />}
+            {isPassed ? <Trophy size={24} /> : <Award size={24} />}
           </div>
 
           <span style={{
-            fontSize: "0.76rem",
+            fontSize: "0.68rem",
             fontWeight: 800,
             textTransform: "uppercase",
-            letterSpacing: "0.08em",
+            letterSpacing: "0.06em",
             color: "var(--brand-primary)",
-            background: "rgba(37, 99, 235, 0.1)",
-            padding: "0.25rem 0.8rem",
+            background: "rgba(37, 99, 235, 0.08)",
+            padding: "0.2rem 0.65rem",
             borderRadius: "var(--radius-full)",
-            border: "1px solid rgba(37, 99, 235, 0.2)"
+            border: "1px solid rgba(37, 99, 235, 0.18)"
           }}>
             KẾT QUẢ ĐÁNH GIÁ CHUẨN ĐẦU RA
           </span>
 
-          <h2 style={{ fontSize: "1.5rem", fontWeight: 900, marginTop: "0.6rem", marginBottom: "0.2rem" }}>
+          <h2 style={{ fontSize: "1.2rem", fontWeight: 800, marginTop: "0.45rem", marginBottom: "0.15rem", letterSpacing: "-0.2px" }}>
             BÀI THI LẬP TRÌNH SAO VIỆT
           </h2>
 
-          <p style={{ color: "var(--text-muted)", fontSize: "0.92rem" }}>
+          <p style={{ color: "var(--text-muted)", fontSize: "0.82rem", margin: "0.2rem 0 0" }}>
             Học viên: <strong style={{ color: "var(--text-primary)" }}>{resultData.userName}</strong>
           </p>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))", gap: "1rem", marginBottom: "1.8rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: "0.65rem", marginBottom: "1.15rem" }}>
           <div style={{
             background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
             border: "1px solid #bfdbfe",
-            padding: "1.2rem 1rem",
-            borderRadius: "var(--radius-md)",
+            padding: "0.75rem 0.65rem",
+            borderRadius: "10px",
             textAlign: "center"
           }}>
-            <span style={{ fontSize: "0.74rem", color: "var(--brand-primary)", fontWeight: 800, textTransform: "uppercase", display: "block" }}>
+            <span style={{ fontSize: "0.66rem", color: "var(--brand-primary)", fontWeight: 800, textTransform: "uppercase", display: "block" }}>
               TỔNG ĐIỂM
             </span>
-            <span style={{ fontSize: "2.1rem", fontWeight: 900, color: "#1e40af", lineHeight: "1.2", margin: "0.2rem 0", display: "block" }}>
+            <span style={{ fontSize: "1.55rem", fontWeight: 900, color: "#1e40af", lineHeight: "1.2", margin: "0.15rem 0", display: "block" }}>
               {finalScore}
             </span>
-            <span style={{ fontSize: "0.75rem", color: "#3b82f6", fontWeight: 700 }}>Thang 10.0</span>
+            <span style={{ fontSize: "0.68rem", color: "#3b82f6", fontWeight: 700 }}>Thang 10.0</span>
           </div>
 
           <div style={{
             background: "var(--surface-subtle)",
             border: "1px solid var(--border-light)",
-            padding: "1.2rem 1rem",
-            borderRadius: "var(--radius-md)",
+            padding: "0.75rem 0.65rem",
+            borderRadius: "10px",
             textAlign: "center"
           }}>
-            <span style={{ fontSize: "0.74rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase", display: "block" }}>
+            <span style={{ fontSize: "0.66rem", color: "var(--text-muted)", fontWeight: 700, textTransform: "uppercase", display: "block" }}>
               TRẮC NGHIỆM ĐÚNG
             </span>
-            <span style={{ fontSize: "1.35rem", fontWeight: 800, color: "var(--text-primary)", margin: "0.3rem 0", display: "block" }}>
+            <span style={{ fontSize: "1.15rem", fontWeight: 800, color: "var(--text-primary)", margin: "0.25rem 0", display: "block" }}>
               {resultData.correctCount || 0} câu
             </span>
-            <span style={{ fontSize: "0.75rem", color: "var(--brand-primary)", fontWeight: 700 }}>Đã chấm tự động</span>
+            <span style={{ fontSize: "0.68rem", color: "var(--brand-primary)", fontWeight: 700 }}>Đã chấm tự động</span>
           </div>
 
           <div style={{
             background: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)",
             border: "1px solid #a7f3d0",
-            padding: "1.2rem 1rem",
-            borderRadius: "var(--radius-md)",
+            padding: "0.75rem 0.65rem",
+            borderRadius: "10px",
             textAlign: "center"
           }}>
-            <span style={{ fontSize: "0.74rem", color: "var(--brand-emerald-dark)", fontWeight: 800, textTransform: "uppercase", display: "block" }}>
+            <span style={{ fontSize: "0.66rem", color: "var(--brand-emerald-dark)", fontWeight: 800, textTransform: "uppercase", display: "block" }}>
               XẾP LOẠI
             </span>
-            <span style={{ fontSize: "1rem", fontWeight: 900, color: "#065f46", margin: "0.4rem 0", display: "block", lineHeight: "1.3" }}>
+            <span style={{ fontSize: "0.85rem", fontWeight: 900, color: "#065f46", margin: "0.3rem 0", display: "block", lineHeight: "1.3" }}>
               {getRankName(finalScore)}
             </span>
-            <span style={{ fontSize: "0.72rem", color: "#059669", fontWeight: 600 }}>{isPassed ? "Đạt Tiêu Chuẩn" : "Cần Ôn Thêm"}</span>
+            <span style={{ fontSize: "0.68rem", color: "#059669", fontWeight: 600 }}>{isPassed ? "Đạt Tiêu Chuẩn" : "Cần Ôn Thêm"}</span>
           </div>
         </div>
 
         {resultData.certificateCode && (
           <div style={{
             background: "var(--surface-subtle)",
-            padding: "0.75rem 1rem",
-            borderRadius: "var(--radius-sm)",
+            padding: "0.5rem 0.8rem",
+            borderRadius: "8px",
             border: "1px solid var(--border-light)",
-            marginBottom: "1.5rem",
+            marginBottom: "1rem",
             textAlign: "center",
-            fontSize: "0.85rem"
+            fontSize: "0.78rem"
           }}>
             <span>Mã Chứng Chỉ Tốt Nghiệp: </span>
             <code style={{ fontWeight: 800, color: "var(--brand-primary)" }}>{resultData.certificateCode}</code>
@@ -170,36 +170,36 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
             onClick={() => setShowReview(true)}
             style={{
               width: "100%",
-              padding: "0.85rem 1rem",
-              borderRadius: "12px",
+              padding: "0.65rem 0.9rem",
+              borderRadius: "10px",
               border: "1.5px solid #2563eb",
               background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
               color: "#1d4ed8",
               fontWeight: 800,
-              fontSize: "0.92rem",
+              fontSize: "0.82rem",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: "8px",
-              marginBottom: "1.2rem",
-              boxShadow: "0 2px 8px rgba(37, 99, 235, 0.15)",
-              transition: "all 0.2s ease"
+              gap: "6px",
+              marginBottom: "0.9rem",
+              boxShadow: "0 2px 6px rgba(37, 99, 235, 0.12)",
+              transition: "all 0.15s ease"
             }}
           >
-            <BookOpen size={18} />
-            <span>🔍 Xem Danh Sách Bài Làm & Kiểm Tra Đúng / Sai (Chi Tiết)</span>
+            <BookOpen size={16} />
+            <span>🔍 Xem Danh Sách Bài Làm & Kiểm Tra Đúng / Sai</span>
           </button>
         ) : (
           <div style={{
-            padding: "0.75rem 1rem",
-            borderRadius: "10px",
+            padding: "0.55rem 0.8rem",
+            borderRadius: "8px",
             background: "#f8fafc",
             border: "1px dashed #cbd5e1",
             color: "#64748b",
-            fontSize: "0.82rem",
+            fontSize: "0.76rem",
             textAlign: "center",
-            marginBottom: "1.2rem"
+            marginBottom: "0.9rem"
           }}>
             🔒 Quy chế phòng thi: Chức năng xem chi tiết đáp án tạm thời được bảo mật bởi giám thị.
           </div>
@@ -210,27 +210,35 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
           <div style={{
             background: "#ecfdf5",
             border: "1px solid #a7f3d0",
-            padding: "0.6rem 0.9rem",
+            padding: "0.45rem 0.75rem",
             borderRadius: "8px",
-            fontSize: "0.8rem",
+            fontSize: "0.76rem",
             color: "#065f46",
-            marginBottom: "1.2rem",
+            marginBottom: "0.9rem",
             display: "flex",
             alignItems: "center",
             gap: "6px"
           }}>
-            <Lock size={15} color="#059669" />
+            <Lock size={14} color="#059669" />
             <span>Môn học đã hoàn thành và bảo lưu kết quả. Phòng thi đã được đóng lại an toàn.</span>
           </div>
         )}
 
-        <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
-          <button className="btn btn-secondary" onClick={onClose}>
+        <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.55rem" }}>
+          <button 
+            className="btn btn-secondary" 
+            onClick={onClose}
+            style={{ padding: "0.45rem 0.85rem", fontSize: "0.8rem" }}
+          >
             Đóng Bảng Điểm
           </button>
-          <button className="btn btn-primary" onClick={() => window.print()}>
-            <Printer size={16} />
-            <span>In Bảng Điểm / Lưu PDF</span>
+          <button 
+            className="btn btn-primary" 
+            onClick={() => window.print()}
+            style={{ padding: "0.45rem 0.95rem", fontSize: "0.8rem", gap: "5px" }}
+          >
+            <Printer size={14} />
+            <span>In Bảng Điểm / PDF</span>
           </button>
         </div>
       </div>

@@ -154,7 +154,7 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
       }}>
         {/* MODAL HEADER */}
         <div style={{
-          padding: "1.2rem 1.6rem",
+          padding: "0.85rem 1.25rem",
           background: "linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)",
           color: "#ffffff",
           display: "flex",
@@ -162,46 +162,46 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
           alignItems: "center",
           borderBottom: "1px solid rgba(255, 255, 255, 0.15)"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "9px" }}>
             <div style={{
-              width: "40px",
-              height: "40px",
-              borderRadius: "10px",
+              width: "32px",
+              height: "32px",
+              borderRadius: "8px",
               background: "rgba(255, 255, 255, 0.2)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center"
             }}>
-              <BookOpen size={22} color="#ffffff" />
+              <BookOpen size={18} color="#ffffff" />
             </div>
             <div>
-              <h2 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "#ffffff", letterSpacing: "-0.2px" }}>
+              <h2 style={{ fontSize: "1.05rem", fontWeight: 800, margin: 0, color: "#ffffff", letterSpacing: "-0.2px" }}>
                 Bảng Kiểm Tra Đúng / Sai & Giải Thích Chi Tiết
               </h2>
-              <p style={{ fontSize: "0.8rem", color: "rgba(255, 255, 255, 0.85)", margin: "0.2rem 0 0" }}>
+              <p style={{ fontSize: "0.75rem", color: "rgba(255, 255, 255, 0.85)", margin: "0.15rem 0 0" }}>
                 Học viên: <strong>{resultData.userName}</strong> • Tổng điểm: <strong>{resultData.score}/10.0</strong> ({resultData.passed ? "Đạt Chuẩn Tốt Nghiệp" : "Chưa Đạt"})
               </p>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <button
               onClick={() => window.print()}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "5px",
-                padding: "0.45rem 0.85rem",
-                borderRadius: "8px",
+                gap: "4px",
+                padding: "0.35rem 0.65rem",
+                borderRadius: "6px",
                 border: "1px solid rgba(255, 255, 255, 0.3)",
                 background: "rgba(255, 255, 255, 0.15)",
                 color: "#ffffff",
-                fontSize: "0.82rem",
+                fontSize: "0.76rem",
                 fontWeight: 700,
                 cursor: "pointer"
               }}
             >
-              <Printer size={15} />
+              <Printer size={13} />
               <span>In Bài Làm</span>
             </button>
             <button
@@ -210,8 +210,8 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                 background: "rgba(255, 255, 255, 0.15)",
                 border: "1px solid rgba(255, 255, 255, 0.3)",
                 borderRadius: "50%",
-                width: "36px",
-                height: "36px",
+                width: "30px",
+                height: "30px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -220,7 +220,7 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
               }}
               title="Đóng bảng tra cứu"
             >
-              <X size={20} />
+              <X size={16} />
             </button>
           </div>
         </div>
@@ -230,21 +230,21 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
           <div style={{
             background: "#ecfdf5",
             borderBottom: "1px solid #a7f3d0",
-            padding: "0.65rem 1.6rem",
+            padding: "0.45rem 1.25rem",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            fontSize: "0.82rem",
+            fontSize: "0.76rem",
             color: "#065f46"
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <Lock size={15} color="#059669" />
+            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <Lock size={13} color="#059669" />
               <span>
                 <strong>Khóa bảo lưu kết quả:</strong> Môn học đã hoàn thành với điểm số <strong>{resultData.score}đ</strong>. Kết quả đã đồng bộ an toàn lên MongoDB Atlas.
               </span>
             </div>
             {resultData.certificateCode && (
-              <span style={{ fontWeight: 800, background: "#ffffff", padding: "2px 8px", borderRadius: "6px", border: "1px solid #10b981", color: "#047857" }}>
+              <span style={{ fontWeight: 800, background: "#ffffff", padding: "1px 6px", borderRadius: "5px", border: "1px solid #10b981", color: "#047857", fontSize: "0.72rem" }}>
                 Chứng chỉ: {resultData.certificateCode}
               </span>
             )}
@@ -253,66 +253,66 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
 
         {/* SUMMARY STATS STRIP */}
         <div style={{
-          padding: "1rem 1.6rem",
+          padding: "0.65rem 1.15rem",
           background: "var(--surface-subtle, #f8fafc)",
           borderBottom: "1px solid var(--border-light, #e2e8f0)",
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-          gap: "0.85rem"
+          gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
+          gap: "0.65rem"
         }}>
-          <div style={{ background: "#ffffff", padding: "0.65rem 0.9rem", borderRadius: "10px", border: "1px solid #bfdbfe", textAlign: "center" }}>
-            <span style={{ fontSize: "0.7rem", color: "#2563eb", fontWeight: 800, textTransform: "uppercase", display: "block" }}>TỔNG ĐIỂM</span>
-            <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#1e40af" }}>{resultData.score}</span>
-            <span style={{ fontSize: "0.7rem", color: "#64748b", display: "block" }}>Thang 10.0</span>
+          <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "8px", border: "1px solid #bfdbfe", textAlign: "center" }}>
+            <span style={{ fontSize: "0.65rem", color: "#2563eb", fontWeight: 800, textTransform: "uppercase", display: "block" }}>TỔNG ĐIỂM</span>
+            <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#1e40af" }}>{resultData.score}</span>
+            <span style={{ fontSize: "0.65rem", color: "#64748b", display: "block" }}>Thang 10.0</span>
           </div>
 
-          <div style={{ background: "#ffffff", padding: "0.65rem 0.9rem", borderRadius: "10px", border: "1px solid #a7f3d0", textAlign: "center" }}>
-            <span style={{ fontSize: "0.7rem", color: "#059669", fontWeight: 800, textTransform: "uppercase", display: "block" }}>CÂU ĐÚNG</span>
-            <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#047857" }}>{correctMCQs}</span>
-            <span style={{ fontSize: "0.7rem", color: "#059669", display: "block" }}>+{(correctMCQs * 0.14).toFixed(2)}đ trắc nghiệm</span>
+          <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "8px", border: "1px solid #a7f3d0", textAlign: "center" }}>
+            <span style={{ fontSize: "0.65rem", color: "#059669", fontWeight: 800, textTransform: "uppercase", display: "block" }}>CÂU ĐÚNG</span>
+            <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#047857" }}>{correctMCQs}</span>
+            <span style={{ fontSize: "0.65rem", color: "#059669", display: "block" }}>+{(correctMCQs * 0.14).toFixed(2)}đ TN</span>
           </div>
 
-          <div style={{ background: "#ffffff", padding: "0.65rem 0.9rem", borderRadius: "10px", border: "1px solid #fecaca", textAlign: "center" }}>
-            <span style={{ fontSize: "0.7rem", color: "#dc2626", fontWeight: 800, textTransform: "uppercase", display: "block" }}>CÂU SAI</span>
-            <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#b91c1c" }}>{incorrectMCQs}</span>
-            <span style={{ fontSize: "0.7rem", color: "#dc2626", display: "block" }}>Cần ôn tập kỹ lại</span>
+          <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "8px", border: "1px solid #fecaca", textAlign: "center" }}>
+            <span style={{ fontSize: "0.65rem", color: "#dc2626", fontWeight: 800, textTransform: "uppercase", display: "block" }}>CÂU SAI</span>
+            <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#b91c1c" }}>{incorrectMCQs}</span>
+            <span style={{ fontSize: "0.65rem", color: "#dc2626", display: "block" }}>Cần ôn lại</span>
           </div>
 
-          <div style={{ background: "#ffffff", padding: "0.65rem 0.9rem", borderRadius: "10px", border: "1px solid #e2e8f0", textAlign: "center" }}>
-            <span style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 800, textTransform: "uppercase", display: "block" }}>BỎ QUA / CHƯA LÀM</span>
-            <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#475569" }}>{unattemptedMCQs}</span>
-            <span style={{ fontSize: "0.7rem", color: "#94a3b8", display: "block" }}>0 điểm</span>
+          <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "8px", border: "1px solid #e2e8f0", textAlign: "center" }}>
+            <span style={{ fontSize: "0.65rem", color: "#64748b", fontWeight: 800, textTransform: "uppercase", display: "block" }}>BỎ QUA / CHƯA LÀM</span>
+            <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#475569" }}>{unattemptedMCQs}</span>
+            <span style={{ fontSize: "0.65rem", color: "#94a3b8", display: "block" }}>0 điểm</span>
           </div>
 
-          <div style={{ background: "#ffffff", padding: "0.65rem 0.9rem", borderRadius: "10px", border: "1px solid #cbd5e1", textAlign: "center" }}>
-            <span style={{ fontSize: "0.7rem", color: "#0284c7", fontWeight: 800, textTransform: "uppercase", display: "block" }}>CODE THỰC HÀNH</span>
-            <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#0369a1" }}>{practicalPassedCount} / 4</span>
-            <span style={{ fontSize: "0.7rem", color: "#0284c7", display: "block" }}>+{(practicalPassedCount * 0.75).toFixed(2)}đ tự luận</span>
+          <div style={{ background: "#ffffff", padding: "0.45rem 0.65rem", borderRadius: "8px", border: "1px solid #cbd5e1", textAlign: "center" }}>
+            <span style={{ fontSize: "0.65rem", color: "#0284c7", fontWeight: 800, textTransform: "uppercase", display: "block" }}>CODE THỰC HÀNH</span>
+            <span style={{ fontSize: "1.25rem", fontWeight: 900, color: "#0369a1" }}>{practicalPassedCount} / 4</span>
+            <span style={{ fontSize: "0.65rem", color: "#0284c7", display: "block" }}>+{(practicalPassedCount * 0.75).toFixed(2)}đ tự luận</span>
           </div>
         </div>
 
         {/* FILTER TOOLBAR & EXPAND ALL BUTTONS */}
         <div style={{
-          padding: "0.75rem 1.6rem",
+          padding: "0.55rem 1.15rem",
           background: "#ffffff",
           borderBottom: "1px solid var(--border-light, #e2e8f0)",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
-          gap: "0.6rem"
+          gap: "0.5rem"
         }}>
-          <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "0.3rem", flexWrap: "wrap" }}>
             <button
               onClick={() => setFilter("all")}
               style={{
-                padding: "0.38rem 0.8rem",
-                borderRadius: "8px",
+                padding: "0.3rem 0.65rem",
+                borderRadius: "6px",
                 border: filter === "all" ? "1.5px solid #2563eb" : "1px solid #cbd5e1",
                 background: filter === "all" ? "#eff6ff" : "#ffffff",
                 color: filter === "all" ? "#1d4ed8" : "#475569",
                 fontWeight: 700,
-                fontSize: "0.78rem",
+                fontSize: "0.74rem",
                 cursor: "pointer"
               }}
             >
@@ -322,13 +322,13 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
             <button
               onClick={() => setFilter("correct")}
               style={{
-                padding: "0.38rem 0.8rem",
-                borderRadius: "8px",
+                padding: "0.3rem 0.65rem",
+                borderRadius: "6px",
                 border: filter === "correct" ? "1.5px solid #059669" : "1px solid #cbd5e1",
                 background: filter === "correct" ? "#ecfdf5" : "#ffffff",
                 color: filter === "correct" ? "#047857" : "#475569",
                 fontWeight: 700,
-                fontSize: "0.78rem",
+                fontSize: "0.74rem",
                 cursor: "pointer"
               }}
             >
@@ -338,13 +338,13 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
             <button
               onClick={() => setFilter("incorrect")}
               style={{
-                padding: "0.38rem 0.8rem",
-                borderRadius: "8px",
+                padding: "0.3rem 0.65rem",
+                borderRadius: "6px",
                 border: filter === "incorrect" ? "1.5px solid #dc2626" : "1px solid #cbd5e1",
                 background: filter === "incorrect" ? "#fef2f2" : "#ffffff",
                 color: filter === "incorrect" ? "#b91c1c" : "#475569",
                 fontWeight: 700,
-                fontSize: "0.78rem",
+                fontSize: "0.74rem",
                 cursor: "pointer"
               }}
             >
@@ -354,13 +354,13 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
             <button
               onClick={() => setFilter("unattempted")}
               style={{
-                padding: "0.38rem 0.8rem",
-                borderRadius: "8px",
+                padding: "0.3rem 0.65rem",
+                borderRadius: "6px",
                 border: filter === "unattempted" ? "1.5px solid #64748b" : "1px solid #cbd5e1",
                 background: filter === "unattempted" ? "#f1f5f9" : "#ffffff",
                 color: filter === "unattempted" ? "#334155" : "#64748b",
                 fontWeight: 700,
-                fontSize: "0.78rem",
+                fontSize: "0.74rem",
                 cursor: "pointer"
               }}
             >
@@ -370,13 +370,13 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
             <button
               onClick={() => setFilter("practicals")}
               style={{
-                padding: "0.38rem 0.8rem",
-                borderRadius: "8px",
+                padding: "0.3rem 0.65rem",
+                borderRadius: "6px",
                 border: filter === "practicals" ? "1.5px solid #0284c7" : "1px solid #cbd5e1",
                 background: filter === "practicals" ? "#f0f9ff" : "#ffffff",
                 color: filter === "practicals" ? "#0369a1" : "#475569",
                 fontWeight: 700,
-                fontSize: "0.78rem",
+                fontSize: "0.74rem",
                 cursor: "pointer"
               }}
             >
@@ -384,16 +384,16 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
             </button>
           </div>
 
-          <div style={{ display: "flex", gap: "0.4rem" }}>
+          <div style={{ display: "flex", gap: "0.35rem" }}>
             <button
               onClick={expandAll}
               style={{
-                padding: "0.35rem 0.7rem",
-                borderRadius: "6px",
+                padding: "0.28rem 0.55rem",
+                borderRadius: "5px",
                 border: "1px solid #cbd5e1",
                 background: "#ffffff",
                 color: "#334155",
-                fontSize: "0.74rem",
+                fontSize: "0.72rem",
                 fontWeight: 600,
                 cursor: "pointer"
               }}
@@ -403,12 +403,12 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
             <button
               onClick={collapseAll}
               style={{
-                padding: "0.35rem 0.7rem",
-                borderRadius: "6px",
+                padding: "0.28rem 0.55rem",
+                borderRadius: "5px",
                 border: "1px solid #cbd5e1",
                 background: "#ffffff",
                 color: "#334155",
-                fontSize: "0.74rem",
+                fontSize: "0.72rem",
                 fontWeight: 600,
                 cursor: "pointer"
               }}
@@ -419,7 +419,7 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
         </div>
 
         {/* SCROLLABLE QUESTION LIST */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "1.2rem 1.6rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "0.85rem 1.15rem", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
           {/* PHẦN 1: CÂU TRẮC NGHIỆM */}
           {filteredQuestions.map((q, idx) => {
             const correct = isMcqCorrect(q);
@@ -442,53 +442,53 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                 <div
                   onClick={() => toggleExpand(q.id)}
                   style={{
-                    padding: "0.85rem 1.1rem",
+                    padding: "0.55rem 0.85rem",
                     cursor: "pointer",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    gap: "1rem"
+                    gap: "0.75rem"
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "flex-start", gap: "8px", flex: 1 }}>
                     <div style={{ marginTop: "2px" }}>
                       {correct ? (
-                        <CheckCircle2 size={18} color="#059669" />
+                        <CheckCircle2 size={16} color="#059669" />
                       ) : attempted ? (
-                        <XCircle size={18} color="#dc2626" />
+                        <XCircle size={16} color="#dc2626" />
                       ) : (
-                        <AlertCircle size={18} color="#94a3b8" />
+                        <AlertCircle size={16} color="#94a3b8" />
                       )}
                     </div>
 
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "0.25rem", flexWrap: "wrap" }}>
-                        <span style={{ fontWeight: 800, fontSize: "0.82rem", color: "#1e293b" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "0.2rem", flexWrap: "wrap" }}>
+                        <span style={{ fontWeight: 800, fontSize: "0.76rem", color: "#1e293b" }}>
                           Câu #{idx + 1}
                         </span>
-                        <span style={{ fontSize: "0.7rem", padding: "1px 6px", borderRadius: "4px", background: "#e2e8f0", color: "#475569", fontWeight: 700 }}>
+                        <span style={{ fontSize: "0.66rem", padding: "1px 5px", borderRadius: "4px", background: "#e2e8f0", color: "#475569", fontWeight: 700 }}>
                           {q.type_name || q.type}
                         </span>
                         <span style={{
-                          fontSize: "0.72rem",
+                          fontSize: "0.68rem",
                           fontWeight: 800,
-                          padding: "1px 6px",
+                          padding: "1px 5px",
                           borderRadius: "4px",
                           background: correct ? "#dcfce7" : attempted ? "#fee2e2" : "#f1f5f9",
                           color: correct ? "#15803d" : attempted ? "#b91c1c" : "#64748b"
                         }}>
-                          {correct ? "+0.14 điểm (Đúng)" : attempted ? "0.0 điểm (Sai)" : "0.0 điểm (Chưa làm)"}
+                          {correct ? "+0.14đ (Đúng)" : attempted ? "0đ (Sai)" : "0đ (Chưa làm)"}
                         </span>
                       </div>
 
-                      <div style={{ fontSize: "0.88rem", fontWeight: 600, color: "#0f172a", lineHeight: 1.45 }}>
+                      <div style={{ fontSize: "0.82rem", fontWeight: 600, color: "#0f172a", lineHeight: 1.4 }}>
                         {q.question}
                       </div>
 
                       {/* Summary text of answers */}
-                      <div style={{ display: "flex", gap: "1rem", marginTop: "0.4rem", fontSize: "0.78rem", flexWrap: "wrap" }}>
+                      <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.3rem", fontSize: "0.74rem", flexWrap: "wrap" }}>
                         <span>
-                          Lựa chọn của bạn:{" "}
+                          Bạn chọn:{" "}
                           <strong style={{ color: correct ? "#15803d" : attempted ? "#b91c1c" : "#64748b" }}>
                             {attempted ? JSON.stringify(uAns) : "(Bỏ trống)"}
                           </strong>
@@ -511,22 +511,22 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                       cursor: "pointer",
                       display: "flex",
                       alignItems: "center",
-                      gap: "4px",
-                      fontSize: "0.75rem",
+                      gap: "3px",
+                      fontSize: "0.72rem",
                       fontWeight: 700,
-                      padding: "4px 8px",
-                      borderRadius: "6px"
+                      padding: "3px 6px",
+                      borderRadius: "5px"
                     }}
                   >
-                    <span>{isExpanded ? "Thu gọn" : "Xem chi tiết"}</span>
-                    {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                    <span>{isExpanded ? "Thu gọn" : "Chi tiết"}</span>
+                    {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                   </button>
                 </div>
 
                 {/* EXPANDED ACCORDION: FULL OPTIONS & LOGIC EXPLANATION */}
                 {isExpanded && (
                   <div style={{
-                    padding: "1rem 1.2rem",
+                    padding: "0.75rem 0.95rem",
                     borderTop: "1px solid #e2e8f0",
                     background: "#ffffff"
                   }}>
@@ -535,11 +535,11 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                       <div style={{
                         background: "#0f172a",
                         color: "#38bdf8",
-                        padding: "0.85rem",
-                        borderRadius: "8px",
+                        padding: "0.65rem 0.8rem",
+                        borderRadius: "6px",
                         fontFamily: "var(--font-mono, monospace)",
-                        fontSize: "0.82rem",
-                        marginBottom: "0.8rem",
+                        fontSize: "0.78rem",
+                        marginBottom: "0.65rem",
                         overflowX: "auto"
                       }}>
                         <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>{q.code}</pre>
@@ -548,11 +548,11 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
 
                     {/* Options Breakdown */}
                     {q.options && q.options.length > 0 && (
-                      <div style={{ marginBottom: "0.85rem" }}>
-                        <div style={{ fontSize: "0.75rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", marginBottom: "0.4rem" }}>
+                      <div style={{ marginBottom: "0.7rem" }}>
+                        <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", marginBottom: "0.35rem" }}>
                           CÁC PHƯƠNG ÁN LỰA CHỌN:
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.35rem" }}>
                           {q.options.map((opt, oIdx) => {
                             const optLetter = String.fromCharCode(65 + oIdx);
                             const isUserPick = String(uAns) === opt || String(uAns) === String(oIdx) || String(uAns) === optLetter;
@@ -562,24 +562,24 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                               <div
                                 key={oIdx}
                                 style={{
-                                  padding: "0.55rem 0.8rem",
-                                  borderRadius: "8px",
-                                  fontSize: "0.82rem",
+                                  padding: "0.38rem 0.65rem",
+                                  borderRadius: "6px",
+                                  fontSize: "0.78rem",
                                   display: "flex",
                                   alignItems: "center",
-                                  gap: "8px",
+                                  gap: "7px",
                                   border: isAnswer ? "1.5px solid #10b981" : isUserPick ? "1.5px solid #ef4444" : "1px solid #e2e8f0",
                                   background: isAnswer ? "#ecfdf5" : isUserPick ? "#fef2f2" : "#f8fafc"
                                 }}
                               >
                                 <span style={{
-                                  width: "22px",
-                                  height: "22px",
+                                  width: "20px",
+                                  height: "20px",
                                   borderRadius: "50%",
                                   display: "flex",
                                   alignItems: "center",
                                   justifyContent: "center",
-                                  fontSize: "0.75rem",
+                                  fontSize: "0.7rem",
                                   fontWeight: 800,
                                   background: isAnswer ? "#059669" : isUserPick ? "#dc2626" : "#cbd5e1",
                                   color: "#ffffff"
@@ -590,12 +590,12 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                                   {opt}
                                 </span>
                                 {isAnswer && (
-                                  <span style={{ fontSize: "0.72rem", color: "#059669", fontWeight: 800, display: "flex", alignItems: "center", gap: "3px" }}>
-                                    <Check size={13} /> Đáp án đúng
+                                  <span style={{ fontSize: "0.68rem", color: "#059669", fontWeight: 800, display: "flex", alignItems: "center", gap: "3px" }}>
+                                    <Check size={12} /> Đáp án đúng
                                   </span>
                                 )}
                                 {isUserPick && !isAnswer && (
-                                  <span style={{ fontSize: "0.72rem", color: "#dc2626", fontWeight: 800 }}>
+                                  <span style={{ fontSize: "0.68rem", color: "#dc2626", fontWeight: 800 }}>
                                     Bạn đã chọn (Sai)
                                   </span>
                                 )}
@@ -611,16 +611,16 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                       <div style={{
                         background: "#f0fdf4",
                         border: "1px solid #86efac",
-                        borderRadius: "8px",
-                        padding: "0.75rem 0.9rem",
+                        borderRadius: "7px",
+                        padding: "0.55rem 0.75rem",
                         color: "#166534",
-                        fontSize: "0.82rem"
+                        fontSize: "0.78rem"
                       }}>
-                        <div style={{ fontWeight: 800, display: "flex", alignItems: "center", gap: "5px", marginBottom: "0.3rem" }}>
-                          <Sparkles size={14} color="#15803d" />
+                        <div style={{ fontWeight: 800, display: "flex", alignItems: "center", gap: "5px", marginBottom: "0.25rem" }}>
+                          <Sparkles size={13} color="#15803d" />
                           <span>Giải Thích Logic Chuẩn Xác:</span>
                         </div>
-                        <div style={{ lineHeight: 1.55 }}>
+                        <div style={{ lineHeight: 1.5 }}>
                           {q.explanation}
                         </div>
                       </div>
@@ -628,10 +628,10 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
 
                     {/* Option Explanations */}
                     {q.option_explanations && Object.keys(q.option_explanations).length > 0 && (
-                      <div style={{ marginTop: "0.6rem", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "8px", padding: "0.65rem 0.85rem", fontSize: "0.78rem" }}>
-                        <div style={{ fontWeight: 800, color: "#475569", marginBottom: "0.3rem" }}>Phân tích từng phương án:</div>
+                      <div style={{ marginTop: "0.5rem", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "7px", padding: "0.5rem 0.7rem", fontSize: "0.74rem" }}>
+                        <div style={{ fontWeight: 800, color: "#475569", marginBottom: "0.25rem" }}>Phân tích từng phương án:</div>
                         {Object.entries(q.option_explanations).map(([optKey, expText]) => (
-                          <div key={optKey} style={{ marginBottom: "0.2rem", color: "#334155" }}>
+                          <div key={optKey} style={{ marginBottom: "0.15rem", color: "#334155" }}>
                             <strong>{optKey}:</strong> {expText}
                           </div>
                         ))}
@@ -645,21 +645,21 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
 
           {/* PHẦN 2: BÀI THỰC HÀNH CODE TỰ LUẬN (4 BÀI) */}
           {showPracticals && practicals.length > 0 && (
-            <div style={{ marginTop: "1rem" }}>
+            <div style={{ marginTop: "0.75rem" }}>
               <div style={{
-                fontSize: "0.95rem",
+                fontSize: "0.88rem",
                 fontWeight: 800,
                 color: "#0f172a",
-                marginBottom: "0.75rem",
+                marginBottom: "0.6rem",
                 display: "flex",
                 alignItems: "center",
-                gap: "6px"
+                gap: "5px"
               }}>
-                <Code2 size={18} color="#2563eb" />
+                <Code2 size={16} color="#2563eb" />
                 <span>Phần 2: 4 Bài Tự Luận & Thực Hành Viết Code Python</span>
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.65rem" }}>
                 {practicals.map((p, pIdx) => {
                   const pRes = practicalResults[p.id];
                   const passed = pRes && pRes.passed;
@@ -672,71 +672,71 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                       style={{
                         border: passed ? "1.5px solid #a7f3d0" : "1.5px solid #cbd5e1",
                         background: passed ? "#f0fdf4" : "#ffffff",
-                        borderRadius: "12px",
+                        borderRadius: "10px",
                         overflow: "hidden"
                       }}
                     >
                       <div
                         onClick={() => toggleExpand(p.id + 10000)}
                         style={{
-                          padding: "0.85rem 1.1rem",
+                          padding: "0.55rem 0.85rem",
                           cursor: "pointer",
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center"
                         }}
                       >
-                        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                           <div style={{
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "8px",
+                            width: "28px",
+                            height: "28px",
+                            borderRadius: "7px",
                             background: passed ? "#ecfdf5" : "#f1f5f9",
                             color: passed ? "#059669" : "#64748b",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center"
                           }}>
-                            <Terminal size={17} />
+                            <Terminal size={15} />
                           </div>
                           <div>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                              <span style={{ fontWeight: 800, fontSize: "0.82rem", color: "#1e293b" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                              <span style={{ fontWeight: 800, fontSize: "0.76rem", color: "#1e293b" }}>
                                 Tự Luận #{pIdx + 1}:
                               </span>
                               <span style={{
-                                fontSize: "0.72rem",
+                                fontSize: "0.68rem",
                                 fontWeight: 800,
-                                padding: "1px 6px",
+                                padding: "1px 5px",
                                 borderRadius: "4px",
                                 background: passed ? "#dcfce7" : "#fee2e2",
                                 color: passed ? "#15803d" : "#b91c1c"
                               }}>
-                                {passed ? "+0.75 điểm (ĐẠT CHUẨN)" : "0.0 điểm (CHƯA ĐẠT / LỖI TEST CASE)"}
+                                {passed ? "+0.75đ (ĐẠT CHUẨN)" : "0đ (CHƯA ĐẠT / LỖI TEST CASE)"}
                               </span>
                             </div>
-                            <div style={{ fontWeight: 700, fontSize: "0.9rem", color: "#0f172a", marginTop: "2px" }}>
+                            <div style={{ fontWeight: 700, fontSize: "0.84rem", color: "#0f172a", marginTop: "1px" }}>
                               {p.title}
                             </div>
                           </div>
                         </div>
 
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "0.75rem", fontWeight: 700, color: "#64748b" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px", fontSize: "0.72rem", fontWeight: 700, color: "#64748b" }}>
                           <span>{isExpanded ? "Thu gọn" : "Xem code & test cases"}</span>
-                          {isExpanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
                         </div>
                       </div>
 
                       {isExpanded && (
-                        <div style={{ padding: "1rem 1.2rem", borderTop: "1px solid #e2e8f0", background: "#ffffff" }}>
-                          <p style={{ fontSize: "0.84rem", color: "#475569", marginBottom: "0.8rem" }}>
+                        <div style={{ padding: "0.75rem 0.95rem", borderTop: "1px solid #e2e8f0", background: "#ffffff" }}>
+                          <p style={{ fontSize: "0.8rem", color: "#475569", marginBottom: "0.65rem", lineHeight: 1.45 }}>
                             {p.description}
                           </p>
 
                           {/* Code comparison */}
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.8rem", marginBottom: "0.8rem" }}>
-                            <div style={{ background: "#0f172a", borderRadius: "8px", padding: "0.75rem", color: "#38bdf8", fontFamily: "var(--font-mono, monospace)", fontSize: "0.78rem" }}>
-                              <div style={{ color: "#94a3b8", fontSize: "0.7rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.65rem", marginBottom: "0.65rem" }}>
+                            <div style={{ background: "#0f172a", borderRadius: "6px", padding: "0.65rem", color: "#38bdf8", fontFamily: "var(--font-mono, monospace)", fontSize: "0.74rem" }}>
+                              <div style={{ color: "#94a3b8", fontSize: "0.66rem", fontWeight: 700, marginBottom: "0.25rem" }}>
                                 CODE HỌC VIÊN ĐÃ NỘP:
                               </div>
                               <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
@@ -744,8 +744,8 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                               </pre>
                             </div>
 
-                            <div style={{ background: "#0f172a", borderRadius: "8px", padding: "0.75rem", color: "#34d399", fontFamily: "var(--font-mono, monospace)", fontSize: "0.78rem" }}>
-                              <div style={{ color: "#94a3b8", fontSize: "0.7rem", fontWeight: 700, marginBottom: "0.3rem" }}>
+                            <div style={{ background: "#0f172a", borderRadius: "6px", padding: "0.65rem", color: "#34d399", fontFamily: "var(--font-mono, monospace)", fontSize: "0.74rem" }}>
+                              <div style={{ color: "#94a3b8", fontSize: "0.66rem", fontWeight: 700, marginBottom: "0.25rem" }}>
                                 MÃ NGUỒN CHUẨN (THAM KHẢO):
                               </div>
                               <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
@@ -756,12 +756,12 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
 
                           {/* Test Cases Results */}
                           {pRes && pRes.testCaseResults && pRes.testCaseResults.length > 0 && (
-                            <div style={{ background: "#f8fafc", padding: "0.65rem 0.85rem", borderRadius: "8px", border: "1px solid #e2e8f0", fontSize: "0.78rem" }}>
-                              <div style={{ fontWeight: 800, color: "#334155", marginBottom: "0.4rem" }}>
+                            <div style={{ background: "#f8fafc", padding: "0.55rem 0.75rem", borderRadius: "6px", border: "1px solid #e2e8f0", fontSize: "0.74rem" }}>
+                              <div style={{ fontWeight: 800, color: "#334155", marginBottom: "0.3rem" }}>
                                 KẾT QUẢ CHẠY TEST CASES:
                               </div>
                               {pRes.testCaseResults.map((tc: any, tIdx: number) => (
-                                <div key={tIdx} style={{ display: "flex", gap: "1rem", marginBottom: "0.25rem", color: tc.passed ? "#15803d" : "#b91c1c" }}>
+                                <div key={tIdx} style={{ display: "flex", gap: "0.75rem", marginBottom: "0.2rem", color: tc.passed ? "#15803d" : "#b91c1c" }}>
                                   <span>Test #{tIdx + 1}: {tc.passed ? "✅ PASS" : "❌ FAIL"}</span>
                                   <span>Đầu vào: <code>{tc.input || "None"}</code></span>
                                   <span>Kỳ vọng: <code>{tc.expected}</code></span>
@@ -782,7 +782,7 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
 
         {/* MODAL FOOTER */}
         <div style={{
-          padding: "0.9rem 1.6rem",
+          padding: "0.65rem 1.15rem",
           background: "var(--surface-subtle, #f8fafc)",
           borderTop: "1px solid var(--border-light, #e2e8f0)",
           display: "flex",
@@ -794,18 +794,18 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "6px",
-              padding: "0.55rem 1.1rem",
-              borderRadius: "8px",
+              gap: "5px",
+              padding: "0.45rem 0.85rem",
+              borderRadius: "6px",
               border: "1px solid #cbd5e1",
               background: "#ffffff",
               color: "#334155",
-              fontSize: "0.84rem",
+              fontSize: "0.78rem",
               fontWeight: 700,
               cursor: "pointer"
             }}
           >
-            <ArrowLeft size={16} />
+            <ArrowLeft size={14} />
             <span>Quay Lại Bảng Điểm</span>
           </button>
 
@@ -814,19 +814,19 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
             style={{
               display: "inline-flex",
               alignItems: "center",
-              gap: "6px",
-              padding: "0.55rem 1.3rem",
-              borderRadius: "8px",
+              gap: "5px",
+              padding: "0.45rem 1rem",
+              borderRadius: "6px",
               border: "none",
               background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
               color: "#ffffff",
-              fontSize: "0.84rem",
+              fontSize: "0.78rem",
               fontWeight: 700,
               cursor: "pointer",
-              boxShadow: "0 2px 8px rgba(37, 99, 235, 0.35)"
+              boxShadow: "0 2px 6px rgba(37, 99, 235, 0.3)"
             }}
           >
-            <Check size={16} />
+            <Check size={14} />
             <span>Hoàn Tất & Đóng</span>
           </button>
         </div>
