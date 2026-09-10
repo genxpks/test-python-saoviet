@@ -31,7 +31,9 @@ import {
   Flame,
   Check,
   Sun,
-  Moon
+  Moon,
+  Code2,
+  GraduationCap
 } from "lucide-react";
 
 export default function Navbar() {
@@ -159,7 +161,7 @@ export default function Navbar() {
             </div>
             <div>
               <div className="brand-title" style={{ fontSize: "1.05rem", letterSpacing: "-0.3px", color: "var(--text-primary)" }}>TIN HỌC SAO VIỆT</div>
-              <div className="brand-subtitle" style={{ color: "var(--text-muted)" }}>Hệ Thống Đào Tạo & Khảo Thí Lập Trình</div>
+              <div className="brand-subtitle" style={{ color: "var(--text-muted)" }}>Hệ Thống Học Vụ & Đào Tạo Lập Trình Chuyên Nghiệp</div>
             </div>
           </Link>
 
@@ -172,6 +174,22 @@ export default function Navbar() {
               <span>Trang Chủ</span>
             </Link>
             
+            <a 
+              href="/#dich-vu-coding" 
+              className="nav-link"
+            >
+              <Code2 size={16} />
+              <span>13+ Khóa Coding</span>
+            </a>
+
+            <a 
+              href="/#dich-vu-hoc-vu" 
+              className="nav-link"
+            >
+              <GraduationCap size={16} />
+              <span>Dịch Vụ Học Vụ 1-1</span>
+            </a>
+
             <Link 
               href="/study" 
               className={`nav-link ${pathname === "/study" ? "active" : ""}`}
@@ -185,7 +203,7 @@ export default function Navbar() {
               className={`nav-link ${pathname === "/exam" ? "active" : ""}`}
             >
               <Clock size={16} />
-              <span>Thi Online</span>
+              <span>Khảo Thí 50P</span>
             </Link>
 
             <Link 

@@ -150,7 +150,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Cột 2: Danh mục khóa học trọng điểm */}
+          {/* Cột 2: Danh mục khóa học & Dịch vụ học vụ lập trình */}
           <div>
             <h4
               style={{
@@ -165,44 +165,54 @@ export default function Footer() {
               }}
             >
               <BookOpen size={18} style={{ color: "#38bdf8" }} />
-              <span>CHƯƠNG TRÌNH ĐÀO TẠO</span>
+              <span>HỌC VỤ & ĐÀO TẠO LẬP TRÌNH</span>
             </h4>
 
-            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.6rem", fontSize: "0.88rem" }}>
+            <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: "0.5rem", fontSize: "0.84rem" }}>
               <li>
-                <Link href="/study" style={{ color: "#94a3b8", textDecoration: "none", transition: "color 0.2s" }} className="footer-link">
-                  • Khóa Cấp Tốc Thực Chiến THVP-32
-                </Link>
+                <a href="/#dich-vu-coding" style={{ color: "#38bdf8", textDecoration: "none", fontWeight: 700 }} className="footer-link">
+                  🐍 Python 47 Bài & Tự Động Hóa
+                </a>
               </li>
               <li>
-                <Link href="/study" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
-                  • Luyện Thi Chứng Chỉ MOS (Word / Excel / PPT)
-                </Link>
+                <a href="/#dich-vu-coding" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
+                  ⚡ Lập Trình C / C++ & Giải Thuật DSA
+                </a>
               </li>
               <li>
-                <Link href="/study" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
-                  • Kế Toán Thực Hành Thuế & Báo Cáo Tài Chính
-                </Link>
+                <a href="/#dich-vu-coding" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
+                  🍃 Java Core & Web Spring Boot 3
+                </a>
               </li>
               <li>
-                <Link href="/study" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
-                  • Kế Toán Excel Chuyên Sâu Tự Động Hóa
-                </Link>
+                <a href="/#dich-vu-coding" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
+                  🚀 C# & Backend .NET 8 Web API
+                </a>
               </li>
               <li>
-                <Link href="/study" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
-                  • Lập Trình Python Nâng Cao & Tự Động Hóa
-                </Link>
+                <a href="/#dich-vu-coding" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
+                  ⚛️ Web Frontend React.js & Next.js 14
+                </a>
               </li>
               <li>
-                <Link href="/study" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
-                  • Lập Trình Web Fullstack (Next.js / Node.js / Laravel)
-                </Link>
+                <a href="/#dich-vu-coding" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
+                  🟢 Backend Node.js & Express API
+                </a>
               </li>
               <li>
-                <Link href="/study" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
-                  • Thiết Kế Đồ Họa Photoshop, AI & AutoCAD
-                </Link>
+                <a href="/#dich-vu-coding" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
+                  🤖 Lập Trình Di Động Android Native
+                </a>
+              </li>
+              <li>
+                <a href="/#dich-vu-coding" style={{ color: "#94a3b8", textDecoration: "none" }} className="footer-link">
+                  🐘 PHP 8+ & Laravel 11 Framework
+                </a>
+              </li>
+              <li>
+                <a href="/#dich-vu-hoc-vu" style={{ color: "#00f5c8", textDecoration: "none", fontWeight: 700 }} className="footer-link">
+                  ★ Dạy Kèm 1-1 & Đỡ Đầu Đồ Án ĐH
+                </a>
               </li>
             </ul>
           </div>

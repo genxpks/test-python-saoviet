@@ -343,6 +343,7 @@ export default function ConsultationBookingLayer() {
                   Khóa học bạn quan tâm
                 </label>
                 <select
+                  id="select-course-input"
                   value={courseInterest}
                   onChange={(e) => setCourseInterest(e.target.value)}
                   style={{
@@ -352,20 +353,73 @@ export default function ConsultationBookingLayer() {
                     border: "1px solid var(--border-medium)",
                     background: "var(--bg-main)",
                     color: "var(--text-primary)",
-                    fontSize: "0.92rem",
+                    fontSize: "0.88rem",
                     outline: "none"
                   }}
                 >
-                  <option value="THVP-32">Khóa Thực Chiến Cấp Tốc THVP-32 (Word, Excel, PPT)</option>
-                  <option value="MOS-INT">Luyện Thi Chứng Chỉ Quốc Tế MOS (Word, Excel, PPT)</option>
-                  <option value="KT-THUE">Kế Toán Thực Hành Thuế & Báo Cáo Tài Chính Tổng Hợp</option>
-                  <option value="KT-EXCEL">Kế Toán Excel Chuyên Sâu Tự Động Hóa Sổ Sách</option>
-                  <option value="PY-NC">Lập Trình Python Nâng Cao & Tự Động Hóa (Automation)</option>
-                  <option value="WEB-FS">Lập Trình Web Fullstack (Next.js, Node.js, Laravel)</option>
-                  <option value="GRAPHIC-2D">Thiết Kế Đồ Họa Truyền Thông (Photoshop, AI)</option>
-                  <option value="AUTOCAD-PRO">AutoCAD 2D & 3D Bản Vẽ Kỹ Thuật Chuyên Nghiệp</option>
-                  <option value="THVP-CB">Tin Học Văn Phòng Căn Bản Cho Người Mất Gốc</option>
+                  <optgroup label="⭐ 5 DỊCH VỤ HỌC VỤ LẬP TRÌNH 1-1 TRỌNG TÂM">
+                    <option value="Dạy Kèm Lập Trình 1-1 Cá Nhân Hóa">Dạy Kèm Lập Trình 1-1 Cá Nhân Hóa (May đo lộ trình)</option>
+                    <option value="Hướng Dẫn & Đỡ Đầu Đồ Án Tốt Nghiệp / Niên Luận CNTT">Hướng Dẫn & Đỡ Đầu Đồ Án Tốt Nghiệp / Niên Luận ĐH</option>
+                    <option value="Luyện Thi Học Sinh Giỏi & Olympic Tin Học Chuyên Sâu">Luyện Thi Học Sinh Giỏi & Olympic Tin Học (C++, Python)</option>
+                    <option value="Đào Tạo Chuyển Nghề CNTT Cấp Tốc (Fast-track Career)">Đào Tạo Chuyển Nghề CNTT Cấp Tốc (Từ số 0 đến có việc)</option>
+                    <option value="Cổng Học Vụ & Khảo Thí Lập Trình Tự Động Trực Tuyến">Cổng Học Vụ & Khảo Thí Lập Trình Trực Tuyến 24/7</option>
+                  </optgroup>
+
+                  <optgroup label="💻 13+ KHÓA LẬP TRÌNH THỰC CHIẾN CHUYÊN SÂU">
+                    <option value="Lập Trình Python Căn Bản Đến Nâng Cao">🐍 Lập Trình Python Căn Bản Đến Nâng Cao (47 bài chuẩn)</option>
+                    <option value="Lập Trình C & C++ Cấu Trúc Dữ Liệu & Giải Thuật">⚡ Lập Trình C / C++ Cấu Trúc Dữ Liệu & Giải Thuật</option>
+                    <option value="Lập Trình C# & Nền Tảng .NET Hiện Đại">🔷 Lập Trình C# & Nền Tảng .NET Hiện Đại (OOP C#)</option>
+                    <option value="Lập Trình Backend C# (.NET 8 & ASP.NET Core MVC/API)">🚀 Lập Trình Backend C# (.NET 8 & ASP.NET Core MVC/API)</option>
+                    <option value="Lập Trình PHP 8+ & Laravel 11 Framework">🐘 Lập Trình PHP 8+ & Laravel 11 Framework</option>
+                    <option value="Lập Trình Java Core & Hướng Đối Tượng OOP">☕ Lập Trình Java Core & Hướng Đối Tượng OOP</option>
+                    <option value="Lập Trình Web & Backend với Java Spring Boot 3">🍃 Lập Trình Web & Backend với Java Spring Boot 3</option>
+                    <option value="JavaScript Hiện Đại (ES6+) & TypeScript Pro">💛 JavaScript Hiện Đại (ES6+) & TypeScript Pro</option>
+                    <option value="Lập Trình Web Frontend Cơ Bản HTML5 / CSS3 / JavaScript">🌐 Lập Trình Web Frontend Cơ Bản HTML5 / CSS3 / JS</option>
+                    <option value="Lập Trình Web React.js Chuyên Sâu">⚛️ Lập Trình Web React.js Chuyên Sâu (Single Page App)</option>
+                    <option value="Lập Trình Web Next.js 14 App Router (Fullstack React)">▲ Lập Trình Web Next.js 14 App Router (Fullstack React)</option>
+                    <option value="Lập Trình Di Động Android Native (Kotlin / Java)">🤖 Lập Trình Di Động Android Native (Kotlin / Java)</option>
+                    <option value="Lập Trình Backend Node.js & Express Framework">🟢 Lập Trình Backend Node.js & Express Framework</option>
+                  </optgroup>
+
+                  <optgroup label="📊 TIN HỌC VĂN PHÒNG & THIẾT KẾ ĐỒ HỌA">
+                    <option value="THVP-32">Khóa Thực Chiến Cấp Tốc THVP-32 (Word, Excel, PPT)</option>
+                    <option value="MOS-INT">Luyện Thi Chứng Chỉ Quốc Tế MOS (Word, Excel, PPT)</option>
+                    <option value="KT-THUE">Kế Toán Thực Hành Thuế & Báo Cáo Tài Chính Tổng Hợp</option>
+                    <option value="GRAPHIC-2D">Thiết Kế Đồ Họa Truyền Thông (Photoshop, AI)</option>
+                    <option value="AUTOCAD-PRO">AutoCAD 2D & 3D Bản Vẽ Kỹ Thuật Chuyên Nghiệp</option>
+                  </optgroup>
                 </select>
+              </div>
+
+              {/* Ghi chú mục tiêu / yêu cầu riêng */}
+              <div style={{ marginBottom: "1.1rem" }}>
+                <label
+                  style={{
+                    display: "block",
+                    fontSize: "0.85rem",
+                    fontWeight: 700,
+                    color: "var(--text-secondary)",
+                    marginBottom: "0.4rem"
+                  }}
+                >
+                  Mục tiêu hoặc yêu cầu cụ thể (Đồ án, Luyện thi, Chuyển nghề...)
+                </label>
+                <textarea
+                  id="consultation-note-input"
+                  placeholder="Ví dụ: Đang làm đồ án môn học cần hướng dẫn Spring Boot / Cần học kèm 1-1 Python buổi tối..."
+                  rows={2}
+                  style={{
+                    width: "100%",
+                    padding: "0.65rem 0.9rem",
+                    borderRadius: "10px",
+                    border: "1px solid var(--border-medium)",
+                    background: "var(--bg-main)",
+                    color: "var(--text-primary)",
+                    fontSize: "0.88rem",
+                    outline: "none",
+                    fontFamily: "inherit"
+                  }}
+                />
               </div>
 
               {/* 4. Chọn cơ sở gần bạn nhất */}

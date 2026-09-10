@@ -5,6 +5,8 @@ import Canvas3DBackground from "@/components/home/Canvas3DBackground";
 import HeroLayer3D from "@/components/home/HeroLayer3D";
 import LiveMetricsContainer from "@/components/home/metrics/LiveMetricsContainer";
 import SaoVietGuaranteesLayer from "@/components/home/SaoVietGuaranteesLayer";
+import CodingServicesSpectrumLayer from "@/components/home/CodingServicesSpectrumLayer";
+import AcademicPortalServicesLayer from "@/components/home/AcademicPortalServicesLayer";
 import TrainingPillarsLayer from "@/components/home/TrainingPillarsLayer";
 import SubjectMatrixLayer from "@/components/home/SubjectMatrixLayer";
 import InteractiveEngine3D from "@/components/home/InteractiveEngine3D";
@@ -45,10 +47,16 @@ export default function HomePage() {
           {/* MODULE 3: 4 CAM KẾT VÀNG ĐỘC QUYỀN CỦA SAO VIỆT */}
           <SaoVietGuaranteesLayer />
 
-          {/* MODULE 4: 4 TRỤ CỘT ĐÀO TẠO THỰC CHIẾN (THVP-32, KẾ TOÁN, LẬP TRÌNH, ĐỒ HỌA) */}
+          {/* MODULE 4: MA TRẬN 13+ NGÔN NGỮ & CÔNG NGHỆ LẬP TRÌNH CHỦ LỰC */}
+          <CodingServicesSpectrumLayer />
+
+          {/* MODULE 5: 5 GÓI DỊCH VỤ HỌC VỤ LẬP TRÌNH TRỌNG TÂM */}
+          <AcademicPortalServicesLayer />
+
+          {/* MODULE 6: 4 TRỤ CỘT ĐÀO TẠO THỰC CHIẾN (THVP-32, KẾ TOÁN, LẬP TRÌNH, ĐỒ HỌA) */}
           <TrainingPillarsLayer />
 
-          {/* MODULE 5: MA TRẬN 4 BỘ MÔN CODE TRỌNG ĐIỂM & INSPECTOR BÀI GIẢNG */}
+          {/* MODULE 7: MA TRẬN 4 BỘ MÔN CODE TRỌNG ĐIỂM & INSPECTOR BÀI GIẢNG */}
           <SubjectMatrixLayer />
 
           {/* MODULE 6: 6-DẠNG CÂU HỎI MÔ PHỎNG KHẢO THÍ TƯƠNG TÁC */}
