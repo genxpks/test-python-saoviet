@@ -358,7 +358,7 @@ export default function QuestionCard({
       </div>
 
       {/* Question Title */}
-      <h3 style={{ fontSize: "1.08rem", fontWeight: 800, marginBottom: "0.85rem", color: "var(--text-primary)", lineHeight: "1.5" }}>
+      <h3 style={{ fontSize: "0.98rem", fontWeight: 800, marginBottom: "0.65rem", color: "var(--text-primary)", lineHeight: "1.45" }}>
         {question.question}
       </h3>
 
@@ -417,58 +417,58 @@ export default function QuestionCard({
                       style={{ cursor: "pointer", userSelect: "none" }}
                     >
                       <div className="option-letter">{letter}</div>
-                      <div style={{ flex: 1, fontSize: "0.92rem", fontWeight: isSelected ? 700 : 500 }}>
+                      <div style={{ flex: 1, fontSize: "0.84rem", fontWeight: isSelected ? 700 : 500 }}>
                         {opt}
                       </div>
 
                       {/* Khi học viên chọn đúng */}
                       {!isExamMode && isSelected && isOptionCorrect && (
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                           <span style={{
-                            fontSize: "0.74rem",
+                            fontSize: "0.7rem",
                             fontWeight: 700,
-                            padding: "2px 8px",
+                            padding: "1px 6px",
                             borderRadius: "999px",
                             background: "rgba(16, 185, 129, 0.12)",
                             color: "#059669"
                           }}>
                             Chính xác (Em đã chọn)
                           </span>
-                          <CheckCircle2 size={18} color="#10b981" />
+                          <CheckCircle2 size={15} color="#10b981" />
                         </div>
                       )}
 
                       {/* Khi học viên chọn sai: chỉ làm nổi bật phương án này là sai, KHÔNG lộ phương án đúng */}
                       {!isExamMode && isSelected && !isOptionCorrect && (
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                           <span style={{
-                            fontSize: "0.74rem",
+                            fontSize: "0.7rem",
                             fontWeight: 700,
-                            padding: "2px 8px",
+                            padding: "1px 6px",
                             borderRadius: "999px",
                             background: "rgba(239, 68, 68, 0.12)",
                             color: "#dc2626"
                           }}>
                             Em đã chọn (Chưa đúng)
                           </span>
-                          <X size={18} color="#ef4444" />
+                          <X size={15} color="#ef4444" />
                         </div>
                       )}
 
                       {/* Chỉ hiển thị nhãn Đáp án chuẩn khi đã chọn đúng hoặc bấm 'Xem đáp án chuẩn' */}
                       {!isExamMode && !isSelected && shouldRevealCorrect && isOptionCorrect && (
-                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                           <span style={{
-                            fontSize: "0.74rem",
+                            fontSize: "0.7rem",
                             fontWeight: 700,
-                            padding: "2px 8px",
+                            padding: "1px 6px",
                             borderRadius: "999px",
                             background: "rgba(16, 185, 129, 0.12)",
                             color: "#059669"
                           }}>
                             Đáp án chuẩn
                           </span>
-                          <CheckCircle2 size={18} color="#10b981" />
+                          <CheckCircle2 size={15} color="#10b981" />
                         </div>
                       )}
                     </div>
@@ -487,21 +487,21 @@ export default function QuestionCard({
                         background: "rgba(16, 185, 129, 0.1)",
                         border: "1.5px solid #059669",
                         borderRadius: "8px",
-                        padding: "0.7rem 1.1rem",
-                        marginTop: "0.5rem",
+                        padding: "0.45rem 0.85rem",
+                        marginTop: "0.4rem",
                         color: "#065f46",
-                        fontSize: "0.88rem",
+                        fontSize: "0.82rem",
                         fontWeight: 700
                       }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <CheckCircle2 size={18} color="#059669" style={{ flexShrink: 0 }} />
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                          <CheckCircle2 size={16} color="#059669" style={{ flexShrink: 0 }} />
                           <span>🎉 HOÀN TOÀN CHÍNH XÁC! Em đã chọn đúng phương án {String.fromCharCode(65 + Number(question.correct_answer))}.</span>
                         </div>
                         <button
                           onClick={(e) => { e.stopPropagation(); updateAnswer(undefined); setShowExp(false); setShowSolution(false); }}
                           className="btn-retry btn-retry-correct"
                         >
-                          <RotateCcw size={13} />
+                          <RotateCcw size={12} />
                           <span>Làm lại</span>
                         </button>
                       </div>
@@ -510,16 +510,16 @@ export default function QuestionCard({
                       <div style={{
                         display: "flex",
                         flexDirection: "column",
-                        gap: "0.65rem",
+                        gap: "0.5rem",
                         background: "rgba(239, 68, 68, 0.08)",
                         border: "1.5px solid #dc2626",
-                        borderRadius: "10px",
-                        padding: "0.9rem 1.15rem",
-                        marginTop: "0.6rem"
+                        borderRadius: "8px",
+                        padding: "0.6rem 0.85rem",
+                        marginTop: "0.45rem"
                       }}>
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.5rem" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#991b1b", fontWeight: 800, fontSize: "0.92rem" }}>
-                            <X size={18} color="#dc2626" style={{ flexShrink: 0 }} />
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "0.4rem" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#991b1b", fontWeight: 800, fontSize: "0.84rem" }}>
+                            <X size={16} color="#dc2626" style={{ flexShrink: 0 }} />
                             <span>LỰA CHỌN CHƯA CHÍNH XÁC: Em đã chọn "{String.fromCharCode(65 + Number(currentAnswer))}. {question.options[Number(currentAnswer)]}"</span>
                           </div>
                           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
@@ -561,13 +561,13 @@ export default function QuestionCard({
                           background: "var(--surface-card)",
                           border: "1px solid rgba(220, 38, 38, 0.25)",
                           borderRadius: "8px",
-                          padding: "0.85rem 1.05rem",
-                          fontSize: "0.88rem",
-                          lineHeight: "1.6",
+                          padding: "0.55rem 0.8rem",
+                          fontSize: "0.8rem",
+                          lineHeight: "1.5",
                           color: "var(--text-primary)"
                         }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#b91c1c", fontWeight: 800, marginBottom: "0.35rem" }}>
-                            <AlertCircle size={16} />
+                          <div style={{ display: "flex", alignItems: "center", gap: "5px", color: "#b91c1c", fontWeight: 800, marginBottom: "0.25rem" }}>
+                            <AlertCircle size={14} />
                             <span>Phân tích vì sao phương án này chưa đúng:</span>
                           </div>
                           <div style={{ color: "var(--text-secondary)" }}>
@@ -581,14 +581,14 @@ export default function QuestionCard({
                             background: "rgba(16, 185, 129, 0.08)",
                             border: "1px solid rgba(16, 185, 129, 0.3)",
                             borderRadius: "8px",
-                            padding: "0.8rem 1.05rem",
-                            fontSize: "0.88rem",
-                            lineHeight: "1.6",
+                            padding: "0.55rem 0.8rem",
+                            fontSize: "0.8rem",
+                            lineHeight: "1.5",
                             color: "var(--text-primary)",
                             animation: "fadeIn 0.2s ease"
                           }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#059669", fontWeight: 800 }}>
-                              <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
+                            <div style={{ display: "flex", alignItems: "center", gap: "5px", color: "#059669", fontWeight: 800 }}>
+                              <CheckCircle2 size={15} style={{ flexShrink: 0 }} />
                               <span>Đáp án chuẩn xác là: <strong style={{ color: "#047857" }}>{String.fromCharCode(65 + Number(question.correct_answer))}. {question.options[Number(question.correct_answer)]}</strong> (Xem phân tích suy luận chi tiết bên dưới)</span>
                             </div>
                           </div>
@@ -657,37 +657,37 @@ export default function QuestionCard({
                 }}>
                   {isSelected && <Check size={14} />}
                 </div>
-                <div style={{ flex: 1, fontSize: "0.92rem", fontWeight: isSelected ? 700 : 500 }}>
+                <div style={{ flex: 1, fontSize: "0.84rem", fontWeight: isSelected ? 700 : 500 }}>
                   {opt}
                 </div>
                 {!isExamMode && multiChecked && isOptionCorrect && (isSelected || shouldReveal) && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                     <span style={{
-                      fontSize: "0.74rem",
+                      fontSize: "0.7rem",
                       fontWeight: 700,
-                      padding: "2px 8px",
+                      padding: "1px 6px",
                       borderRadius: "999px",
                       background: "rgba(16, 185, 129, 0.12)",
                       color: "#059669"
                     }}>
                       {isSelected ? "Đã chọn đúng" : "Đáp án chuẩn"}
                     </span>
-                    <CheckCircle2 size={18} color="#10b981" />
+                    <CheckCircle2 size={15} color="#10b981" />
                   </div>
                 )}
                 {!isExamMode && multiChecked && isSelected && !isOptionCorrect && (
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                     <span style={{
-                      fontSize: "0.74rem",
+                      fontSize: "0.7rem",
                       fontWeight: 700,
-                      padding: "2px 8px",
+                      padding: "1px 6px",
                       borderRadius: "999px",
                       background: "rgba(239, 68, 68, 0.12)",
                       color: "#dc2626"
                     }}>
                       Em đã chọn (Chưa đúng)
                     </span>
-                    <X size={18} color="#ef4444" />
+                    <X size={15} color="#ef4444" />
                   </div>
                 )}
               </div>
@@ -706,20 +706,21 @@ export default function QuestionCard({
                     background: multiSelected.length > 0 ? "linear-gradient(135deg, #7c3aed, #6d28d9)" : "rgba(51, 65, 85, 0.5)",
                     color: "#ffffff",
                     fontWeight: 800,
-                    padding: "0.55rem 1.2rem",
+                    padding: "0.4rem 0.95rem",
+                    fontSize: "0.8rem",
                     borderRadius: "8px",
-                    boxShadow: multiSelected.length > 0 ? "0 4px 12px rgba(124, 58, 237, 0.35)" : "none",
+                    boxShadow: multiSelected.length > 0 ? "0 3px 10px rgba(124, 58, 237, 0.35)" : "none",
                     cursor: multiSelected.length > 0 ? "pointer" : "not-allowed"
                   }}
                 >
-                  <CheckSquare size={16} />
+                  <CheckSquare size={15} />
                   <span>Kiểm Tra Các Đáp Án Đã Chọn ({multiSelected.length} lựa chọn)</span>
                 </button>
               ) : (
                 <div style={{
                   display: "flex",
                   flexDirection: "column",
-                  gap: "0.65rem",
+                  gap: "0.55rem",
                   background: (() => {
                     const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
                     const user = [...multiSelected].sort().join(",");
@@ -731,21 +732,21 @@ export default function QuestionCard({
                     return corr === user ? "#059669" : "#dc2626";
                   })()}`,
                   borderRadius: "8px",
-                  padding: "0.75rem 1.1rem"
+                  padding: "0.55rem 0.85rem"
                 }}>
                   <div style={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between",
                     flexWrap: "wrap",
-                    gap: "0.5rem"
+                    gap: "0.4rem"
                   }}>
                     <div style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "8px",
+                      gap: "6px",
                       fontWeight: 800,
-                      fontSize: "0.9rem",
+                      fontSize: "0.82rem",
                       color: (() => {
                         const corr = Array.isArray(question.correct_answer) ? [...question.correct_answer].sort().join(",") : "";
                         const user = [...multiSelected].sort().join(",");
@@ -853,22 +854,22 @@ export default function QuestionCard({
             </span>
           </div>
 
-          <div style={{ display: "flex", gap: "0.6rem", alignItems: "center", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
             <input
               type="text"
               className="form-input"
               style={{
-                flex: "1 1 280px",
+                flex: "1 1 240px",
                 fontFamily: "var(--font-mono)",
                 fontWeight: 700,
-                fontSize: "1rem",
+                fontSize: "0.85rem",
                 color: "var(--text-primary)",
                 background: "var(--surface-card)",
                 border: fillChecked 
                   ? (fillInput.trim().toLowerCase() === String(question.correct_answer).trim().toLowerCase() ? "2px solid #10b981" : "2px solid #ef4444")
-                  : "2px solid var(--border-medium)",
-                padding: "0.75rem 1rem",
-                borderRadius: "8px",
+                  : "1.5px solid var(--border-medium)",
+                padding: "0.45rem 0.8rem",
+                borderRadius: "6px",
                 boxShadow: "var(--shadow-subtle)",
                 outline: "none"
               }}
@@ -896,10 +897,10 @@ export default function QuestionCard({
                 onClick={handleCheckFill}
                 className="btn btn-primary"
                 style={{
-                  padding: "0.75rem 1.3rem",
+                  padding: "0.45rem 0.95rem",
                   fontWeight: 800,
-                  fontSize: "0.88rem",
-                  borderRadius: "8px",
+                  fontSize: "0.8rem",
+                  borderRadius: "6px",
                   whiteSpace: "nowrap",
                   background: "linear-gradient(135deg, #0284c7, #0369a1)"
                 }}
@@ -1048,8 +1049,8 @@ export default function QuestionCard({
                 }
 
                 return (
-                  <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.75rem", alignItems: "center" }}>
-                    <div style={{ padding: "0.7rem 0.9rem", background: "var(--surface-subtle)", color: "var(--text-primary)", border: rowBorder, borderRadius: "8px", fontSize: "0.88rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
+                  <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem", alignItems: "center" }}>
+                    <div style={{ padding: "0.45rem 0.75rem", background: "var(--surface-subtle)", color: "var(--text-primary)", border: rowBorder, borderRadius: "6px", fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
                       {lVal}
                     </div>
                     <select
@@ -1060,9 +1061,9 @@ export default function QuestionCard({
                         background: "var(--surface-card)",
                         color: "var(--text-primary)",
                         border: rowBorder,
-                        padding: "0.7rem 0.85rem",
-                        borderRadius: "8px",
-                        fontSize: "0.86rem",
+                        padding: "0.45rem 0.75rem",
+                        borderRadius: "6px",
+                        fontSize: "0.82rem",
                         outline: "none"
                       }}
                     >
@@ -1079,7 +1080,7 @@ export default function QuestionCard({
 
           {/* Matching Check Button in Study Mode */}
           {!isExamMode && (
-            <div style={{ marginTop: "0.75rem" }}>
+            <div style={{ marginTop: "0.6rem" }}>
               {!matchingChecked ? (
                 <button
                   onClick={handleCheckMatching}
@@ -1088,13 +1089,14 @@ export default function QuestionCard({
                     background: "linear-gradient(135deg, #e11d48, #be123c)",
                     color: "#ffffff",
                     fontWeight: 800,
-                    padding: "0.55rem 1.2rem",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 12px rgba(225, 29, 72, 0.35)",
+                    padding: "0.4rem 0.95rem",
+                    fontSize: "0.8rem",
+                    borderRadius: "6px",
+                    boxShadow: "0 3px 10px rgba(225, 29, 72, 0.35)",
                     cursor: "pointer"
                   }}
                 >
-                  <LinkIcon size={16} />
+                  <LinkIcon size={15} />
                   <span>🔍 Kiểm Tra Ghép Cặp</span>
                 </button>
               ) : (
@@ -1181,17 +1183,17 @@ export default function QuestionCard({
 
         return (
           <div style={{
-            marginTop: "0.85rem",
-            padding: "1rem 1.25rem",
-            borderRadius: "var(--radius-md)",
+            marginTop: "0.75rem",
+            padding: "0.65rem 0.95rem",
+            borderRadius: "var(--radius-sm)",
             background: "rgba(16, 185, 129, 0.08)",
             border: "1.5px solid rgba(16, 185, 129, 0.3)",
-            fontSize: "0.9rem",
-            lineHeight: "1.6",
+            fontSize: "0.82rem",
+            lineHeight: "1.55",
             color: "var(--text-primary)"
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", fontWeight: 800, marginBottom: "0.4rem", color: "#059669" }}>
-              <Lightbulb size={16} color="#059669" />
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, marginBottom: "0.3rem", color: "#059669" }}>
+              <Lightbulb size={15} color="#059669" />
               <span>Phân tích đáp án chuẩn & Phương pháp suy luận:</span>
             </div>
             <div style={{ color: "var(--text-secondary)", whiteSpace: "pre-line" }}>{question.explanation}</div>
@@ -1285,18 +1287,18 @@ export default function QuestionCard({
       {/* AI EXPLANATION DRAWER */}
       {aiExplanation && !isExamMode && (
         <div style={{
-          marginTop: "1rem",
-          padding: "1.1rem 1.25rem",
-          borderRadius: "var(--radius-md)",
+          marginTop: "0.85rem",
+          padding: "0.75rem 0.95rem",
+          borderRadius: "var(--radius-sm)",
           background: "rgba(124, 58, 237, 0.08)",
           border: "1.5px solid rgba(124, 58, 237, 0.25)",
-          fontSize: "0.9rem",
-          lineHeight: "1.6",
+          fontSize: "0.82rem",
+          lineHeight: "1.55",
           color: "var(--text-primary)"
         }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", fontWeight: 800, color: "#7c3aed" }}>
-              <Sparkles size={16} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontWeight: 800, color: "#7c3aed" }}>
+              <Sparkles size={15} />
               <span>Trợ Lý Sư Phạm AI Gemini:</span>
             </div>
             <button

@@ -299,7 +299,7 @@ export default function ExamPage() {
                 <span>CHỌN MÔN THI:</span>
               </div>
 
-              <div style={{ display: "flex", gap: "0.4rem" }}>
+              <div style={{ display: "flex", gap: "0.35rem" }}>
                 {DEFAULT_SUBJECTS.map((subj) => {
                   const isActive = selectedSubjectId === subj.id;
                   return (
@@ -309,8 +309,8 @@ export default function ExamPage() {
                       className={`btn btn-sm ${isActive ? "btn-primary" : "btn-secondary"}`}
                       style={{
                         borderRadius: "var(--radius-full)",
-                        padding: "0.4rem 0.95rem",
-                        fontSize: "0.82rem",
+                        padding: "0.32rem 0.75rem",
+                        fontSize: "0.78rem",
                         fontWeight: 700,
                         whiteSpace: "nowrap",
                         border: isActive ? "1.5px solid #1d4ed8" : "1.5px solid var(--border-medium)",
@@ -327,27 +327,27 @@ export default function ExamPage() {
             </div>
 
             <SubjectAccessGate subjectId={selectedSubjectId}>
-              <div className="q-card" style={{ padding: "2.5rem 2rem", textAlign: "center", maxWidth: "750px", margin: "0 auto", border: "1.5px solid var(--border-light)", background: "var(--surface-card)", boxShadow: "var(--shadow-card)" }}>
+              <div className="q-card" style={{ padding: "1.3rem 1.6rem", textAlign: "center", maxWidth: "640px", margin: "0 auto", border: "1.5px solid var(--border-light)", background: "var(--surface-card)", boxShadow: "var(--shadow-card)" }}>
                 <div style={{
-                  width: "68px",
-                  height: "68px",
-                  borderRadius: "20px",
+                  width: "44px",
+                  height: "44px",
+                  borderRadius: "12px",
                   background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(14, 165, 233, 0.15))",
                   color: "var(--primary)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  margin: "0 auto 1.2rem",
+                  margin: "0 auto 0.75rem",
                   border: "1px solid rgba(37, 99, 235, 0.3)",
-                  boxShadow: "0 0 20px rgba(37, 99, 235, 0.15)"
+                  boxShadow: "0 0 16px rgba(37, 99, 235, 0.15)"
                 }}>
-                  <Clock size={32} />
+                  <Clock size={22} />
                 </div>
 
-                <h1 style={{ fontSize: "1.75rem", fontWeight: 900, marginBottom: "0.5rem", color: "var(--text-primary)", fontFamily: "var(--font-heading)" }}>
+                <h1 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "0.35rem", color: "var(--text-primary)", fontFamily: "var(--font-heading)" }}>
                   Kỳ Thi Đánh Giá Chuẩn Đầu Ra: {currentSubject.name}
                 </h1>
-                <p style={{ color: "var(--text-secondary)", fontSize: "0.92rem", marginBottom: "1.5rem", lineHeight: "1.6" }}>
+                <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", marginBottom: "0.85rem", lineHeight: "1.5" }}>
                   Đề thi gồm <strong>50 câu trắc nghiệm</strong> (7.0 điểm) và <strong>4 bài tập thực hành code</strong> (3.0 điểm). 
                   Thời gian làm bài: <strong>50 phút</strong>. Đạt từ 5.0 điểm trở lên được cấp Chứng chỉ Sao Việt.
                 </p>
@@ -355,17 +355,17 @@ export default function ExamPage() {
                 <div style={{
                   background: "var(--surface-subtle)",
                   border: "1px solid var(--border-medium)",
-                  borderRadius: "12px",
-                  padding: "1rem 1.2rem",
-                  marginBottom: "1.5rem",
+                  borderRadius: "10px",
+                  padding: "0.65rem 0.95rem",
+                  marginBottom: "0.95rem",
                   textAlign: "left",
-                  fontSize: "0.85rem"
+                  fontSize: "0.78rem"
                 }}>
-                  <div style={{ fontWeight: 800, color: "var(--primary)", marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-                    <AlertCircle size={16} />
+                  <div style={{ fontWeight: 800, color: "var(--primary)", marginBottom: "0.3rem", display: "flex", alignItems: "center", gap: "0.35rem" }}>
+                    <AlertCircle size={14} />
                     <span>Quy Định Phòng Thi Nghiêm Túc:</span>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem", color: "var(--text-secondary)" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", color: "var(--text-secondary)" }}>
                     <div>• Học viên cần có <strong>Mã Phòng Thi / Mã Kích Hoạt</strong> do Giám thị hoặc Giáo viên chi nhánh cấp.</div>
                     <div>• Không chuyển tab hoặc mở tài liệu ngoài phạm vi cho phép.</div>
                     <div>• Nếu gặp sự cố phòng máy, chọn <strong>Tạm Dừng Thi</strong> để Giáo viên nhập mã PIN mở khóa.</div>
@@ -377,12 +377,12 @@ export default function ExamPage() {
                 <div style={{
                   background: "var(--surface-subtle)",
                   border: "1px solid var(--border-medium)",
-                  borderRadius: "14px",
-                  padding: "1.2rem",
-                  marginBottom: "1.5rem",
+                  borderRadius: "10px",
+                  padding: "0.75rem 1rem",
+                  marginBottom: "1rem",
                   textAlign: "center"
                 }}>
-                  <label style={{ display: "block", fontSize: "0.88rem", fontWeight: 800, color: "var(--primary)", marginBottom: "0.6rem" }}>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 800, color: "var(--primary)", marginBottom: "0.4rem" }}>
                     🔑 NHẬP MÃ PHÒNG THI / MÃ ĐỀ THI ĐỂ MỞ KHÓA:
                   </label>
                   <input
@@ -392,13 +392,13 @@ export default function ExamPage() {
                     placeholder="Nhập mã thi (VD: SAOVIET2026, PYTHON2026 hoặc PIN 8888)"
                     style={{
                       width: "100%",
-                      maxWidth: "420px",
-                      padding: "0.75rem 1rem",
-                      borderRadius: "10px",
+                      maxWidth: "380px",
+                      padding: "0.55rem 0.85rem",
+                      borderRadius: "8px",
                       border: "1.5px solid var(--border-medium)",
                       background: "var(--surface-card)",
                       color: "var(--text-primary)",
-                      fontSize: "1rem",
+                      fontSize: "0.9rem",
                       fontWeight: 800,
                       textAlign: "center",
                       letterSpacing: "0.08em",
@@ -409,29 +409,29 @@ export default function ExamPage() {
                     }}
                   />
                   {accessError && (
-                    <div style={{ color: "#ef4444", fontSize: "0.82rem", fontWeight: 700, marginTop: "0.5rem" }}>
+                    <div style={{ color: "#ef4444", fontSize: "0.76rem", fontWeight: 700, marginTop: "0.4rem" }}>
                       {accessError}
                     </div>
                   )}
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.4rem" }}>
-                    (Mã phòng thi chuẩn: <code>SAOVIET2026</code>, <code>PYTHON2026</code> hoặc mã PIN Giám thị: <code>8888</code>)
+                  <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>
+                    (Mã chuẩn: <code>SAOVIET2026</code>, <code>PYTHON2026</code> hoặc PIN Giám thị: <code>8888</code>)
                   </div>
                 </div>
 
                 <button
                   onClick={handleStartExam}
-                  className="btn btn-primary btn-lg"
+                  className="btn btn-primary"
                   style={{
-                    padding: "0.95rem 2.8rem",
-                    fontSize: "1.05rem",
+                    padding: "0.6rem 1.8rem",
+                    fontSize: "0.86rem",
                     fontWeight: 800,
                     borderRadius: "9999px",
                     background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
                     color: "#ffffff",
-                    boxShadow: "0 4px 18px rgba(37, 99, 235, 0.4)"
+                    boxShadow: "0 3px 14px rgba(37, 99, 235, 0.35)"
                   }}
                 >
-                  <BookOpen size={20} />
+                  <BookOpen size={16} />
                   <span>XÁC NHẬN MÃ & VÀO LÀM BÀI THI</span>
                 </button>
               </div>
@@ -443,67 +443,67 @@ export default function ExamPage() {
               background: "var(--surface-card)",
               border: "1px solid var(--border-light)",
               borderRadius: "var(--radius-md)",
-              padding: "0.8rem 1.4rem",
+              padding: "0.55rem 1.1rem",
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              marginBottom: "1.5rem",
+              marginBottom: "1rem",
               position: "sticky",
               top: "70px",
               zIndex: 30,
               boxShadow: "var(--shadow-card)"
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <span style={{ fontWeight: 800, fontSize: "1.05rem", color: "var(--text-primary)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <span style={{ fontWeight: 800, fontSize: "0.95rem", color: "var(--text-primary)" }}>
                   {currentSubject.name}
                 </span>
                 <span style={{
-                  fontSize: "0.78rem",
+                  fontSize: "0.72rem",
                   fontWeight: 700,
                   color: currentPart === 1 ? "var(--brand-primary)" : "var(--brand-emerald)",
                   background: currentPart === 1 ? "var(--brand-primary-light)" : "var(--brand-emerald-light)",
-                  padding: "0.2rem 0.6rem",
+                  padding: "0.15rem 0.5rem",
                   borderRadius: "var(--radius-full)"
                 }}>
                   {currentPart === 1 ? `Phần 1: Trắc Nghiệm (${currentIndex + 1}/50)` : `Phần 2: Tự Luận (${currentIndex + 1}/4)`}
                 </span>
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: "1.2rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.9rem" }}>
                 <div style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.5rem",
+                  gap: "0.4rem",
                   fontFamily: "var(--font-mono)",
                   fontWeight: 900,
-                  fontSize: "1.25rem",
+                  fontSize: "1.1rem",
                   color: timerSeconds < 300 ? "var(--brand-rose)" : "var(--brand-primary)"
                 }}>
-                  <Clock size={20} />
+                  <Clock size={16} />
                   <span>{formatTimer(timerSeconds)}</span>
                 </div>
 
                 <button
                   onClick={handlePauseExam}
                   className="btn btn-secondary btn-sm"
-                  style={{ gap: "0.3rem" }}
+                  style={{ gap: "0.25rem", padding: "0.3rem 0.65rem", fontSize: "0.76rem" }}
                   title="Tạm dừng làm bài để gọi giáo viên"
                 >
-                  <Pause size={14} />
+                  <Pause size={13} />
                   <span>Tạm Dừng</span>
                 </button>
 
                 <button
                   onClick={handleManualSubmit}
                   className="btn btn-primary btn-sm"
-                  style={{ gap: "0.3rem" }}
+                  style={{ gap: "0.25rem", padding: "0.3rem 0.75rem", fontSize: "0.76rem" }}
                 >
                   <span>Nộp Bài</span>
                 </button>
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 280px", gap: "1.5rem", alignItems: "start" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 250px", gap: "1.1rem", alignItems: "start" }}>
               <div>
                 {currentPart === 1 && examQuestions[currentIndex] && (
                   <div>
@@ -521,18 +521,20 @@ export default function ExamPage() {
                       }}
                     />
 
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.2rem" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "0.9rem" }}>
                       <button
-                        className="btn btn-secondary"
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: "0.4rem 0.85rem", fontSize: "0.8rem" }}
                         onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
                         disabled={currentIndex === 0}
                       >
-                        <ChevronLeft size={16} />
+                        <ChevronLeft size={15} />
                         <span>Câu Trước</span>
                       </button>
 
                       <button
-                        className="btn btn-primary"
+                        className="btn btn-primary btn-sm"
+                        style={{ padding: "0.4rem 0.95rem", fontSize: "0.8rem" }}
                         onClick={() => {
                           if (currentIndex < examQuestions.length - 1) {
                             setCurrentIndex((prev) => prev + 1);
@@ -543,26 +545,26 @@ export default function ExamPage() {
                         }}
                       >
                         <span>{currentIndex === examQuestions.length - 1 ? "Sang Phần Tự Luận Code" : "Câu Tiếp Theo"}</span>
-                        <ChevronRight size={16} />
+                        <ChevronRight size={15} />
                       </button>
                     </div>
                   </div>
                 )}
 
                 {currentPart === 2 && examPracticals[currentIndex] && (
-                  <div className="q-card" style={{ padding: "1.5rem" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.6rem" }}>
+                  <div className="q-card" style={{ padding: "1.1rem 1.25rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", marginBottom: "0.5rem" }}>
                       <span className="q-badge" style={{ background: "rgba(5, 150, 105, 0.1)", color: "var(--brand-emerald)" }}>
                         TỰ LUẬN BÀI {currentIndex + 1} / 4
                       </span>
-                      <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>Điểm tối đa: 0.75 điểm / bài</span>
+                      <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Điểm tối đa: 0.75 điểm / bài</span>
                     </div>
 
-                    <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "0.6rem" }}>
+                    <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: "0.45rem" }}>
                       {examPracticals[currentIndex]?.title}
                     </h3>
 
-                    <p style={{ color: "var(--text-secondary)", marginBottom: "1.2rem", fontSize: "0.92rem", lineHeight: "1.6" }}>
+                    <p style={{ color: "var(--text-secondary)", marginBottom: "0.9rem", fontSize: "0.84rem", lineHeight: "1.5" }}>
                       {examPracticals[currentIndex]?.description}
                     </p>
 
@@ -585,25 +587,27 @@ export default function ExamPage() {
                       }}
                     />
 
-                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1.4rem", paddingTop: "1.2rem", borderTop: "1px solid var(--border-light)" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginTop: "1rem", paddingTop: "0.9rem", borderTop: "1px solid var(--border-light)" }}>
                       <button
-                        className="btn btn-secondary"
+                        className="btn btn-secondary btn-sm"
+                        style={{ padding: "0.4rem 0.85rem", fontSize: "0.8rem" }}
                         onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
                         disabled={currentIndex === 0}
                       >
-                        <ChevronLeft size={16} />
+                        <ChevronLeft size={15} />
                         <span>Bài Trước</span>
                       </button>
 
                       <button
-                        className="btn btn-primary"
+                        className="btn btn-primary btn-sm"
+                        style={{ padding: "0.4rem 0.95rem", fontSize: "0.8rem" }}
                         onClick={() => {
                           if (currentIndex < examPracticals.length - 1) setCurrentIndex((prev) => prev + 1);
                           else handleManualSubmit();
                         }}
                       >
                         <span>{currentIndex === examPracticals.length - 1 ? "Hoàn Thành & Nộp Bài" : "Bài Kế Tiếp"}</span>
-                        <ChevronRight size={16} />
+                        <ChevronRight size={15} />
                       </button>
                     </div>
                   </div>

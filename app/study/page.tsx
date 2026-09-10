@@ -102,21 +102,21 @@ export default function StudyPage() {
         {/* Subject Navigation Bar */}
         <div style={{
           background: "var(--surface-card)",
-          padding: "0.85rem 1.1rem",
+          padding: "0.6rem 0.9rem",
           borderRadius: "var(--radius-md)",
           border: "1px solid var(--border-light)",
-          marginBottom: "1.5rem",
+          marginBottom: "1rem",
           display: "flex",
           alignItems: "center",
-          gap: "0.5rem",
+          gap: "0.45rem",
           overflowX: "auto"
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.82rem", fontWeight: 800, color: "var(--text-muted)", marginRight: "0.5rem", whiteSpace: "nowrap" }}>
-            <Code2 size={16} color="var(--brand-primary)" />
+          <div style={{ display: "flex", alignItems: "center", gap: "0.35rem", fontSize: "0.78rem", fontWeight: 800, color: "var(--text-muted)", marginRight: "0.4rem", whiteSpace: "nowrap" }}>
+            <Code2 size={15} color="var(--brand-primary)" />
             <span>CHỌN MÔN HỌC:</span>
           </div>
 
-          <div style={{ display: "flex", gap: "0.4rem" }}>
+          <div style={{ display: "flex", gap: "0.35rem" }}>
             {DEFAULT_SUBJECTS.map((subj) => {
               const isActive = selectedSubjectId === subj.id;
               return (
@@ -129,8 +129,8 @@ export default function StudyPage() {
                   className={`btn btn-sm ${isActive ? "btn-primary" : "btn-secondary"}`}
                   style={{
                     borderRadius: "var(--radius-full)",
-                    padding: "0.4rem 0.95rem",
-                    fontSize: "0.82rem",
+                    padding: "0.32rem 0.8rem",
+                    fontSize: "0.78rem",
                     fontWeight: 700,
                     whiteSpace: "nowrap",
                     border: isActive ? "1.5px solid #1d4ed8" : "1.5px solid var(--border-medium)",
@@ -148,19 +148,19 @@ export default function StudyPage() {
 
         {/* Subject Authorization RBAC Gate */}
         <SubjectAccessGate subjectId={selectedSubjectId}>
-          <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+          <div style={{ textAlign: "center", marginBottom: "1.2rem" }}>
             <div style={{
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
-              fontSize: "0.82rem",
+              fontSize: "0.76rem",
               fontWeight: 800,
               color: "#1d4ed8",
               background: "rgba(37, 99, 235, 0.08)",
               border: "1.5px solid rgba(37, 99, 235, 0.25)",
-              padding: "0.25rem 0.9rem",
+              padding: "0.2rem 0.75rem",
               borderRadius: "9999px",
-              marginBottom: "0.75rem",
+              marginBottom: "0.45rem",
               letterSpacing: "0.02em"
             }}>
               <span>✦ Study Center</span>
@@ -169,16 +169,16 @@ export default function StudyPage() {
             </div>
             
             <h1 style={{
-              fontSize: "clamp(2rem, 4vw, 2.6rem)",
+              fontSize: "clamp(1.25rem, 2.2vw, 1.55rem)",
               fontWeight: 900,
-              letterSpacing: "-0.8px",
+              letterSpacing: "-0.4px",
               color: "var(--text-primary)",
-              marginBottom: "0.6rem",
+              marginBottom: "0.35rem",
               fontFamily: "var(--font-heading)"
             }}>
               {currentSubject.name} — Ôn Tập & Luyện Code Web
             </h1>
-            <p style={{ color: "var(--text-secondary)", fontSize: "1rem", fontWeight: 600, maxWidth: "680px", margin: "0 auto", lineHeight: "1.6" }}>
+            <p style={{ color: "var(--text-secondary)", fontSize: "0.82rem", fontWeight: 600, maxWidth: "640px", margin: "0 auto", lineHeight: "1.5" }}>
               Nền tảng ôn luyện {questions.length > 0 ? questions.length : 140} câu trắc nghiệm chuẩn hóa và {practicals.length > 0 ? practicals.length : 21} bài toán thực hành vừa viết code vừa build chạy thử trực tiếp trên trình duyệt.
             </p>
           </div>
@@ -187,8 +187,8 @@ export default function StudyPage() {
           <div style={{
             display: "flex",
             justifyContent: "center",
-            gap: "0.8rem",
-            marginBottom: "2rem",
+            gap: "0.5rem",
+            marginBottom: "1.1rem",
             flexWrap: "wrap"
           }}>
             <button
@@ -196,20 +196,20 @@ export default function StudyPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.6rem",
-                padding: "0.75rem 1.4rem",
-                borderRadius: "12px",
+                gap: "0.5rem",
+                padding: "0.45rem 1.05rem",
+                borderRadius: "10px",
                 border: studyMode === "quiz" ? "1.5px solid #1d4ed8" : "1.5px solid var(--border-medium)",
                 background: studyMode === "quiz" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "var(--surface-card)",
                 color: studyMode === "quiz" ? "#ffffff" : "var(--text-primary)",
                 fontWeight: 800,
-                fontSize: "0.92rem",
+                fontSize: "0.82rem",
                 cursor: "pointer",
-                boxShadow: studyMode === "quiz" ? "0 4px 15px rgba(37, 99, 235, 0.35)" : "var(--shadow-card)",
+                boxShadow: studyMode === "quiz" ? "0 3px 12px rgba(37, 99, 235, 0.3)" : "var(--shadow-card)",
                 transition: "all 0.2s ease"
               }}
             >
-              <BookOpen size={18} />
+              <BookOpen size={15} />
               <span>📚 Kho Câu Hỏi Ôn Tập ({questions.length} câu)</span>
             </button>
 
@@ -218,20 +218,20 @@ export default function StudyPage() {
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.6rem",
-                padding: "0.75rem 1.4rem",
-                borderRadius: "12px",
+                gap: "0.5rem",
+                padding: "0.45rem 1.05rem",
+                borderRadius: "10px",
                 border: studyMode === "coding" ? "1.5px solid #1d4ed8" : "1.5px solid var(--border-medium)",
                 background: studyMode === "coding" ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "var(--surface-card)",
                 color: studyMode === "coding" ? "#ffffff" : "var(--text-primary)",
                 fontWeight: 800,
-                fontSize: "0.92rem",
+                fontSize: "0.82rem",
                 cursor: "pointer",
-                boxShadow: studyMode === "coding" ? "0 4px 15px rgba(37, 99, 235, 0.35)" : "var(--shadow-card)",
+                boxShadow: studyMode === "coding" ? "0 3px 12px rgba(37, 99, 235, 0.3)" : "var(--shadow-card)",
                 transition: "all 0.2s ease"
               }}
             >
-              <Terminal size={18} />
+              <Terminal size={15} />
               <span>💻 Luyện Code Web IDE ({practicals.length} bài)</span>
             </button>
           </div>
@@ -320,12 +320,12 @@ export default function StudyPage() {
                     ))}
                   </div>
                 ) : (
-                  <div className="q-card" style={{ padding: "3rem 1rem", textAlign: "center" }}>
-                    <SearchX size={42} color="#94a3b8" style={{ margin: "0 auto 1rem auto" }} />
-                    <h3 style={{ fontSize: "1.15rem", fontWeight: 800, marginBottom: "0.4rem" }}>
+                  <div className="q-card" style={{ padding: "2rem 1rem", textAlign: "center" }}>
+                    <SearchX size={32} color="#94a3b8" style={{ margin: "0 auto 0.75rem auto" }} />
+                    <h3 style={{ fontSize: "1rem", fontWeight: 800, marginBottom: "0.3rem" }}>
                       Không tìm thấy câu hỏi phù hợp
                     </h3>
-                    <p style={{ fontSize: "0.88rem", color: "var(--text-muted)" }}>
+                    <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>
                       Thử đổi từ khóa tìm kiếm hoặc chọn lọc dạng câu hỏi khác.
                     </p>
                   </div>
@@ -351,32 +351,32 @@ export default function StudyPage() {
               <div style={{
                 background: "linear-gradient(135deg, rgba(2, 132, 199, 0.08), rgba(99, 102, 241, 0.08))",
                 border: "1px solid rgba(2, 132, 199, 0.25)",
-                borderRadius: "14px",
-                padding: "1rem 1.4rem",
-                marginBottom: "1.8rem",
+                borderRadius: "11px",
+                padding: "0.75rem 1.1rem",
+                marginBottom: "1.2rem",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
                 flexWrap: "wrap",
-                gap: "1rem"
+                gap: "0.75rem"
               }}>
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#0284c7", fontWeight: 800, fontSize: "1.05rem" }}>
-                    <Cpu size={20} />
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", color: "#0284c7", fontWeight: 800, fontSize: "0.94rem" }}>
+                    <Cpu size={17} />
                     <span>Trình Biên Dịch & Chấm Điểm Python 3.12 Trên Trình Duyệt</span>
                   </div>
-                  <div style={{ fontSize: "0.86rem", color: "var(--text-secondary)", marginTop: "0.3rem" }}>
+                  <div style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginTop: "0.2rem" }}>
                     Học viên vừa gõ code trực tiếp trên Web IDE, vừa bấm <strong>▶️ Chạy Thử Code</strong> để xem kết quả Console tức thì, sau đó bấm <strong>Chấm Điểm</strong> để kiểm tra qua 4/4 Test Cases!
                   </div>
                 </div>
 
                 <div style={{
-                  padding: "0.4rem 0.8rem",
-                  borderRadius: "8px",
+                  padding: "0.3rem 0.7rem",
+                  borderRadius: "7px",
                   background: "rgba(2, 132, 199, 0.12)",
                   border: "1px solid rgba(2, 132, 199, 0.3)",
                   color: "#0284c7",
-                  fontSize: "0.82rem",
+                  fontSize: "0.76rem",
                   fontWeight: 800
                 }}>
                   {filteredPracticals.length} Bài Thực Hành Sẵn Sàng

@@ -28,37 +28,37 @@ export default function StudyFilterBar({
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      gap: "1rem",
+      gap: "0.75rem",
       flexWrap: "wrap",
-      marginBottom: "2rem",
+      marginBottom: "1.1rem",
       background: "var(--surface-card)",
       border: "1px solid var(--border-light)",
-      borderRadius: "16px",
-      padding: "0.85rem 1.25rem",
+      borderRadius: "12px",
+      padding: "0.6rem 1rem",
       boxShadow: "var(--shadow-card)"
     }}>
       {/* Search Input Box */}
-      <div style={{ position: "relative", display: "flex", alignItems: "center", flex: "1 1 320px" }}>
+      <div style={{ position: "relative", display: "flex", alignItems: "center", flex: "1 1 280px" }}>
         <div style={{
           position: "absolute",
-          left: "1rem",
+          left: "0.75rem",
           color: "var(--text-muted)",
           display: "flex",
           alignItems: "center",
           pointerEvents: "none"
         }}>
-          <Search size={17} />
+          <Search size={15} />
         </div>
 
         <input
           type="text"
           style={{
             width: "100%",
-            paddingLeft: "2.75rem",
-            paddingRight: search ? "2.5rem" : "1rem",
-            height: "42px",
-            fontSize: "0.9rem",
-            borderRadius: "10px",
+            paddingLeft: "2.3rem",
+            paddingRight: search ? "2.2rem" : "0.75rem",
+            height: "36px",
+            fontSize: "0.82rem",
+            borderRadius: "8px",
             background: "var(--surface-subtle)",
             border: "1.5px solid var(--border-medium)",
             color: "var(--text-primary)",
@@ -83,12 +83,12 @@ export default function StudyFilterBar({
             onClick={() => onSearchChange("")}
             style={{
               position: "absolute",
-              right: "0.85rem",
+              right: "0.65rem",
               background: "var(--border-medium)",
               border: "none",
               borderRadius: "50%",
-              width: "22px",
-              height: "22px",
+              width: "20px",
+              height: "20px",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -97,13 +97,13 @@ export default function StudyFilterBar({
             }}
             title="Xóa tìm kiếm"
           >
-            <X size={13} />
+            <X size={11} />
           </button>
         )}
       </div>
 
       {/* Filter Chips */}
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", alignItems: "center" }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", alignItems: "center" }}>
         {chips.map((chip) => {
           const isActive = filterType === chip.id;
           return (
@@ -111,27 +111,27 @@ export default function StudyFilterBar({
               key={chip.id}
               onClick={() => onFilterChange(chip.id)}
               style={{
-                borderRadius: "8px",
-                padding: "0.5rem 1rem",
-                fontSize: "0.84rem",
+                borderRadius: "7px",
+                padding: "0.32rem 0.72rem",
+                fontSize: "0.78rem",
                 fontWeight: 700,
                 display: "inline-flex",
                 alignItems: "center",
-                gap: "0.45rem",
+                gap: "0.35rem",
                 border: "1.5px solid",
                 borderColor: isActive ? "#2563eb" : "var(--border-medium)",
                 background: isActive ? "linear-gradient(135deg, #2563eb, #1d4ed8)" : "var(--surface-subtle)",
                 color: isActive ? "#ffffff" : "var(--text-secondary)",
                 cursor: "pointer",
-                boxShadow: isActive ? "0 2px 10px rgba(37, 99, 235, 0.3)" : "none",
+                boxShadow: isActive ? "0 2px 8px rgba(37, 99, 235, 0.25)" : "none",
                 transition: "all 0.15s ease"
               }}
             >
               <span>{chip.label}</span>
               <span
                 style={{
-                  fontSize: "0.72rem",
-                  padding: "0.1rem 0.45rem",
+                  fontSize: "0.68rem",
+                  padding: "0.06rem 0.38rem",
                   borderRadius: "9999px",
                   background: isActive ? "rgba(255, 255, 255, 0.25)" : "var(--surface-card)",
                   border: isActive ? "none" : "1px solid var(--border-light)",

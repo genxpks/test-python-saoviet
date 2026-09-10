@@ -239,23 +239,23 @@ export default function InteractiveSequenceOrdering({
   };
 
   return (
-    <div style={{ margin: "1.2rem 0" }}>
+    <div style={{ margin: "0.85rem 0" }}>
       {/* Hướng Dẫn Tương Tác */}
       <div style={{
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: "0.85rem",
-        padding: "0.55rem 0.9rem",
+        marginBottom: "0.65rem",
+        padding: "0.45rem 0.75rem",
         background: "rgba(37, 99, 235, 0.06)",
         border: "1px solid rgba(37, 99, 235, 0.18)",
-        borderRadius: "10px",
+        borderRadius: "8px",
         flexWrap: "wrap",
-        gap: "0.5rem"
+        gap: "0.4rem"
       }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          <Sparkles size={16} color="#2563eb" />
-          <span style={{ fontSize: "0.84rem", fontWeight: 700, color: "var(--text-primary)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
+          <Sparkles size={14} color="#2563eb" />
+          <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-primary)" }}>
             Kéo thả hoặc bấm vào dòng lệnh bên trái để sắp xếp sang khung lắp ráp bên phải, sau đó bấm <strong>Chạy Thử</strong>:
           </span>
         </div>
@@ -264,19 +264,19 @@ export default function InteractiveSequenceOrdering({
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "0.35rem",
+            gap: "0.3rem",
             background: "var(--surface-card)",
             border: "1.5px solid var(--border-medium)",
             color: "var(--text-secondary)",
-            padding: "0.3rem 0.75rem",
-            borderRadius: "6px",
-            fontSize: "0.78rem",
+            padding: "0.22rem 0.6rem",
+            borderRadius: "5px",
+            fontSize: "0.74rem",
             fontWeight: 700,
             cursor: "pointer"
           }}
           title="Đưa tất cả dòng lệnh về kho ban đầu"
         >
-          <RotateCcw size={13} />
+          <RotateCcw size={12} />
           <span>Đặt lại</span>
         </button>
       </div>
@@ -286,40 +286,40 @@ export default function InteractiveSequenceOrdering({
       {/* ===================================================================== */}
       <div style={{
         display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-        gap: "1.2rem",
+        gridTemplateColumns: "repeat(auto-fit, minmax(290px, 1fr))",
+        gap: "0.9rem",
         alignItems: "start"
       }}>
         {/* ---------------- BÊN TRÁI: KHO DÒNG LỆNH CHƯA XẾP ---------------- */}
         <div style={{
           background: "var(--surface-subtle)",
           border: "1.5px solid var(--border-medium)",
-          borderRadius: "14px",
-          padding: "1rem",
+          borderRadius: "10px",
+          padding: "0.75rem 0.85rem",
           boxShadow: "var(--shadow-subtle)",
           display: "flex",
           flexDirection: "column",
-          gap: "0.75rem",
-          minHeight: "260px"
+          gap: "0.55rem",
+          minHeight: "200px"
         }}>
           {/* Header Bên Trái */}
           <div style={{
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            paddingBottom: "0.6rem",
+            paddingBottom: "0.45rem",
             borderBottom: "1.5px solid var(--border-light)"
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
-              <Boxes size={18} color="#2563eb" />
-              <span style={{ fontWeight: 800, fontSize: "0.92rem", color: "var(--text-primary)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              <Boxes size={16} color="#2563eb" />
+              <span style={{ fontWeight: 800, fontSize: "0.84rem", color: "var(--text-primary)" }}>
                 📦 Dữ Kiện & Dòng Lệnh
               </span>
             </div>
             <span style={{
-              fontSize: "0.75rem",
+              fontSize: "0.72rem",
               fontWeight: 800,
-              padding: "0.2rem 0.55rem",
+              padding: "0.15rem 0.45rem",
               borderRadius: "20px",
               background: leftItems.length > 0 ? "rgba(37, 99, 235, 0.12)" : "rgba(16, 185, 129, 0.12)",
               color: leftItems.length > 0 ? "#2563eb" : "#059669"
@@ -329,21 +329,21 @@ export default function InteractiveSequenceOrdering({
           </div>
 
           {/* Danh sách các khối dòng lệnh lộn xộn */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
             {leftItems.length === 0 ? (
               <div style={{
-                padding: "2rem 1rem",
+                padding: "1.5rem 0.75rem",
                 textAlign: "center",
                 border: "2px dashed var(--border-medium)",
-                borderRadius: "10px",
+                borderRadius: "8px",
                 color: "var(--text-muted)",
-                fontSize: "0.85rem",
+                fontSize: "0.8rem",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
-                gap: "0.5rem"
+                gap: "0.4rem"
               }}>
-                <CheckCircle2 size={24} color="#059669" />
+                <CheckCircle2 size={20} color="#059669" />
                 <span>Toàn bộ các dòng lệnh đã được chuyển sang khung lắp ráp bên phải.</span>
               </div>
             ) : (
@@ -356,32 +356,32 @@ export default function InteractiveSequenceOrdering({
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "0.65rem",
-                    padding: "0.75rem 0.9rem",
+                    gap: "0.55rem",
+                    padding: "0.45rem 0.7rem",
                     background: "var(--surface-card)",
                     border: "1.5px solid var(--border-medium)",
-                    borderRadius: "10px",
+                    borderRadius: "8px",
                     cursor: "pointer",
                     transition: "all 0.2s ease",
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.04)"
+                    boxShadow: "0 1px 4px rgba(0,0,0,0.04)"
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.borderColor = "#2563eb";
-                    e.currentTarget.style.transform = "translateY(-2px)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(37, 99, 235, 0.18)";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.boxShadow = "0 3px 10px rgba(37, 99, 235, 0.15)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.borderColor = "var(--border-medium)";
                     e.currentTarget.style.transform = "none";
-                    e.currentTarget.style.boxShadow = "0 2px 5px rgba(0,0,0,0.04)";
+                    e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04)";
                   }}
                   title="Bấm hoặc kéo thả sang khung bên phải"
                 >
-                  <GripVertical size={16} color="var(--text-muted)" style={{ cursor: "grab", flexShrink: 0 }} />
+                  <GripVertical size={14} color="var(--text-muted)" style={{ cursor: "grab", flexShrink: 0 }} />
                   <span style={{
                     flex: 1,
                     fontFamily: "var(--font-mono)",
-                    fontSize: "0.88rem",
+                    fontSize: "0.8rem",
                     color: "var(--text-primary)",
                     whiteSpace: "pre-wrap",
                     wordBreak: "break-all"
@@ -396,20 +396,20 @@ export default function InteractiveSequenceOrdering({
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "0.25rem",
-                      padding: "0.3rem 0.6rem",
-                      borderRadius: "6px",
+                      gap: "0.2rem",
+                      padding: "0.22rem 0.5rem",
+                      borderRadius: "5px",
                       background: "rgba(37, 99, 235, 0.08)",
                       border: "1px solid rgba(37, 99, 235, 0.25)",
                       color: "#2563eb",
-                      fontSize: "0.75rem",
+                      fontSize: "0.72rem",
                       fontWeight: 700,
                       cursor: "pointer",
                       flexShrink: 0
                     }}
                   >
                     <span>Thêm</span>
-                    <ArrowRight size={13} />
+                    <ArrowRight size={12} />
                   </button>
                 </div>
               ))
@@ -428,13 +428,13 @@ export default function InteractiveSequenceOrdering({
                 ? "2px solid #059669"
                 : "2px solid #dc2626"
               : "1.5px solid var(--border-medium)",
-            borderRadius: "14px",
-            padding: "1rem",
+            borderRadius: "10px",
+            padding: "0.75rem 0.85rem",
             boxShadow: "var(--shadow-card)",
             display: "flex",
             flexDirection: "column",
-            gap: "0.75rem",
-            minHeight: "260px",
+            gap: "0.55rem",
+            minHeight: "200px",
             transition: "all 0.25s ease"
           }}
         >
@@ -443,20 +443,20 @@ export default function InteractiveSequenceOrdering({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            paddingBottom: "0.6rem",
+            paddingBottom: "0.45rem",
             borderBottom: "1.5px solid var(--border-light)"
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.45rem" }}>
-              <Layers size={18} color={evaluated ? (isCorrect ? "#059669" : "#dc2626") : "#059669"} />
-              <span style={{ fontWeight: 800, fontSize: "0.92rem", color: "var(--text-primary)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
+              <Layers size={16} color={evaluated ? (isCorrect ? "#059669" : "#dc2626") : "#059669"} />
+              <span style={{ fontWeight: 800, fontSize: "0.84rem", color: "var(--text-primary)" }}>
                 🛠️ Khung Lắp Ráp Đoạn Mã
               </span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
               <span style={{
-                fontSize: "0.75rem",
+                fontSize: "0.72rem",
                 fontWeight: 800,
-                padding: "0.2rem 0.55rem",
+                padding: "0.15rem 0.45rem",
                 borderRadius: "20px",
                 background: rightItems.length === totalItems ? "rgba(16, 185, 129, 0.12)" : "rgba(217, 119, 6, 0.12)",
                 color: rightItems.length === totalItems ? "#059669" : "#d97706"
@@ -467,26 +467,26 @@ export default function InteractiveSequenceOrdering({
           </div>
 
           {/* Vùng Lắp Ráp & Các Vị Trí Slot */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.55rem" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem" }}>
             {rightItems.length === 0 ? (
               <div
                 style={{
-                  padding: "2.8rem 1rem",
+                  padding: "1.8rem 0.75rem",
                   textAlign: "center",
                   border: "2px dashed var(--border-medium)",
-                  borderRadius: "12px",
+                  borderRadius: "10px",
                   color: "var(--text-muted)",
-                  fontSize: "0.9rem",
+                  fontSize: "0.82rem",
                   background: "var(--surface-subtle)",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  gap: "0.6rem"
+                  gap: "0.5rem"
                 }}
               >
-                <Code2 size={28} color="#2563eb" />
+                <Code2 size={24} color="#2563eb" />
                 <span style={{ fontWeight: 700 }}>Khung mã nguồn đang trống</span>
-                <span style={{ fontSize: "0.8rem" }}>
+                <span style={{ fontSize: "0.76rem" }}>
                   Kéo thả các khối lệnh từ cột bên trái vào đây hoặc bấm nút "Thêm".
                 </span>
               </div>
@@ -512,8 +512,8 @@ export default function InteractiveSequenceOrdering({
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "0.65rem",
-                      padding: "0.65rem 0.85rem",
+                      gap: "0.55rem",
+                      padding: "0.45rem 0.7rem",
                       background: isLineCorrect
                         ? "rgba(16, 185, 129, 0.08)"
                         : isLineWrong
@@ -528,7 +528,7 @@ export default function InteractiveSequenceOrdering({
                         : dragOverRightIdx === pos
                         ? "2px dashed #2563eb"
                         : "1.5px solid var(--border-medium)",
-                      borderRadius: "10px",
+                      borderRadius: "8px",
                       transition: "all 0.15s ease",
                       cursor: "grab"
                     }}
@@ -536,10 +536,10 @@ export default function InteractiveSequenceOrdering({
                     {/* Số thứ tự dòng */}
                     <span style={{
                       fontWeight: 900,
-                      fontSize: "0.82rem",
-                      width: "28px",
-                      height: "28px",
-                      borderRadius: "7px",
+                      fontSize: "0.72rem",
+                      width: "22px",
+                      height: "22px",
+                      borderRadius: "5px",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -558,7 +558,7 @@ export default function InteractiveSequenceOrdering({
                     <span style={{
                       flex: 1,
                       fontFamily: "var(--font-mono)",
-                      fontSize: "0.88rem",
+                      fontSize: "0.8rem",
                       color: "var(--text-primary)",
                       whiteSpace: "pre-wrap",
                       wordBreak: "break-all"
@@ -567,13 +567,13 @@ export default function InteractiveSequenceOrdering({
                     </span>
 
                     {/* Nút điều hướng thứ tự Lên / Xuống & Nút Xóa */}
-                    <div style={{ display: "flex", alignItems: "center", gap: "0.25rem", flexShrink: 0 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "0.2rem", flexShrink: 0 }}>
                       <button
                         disabled={pos === 0}
                         onClick={() => handleMoveOrder(pos, -1)}
                         style={{
-                          padding: "0.3rem 0.45rem",
-                          borderRadius: "6px",
+                          padding: "0.2rem 0.35rem",
+                          borderRadius: "5px",
                           border: "1px solid var(--border-medium)",
                           background: "var(--surface-card)",
                           color: pos === 0 ? "var(--text-muted)" : "var(--text-primary)",
@@ -581,14 +581,14 @@ export default function InteractiveSequenceOrdering({
                         }}
                         title="Di chuyển lên trên"
                       >
-                        <ArrowUp size={13} />
+                        <ArrowUp size={12} />
                       </button>
                       <button
                         disabled={pos === rightItems.length - 1}
                         onClick={() => handleMoveOrder(pos, 1)}
                         style={{
-                          padding: "0.3rem 0.45rem",
-                          borderRadius: "6px",
+                          padding: "0.2rem 0.35rem",
+                          borderRadius: "5px",
                           border: "1px solid var(--border-medium)",
                           background: "var(--surface-card)",
                           color: pos === rightItems.length - 1 ? "var(--text-muted)" : "var(--text-primary)",
@@ -596,13 +596,13 @@ export default function InteractiveSequenceOrdering({
                         }}
                         title="Di chuyển xuống dưới"
                       >
-                        <ArrowDown size={13} />
+                        <ArrowDown size={12} />
                       </button>
                       <button
                         onClick={() => handleRemoveFromRight(pos)}
                         style={{
-                          padding: "0.3rem 0.45rem",
-                          borderRadius: "6px",
+                          padding: "0.2rem 0.35rem",
+                          borderRadius: "5px",
                           border: "1px solid rgba(239, 68, 68, 0.3)",
                           background: "rgba(239, 68, 68, 0.08)",
                           color: "#dc2626",
@@ -610,7 +610,7 @@ export default function InteractiveSequenceOrdering({
                         }}
                         title="Bỏ dòng này khỏi đoạn code (trả về bên trái)"
                       >
-                        <X size={13} />
+                        <X size={12} />
                       </button>
                     </div>
                   </div>
@@ -628,21 +628,21 @@ export default function InteractiveSequenceOrdering({
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "0.75rem",
-                      padding: "0.6rem 0.85rem",
+                      gap: "0.55rem",
+                      padding: "0.45rem 0.7rem",
                       background: "transparent",
                       border: "1.5px dashed var(--border-light)",
-                      borderRadius: "10px",
+                      borderRadius: "8px",
                       color: "var(--text-muted)",
-                      fontSize: "0.82rem"
+                      fontSize: "0.76rem"
                     }}
                   >
                     <span style={{
                       fontWeight: 800,
-                      fontSize: "0.78rem",
-                      width: "26px",
-                      height: "26px",
-                      borderRadius: "6px",
+                      fontSize: "0.72rem",
+                      width: "22px",
+                      height: "22px",
+                      borderRadius: "5px",
                       border: "1px dashed var(--border-medium)",
                       display: "flex",
                       alignItems: "center",
@@ -662,34 +662,26 @@ export default function InteractiveSequenceOrdering({
       {/* ===================================================================== */}
       {/* KHỐI HÀNH ĐỘNG: NÚT BẤM "CHẠY THỬ & KIỂM TRA LOGIC" */}
       {/* ===================================================================== */}
-      <div style={{ marginTop: "1.2rem", display: "flex", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
+      <div style={{ marginTop: "0.85rem", display: "flex", gap: "0.6rem", alignItems: "center", flexWrap: "wrap" }}>
         <button
           onClick={handleRunAndCheck}
           style={{
             display: "flex",
             alignItems: "center",
-            gap: "0.6rem",
-            padding: "0.7rem 1.6rem",
-            borderRadius: "10px",
+            gap: "0.45rem",
+            padding: "0.48rem 1.2rem",
+            borderRadius: "8px",
             border: "none",
             background: "linear-gradient(135deg, #059669, #047857)",
             color: "#ffffff",
             fontWeight: 800,
-            fontSize: "0.95rem",
+            fontSize: "0.82rem",
             cursor: "pointer",
-            boxShadow: "0 4px 15px rgba(5, 150, 105, 0.4)",
+            boxShadow: "0 3px 12px rgba(5, 150, 105, 0.35)",
             transition: "all 0.2s ease"
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "translateY(-2px)";
-            e.currentTarget.style.boxShadow = "0 6px 20px rgba(5, 150, 105, 0.5)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "none";
-            e.currentTarget.style.boxShadow = "0 4px 15px rgba(5, 150, 105, 0.4)";
-          }}
         >
-          <Play size={17} fill="#ffffff" />
+          <Play size={14} fill="#ffffff" />
           <span>▶️ Chạy Thử & Kiểm Tra Logic (Run Code)</span>
         </button>
 
@@ -697,12 +689,12 @@ export default function InteractiveSequenceOrdering({
           <div style={{
             display: "flex",
             alignItems: "center",
-            gap: "0.4rem",
+            gap: "0.35rem",
             color: "#d97706",
-            fontSize: "0.85rem",
+            fontSize: "0.78rem",
             fontWeight: 700
           }}>
-            <AlertTriangle size={16} />
+            <AlertTriangle size={14} />
             <span>{evalErrorMsg}</span>
           </div>
         )}
@@ -712,40 +704,40 @@ export default function InteractiveSequenceOrdering({
       {/* KẾT QUẢ SAU KHI BẤM CHẠY: BÁO ĐÚNG / SAI & PHÂN TÍCH SƯ PHẠM */}
       {/* ===================================================================== */}
       {evaluated && (
-        <div style={{ marginTop: "1.2rem", display: "flex", flexDirection: "column", gap: "0.85rem" }}>
+        <div style={{ marginTop: "0.85rem", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
           {/* BANNER THÀNH CÔNG HOẶC THẤT BẠI */}
           <div style={{
-            padding: "0.9rem 1.2rem",
-            borderRadius: "12px",
+            padding: "0.6rem 0.95rem",
+            borderRadius: "8px",
             background: isCorrect ? "rgba(16, 185, 129, 0.12)" : "rgba(239, 68, 68, 0.08)",
             border: isCorrect ? "1.5px solid #059669" : "1.5px solid #dc2626",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
             flexWrap: "wrap",
-            gap: "0.8rem"
+            gap: "0.6rem"
           }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               {isCorrect ? (
                 <>
-                  <CheckCircle2 size={22} color="#059669" style={{ flexShrink: 0 }} />
+                  <CheckCircle2 size={17} color="#059669" style={{ flexShrink: 0 }} />
                   <div>
-                    <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#065f46" }}>
+                    <div style={{ fontWeight: 800, fontSize: "0.86rem", color: "#065f46" }}>
                       HOÀN TOÀN CHÍNH XÁC! THỨ TỰ LOGIC CHUẨN XÁC 100%
                     </div>
-                    <div style={{ fontSize: "0.82rem", color: "#047857", marginTop: "2px" }}>
+                    <div style={{ fontSize: "0.76rem", color: "#047857", marginTop: "1px" }}>
                       Chương trình biên dịch và thực thi tuần tự không gặp bất kỳ lỗi cú pháp hay runtime nào.
                     </div>
                   </div>
                 </>
               ) : (
                 <>
-                  <X size={22} color="#dc2626" style={{ flexShrink: 0 }} />
+                  <X size={17} color="#dc2626" style={{ flexShrink: 0 }} />
                   <div>
-                    <div style={{ fontWeight: 800, fontSize: "0.95rem", color: "#991b1b" }}>
+                    <div style={{ fontWeight: 800, fontSize: "0.86rem", color: "#991b1b" }}>
                       THỨ TỰ CHƯA CHÍNH XÁC! ĐOẠN MÃ XẢY RA LỖI LOGIC
                     </div>
-                    <div style={{ fontSize: "0.82rem", color: "#b91c1c", marginTop: "2px" }}>
+                    <div style={{ fontSize: "0.76rem", color: "#b91c1c", marginTop: "1px" }}>
                       Khi thực thi theo thứ tự này, chương trình sẽ phát sinh lỗi logic hoặc thiếu dữ liệu.
                     </div>
                   </div>
@@ -753,25 +745,25 @@ export default function InteractiveSequenceOrdering({
               )}
             </div>
 
-            <div style={{ display: "flex", gap: "0.5rem" }}>
+            <div style={{ display: "flex", gap: "0.4rem" }}>
               {!isCorrect && (
                 <button
                   onClick={() => setShowRevealedSolution(prev => !prev)}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "0.4rem",
-                    padding: "0.45rem 0.9rem",
-                    borderRadius: "8px",
+                    gap: "0.3rem",
+                    padding: "0.3rem 0.7rem",
+                    borderRadius: "6px",
                     border: "1.5px solid var(--border-medium)",
                     background: "var(--surface-card)",
                     color: "var(--text-primary)",
-                    fontSize: "0.82rem",
+                    fontSize: "0.76rem",
                     fontWeight: 700,
                     cursor: "pointer"
                   }}
                 >
-                  <Eye size={14} />
+                  <Eye size={13} />
                   <span>{showRevealedSolution ? "Ẩn đáp án chuẩn" : "Xem thứ tự chuẩn"}</span>
                 </button>
               )}
@@ -781,18 +773,18 @@ export default function InteractiveSequenceOrdering({
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.4rem",
-                  padding: "0.45rem 0.9rem",
-                  borderRadius: "8px",
+                  gap: "0.3rem",
+                  padding: "0.3rem 0.7rem",
+                  borderRadius: "6px",
                   border: isCorrect ? "1.5px solid #059669" : "1.5px solid #dc2626",
                   background: isCorrect ? "#059669" : "#dc2626",
                   color: "#ffffff",
-                  fontSize: "0.82rem",
+                  fontSize: "0.76rem",
                   fontWeight: 800,
                   cursor: "pointer"
                 }}
               >
-                <RotateCcw size={14} />
+                <RotateCcw size={13} />
                 <span>Thử chỉnh lại</span>
               </button>
             </div>
@@ -801,16 +793,16 @@ export default function InteractiveSequenceOrdering({
           {/* KHUNG GIẢI THÍCH SƯ PHẠM VÌ SAO SAI */}
           {!isCorrect && (
             <div style={{
-              padding: "1rem 1.2rem",
-              borderRadius: "10px",
+              padding: "0.65rem 0.85rem",
+              borderRadius: "8px",
               background: "rgba(239, 68, 68, 0.05)",
               border: "1.5px solid rgba(239, 68, 68, 0.25)",
               color: "#991b1b",
-              fontSize: "0.88rem",
-              lineHeight: "1.6"
+              fontSize: "0.8rem",
+              lineHeight: "1.5"
             }}>
-              <div style={{ fontWeight: 800, marginBottom: "0.4rem", display: "flex", alignItems: "center", gap: "0.45rem", color: "#dc2626" }}>
-                <AlertTriangle size={16} />
+              <div style={{ fontWeight: 800, marginBottom: "0.3rem", display: "flex", alignItems: "center", gap: "0.35rem", color: "#dc2626" }}>
+                <AlertTriangle size={14} />
                 <span>Phân tích vì sao thứ tự hiện tại chưa đúng:</span>
               </div>
               <div>
@@ -822,35 +814,35 @@ export default function InteractiveSequenceOrdering({
           {/* KHUNG TERMINAL MÔ PHỎNG CHẠY THỬ (KHI ĐÚNG) */}
           {isCorrect && (
             <div style={{
-              borderRadius: "10px",
+              borderRadius: "8px",
               overflow: "hidden",
               border: "1.5px solid #1e293b",
               background: "#090d16",
-              boxShadow: "0 8px 24px rgba(0,0,0,0.4)"
+              boxShadow: "0 4px 16px rgba(0,0,0,0.3)"
             }}>
               <div style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem",
-                padding: "0.5rem 0.9rem",
+                gap: "0.4rem",
+                padding: "0.4rem 0.75rem",
                 background: "#0f172a",
                 borderBottom: "1px solid #1e293b",
                 color: "#94a3b8",
-                fontSize: "0.78rem",
+                fontSize: "0.74rem",
                 fontWeight: 700
               }}>
-                <Terminal size={14} color="#38bdf8" />
+                <Terminal size={13} color="#38bdf8" />
                 <span>🖥️ Cửa Sổ Terminal Thực Thi (Python 3.12 Output)</span>
               </div>
               <div style={{
-                padding: "1rem",
+                padding: "0.65rem 0.85rem",
                 fontFamily: "var(--font-mono)",
-                fontSize: "0.88rem",
+                fontSize: "0.8rem",
                 color: "#34d399",
                 whiteSpace: "pre-wrap",
-                lineHeight: "1.6"
+                lineHeight: "1.5"
               }}>
-                <div style={{ color: "#94a3b8", marginBottom: "0.4rem" }}>$ python main.py</div>
+                <div style={{ color: "#94a3b8", marginBottom: "0.3rem" }}>$ python main.py</div>
                 {getSimulatedExecutionOutput(question)}
               </div>
             </div>
@@ -859,15 +851,15 @@ export default function InteractiveSequenceOrdering({
           {/* HIỂN THỊ ĐÁP ÁN CHUẨN KHI HỌC VIÊN CHỦ ĐỘNG YÊU CẦU HOẶC KHI ĐÚNG */}
           {(isCorrect || showRevealedSolution) && question.explanation && (
             <div style={{
-              padding: "0.9rem 1.1rem",
-              borderRadius: "10px",
+              padding: "0.65rem 0.85rem",
+              borderRadius: "8px",
               background: "rgba(16, 185, 129, 0.08)",
               border: "1.5px solid rgba(16, 185, 129, 0.3)",
-              fontSize: "0.86rem",
-              lineHeight: "1.6",
+              fontSize: "0.8rem",
+              lineHeight: "1.5",
               color: "var(--text-primary)"
             }}>
-              <div style={{ fontWeight: 800, color: "#059669", marginBottom: "0.3rem" }}>
+              <div style={{ fontWeight: 800, color: "#059669", marginBottom: "0.25rem" }}>
                 💡 Quy trình chuẩn & Phân tích giải thuật:
               </div>
               <div>{question.explanation}</div>

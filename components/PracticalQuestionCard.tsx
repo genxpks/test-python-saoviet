@@ -248,11 +248,11 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
       </div>
 
       {/* Title & Description */}
-      <h3 style={{ fontSize: "1.2rem", fontWeight: 800, marginBottom: "0.5rem", color: "var(--text-primary)" }}>
+      <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: "0.35rem", color: "var(--text-primary)" }}>
         {problem.title}
       </h3>
 
-      <p style={{ color: "var(--text-secondary)", marginBottom: "1.2rem", fontSize: "0.94rem", lineHeight: "1.65" }}>
+      <p style={{ color: "var(--text-secondary)", marginBottom: "0.85rem", fontSize: "0.85rem", lineHeight: "1.55" }}>
         {problem.description}
       </p>
 
@@ -389,13 +389,13 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          padding: "0.65rem 1rem",
+          padding: "0.5rem 0.85rem",
           background: "var(--surface-subtle)",
           borderTop: "1px solid var(--border-light)",
           flexWrap: "wrap",
-          gap: "0.6rem"
+          gap: "0.5rem"
         }}>
-          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "0.45rem", flexWrap: "wrap", alignItems: "center" }}>
             <button
               onClick={handleRunCode}
               disabled={isRunning}
@@ -403,19 +403,19 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "6px",
-                padding: "0.5rem 1.1rem",
-                borderRadius: "8px",
+                gap: "5px",
+                padding: "0.42rem 0.95rem",
+                borderRadius: "7px",
                 border: "1px solid rgba(2, 132, 199, 0.4)",
                 background: "linear-gradient(135deg, #0284c7, #0369a1)",
                 color: "#ffffff",
                 fontWeight: 700,
-                fontSize: "0.85rem",
+                fontSize: "0.8rem",
                 cursor: "pointer",
-                boxShadow: "0 2px 10px rgba(2, 132, 199, 0.25)"
+                boxShadow: "0 2px 8px rgba(2, 132, 199, 0.25)"
               }}
             >
-              <Play size={15} fill="#ffffff" />
+              <Play size={14} fill="#ffffff" />
               <span>{isRunning ? "Đang Chạy..." : "▶️ Chạy Thử / Build (F5)"}</span>
             </button>
 
@@ -424,18 +424,18 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "6px",
-                padding: "0.5rem 1rem",
-                borderRadius: "8px",
+                gap: "5px",
+                padding: "0.42rem 0.85rem",
+                borderRadius: "7px",
                 border: "1px solid rgba(16, 185, 129, 0.4)",
                 background: "rgba(16, 185, 129, 0.12)",
                 color: "#059669",
                 fontWeight: 700,
-                fontSize: "0.84rem",
+                fontSize: "0.8rem",
                 cursor: "pointer"
               }}
             >
-              <CheckCircle2 size={15} />
+              <CheckCircle2 size={14} />
               <span>Chấm Điểm Test Cases</span>
             </button>
 
@@ -446,24 +446,24 @@ export default function PracticalQuestionCard({ problem, index }: PracticalQuest
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "6px",
-                padding: "0.5rem 1rem",
-                borderRadius: "8px",
+                gap: "5px",
+                padding: "0.42rem 0.85rem",
+                borderRadius: "7px",
                 border: "1px solid rgba(168, 85, 247, 0.5)",
                 background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
                 color: "#ffffff",
                 fontWeight: 800,
-                fontSize: "0.84rem",
+                fontSize: "0.8rem",
                 cursor: isAiGrading ? "wait" : "pointer",
-                boxShadow: "0 2px 10px rgba(124, 58, 237, 0.25)"
+                boxShadow: "0 2px 8px rgba(124, 58, 237, 0.25)"
               }}
             >
-              <Sparkles size={15} />
+              <Sparkles size={14} />
               <span>{isAiGrading ? "AI Đang Chấm..." : "🤖 Chấm Điểm Bằng AI"}</span>
             </button>
 
-            <span style={{ fontSize: "0.74rem", color: "var(--text-muted)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
-              Phím tắt: <kbd style={{ background: "var(--surface-card)", border: "1px solid var(--border-medium)", padding: "2px 6px", borderRadius: "4px", color: "var(--primary)", fontFamily: "var(--font-mono)" }}>F5</kbd> hoặc <kbd style={{ background: "var(--surface-card)", border: "1px solid var(--border-medium)", padding: "2px 6px", borderRadius: "4px", color: "var(--primary)", fontFamily: "var(--font-mono)" }}>Ctrl+Enter</kbd>
+            <span style={{ fontSize: "0.72rem", color: "var(--text-muted)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
+              Phím tắt: <kbd style={{ background: "var(--surface-card)", border: "1px solid var(--border-medium)", padding: "2px 5px", borderRadius: "4px", color: "var(--primary)", fontFamily: "var(--font-mono)", fontSize: "0.7rem" }}>F5</kbd> hoặc <kbd style={{ background: "var(--surface-card)", border: "1px solid var(--border-medium)", padding: "2px 5px", borderRadius: "4px", color: "var(--primary)", fontFamily: "var(--font-mono)", fontSize: "0.7rem" }}>Ctrl+Enter</kbd>
             </span>
           </div>
 
