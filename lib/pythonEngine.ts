@@ -630,6 +630,26 @@ export class PythonEngine {
         return `_py_in(${sub}, ${container})`;
       });
 
+      // Xử lý toán tử 3 ngôi Python (Ternary Operator): expr1 if cond else expr2 -> (cond) ? (expr1) : (expr2)
+      if (!trimmed.endsWith(":") && /\bif\b/.test(trimmed) && /\belse\b/.test(trimmed)) {
+        const assignMatch = trimmed.match(/^((?:var\s+|return\s+)?[a-zA-Z0-9_,\s]+=\s*|\s*return\s+)(.+?)\s+if\s+(.+?)\s+else\s+(.+)$/);
+        if (assignMatch) {
+          const prefix = assignMatch[1];
+          const expr1 = assignMatch[2].trim();
+          const cond = assignMatch[3].trim();
+          const expr2 = assignMatch[4].trim();
+          trimmed = `${prefix}(${cond}) ? (${expr1}) : (${expr2})`;
+        } else {
+          const inlineMatch = trimmed.match(/(.+?)\s+if\s+(.+?)\s+else\s+(.+)/);
+          if (inlineMatch) {
+            const expr1 = inlineMatch[1].trim();
+            const cond = inlineMatch[2].trim();
+            const expr2 = inlineMatch[3].trim();
+            trimmed = `(${cond}) ? (${expr1}) : (${expr2})`;
+          }
+        }
+      }
+
       // Xử lý if __name__ == '__main__':
       if (/if\s+__name__\s*==\s*['"]__main__['"]\s*:/.test(trimmed)) {
         trimmed = "if (true) {";

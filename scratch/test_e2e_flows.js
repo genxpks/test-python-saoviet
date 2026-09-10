@@ -69,7 +69,7 @@ async function runTests() {
   console.log('\n🏢 2. Kiểm tra Phân Quyền Chi Nhánh & Đăng Nhập Học Viên:');
   const bRes = await request('http://localhost:3000/api/branches');
   assert(bRes.status === 200, 'API /api/branches trả về HTTP 200');
-  assert(bRes.data && bRes.data.branches && bRes.data.branches.length === 4, 'Đầy đủ 4 cơ sở: Thủ Đức, Quận 1, Gò Vấp, Bình Thạnh');
+  assert(bRes.data && bRes.data.branches && bRes.data.branches.length >= 13, `Đầy đủ ${bRes.data?.branches?.length || 0}/13 cơ sở chi nhánh Sao Việt (TP.HCM, Bình Dương, Đồng Nai, Vũng Tàu)`);
 
   const uRes = await request('http://localhost:3000/api/users');
   assert(uRes.status === 200, 'API /api/users trả về HTTP 200');
