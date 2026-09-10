@@ -7,7 +7,7 @@ export default function SaoVietGuaranteesLayer() {
   const icons = [Award, Users, Clock, RotateCcw];
 
   return (
-    <section style={{ marginBottom: "4.5rem", position: "relative" }}>
+    <section style={{ marginBottom: "4.5rem", position: "relative", overflow: "hidden", maxWidth: "100%" }}>
       {/* Background glow decoration */}
       <div
         style={{

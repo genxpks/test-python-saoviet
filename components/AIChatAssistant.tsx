@@ -75,12 +75,12 @@ export default function AIChatAssistant() {
     <>
       {/* Floating Glowing Button - Tiệp màu Sao Việt & Chatbot AI > */}
       <button
-        className="no-print"
+        className="no-print floating-chatbot-btn"
         onClick={() => setIsOpen(!isOpen)}
         style={{
           position: "fixed",
-          bottom: "24px",
-          right: "24px",
+          bottom: "22px",
+          right: "22px",
           zIndex: 999,
           background: "linear-gradient(135deg, #1e40af 0%, #2563eb 100%)",
           color: "#ffffff",

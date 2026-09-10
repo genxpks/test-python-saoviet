@@ -239,12 +239,12 @@ export default function Navbar() {
               {theme === "light" ? (
                 <>
                   <Sun size={14} color="#d97706" />
-                  <span>Sáng</span>
+                  <span className="theme-toggle-text">Sáng</span>
                 </>
               ) : (
                 <>
                   <Moon size={14} color="#38bdf8" />
-                  <span>Tối</span>
+                  <span className="theme-toggle-text">Tối</span>
                 </>
               )}
             </button>
@@ -322,7 +322,7 @@ export default function Navbar() {
             ) : (
               <button 
                 onClick={() => setShowLoginModal(true)}
-                className="btn btn-sm btn-primary"
+                className="btn btn-sm btn-primary header-login-btn"
                 style={{
                   gap: "0.4rem",
                   fontSize: "0.82rem",
@@ -332,7 +332,7 @@ export default function Navbar() {
                 }}
               >
                 <LogIn size={15} />
-                <span>Đăng Nhập</span>
+                <span className="login-btn-text">Đăng Nhập</span>
               </button>
             )}
 

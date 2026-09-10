@@ -7,7 +7,7 @@ import { BookOpen, Clock, Sparkles, CheckCircle2, ShieldCheck, Terminal, Bot } f
 
 export default function HeroLayer3D() {
   return (
-    <section style={{ position: "relative", marginBottom: "2rem", perspective: "1200px" }}>
+    <section style={{ position: "relative", marginBottom: "2rem", perspective: "1200px", overflow: "hidden", maxWidth: "100%" }}>
       {/* Adaptive Aurora Glows — dịu mắt, thu gọn */}
       <div style={{
         position: "absolute",

@@ -95,14 +95,16 @@ export default function CosmicSubjectDeck() {
           alignItems: "center",
           justifyContent: "space-between",
           flexWrap: "wrap",
-          gap: "0.6rem",
-          padding: "0.65rem 1.2rem",
+          gap: "0.6rem 1rem",
+          padding: "0.75rem 1.25rem",
           borderRadius: "12px",
           background: "var(--surface-glass, rgba(255, 255, 255, 0.85))",
           backdropFilter: "blur(12px)",
           border: "1px solid var(--border-light)",
           marginBottom: "1.2rem",
-          boxShadow: "var(--shadow-subtle)"
+          boxShadow: "var(--shadow-subtle)",
+          maxWidth: "100%",
+          boxSizing: "border-box"
         }}
       >
         <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.78rem", fontWeight: 700, color: "var(--brand-primary)" }}>
@@ -110,20 +112,20 @@ export default function CosmicSubjectDeck() {
           <span>TÍNH NĂNG NỀN TẢNG:</span>
         </div>
 
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", fontSize: "0.76rem", color: "var(--text-secondary)" }}>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.6rem 1.2rem", flexWrap: "wrap", fontSize: "0.76rem", color: "var(--text-secondary)" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
             <Cpu size={13} style={{ color: "#2563eb" }} />
             <strong>Sandbox Python Trực Tiếp</strong>
           </span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
             <Bot size={13} style={{ color: "#059669" }} />
             <strong>AI Chữa Bài Tức Thì</strong>
           </span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
             <Printer size={13} style={{ color: "#d97706" }} />
             <strong>In Đề Thi Chuẩn A4</strong>
           </span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.3rem" }}>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "0.35rem" }}>
             <ShieldCheck size={13} style={{ color: "#7c3aed" }} />
             <strong>Khóa PIN Giáo Viên (8888)</strong>
           </span>

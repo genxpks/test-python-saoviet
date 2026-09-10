@@ -222,21 +222,21 @@ export default function CyberPlanet3D() {
     // -------------------------------------------------------------
     // 5. Directional Lights & Specular Highlights
     // -------------------------------------------------------------
-    const ambient = new THREE.AmbientLight(0xffffff, 0.85);
+    const ambient = new THREE.AmbientLight(0xffffff, 1.3);
     scene.add(ambient);
 
     // Bright cyan key light (top-right specular glow)
-    const keyLight = new THREE.DirectionalLight(0x00f5c8, 3.5);
+    const keyLight = new THREE.DirectionalLight(0x00f5c8, 3.8);
     keyLight.position.set(7, 5, 6);
     scene.add(keyLight);
 
     // Deep blue fill light
-    const fillLight = new THREE.DirectionalLight(0x0284c7, 2.5);
+    const fillLight = new THREE.DirectionalLight(0x0284c7, 2.8);
     fillLight.position.set(-7, -4, -3);
     scene.add(fillLight);
 
     // Violet rim accent
-    const rimLight = new THREE.PointLight(0xa855f7, 4.0, 25);
+    const rimLight = new THREE.PointLight(0xa855f7, 4.2, 25);
     rimLight.position.set(0, 6, -3);
     scene.add(rimLight);
 
@@ -318,10 +318,11 @@ export default function CyberPlanet3D() {
     // -------------------------------------------------------------
     // 7. Animation Loop
     // -------------------------------------------------------------
-    let animId: number;
+    let animationFrameId: number;
     let clock = new THREE.Clock();
 
     const animate = () => {
+      animationFrameId = requestAnimationFrame(animate);
       const elapsedTime = clock.getElapsedTime();
 
       // Continuous Planet Self-Rotation
@@ -344,13 +345,12 @@ export default function CyberPlanet3D() {
       }
 
       renderer.render(scene, camera);
-      animId = requestAnimationFrame(animate);
     };
 
     animate();
 
     return () => {
-      cancelAnimationFrame(animId);
+      cancelAnimationFrame(animationFrameId);
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
@@ -376,15 +376,36 @@ export default function CyberPlanet3D() {
       style={{
         position: "relative",
         width: "100%",
-        height: "520px",
+        maxWidth: "540px",
+        height: "500px",
+        margin: "0 auto",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        overflow: "visible"
+        overflow: "hidden",
+        borderRadius: "24px"
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
+      {/* 3D Holographic Cosmic Sphere Backdrop - Guarantees contrast in Light & Dark mode */}
+      <div
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: "360px",
+          height: "360px",
+          borderRadius: "50%",
+          background: "radial-gradient(circle at 45% 42%, #041432 0%, #020917 65%, transparent 72%)",
+          border: "1px solid rgba(0, 245, 200, 0.25)",
+          boxShadow: "0 0 50px rgba(2, 132, 199, 0.2), inset 0 0 35px rgba(0, 245, 200, 0.15)",
+          pointerEvents: "none",
+          zIndex: 0
+        }}
+      />
+
       {/* 3D Holographic Backdrop Ambient Light Ring */}
       <div
         style={{
@@ -392,10 +413,10 @@ export default function CyberPlanet3D() {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-          width: "480px",
-          height: "480px",
-          background: "radial-gradient(circle, rgba(0, 245, 200, 0.22) 0%, rgba(14, 165, 233, 0.12) 45%, transparent 70%)",
-          filter: "blur(55px)",
+          width: "380px",
+          height: "380px",
+          background: "radial-gradient(circle, rgba(0, 245, 200, 0.2) 0%, rgba(14, 165, 233, 0.1) 45%, transparent 70%)",
+          filter: "blur(40px)",
           borderRadius: "50%",
           pointerEvents: "none",
           zIndex: 0
@@ -409,8 +430,8 @@ export default function CyberPlanet3D() {
           bottom: "2%",
           left: "50%",
           transform: "translateX(-50%) rotateX(75deg)",
-          width: "420px",
-          height: "420px",
+          width: "380px",
+          height: "380px",
           borderRadius: "50%",
           border: "2px dashed rgba(0, 245, 200, 0.3)",
           boxShadow: "0 0 35px rgba(0, 245, 200, 0.25), inset 0 0 30px rgba(0, 245, 200, 0.18)",
