@@ -48,8 +48,17 @@ export default function ExamPage() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const user = getCurrentUser();
-    setCurrentUser(user);
+    const updateUser = () => {
+      setCurrentUser(getCurrentUser());
+    };
+    updateUser();
+
+    window.addEventListener("saoviet-auth-change", updateUser);
+    window.addEventListener("storage", updateUser);
+    return () => {
+      window.removeEventListener("saoviet-auth-change", updateUser);
+      window.removeEventListener("storage", updateUser);
+    };
   }, []);
 
   useEffect(() => {
@@ -79,8 +88,9 @@ export default function ExamPage() {
     }
 
     const cleanCode = examAccessCode.trim().toUpperCase();
-    const validCodes = ["SAOVIET2026", "PYTHON2026", "SV2026", "SAOVIET", "8888"];
+    const validCodes = ["SAOVIET2026", "PYTHON2026", "SV2026", "SAOVIET", "8888", "110926"];
     if (currentUser.pin) validCodes.push(currentUser.pin.trim().toUpperCase());
+    if (currentUser.class) validCodes.push(currentUser.class.trim().toUpperCase());
 
     const isPrivileged = currentUser.role === "admin" || currentUser.role === "branch_manager" || currentUser.role === "teacher";
 

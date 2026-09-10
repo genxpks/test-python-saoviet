@@ -31,9 +31,15 @@ export default function AuthGate({
   const activeSecondsRef = useRef(0);
 
   useEffect(() => {
-    const user = getCurrentUser();
-    setCurrentUser(user);
-    setIsChecking(false);
+    const updateUser = () => {
+      const user = getCurrentUser();
+      setCurrentUser(user);
+      setIsChecking(false);
+    };
+    updateUser();
+
+    window.addEventListener("saoviet-auth-change", updateUser);
+    window.addEventListener("storage", updateUser);
 
     const trackInterval = setInterval(() => {
       const liveUser = getCurrentUser();
@@ -50,6 +56,8 @@ export default function AuthGate({
 
     return () => {
       clearInterval(trackInterval);
+      window.removeEventListener("saoviet-auth-change", updateUser);
+      window.removeEventListener("storage", updateUser);
       const remainingSeconds = activeSecondsRef.current % 60;
       if (remainingSeconds > 10) {
         const u = getCurrentUser();

@@ -458,6 +458,21 @@ export const DEFAULT_USERS: User[] = [
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
     createdDate: "2026-08-29"
+  },
+  {
+    id: "student_kiet",
+    username: "0977266020",
+    password: "Kiet0977266020",
+    fullName: "Nguyễn Tuấn Kiệt",
+    role: "student",
+    branchId: "branch_thuduc",
+    branchName: "Chi Nhánh TP. Thủ Đức",
+    class: "110926",
+    phone: "0977266020",
+    status: "active",
+    totalStudySeconds: 0,
+    enrolledSubjects: ["python"],
+    createdDate: "2026-09-10"
   }
 ];
 
@@ -647,6 +662,7 @@ export function loginUser(username: string, passwordAttempt: string): { success:
 
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+    window.dispatchEvent(new Event("saoviet-auth-change"));
   }
 
   return { success: true, user };
@@ -690,6 +706,7 @@ export async function loginUserAsync(username: string, passwordAttempt: string):
           };
           if (typeof window !== "undefined") {
             localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+            window.dispatchEvent(new Event("saoviet-auth-change"));
           }
           return { success: true, user: retryUser };
         } else {
@@ -705,6 +722,7 @@ export async function loginUserAsync(username: string, passwordAttempt: string):
 export function logoutUser(): void {
   if (typeof window === "undefined") return;
   localStorage.removeItem(STORAGE_KEY_SESSION);
+  window.dispatchEvent(new Event("saoviet-auth-change"));
 }
 
 export function logStudyTime(userId: string, addedSeconds: number, mode: 'study' | 'exam' | 'practice' = 'study', subjectId: string = 'python'): void {

@@ -16,9 +16,19 @@ export default function SubjectAccessGate({ subjectId, children }: SubjectAccess
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
-    const user = getCurrentUser();
-    setCurrentUser(user);
-    setIsChecking(false);
+    const updateUser = () => {
+      const user = getCurrentUser();
+      setCurrentUser(user);
+      setIsChecking(false);
+    };
+    updateUser();
+
+    window.addEventListener("saoviet-auth-change", updateUser);
+    window.addEventListener("storage", updateUser);
+    return () => {
+      window.removeEventListener("saoviet-auth-change", updateUser);
+      window.removeEventListener("storage", updateUser);
+    };
   }, []);
 
   if (isChecking) {

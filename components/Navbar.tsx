@@ -83,7 +83,18 @@ export default function Navbar() {
       }
     }, 15000);
 
-    return () => clearInterval(sessionTimer);
+    const handleAuthChange = () => {
+      setUser(getCurrentUser());
+      setSessionRemainingSec(getSessionRemainingSeconds());
+    };
+    window.addEventListener("saoviet-auth-change", handleAuthChange);
+    window.addEventListener("storage", handleAuthChange);
+
+    return () => {
+      clearInterval(sessionTimer);
+      window.removeEventListener("saoviet-auth-change", handleAuthChange);
+      window.removeEventListener("storage", handleAuthChange);
+    };
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
