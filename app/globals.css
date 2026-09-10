@@ -1094,3 +1094,38 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0 !important;
   padding: 0 !important;
 }
+
+/* ===== NEW HOME SECTIONS: HOVER & MICRO-INTERACTIONS ===== */
+.guarantee-card-hover {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.guarantee-card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 14px 30px -8px rgba(37, 99, 235, 0.18), 0 0 0 1px rgba(37, 99, 235, 0.25) !important;
+}
+
+.pillar-card-hover {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.pillar-card-hover:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 36px -10px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(37, 99, 235, 0.2) !important;
+}
+
+.testimonial-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+.testimonial-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 28px -6px rgba(5, 150, 105, 0.14) !important;
+}
+
+.footer-link {
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+.footer-link:hover {
+  color: #38bdf8 !important;
+  transform: translateX(4px);
+}
+

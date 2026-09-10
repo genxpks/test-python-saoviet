@@ -22,10 +22,10 @@ export default function NetworkSectionHeader() {
       </div>
 
       <h2 style={{ fontSize: "1.9rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
-        Hệ Thống 4 Cơ Sở Đào Tạo Chuẩn Phòng Lab Tại TP.HCM
+        Hệ Thống 6 Cơ Sở Đào Tạo Chuẩn Phòng Lab Tại TP.HCM & Bình Dương, Đồng Nai
       </h2>
-      <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
-        Phòng máy lạnh hiện đại 100%, kết nối mạng riêng bảo mật, hỗ trợ giáo viên kèm 1:1 trong suốt quá trình ôn tập và thi cử.
+      <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "680px", margin: "0 auto" }}>
+        Phòng máy lạnh hiện đại 100%, trang bị màn hình lớn, mạng Gigabit riêng biệt, giảng viên kèm 1:1 sát sao theo từng buổi học và bài thi thử.
       </p>
     </div>
   );

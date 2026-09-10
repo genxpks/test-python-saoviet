@@ -4,11 +4,15 @@ import { useEffect } from "react";
 import Canvas3DBackground from "@/components/home/Canvas3DBackground";
 import HeroLayer3D from "@/components/home/HeroLayer3D";
 import LiveMetricsContainer from "@/components/home/metrics/LiveMetricsContainer";
+import SaoVietGuaranteesLayer from "@/components/home/SaoVietGuaranteesLayer";
+import TrainingPillarsLayer from "@/components/home/TrainingPillarsLayer";
 import SubjectMatrixLayer from "@/components/home/SubjectMatrixLayer";
 import InteractiveEngine3D from "@/components/home/InteractiveEngine3D";
 import ExamRoadmapLayer from "@/components/home/ExamRoadmapLayer";
 import BranchNetworkLayer from "@/components/home/BranchNetworkLayer";
+import StudentTestimonialsLayer from "@/components/home/StudentTestimonialsLayer";
 import TechEcosystemLayer from "@/components/home/TechEcosystemLayer";
+import ConsultationBookingLayer from "@/components/home/ConsultationBookingLayer";
 
 export default function HomePage() {
   useEffect(() => {
@@ -29,29 +33,41 @@ export default function HomePage() {
       <div className="homepage-full" style={{ position: "relative", zIndex: 1 }}>
         {/* HERO: Full-bleed, edge-to-edge với padding nội bộ */}
         <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2rem" }}>
-          {/* MEDIUM MODULE 1: 3D CYBER HERO & LIVE SANDBOX TERMINAL */}
+          {/* MODULE 1: 3D CYBER HERO & LIVE SANDBOX TERMINAL */}
           <HeroLayer3D />
         </div>
 
-        {/* SUBJECT CARDS: Full-width edge-to-edge */}
+        {/* NỘI DUNG CHÍNH TRANG CHỦ */}
         <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2rem" }}>
-          {/* MEDIUM MODULE 2: LIVE METRICS & REALTIME STATS */}
+          {/* MODULE 2: LIVE METRICS & REALTIME STATS */}
           <LiveMetricsContainer />
 
-          {/* MEDIUM MODULE 3: 4-SUBJECT CURRICULUM MATRIX */}
+          {/* MODULE 3: 4 CAM KẾT VÀNG ĐỘC QUYỀN CỦA SAO VIỆT */}
+          <SaoVietGuaranteesLayer />
+
+          {/* MODULE 4: 4 TRỤ CỘT ĐÀO TẠO THỰC CHIẾN (THVP-32, KẾ TOÁN, LẬP TRÌNH, ĐỒ HỌA) */}
+          <TrainingPillarsLayer />
+
+          {/* MODULE 5: MA TRẬN 4 BỘ MÔN CODE TRỌNG ĐIỂM & INSPECTOR BÀI GIẢNG */}
           <SubjectMatrixLayer />
 
-          {/* MEDIUM MODULE 4: 6-QUESTION INTERACTIVE ENGINE SIMULATOR */}
+          {/* MODULE 6: 6-DẠNG CÂU HỎI MÔ PHỎNG KHẢO THÍ TƯƠNG TÁC */}
           <InteractiveEngine3D />
 
-          {/* MEDIUM MODULE 5: 4-STEP EXAM & GRADUATION CERTIFICATION PIPELINE */}
+          {/* MODULE 7: QUY TRÌNH 4 BƯỚC THI & TỐT NGHIỆP CHUẨN ISO */}
           <ExamRoadmapLayer />
 
-          {/* MEDIUM MODULE 6: 4 TRAINING BRANCHES NETWORK IN HCM CITY */}
+          {/* MODULE 8: MẠNG LƯỚI 6 CƠ SỞ ĐÀO TẠO TẠI TP.HCM & BÌNH DƯƠNG, ĐỒNG NAI */}
           <BranchNetworkLayer />
 
-          {/* MEDIUM MODULE 7: ENTERPRISE TECH STACK & AI REASONING INFRASTRUCTURE */}
+          {/* MODULE 9: BẰNG CHỨNG XÃ HỘI & PHẢN HỒI HỌC VIÊN TỐT NGHIỆP */}
+          <StudentTestimonialsLayer />
+
+          {/* MODULE 10: HẠ TẦNG CÔNG NGHỆ & AI REASONING */}
           <TechEcosystemLayer />
+
+          {/* MODULE 11: FORM ĐĂNG KÝ NHẬN TƯ VẤN & XẾP LỚP HỌC THỬ MIỄN PHÍ */}
+          <ConsultationBookingLayer />
         </div>
       </div>
     </>

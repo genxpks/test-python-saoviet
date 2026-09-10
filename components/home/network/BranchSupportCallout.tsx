@@ -24,7 +24,9 @@ export default function BranchSupportCallout() {
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", color: "var(--brand-primary)", fontWeight: 800, fontSize: "0.92rem" }}>
         <Phone size={15} />
-        <span>Hotline Tổng Đài: 0901.888.666</span>
+        <a href="tel:0931144858" style={{ color: "inherit", textDecoration: "none" }}>
+          Hotline Toàn Hệ Thống: 093 11 44 858
+        </a>
       </div>
     </div>
   );
