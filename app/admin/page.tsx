@@ -554,7 +554,7 @@ export default function AdminPage() {
 
   return (
     <div className="admin-full-page" style={{ background: "#f8fafc", minHeight: "100vh", padding: "1rem 1.25rem", color: "#0f172a", width: "100%", boxSizing: "border-box" }}>
-      <div style={{ width: "100%", maxWidth: "100%", margin: 0, display: "grid", gridTemplateColumns: "280px minmax(0, 1fr)", gap: "1.25rem", alignItems: "start" }}>
+      <div className="admin-portal-grid">
         
         {/* ========================================================================= */}
         {/* 1. LEFT SIDEBAR (Clean Corporate Light Mode) */}

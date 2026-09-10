@@ -31,7 +31,8 @@ import {
   Flame,
   Check,
   Sun,
-  Moon
+  Moon,
+  Menu
 } from "lucide-react";
 
 export default function Navbar() {
@@ -40,12 +41,17 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [sessionRemainingSec, setSessionRemainingSec] = useState<number>(0);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loginError, setLoginError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     const curTheme = (document.documentElement.getAttribute("data-theme") as "light" | "dark") || "light";
@@ -163,7 +169,7 @@ export default function Navbar() {
             </div>
           </Link>
 
-          <nav className="nav-links">
+          <nav className="nav-links nav-links-desktop">
             <Link 
               href="/" 
               className={`nav-link ${pathname === "/" ? "active" : ""}`}
@@ -207,10 +213,11 @@ export default function Navbar() {
             )}
           </nav>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            {/* Theme Toggle Button */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexShrink: 0 }}>
+            {/* Theme Toggle Button (Desktop & Tablet) */}
             <button
               onClick={toggleTheme}
+              className="desktop-theme-toggle"
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -224,7 +231,8 @@ export default function Navbar() {
                 fontSize: "0.8rem",
                 fontWeight: 700,
                 boxShadow: "var(--shadow-subtle)",
-                transition: "all 0.2s ease"
+                transition: "all 0.2s ease",
+                flexShrink: 0
               }}
               title={theme === "light" ? "Chuyển sang giao diện Tối (Dark mode)" : "Chuyển sang giao diện Sáng (Light mode)"}
             >
@@ -242,17 +250,18 @@ export default function Navbar() {
             </button>
 
             {user ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexShrink: 0 }}>
                 <div style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "0.5rem",
                   background: "var(--surface-card)",
-                  padding: "0.35rem 0.75rem",
+                  padding: "0.35rem 0.65rem",
                   borderRadius: "var(--radius-full)",
                   border: "1.5px solid var(--border-medium)",
                   fontSize: "0.82rem",
-                  boxShadow: "var(--shadow-subtle)"
+                  boxShadow: "var(--shadow-subtle)",
+                  flexShrink: 0
                 }}>
                   <div style={{
                     width: "26px",
@@ -265,23 +274,24 @@ export default function Navbar() {
                     justifyContent: "center",
                     fontSize: "0.7rem",
                     fontWeight: 900,
-                    boxShadow: user.role === "admin" ? "0 0 10px rgba(244,63,94,0.4)" : user.role === "branch_manager" ? "0 0 10px rgba(139,92,246,0.4)" : "0 0 10px rgba(37,99,235,0.4)"
+                    boxShadow: user.role === "admin" ? "0 0 10px rgba(244,63,94,0.4)" : user.role === "branch_manager" ? "0 0 10px rgba(139,92,246,0.4)" : "0 0 10px rgba(37,99,235,0.4)",
+                    flexShrink: 0
                   }}>
                     {user.role === "admin" ? "AD" : user.role === "branch_manager" ? "QL" : "HV"}
                   </div>
 
-                  <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
-                    <span style={{ fontWeight: 800, color: "var(--text-primary)" }}>
+                  <div className="user-profile-details" style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+                    <span style={{ fontWeight: 800, color: "var(--text-primary)", whiteSpace: "nowrap" }}>
                       {user.fullName}
                     </span>
-                    <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
+                    <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "4px", whiteSpace: "nowrap" }}>
                       <Building2 size={10} />
                       <span>{user.branchName || "Chi Nhánh Thủ Đức"}</span>
                     </span>
                   </div>
 
                   {user.role === "student" && (
-                    <div style={{
+                    <div className="user-profile-details" style={{
                       marginLeft: "0.4rem",
                       paddingLeft: "0.4rem",
                       borderLeft: "1px solid var(--border-light)",
@@ -290,7 +300,8 @@ export default function Navbar() {
                       gap: "0.3rem",
                       color: "var(--brand-primary)",
                       fontWeight: 700,
-                      fontSize: "0.72rem"
+                      fontSize: "0.72rem",
+                      whiteSpace: "nowrap"
                     }} title="Thời gian phiên đăng nhập còn lại">
                       <Hourglass size={12} />
                       <span>{formatRemainingTime(sessionRemainingSec)}</span>
@@ -301,11 +312,11 @@ export default function Navbar() {
                 <button
                   onClick={handleLogout}
                   className="btn btn-secondary btn-sm"
-                  style={{ padding: "0.4rem 0.65rem", gap: "0.3rem", fontSize: "0.78rem" }}
+                  style={{ padding: "0.4rem 0.65rem", gap: "0.3rem", fontSize: "0.78rem", flexShrink: 0 }}
                   title="Đăng xuất"
                 >
                   <LogOut size={14} />
-                  <span>Thoát</span>
+                  <span className="user-profile-details">Thoát</span>
                 </button>
               </div>
             ) : (
@@ -315,16 +326,201 @@ export default function Navbar() {
                 style={{
                   gap: "0.4rem",
                   fontSize: "0.82rem",
-                  borderRadius: "var(--radius-full)"
+                  borderRadius: "var(--radius-full)",
+                  flexShrink: 0,
+                  whiteSpace: "nowrap"
                 }}
               >
                 <LogIn size={15} />
                 <span>Đăng Nhập</span>
               </button>
             )}
+
+            {/* Mobile Hamburger Menu Toggle Button (< 1024px) */}
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="mobile-menu-toggle"
+              aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu điều hướng"}
+              title="Menu điều hướng"
+            >
+              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
         </div>
       </header>
+
+      {/* Mobile Navigation Drawer */}
+      <div 
+        className={`mobile-drawer-backdrop ${isMobileMenuOpen ? "open" : ""}`}
+        onClick={() => setIsMobileMenuOpen(false)}
+        aria-hidden={!isMobileMenuOpen}
+      />
+      <div className={`mobile-drawer ${isMobileMenuOpen ? "open" : ""}`}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem", paddingBottom: "0.8rem", borderBottom: "1px solid var(--border-light)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+            <div className="logo-icon-wrap" style={{ width: "32px", height: "32px" }}>
+              <Sparkles size={16} color="#ffffff" />
+            </div>
+            <div>
+              <div style={{ fontSize: "0.95rem", fontWeight: 800, color: "var(--text-primary)", whiteSpace: "nowrap" }}>TIN HỌC SAO VIỆT</div>
+              <div style={{ fontSize: "0.68rem", color: "var(--text-muted)", whiteSpace: "nowrap" }}>Menu Điều Hướng</div>
+            </div>
+          </div>
+          <button 
+            onClick={() => setIsMobileMenuOpen(false)}
+            style={{ background: "transparent", border: "none", color: "var(--text-secondary)", cursor: "pointer", padding: "4px" }}
+            aria-label="Đóng menu"
+          >
+            <X size={22} />
+          </button>
+        </div>
+
+        {/* User Card if logged in, or login button */}
+        {user ? (
+          <div style={{
+            background: "var(--surface-subtle)",
+            padding: "0.85rem",
+            borderRadius: "var(--radius-sm)",
+            border: "1px solid var(--border-light)",
+            marginBottom: "1.25rem"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.65rem" }}>
+              <div style={{
+                width: "36px",
+                height: "36px",
+                borderRadius: "50%",
+                background: user.role === "admin" ? "linear-gradient(135deg, #f43f5e, #be123c)" : user.role === "branch_manager" ? "linear-gradient(135deg, #8b5cf6, #6d28d9)" : "linear-gradient(135deg, #2563eb, #0284c7)",
+                color: "#ffffff",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "0.82rem",
+                fontWeight: 900
+              }}>
+                {user.role === "admin" ? "AD" : user.role === "branch_manager" ? "QL" : "HV"}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 800, fontSize: "0.9rem", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {user.fullName}
+                </div>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Building2 size={11} />
+                  <span>{user.branchName || "Chi Nhánh Thủ Đức"}</span>
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                handleLogout();
+                setIsMobileMenuOpen(false);
+              }}
+              className="btn btn-sm btn-secondary"
+              style={{ width: "100%", justifyContent: "center", gap: "0.5rem", fontSize: "0.82rem" }}
+            >
+              <LogOut size={15} />
+              <span>Đăng Xuất Tài Khoản</span>
+            </button>
+          </div>
+        ) : (
+          <div style={{ marginBottom: "1.25rem" }}>
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                setShowLoginModal(true);
+              }}
+              className="btn btn-primary"
+              style={{ width: "100%", justifyContent: "center", gap: "0.5rem", borderRadius: "var(--radius-sm)" }}
+            >
+              <LogIn size={16} />
+              <span>Đăng Nhập Ngay</span>
+            </button>
+          </div>
+        )}
+
+        {/* Navigation links */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", flex: 1 }}>
+          <Link 
+            href="/" 
+            className={`mobile-nav-link ${pathname === "/" ? "active" : ""}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <Sparkles size={18} />
+            <span>Trang Chủ</span>
+          </Link>
+          
+          <Link 
+            href="/study" 
+            className={`mobile-nav-link ${pathname === "/study" ? "active" : ""}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <BookOpen size={18} />
+            <span>Ôn Tập & Luyện Code</span>
+          </Link>
+          
+          <Link 
+            href="/exam" 
+            className={`mobile-nav-link ${pathname === "/exam" ? "active" : ""}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <Clock size={18} />
+            <span>Thi Online</span>
+          </Link>
+
+          <Link 
+            href="/print-exam" 
+            className={`mobile-nav-link ${pathname === "/print-exam" ? "active" : ""}`}
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            <Printer size={18} />
+            <span>In Đề Chuẩn A4</span>
+          </Link>
+
+          {user && (user.role === "admin" || user.role === "branch_manager" || user.role === "teacher") && (
+            <Link 
+              href="/admin" 
+              className={`mobile-nav-link ${pathname === "/admin" ? "active" : ""}`}
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <ShieldCheck size={18} />
+              <span>Quản Trị Hệ Thống</span>
+            </Link>
+          )}
+        </div>
+
+        {/* Footer in Drawer: Theme switcher */}
+        <div style={{ paddingTop: "1rem", marginTop: "auto", borderTop: "1px solid var(--border-light)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <span style={{ fontSize: "0.76rem", color: "var(--text-muted)" }}>Giao diện:</span>
+          <button
+            onClick={toggleTheme}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "0.4rem 0.8rem",
+              borderRadius: "var(--radius-full)",
+              border: "1px solid var(--border-medium)",
+              background: "var(--surface-subtle)",
+              color: "var(--text-primary)",
+              cursor: "pointer",
+              fontSize: "0.8rem",
+              fontWeight: 700
+            }}
+          >
+            {theme === "light" ? (
+              <>
+                <Sun size={14} color="#d97706" />
+                <span>Chế độ Sáng</span>
+              </>
+            ) : (
+              <>
+                <Moon size={14} color="#38bdf8" />
+                <span>Chế độ Tối</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
 
       {showLoginModal && (
         <div style={{

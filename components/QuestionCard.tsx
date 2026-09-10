@@ -1049,7 +1049,7 @@ export default function QuestionCard({
                 }
 
                 return (
-                  <div key={idx} style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.6rem", alignItems: "center" }}>
+                  <div key={idx} className="matching-pair-row">
                     <div style={{ padding: "0.45rem 0.75rem", background: "var(--surface-subtle)", color: "var(--text-primary)", border: rowBorder, borderRadius: "6px", fontSize: "0.82rem", fontWeight: 700, fontFamily: "var(--font-mono)" }}>
                       {lVal}
                     </div>

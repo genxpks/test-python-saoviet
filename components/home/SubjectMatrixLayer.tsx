@@ -471,7 +471,7 @@ export default function SubjectMatrixLayer() {
         </div>
 
         {/* Right: Syllabus Detail Panel (with extra fields) */}
-        <div style={{ position: "sticky", top: "1.5rem" }}>
+        <div className="sticky-inspector-panel">
           <SyllabusInspectorPanel selectedTrack={{
             ...currentTrack,
             // Inject extra meta for display

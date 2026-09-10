@@ -564,7 +564,7 @@ export default function ExamPage() {
               </div>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 250px", gap: "1.1rem", alignItems: "start" }}>
+            <div className="exam-layout-grid">
               <div>
                 {currentPart === 1 && examQuestions[currentIndex] && (
                   <div>

@@ -32,13 +32,13 @@ export default function HomePage() {
 
       <div className="homepage-full" style={{ position: "relative", zIndex: 1 }}>
         {/* HERO: Full-bleed, edge-to-edge với padding nội bộ */}
-        <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2rem" }}>
+        <div className="homepage-section-container">
           {/* MODULE 1: 3D CYBER HERO & LIVE SANDBOX TERMINAL */}
           <HeroLayer3D />
         </div>
 
         {/* NỘI DUNG CHÍNH TRANG CHỦ */}
-        <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2rem" }}>
+        <div className="homepage-section-container">
           {/* MODULE 2: LIVE METRICS & REALTIME STATS */}
           <LiveMetricsContainer />
 

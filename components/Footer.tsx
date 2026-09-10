@@ -104,7 +104,7 @@ export default function Footer() {
       </div>
 
       {/* Main 4-Column Footer Content */}
-      <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "3.5rem 2rem 2.5rem 2rem" }}>
+      <div className="footer-inner-container">
         <div
           style={{
             display: "grid",
