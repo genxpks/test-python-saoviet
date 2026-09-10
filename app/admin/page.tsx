@@ -35,6 +35,8 @@ import ExcelQuestionImporter from "@/components/admin/ExcelQuestionImporter";
 import BranchModal from "@/components/admin/BranchModal";
 import SubjectModal from "@/components/admin/SubjectModal";
 import ExamReviewSheet from "@/components/exam/ExamReviewSheet";
+import TeacherSubjectAssignModal from "@/components/admin/TeacherSubjectAssignModal";
+import { canAccessAdminPanel, canDeleteUser, canEditUser, canAccessTab, filterUsersForActor, getCreatableRoles, getRoleColor, getRoleLabel } from "@/lib/rbac";
 
 import { 
   ShieldCheck, 
@@ -153,6 +155,9 @@ export default function AdminPage() {
   const [showPracticalModal, setShowPracticalModal] = useState(false);
   const [editingPractical, setEditingPractical] = useState<PracticalProblem | null>(null);
 
+  // — Teacher Subject Assignment Modal —
+  const [assigningTeacher, setAssigningTeacher] = useState<User | null>(null);
+
   // Settings & Review State
   const [examSettings, setExamSettings] = useState<ExamSettings>(DEFAULT_EXAM_SETTINGS);
   const [reviewingResult, setReviewingResult] = useState<ExamResult | null>(null);
@@ -256,15 +261,18 @@ export default function AdminPage() {
   const handleInlineLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const res = await loginUserAsync(loginUsername, loginPassword);
-    if (res.success && res.user && (res.user.role === "admin" || res.user.role === "branch_manager" || res.user.role === "teacher")) {
+    if (res.success && res.user && canAccessAdminPanel(res.user.role)) {
       setCurrentUser(res.user);
-      if (res.user.role === "branch_manager" && res.user.branchId) {
+      // Branch manager & teacher chỉ thấy chi nhánh của mình
+      if ((res.user.role === "branch_manager" || res.user.role === "teacher") && res.user.branchId) {
         setAdminBranchMode(res.user.branchId);
+      } else {
+        setAdminBranchMode("all");
       }
       setLoginError("");
       loadAllData();
     } else {
-      setLoginError("Tài khoản hoặc mật khẩu không chính xác hoặc không có quyền quản lý!");
+      setLoginError("Đài khoản hoặc mật khẩu không chính xác hoặc không có quyền quản lý!");
     }
   };
 
@@ -403,9 +411,13 @@ export default function AdminPage() {
     return users.filter(u => u.branchId === branchId).length;
   };
 
-  // Filtered Users: Xem được tất cả chi nhánh hoặc bất kỳ chi nhánh nào
+  // Filtered Users: Áp dụng RBAC filter theo quyền của actor
   const filteredUsers = useMemo(() => {
-    return users.filter((u) => {
+    if (!currentUser) return [];
+    // Bước 1: lọc theo quyền của actor (chi nhánh, role hierarchy)
+    const permitted = filterUsersForActor(currentUser, users);
+    // Bước 2: áp dụng search & filter thêm
+    return permitted.filter((u) => {
       const matchRole = userRoleFilter === "all" || u.role === userRoleFilter;
       const matchBranch = adminBranchMode === "all" || u.branchId === adminBranchMode;
       const matchSearch =
@@ -414,8 +426,7 @@ export default function AdminPage() {
         u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
         (u.phone && u.phone.includes(userSearch)) ||
         (u.class && u.class.toLowerCase().includes(userSearch.toLowerCase())) ||
-        (u.branchName && u.branchName.toLowerCase().includes(userSearch.toLowerCase())) ||
-        (u.branchId && u.branchId.toLowerCase().includes(userSearch.toLowerCase()));
+        (u.branchName && u.branchName.toLowerCase().includes(userSearch.toLowerCase()));
       return matchRole && matchBranch && matchSearch;
     });
   }, [users, userRoleFilter, adminBranchMode, userSearch]);
@@ -594,7 +605,10 @@ export default function AdminPage() {
               { id: "users", label: "Phân Cấp Tài Khoản", count: filteredUsers.length, icon: Users },
               { id: "branches", label: "Cơ Sở & Phòng Lab", count: branches.length, icon: Building2 },
               { id: "results", label: "Kết Quả Khảo Thí", count: examResults.length, icon: GraduationCap }
-            ].map(tab => {
+            ]
+              // — Lọc tab theo RBAC —
+              .filter(tab => canAccessTab(currentUser, tab.id as any))
+              .map(tab => {
               const isActive = activeTab === tab.id;
               const IconComponent = tab.icon;
               return (
@@ -680,15 +694,15 @@ export default function AdminPage() {
                   gap: "3px",
                   fontSize: "0.64rem",
                   fontWeight: 800,
-                  color: currentUser.role === "admin" ? "#7c3aed" : "#2563eb",
-                  background: currentUser.role === "admin" ? "#f5f3ff" : "#eff6ff",
+                  color: getRoleColor(currentUser.role),
+                  background: `${getRoleColor(currentUser.role)}18`,
                   padding: "1px 5px",
                   borderRadius: "4px",
                   marginBottom: "1px",
                   whiteSpace: "nowrap"
                 }}>
-                  {currentUser.role === "admin" ? <Crown size={9} /> : <Building2 size={9} />}
-                  <span>{currentUser.role === "admin" ? "SUPER ADMIN" : "QUẢN LÝ CƠ SỞ"}</span>
+                  <Crown size={9} />
+                  <span>{getRoleLabel(currentUser.role).toUpperCase()}</span>
                 </div>
                 <div style={{ fontSize: "0.8rem", fontWeight: 800, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                   {currentUser.fullName}
@@ -1600,10 +1614,11 @@ export default function AdminPage() {
                     }}
                   >
                     <option value="all">Tất Cả Vai Trò ({users.length})</option>
-                    <option value="admin">Super Admin (Tổng Quản Trị)</option>
-                    <option value="branch_manager">Quản Lý Chi Nhánh</option>
-                    <option value="teacher">Giảng Viên Lập Trình</option>
-                    <option value="student">Học Viên Khóa Học</option>
+                    <option value="admin">👑 Super Admin (Tổng Quản Trị)</option>
+                    <option value="internal_manager">🏛️ Quản Lý Nội Bộ (Internal)</option>
+                    <option value="branch_manager">🏢 Quản Lý Chi Nhánh</option>
+                    <option value="teacher">👨‍🏫 Giảng Viên Lập Trình</option>
+                    <option value="student">🎓 Học Viên Khóa Học</option>
                   </select>
                 </div>
 
@@ -1847,6 +1862,24 @@ export default function AdminPage() {
                                   <span>Quản Lý Cơ Sở</span>
                                 </span>
                               )}
+                              {u.role === "internal_manager" && (
+                                <span style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "4px",
+                                  padding: "2px 7px",
+                                  borderRadius: "9999px",
+                                  background: "#fdf4ff",
+                                  color: "#7e22ce",
+                                  fontSize: "0.7rem",
+                                  fontWeight: 800,
+                                  border: "1px solid #e9d5ff",
+                                  whiteSpace: "nowrap"
+                                }}>
+                                  <ShieldCheck size={11} color="#9333ea" />
+                                  <span>Quản Lý Nội Bộ</span>
+                                </span>
+                              )}
                               {isTeacher && (
                                 <span style={{
                                   display: "inline-flex",
@@ -2056,60 +2089,75 @@ export default function AdminPage() {
                             {/* Thao Tác (Actions) */}
                             <td style={{ padding: "0.5rem 0.75rem", textAlign: "right", whiteSpace: "nowrap" }}>
                               <div style={{ display: "flex", gap: "4px", justifyContent: "flex-end" }}>
-                                <button
-                                  onClick={() => setEditingUser(u)}
-                                  style={{
-                                    width: "28px",
-                                    height: "28px",
-                                    borderRadius: "6px",
-                                    border: "1px solid #bfdbfe",
-                                    background: "#eff6ff",
-                                    color: "#2563eb",
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    transition: "all 0.15s"
-                                  }}
-                                  title="Chỉnh sửa tài khoản"
-                                >
-                                  <Edit3 size={12} />
-                                </button>
-                                {u.username !== "admin" && (
+                                {/* Nút Phân Công Môn — chỉ hiện với teacher */}
+                                {u.role === "teacher" && currentUser && (
+                                  <button
+                                    onClick={() => setAssigningTeacher(u)}
+                                    title={`Phân công môn học cho ${u.fullName}`}
+                                    style={{
+                                      width: "28px", height: "28px",
+                                      borderRadius: "6px",
+                                      border: "1px solid #a7f3d0",
+                                      background: "#ecfdf5", color: "#059669",
+                                      cursor: "pointer",
+                                      display: "flex", alignItems: "center", justifyContent: "center",
+                                      transition: "all 0.15s"
+                                    }}
+                                  >
+                                    <BookOpen size={12} />
+                                  </button>
+                                )}
+
+                                {/* Nút Sửa — ẩn nếu actor không có quyền */}
+                                {currentUser && canEditUser(currentUser, u) && (
+                                  <button
+                                    onClick={() => setEditingUser(u)}
+                                    style={{
+                                      width: "28px", height: "28px",
+                                      borderRadius: "6px",
+                                      border: "1px solid #bfdbfe",
+                                      background: "#eff6ff", color: "#2563eb",
+                                      cursor: "pointer",
+                                      display: "flex", alignItems: "center", justifyContent: "center",
+                                      transition: "all 0.15s"
+                                    }}
+                                    title="Chỉnh sửa tài khoản"
+                                  >
+                                    <Edit3 size={12} />
+                                  </button>
+                                )}
+
+                                {/* Nút Khóa/Mở */}
+                                {u.username !== "admin" && currentUser && canEditUser(currentUser, u) && (
                                   <button
                                     onClick={() => handleQuickToggleLock(u.id, u.status)}
                                     style={{
-                                      width: "28px",
-                                      height: "28px",
+                                      width: "28px", height: "28px",
                                       borderRadius: "6px",
                                       border: u.status === "locked" ? "1px solid #fed7aa" : "1px solid #e2e8f0",
                                       background: u.status === "locked" ? "#fff7ed" : "#f8fafc",
                                       color: u.status === "locked" ? "#ea580c" : "#64748b",
                                       cursor: "pointer",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
+                                      display: "flex", alignItems: "center", justifyContent: "center",
                                       transition: "all 0.15s"
                                     }}
-                                    title={u.status === "locked" ? "Tài khoản đang khóa - Bấm để Mở Khóa 1-chạm" : "Tài khoản đang hoạt động - Bấm để Khóa 1-chạm"}
+                                    title={u.status === "locked" ? "Mở Khóa tài khoản" : "Khóa tài khoản"}
                                   >
                                     {u.status === "locked" ? <Lock size={12} color="#ea580c" /> : <Unlock size={12} />}
                                   </button>
                                 )}
-                                {u.username !== "admin" && (
+
+                                {/* Nút Xóa — ẩn nếu actor không có quyền */}
+                                {currentUser && canDeleteUser(currentUser, u) && (
                                   <button
                                     onClick={() => handleDeleteUser(u.id)}
                                     style={{
-                                      width: "28px",
-                                      height: "28px",
+                                      width: "28px", height: "28px",
                                       borderRadius: "6px",
                                       border: "1px solid #fecaca",
-                                      background: "#fef2f2",
-                                      color: "#dc2626",
+                                      background: "#fef2f2", color: "#dc2626",
                                       cursor: "pointer",
-                                      display: "flex",
-                                      alignItems: "center",
-                                      justifyContent: "center",
+                                      display: "flex", alignItems: "center", justifyContent: "center",
                                       transition: "all 0.15s"
                                     }}
                                     title="Xóa tài khoản"
@@ -2672,9 +2720,10 @@ export default function AdminPage() {
         />
       )}
 
-      {editingUser && (
+      {editingUser && currentUser && (
         <UserEditModal
           user={editingUser}
+          actorUser={currentUser}
           onClose={() => setEditingUser(null)}
           onUserUpdated={loadAllData}
         />
@@ -2729,6 +2778,16 @@ export default function AdminPage() {
         <ExamReviewSheet
           resultData={reviewingResult}
           onClose={() => setReviewingResult(null)}
+        />
+      )}
+
+      {/* MODAL PHAN CONG MON HOC CHO GIAO VIEN */}
+      {assigningTeacher && currentUser && (
+        <TeacherSubjectAssignModal
+          teacher={assigningTeacher}
+          subjects={subjects}
+          onClose={() => setAssigningTeacher(null)}
+          onSaved={loadAllData}
         />
       )}
     </div>

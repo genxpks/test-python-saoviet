@@ -1,4 +1,29 @@
-export type UserRole = 'admin' | 'branch_manager' | 'student' | 'teacher';
+// 5-cấp phân quyền: admin > internal_manager > branch_manager > teacher > student
+export type UserRole = 'admin' | 'internal_manager' | 'branch_manager' | 'teacher' | 'student';
+
+export const ROLE_LABELS: Record<UserRole, string> = {
+  admin: 'Quản Trị Hệ Thống',
+  internal_manager: 'Quản Lý Nội Bộ',
+  branch_manager: 'Quản Lý Chi Nhánh',
+  teacher: 'Giáo Viên',
+  student: 'Học Viên',
+};
+
+export const ROLE_COLORS: Record<UserRole, string> = {
+  admin: '#dc2626',
+  internal_manager: '#7c3aed',
+  branch_manager: '#2563eb',
+  teacher: '#059669',
+  student: '#64748b',
+};
+
+export const ROLE_HIERARCHY: Record<UserRole, number> = {
+  admin: 5,
+  internal_manager: 4,
+  branch_manager: 3,
+  teacher: 2,
+  student: 1,
+};
 
 export interface Branch {
   id: string;
@@ -97,7 +122,9 @@ export interface User {
   lastLoginDate?: string;
   lastLoginTime?: string;
   lastLoginIp?: string;
-  enrolledSubjects?: string[];
+  enrolledSubjects?: string[];     // Môn học được cấp phép (student)
+  assignedSubjectIds?: string[];   // Môn học được phân công giảng dạy (teacher)
+  managedBranchIds?: string[];     // Chi nhánh được quản lý (internal_manager có thể quản nhiều)
   createdDate: string;
 }
 

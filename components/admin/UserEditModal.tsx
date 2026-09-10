@@ -1,17 +1,19 @@
 "use client";
 
 import { useState } from "react";
-import { User, UserRole } from "@/types";
-import { DEFAULT_BRANCHES, DEFAULT_SUBJECTS, getUsers, saveUsers, updateUser } from "@/lib/usersData";
+import { User, UserRole, ROLE_LABELS } from "@/types";
+import { DEFAULT_BRANCHES, DEFAULT_SUBJECTS, updateUser } from "@/lib/usersData";
+import { getCreatableRoles, getRoleColor, canEditUser } from "@/lib/rbac";
 import { UserCheck, X, Eye, EyeOff, ShieldCheck, Building2, GraduationCap } from "lucide-react";
 
 interface UserEditModalProps {
   user: User;
+  actorUser: User;       // Người đang đăng nhập — dùng để lọc role được phép chỉnh
   onClose: () => void;
   onUserUpdated: () => void;
 }
 
-export default function UserEditModal({ user, onClose, onUserUpdated }: UserEditModalProps) {
+export default function UserEditModal({ user, actorUser, onClose, onUserUpdated }: UserEditModalProps) {
   const [fullName, setFullName] = useState(user.fullName);
   const [phone, setPhone] = useState(user.phone || "");
   const [className, setClassName] = useState(user.class || "Python Nâng Cao");
@@ -219,12 +221,25 @@ export default function UserEditModal({ user, onClose, onUserUpdated }: UserEdit
                   fontSize: "0.85rem"
                 }}
                 value={role}
-                disabled={user.username === "admin"}
+                disabled={user.username === "admin" || !canEditUser(actorUser, user)}
                 onChange={(e) => setRole(e.target.value as UserRole)}
               >
-                <option value="student">🎓 Học Viên (Student)</option>
-                <option value="branch_manager">🏢 Quản Lý Chi Nhánh (Manager)</option>
-                <option value="admin">👑 Super Admin</option>
+                {/* Chỉ hiện role mà actor CÓ QUYỀN gán — actor phải cấp trên target */}
+                {getCreatableRoles(actorUser).includes("admin") && (
+                  <option value="admin">👑 Quản Trị Hệ Thống (Admin)</option>
+                )}
+                {getCreatableRoles(actorUser).includes("internal_manager") && (
+                  <option value="internal_manager">🏛️ Quản Lý Nội Bộ (Internal Manager)</option>
+                )}
+                {getCreatableRoles(actorUser).includes("branch_manager") && (
+                  <option value="branch_manager">🏢 Quản Lý Chi Nhánh (Branch Manager)</option>
+                )}
+                {getCreatableRoles(actorUser).includes("teacher") && (
+                  <option value="teacher">👨‍🏫 Giáo Viên (Teacher)</option>
+                )}
+                {getCreatableRoles(actorUser).includes("student") && (
+                  <option value="student">🎓 Học Viên (Student)</option>
+                )}
               </select>
             </div>
 

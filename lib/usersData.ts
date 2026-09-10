@@ -241,6 +241,36 @@ export const DEFAULT_USERS: User[] = [
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
     createdDate: "2026-08-29"
   },
+  // ── QUẢN LÝ NỘI BỘ (internal_manager) ──────────────────────────────
+  {
+    id: "im_hcm",
+    username: "noidbo.hcm@saoviet",
+    password: "NoidBo@HCM2026",
+    fullName: "Nguyễn Hoàng Minh — Quản Lý Nội Bộ TP.HCM",
+    role: "internal_manager",
+    phone: "0903111222",
+    email: "noidbo.hcm@saoviet",
+    pin: "9999",
+    status: "active",
+    totalStudySeconds: 0,
+    enrolledSubjects: [],
+    createdDate: "2026-08-29"
+  },
+  {
+    id: "im_mien_nam",
+    username: "noidbo.mn@saoviet",
+    password: "NoidBo@MienNam2026",
+    fullName: "Trần Thị Kim Anh — Quản Lý Nội Bộ Miền Nam",
+    role: "internal_manager",
+    phone: "0903222333",
+    email: "noidbo.mn@saoviet",
+    pin: "9999",
+    status: "active",
+    totalStudySeconds: 0,
+    enrolledSubjects: [],
+    createdDate: "2026-08-29"
+  },
+  // ── QUẢN LÝ CHI NHÁNH (branch_manager) ──────────────────────────────
   {
     id: "bm_binhthanh",
     username: "binhthanh@saoviet",
