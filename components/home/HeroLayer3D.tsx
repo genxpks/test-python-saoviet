@@ -63,7 +63,7 @@ export default function HeroLayer3D() {
             border: "1px solid rgba(37, 99, 235, 0.2)"
           }}>
             <span style={{ color: "#f59e0b" }}>★</span>
-            <span>TIN HỌC SAO VIỆT — HỆ THỐNG HỌC VỤ & ĐÀO TẠO LẬP TRÌNH 1-1</span>
+            <span>TIN HỌC SAO VIỆT — 10+ NĂM ĐÀO TẠO THỰC CHIẾN</span>
           </div>
 
           {/* Main Title — Giảm 40% (từ 3.7rem xuống ~2.2rem) */}
@@ -76,9 +76,9 @@ export default function HeroLayer3D() {
             marginBottom: "0.75rem",
             fontFamily: "var(--font-heading)"
           }}>
-            Cổng Học Vụ & Dịch Vụ Đào Tạo Lập Trình{" "}
+            Hệ Thống Đào Tạo & Khảo Thí Thực Chiến{" "}
             <span style={{
-              background: "linear-gradient(135deg, #00f5c8 0%, #2563eb 50%, #06b6d4 100%)",
+              background: "linear-gradient(135deg, #2563eb 0%, #06b6d4 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text"
@@ -93,105 +93,93 @@ export default function HeroLayer3D() {
             color: "var(--text-muted)",
             lineHeight: 1.55,
             marginBottom: "1.2rem",
-            maxWidth: "540px"
+            maxWidth: "520px"
           }}>
-            Đào tạo thực chiến <strong>13+ ngôn ngữ & ngăn xếp công nghệ</strong>: <strong>Python, C/C++, Java Spring Boot, C# .NET 8, PHP Laravel, React, Next.js, Node.js & Android</strong>. Dạy kèm 1-1 cá nhân hóa, đỡ đầu đồ án ĐH, luyện thi HSG & Olympic — Cam kết học đến khi thành thạo!
+            Đào tạo thực chiến <strong>THVP-32</strong>, chứng chỉ quốc tế <strong>MOS/IC3</strong>, <strong>Kế Toán Thuế MISA</strong> & <strong>Lập Trình Python Sandbox</strong>. Phương pháp 1 kèm 1 — Cam kết học đến khi thành thạo!
           </p>
 
-          {/* Compact Feature Tags Strip: Dải ngôn ngữ chủ lực */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem", marginBottom: "1.2rem" }}>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.18rem 0.5rem", borderRadius: "5px", background: "rgba(56, 189, 248, 0.12)", color: "#38bdf8", border: "1px solid rgba(56, 189, 248, 0.25)" }}>
-              🐍 Python & Auto
+          {/* Compact Feature Tags Strip (Bổ sung thêm nhiều tính năng nổi bật) */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem", marginBottom: "1.2rem" }}>
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "6px", background: "rgba(37, 99, 235, 0.08)", color: "var(--brand-primary)", border: "1px solid rgba(37, 99, 235, 0.2)" }}>
+              ⚡ Sandbox Python Tự Chấm
             </span>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.18rem 0.5rem", borderRadius: "5px", background: "rgba(6, 182, 212, 0.12)", color: "#06b6d4", border: "1px solid rgba(6, 182, 212, 0.25)" }}>
-              ⚡ C/C++ Thuật Toán
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "6px", background: "rgba(5, 150, 105, 0.08)", color: "var(--brand-emerald)", border: "1px solid rgba(5, 150, 105, 0.2)" }}>
+              🤖 AI Chữa Lỗi Logic 24/7
             </span>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.18rem 0.5rem", borderRadius: "5px", background: "rgba(22, 163, 74, 0.12)", color: "#16a34a", border: "1px solid rgba(22, 163, 74, 0.25)" }}>
-              🍃 Java Spring Boot
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "6px", background: "rgba(217, 119, 6, 0.08)", color: "var(--brand-amber)", border: "1px solid rgba(217, 119, 6, 0.2)" }}>
+              🖨️ In Đề Thi Chuẩn A4
             </span>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.18rem 0.5rem", borderRadius: "5px", background: "rgba(139, 92, 246, 0.12)", color: "#8b5cf6", border: "1px solid rgba(139, 92, 246, 0.25)" }}>
-              🚀 C# & .NET 8 API
-            </span>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.18rem 0.5rem", borderRadius: "5px", background: "rgba(0, 245, 200, 0.12)", color: "var(--brand-primary)", border: "1px solid rgba(0, 245, 200, 0.25)" }}>
-              ⚛️ React & Next.js
-            </span>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.18rem 0.5rem", borderRadius: "5px", background: "rgba(16, 185, 129, 0.12)", color: "#10b981", border: "1px solid rgba(16, 185, 129, 0.25)" }}>
-              🟢 Backend Node.js
-            </span>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.18rem 0.5rem", borderRadius: "5px", background: "rgba(34, 197, 94, 0.12)", color: "#22c55e", border: "1px solid rgba(34, 197, 94, 0.25)" }}>
-              🤖 Di Động Android
-            </span>
-            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.18rem 0.5rem", borderRadius: "5px", background: "rgba(244, 63, 94, 0.12)", color: "#f43f5e", border: "1px solid rgba(244, 63, 94, 0.25)" }}>
-              🐘 PHP & Laravel 11
+            <span style={{ fontSize: "0.72rem", fontWeight: 700, padding: "0.2rem 0.55rem", borderRadius: "6px", background: "rgba(124, 58, 237, 0.08)", color: "var(--brand-violet)", border: "1px solid rgba(124, 58, 237, 0.2)" }}>
+              🔒 Khóa PIN Thi Giáo Viên
             </span>
           </div>
 
           {/* 3 Compact CTA Buttons (Giảm 40% padding) */}
-          <div style={{ display: "flex", alignItems: "center", gap: "0.6rem", flexWrap: "wrap", marginBottom: "1.1rem" }}>
-            <a
-              href="#dich-vu-coding"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.35rem",
-                padding: "0.55rem 1.15rem",
-                borderRadius: "8px",
-                background: "linear-gradient(135deg, #0284c7 0%, #2563eb 100%)",
-                color: "#ffffff",
-                fontWeight: 800,
-                fontSize: "0.84rem",
-                textDecoration: "none",
-                boxShadow: "0 4px 14px rgba(37, 99, 235, 0.35)",
-                transition: "all 0.2s ease"
-              }}
-            >
-              <Terminal size={15} />
-              <span>Khám Phá 13+ Môn Coding</span>
-            </a>
-
-            <a
-              href="#dich-vu-hoc-vu"
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "0.35rem",
-                padding: "0.55rem 1.15rem",
-                borderRadius: "8px",
-                background: "var(--surface-hover)",
-                border: "1.5px solid var(--border-medium)",
-                color: "var(--text-primary)",
-                fontWeight: 700,
-                fontSize: "0.84rem",
-                textDecoration: "none",
-                boxShadow: "var(--shadow-subtle)",
-                transition: "all 0.2s ease"
-              }}
-            >
-              <BookOpen size={15} />
-              <span>5 Dịch Vụ Học Vụ 1-1</span>
-            </a>
-
+          <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", flexWrap: "wrap", marginBottom: "1.1rem" }}>
             <a
               href="#dang-ky-tu-van"
               style={{
                 display: "inline-flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "0.25rem",
-                padding: "0.55rem 0.85rem",
-                borderRadius: "8px",
+                gap: "0.4rem",
+                padding: "0.65rem 1.25rem",
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+                color: "#ffffff",
+                fontWeight: 800,
+                fontSize: "0.86rem",
+                textDecoration: "none",
+                boxShadow: "0 4px 14px rgba(37, 99, 235, 0.35)",
+                transition: "all 0.2s ease"
+              }}
+            >
+              <BookOpen size={15} />
+              <span>Đăng Ký Tư Vấn Lớp</span>
+            </a>
+
+            <Link
+              href="/exam"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.4rem",
+                padding: "0.65rem 1.25rem",
+                borderRadius: "10px",
+                background: "var(--surface-hover)",
+                border: "1px solid var(--border-medium)",
+                color: "var(--text-primary)",
+                fontWeight: 700,
+                fontSize: "0.86rem",
+                textDecoration: "none",
+                boxShadow: "var(--shadow-subtle)",
+                transition: "all 0.2s ease"
+              }}
+            >
+              <Clock size={15} />
+              <span>Phòng Thi 50P</span>
+            </Link>
+
+            <Link
+              href="/study"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "0.3rem",
+                padding: "0.65rem 1rem",
+                borderRadius: "10px",
                 background: "transparent",
                 color: "var(--brand-primary)",
-                fontWeight: 800,
-                fontSize: "0.84rem",
+                fontWeight: 700,
+                fontSize: "0.85rem",
                 textDecoration: "none",
                 transition: "all 0.2s ease"
               }}
             >
-              <span>Xếp Lịch Học Kèm →</span>
-            </a>
+              <span>Ôn tập 120 câu →</span>
+            </Link>
           </div>
 
           {/* Quick Trust Pills — Giảm kích thước */}

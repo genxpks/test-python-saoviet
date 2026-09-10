@@ -22,10 +22,10 @@ export default function CurriculumSectionHeader() {
       </div>
 
       <h2 style={{ fontSize: "1.9rem", fontWeight: 900, letterSpacing: "-0.5px", marginBottom: "0.4rem" }}>
-        Ma Trận Đào Tạo 4 Bộ Môn Lập Trình Trọng Điểm
+        13 Ngôn Ngữ & Công Nghệ — Lộ Trình Lập Trình Đầy Đủ
       </h2>
-      <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "650px", margin: "0 auto" }}>
-        Chương trình biên soạn độc quyền của Tin Học Sao Việt, kết hợp bài giảng lý thuyết cô đọng và thực chiến phòng máy 100%.
+      <p style={{ color: "var(--text-muted)", fontSize: "0.95rem", maxWidth: "700px", margin: "0 auto" }}>
+        Từ <strong>Python, C/C++, Java, C#, PHP</strong> đến <strong>React, Next.js, Node.js, Spring Boot, Android</strong> — Sao Việt đào tạo đủ stack cho mọi định hướng nghề nghiệp trong CNTT.
       </p>
     </div>
   );
