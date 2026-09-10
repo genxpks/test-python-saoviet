@@ -31,3 +31,7 @@ atlas-credentials.env
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# scratch / temp
+scratch/
+

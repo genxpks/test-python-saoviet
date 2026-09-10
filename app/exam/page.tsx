@@ -3,7 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { Question, PracticalProblem, User, PausedExamState, ExamResult } from "@/types";
 import { getQuestionsData, getPracticalsData } from "@/lib/questionsData";
-import { getCurrentUser, DEFAULT_SUBJECTS, getExamSettings, setUserStatus, toggleUserSubject } from "@/lib/usersData";
+import { getCurrentUser, getUserSession, DEFAULT_SUBJECTS, getExamSettings, setUserStatus, toggleUserSubject } from "@/lib/usersData";
+import { fetchClientNetworkInfo, getCurrentVNDateTime, formatTimeSpent } from "@/lib/networkHelper";
 import QuestionCard from "@/components/QuestionCard";
 import PythonEditor from "@/components/PythonEditor";
 import { PythonEngine } from "@/lib/pythonEngine";
@@ -20,7 +21,9 @@ import {
   Pause, 
   ChevronLeft, 
   ChevronRight, 
-  Code2
+  Code2,
+  Globe,
+  Wifi
 } from "lucide-react";
 
 export default function ExamPage() {
@@ -31,6 +34,10 @@ export default function ExamPage() {
   const [showPinModal, setShowPinModal] = useState(false);
   const [examAccessCode, setExamAccessCode] = useState("");
   const [accessError, setAccessError] = useState("");
+
+  const [examStartTime, setExamStartTime] = useState<string>("");
+  const [examStartDate, setExamStartDate] = useState<string>("");
+  const [clientNetworkIp, setClientNetworkIp] = useState<string>("");
 
   const [examQuestions, setExamQuestions] = useState<Question[]>([]);
   const [examPracticals, setExamPracticals] = useState<PracticalProblem[]>([]);
@@ -52,6 +59,10 @@ export default function ExamPage() {
       setCurrentUser(getCurrentUser());
     };
     updateUser();
+
+    fetchClientNetworkInfo().then(net => {
+      if (net && net.ip) setClientNetworkIp(net.ip);
+    }).catch(() => null);
 
     window.addEventListener("saoviet-auth-change", updateUser);
     window.addEventListener("storage", updateUser);
@@ -106,6 +117,10 @@ export default function ExamPage() {
     }
 
     setAccessError("");
+    const startDT = getCurrentVNDateTime();
+    setExamStartTime(startDT.time);
+    setExamStartDate(startDT.date);
+
     let allQ = getQuestionsData();
     let allP = getPracticalsData();
 
@@ -222,6 +237,11 @@ export default function ExamPage() {
       }
     }
 
+    const endDT = getCurrentVNDateTime();
+    const session = getUserSession();
+    const studentLoginTime = session?.loginTimeFormatted || (session?.loginTimestamp ? new Date(session.loginTimestamp).toLocaleTimeString("vi-VN") + " - " + new Date(session.loginTimestamp).toLocaleDateString("vi-VN") : endDT.full);
+    const finalIp = clientNetworkIp || session?.ipAddress || "127.0.0.1 (Phòng Máy Lab)";
+
     const resData: ExamResult = {
       id: `exam_${Date.now()}`,
       userId: currentUser?.id || "anonymous",
@@ -241,7 +261,15 @@ export default function ExamPage() {
       timeSpentSeconds: 50 * 60 - timerSeconds,
       passed: isPass,
       certificateCode: certCode,
-      completedDate: new Date().toLocaleDateString("vi-VN"),
+      completedDate: endDT.date,
+      examDate: examStartDate || endDT.date,
+      examStartTime: examStartTime || endDT.time,
+      examEndTime: endDT.time,
+      completedTime: endDT.time,
+      loginTime: studentLoginTime,
+      ipAddress: finalIp,
+      clientIp: finalIp,
+      networkDevice: typeof navigator !== "undefined" ? navigator.userAgent : "Web Client",
       // Chi tiết bài làm để tra cứu kiểm tra đúng/sai:
       questionsDetail: examQuestions,
       practicalsDetail: examPracticals,
@@ -416,6 +444,25 @@ export default function ExamPage() {
                   <div style={{ fontSize: "0.72rem", color: "var(--text-muted)", marginTop: "0.35rem" }}>
                     (Mã chuẩn: <code>SAOVIET2026</code>, <code>PYTHON2026</code> hoặc PIN Giám thị: <code>8888</code>)
                   </div>
+
+                  {clientNetworkIp && (
+                    <div style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      fontSize: "0.72rem",
+                      fontWeight: 700,
+                      color: "#2563eb",
+                      background: "rgba(37, 99, 235, 0.08)",
+                      border: "1px solid rgba(37, 99, 235, 0.25)",
+                      padding: "0.2rem 0.65rem",
+                      borderRadius: "6px",
+                      marginTop: "0.6rem"
+                    }}>
+                      <Globe size={13} />
+                      <span>IP mạng máy thi: <strong>{clientNetworkIp}</strong> (Khảo thí có giám sát)</span>
+                    </div>
+                  )}
                 </div>
 
                 <button
@@ -453,7 +500,7 @@ export default function ExamPage() {
               zIndex: 30,
               boxShadow: "var(--shadow-card)"
             }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", flexWrap: "wrap" }}>
                 <span style={{ fontWeight: 800, fontSize: "0.95rem", color: "var(--text-primary)" }}>
                   {currentSubject.name}
                 </span>
@@ -466,6 +513,20 @@ export default function ExamPage() {
                   borderRadius: "var(--radius-full)"
                 }}>
                   {currentPart === 1 ? `Phần 1: Trắc Nghiệm (${currentIndex + 1}/50)` : `Phần 2: Tự Luận (${currentIndex + 1}/4)`}
+                </span>
+                <span style={{
+                  fontSize: "0.7rem",
+                  color: "var(--text-secondary)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                  background: "var(--surface-subtle)",
+                  border: "1px solid var(--border-light)",
+                  padding: "0.15rem 0.45rem",
+                  borderRadius: "5px"
+                }} title="IP mạng phòng thi của thí sinh">
+                  <Globe size={11} color="#2563eb" />
+                  <span>IP: <strong>{clientNetworkIp || "127.0.0.1"}</strong></span>
                 </span>
               </div>
 

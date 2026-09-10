@@ -71,7 +71,10 @@ import {
   Filter,
   X,
   ChevronRight,
-  Info
+  Info,
+  Calendar,
+  Globe,
+  LogIn
 } from "lucide-react";
 
 // Helper lấy chữ cái đầu cho Avatar người dùng
@@ -1906,6 +1909,22 @@ export default function AdminPage() {
                                     <span>{u.phone}</span>
                                   </div>
                                 )}
+                                {(u.lastLoginTime || u.lastLoginDate || u.lastLoginIp) && (
+                                  <div style={{ display: "flex", flexDirection: "column", gap: "1px", marginTop: "2px" }}>
+                                    {(u.lastLoginTime || u.lastLoginDate) && (
+                                      <div style={{ display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "0.67rem", color: "#059669" }} title="Thời gian đăng nhập gần nhất">
+                                        <Clock size={10} color="#059669" />
+                                        <span>Login: {u.lastLoginTime || ""}{u.lastLoginDate ? ` ${u.lastLoginDate}` : ""}</span>
+                                      </div>
+                                    )}
+                                    {u.lastLoginIp && (
+                                      <div style={{ display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "0.66rem", color: "#4338ca", fontFamily: "var(--font-mono)" }} title="Địa chỉ IP mạng khi đăng nhập">
+                                        <Globe size={10} color="#6366f1" />
+                                        <span>IP: {u.lastLoginIp}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             </td>
 
@@ -2432,8 +2451,8 @@ export default function AdminPage() {
                       <th style={{ padding: "0.55rem 0.75rem" }}>Học Viên</th>
                       <th style={{ padding: "0.55rem 0.75rem" }}>Chi Nhánh</th>
                       <th style={{ padding: "0.55rem 0.75rem" }}>Điểm Số</th>
-                      <th style={{ padding: "0.55rem 0.75rem" }}>Số Câu Đúng</th>
-                      <th style={{ padding: "0.55rem 0.75rem" }}>Thời Gian Làm</th>
+                      <th style={{ padding: "0.55rem 0.75rem" }}>Ngày & Giờ Thi</th>
+                      <th style={{ padding: "0.55rem 0.75rem" }}>Giờ Login & IP Mạng</th>
                       <th style={{ padding: "0.55rem 0.75rem" }}>Trạng Thái Thi</th>
                       <th style={{ padding: "0.55rem 0.75rem", textAlign: "center" }}>Thao Tác Quản Trị (1-Chạm)</th>
                     </tr>
@@ -2465,16 +2484,54 @@ export default function AdminPage() {
                               <div style={{ fontWeight: 900, color: (r.score || 0) >= 8 ? "#15803d" : (r.score || 0) >= 5 ? "#2563eb" : "#ea580c", fontSize: "0.95rem" }}>
                                 {r.score} / 10
                               </div>
+                              <div style={{ fontSize: "0.72rem", color: "#334155", fontWeight: 600 }}>
+                                {r.correctCount} / {r.totalQuestions} câu đúng
+                              </div>
                               <div style={{ fontSize: "0.68rem", color: "#94a3b8" }}>
                                 {r.mcqScore !== undefined ? `TN: ${r.mcqScore}đ | TL: ${r.practicalScore || 0}đ` : ""}
                               </div>
                             </td>
                             <td style={{ padding: "0.55rem 0.75rem" }}>
-                              <div style={{ fontWeight: 700, fontSize: "0.82rem" }}>{r.correctCount} / {r.totalQuestions} câu</div>
-                              <div style={{ fontSize: "0.68rem", color: "#64748b" }}>{r.completedDate ? new Date(r.completedDate).toLocaleDateString('vi-VN') : ""}</div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                                <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontWeight: 700, color: "#1e293b", fontSize: "0.78rem" }}>
+                                  <Calendar size={11} color="#0284c7" />
+                                  <span>{r.examDate || (r.completedDate ? new Date(r.completedDate).toLocaleDateString('vi-VN') : "---")}</span>
+                                </div>
+                                <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "0.72rem", color: "#475569" }}>
+                                  <Clock size={11} color="#64748b" />
+                                  <span>
+                                    {r.examStartTime ? `${r.examStartTime} → ${r.examEndTime || r.completedTime || ""}` : (r.completedTime || "---")}
+                                  </span>
+                                </div>
+                                <div style={{ fontSize: "0.68rem", color: "#64748b" }}>
+                                  Làm bài: <strong style={{ color: "#0f172a" }}>{Math.floor((r.timeSpentSeconds || 0) / 60)}p {(r.timeSpentSeconds || 0) % 60}s</strong>
+                                </div>
+                              </div>
                             </td>
-                            <td style={{ padding: "0.55rem 0.75rem", color: "#64748b", fontSize: "0.78rem" }}>
-                              {Math.floor((r.timeSpentSeconds || 0) / 60)}p {(r.timeSpentSeconds || 0) % 60}s
+                            <td style={{ padding: "0.55rem 0.75rem" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                                <div style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "0.72rem", color: "#0f766e" }} title="Thời điểm đăng nhập tài khoản">
+                                  <LogIn size={11} color="#0d9488" />
+                                  <span>Login: {r.loginTime || matchedUser?.lastLoginTime || "Trước khi thi"}</span>
+                                </div>
+                                <div style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "4px",
+                                  padding: "2px 6px",
+                                  borderRadius: "5px",
+                                  background: "#f0fdf4",
+                                  border: "1px solid #bbf7d0",
+                                  color: "#166534",
+                                  fontSize: "0.7rem",
+                                  fontFamily: "var(--font-mono)",
+                                  fontWeight: 600,
+                                  width: "fit-content"
+                                }} title="IP mạng của học viên lúc nộp bài hoặc đăng nhập">
+                                  <Globe size={11} color="#16a34a" />
+                                  <span>{r.ipAddress || r.clientIp || matchedUser?.lastLoginIp || "127.0.0.1"}</span>
+                                </div>
+                              </div>
                             </td>
                             <td style={{ padding: "0.55rem 0.75rem" }}>
                               <div style={{ display: "flex", flexDirection: "column", gap: "0.2rem" }}>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ExamResult } from "@/types";
-import { Award, Printer, X, Trophy, BookOpen, Lock, ShieldCheck } from "lucide-react";
+import { Award, Printer, X, Trophy, BookOpen, Lock, ShieldCheck, Calendar, Clock, LogIn, Globe } from "lucide-react";
 import ExamReviewSheet from "@/components/exam/ExamReviewSheet";
 import { getExamSettings } from "@/lib/usersData";
 
@@ -146,6 +146,45 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
               {getRankName(finalScore)}
             </span>
             <span style={{ fontSize: "0.68rem", color: "#059669", fontWeight: 600 }}>{isPassed ? "Đạt Tiêu Chuẩn" : "Cần Ôn Thêm"}</span>
+          </div>
+        </div>
+
+        {/* Khung Thông Tin Giám Sát Khảo Thí: Ngày thi, Giờ thi, Giờ Login, IP Mạng */}
+        <div style={{
+          background: "var(--surface-subtle)",
+          border: "1px solid var(--border-light)",
+          borderRadius: "10px",
+          padding: "0.6rem 0.85rem",
+          marginBottom: "0.9rem",
+          fontSize: "0.74rem",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "0.45rem"
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <Calendar size={13} color="#2563eb" />
+            <span style={{ color: "var(--text-muted)" }}>Ngày thi:</span>
+            <strong style={{ color: "var(--text-primary)" }}>{resultData.examDate || resultData.completedDate}</strong>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <Clock size={13} color="#2563eb" />
+            <span style={{ color: "var(--text-muted)" }}>Giờ thi:</span>
+            <strong style={{ color: "var(--text-primary)" }}>
+              {resultData.examStartTime || "N/A"} → {resultData.examEndTime || resultData.completedTime || "N/A"}
+            </strong>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <LogIn size={13} color="#059669" />
+            <span style={{ color: "var(--text-muted)" }}>Giờ login:</span>
+            <strong style={{ color: "var(--text-primary)" }}>{resultData.loginTime || "N/A"}</strong>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <Globe size={13} color="#7c3aed" />
+            <span style={{ color: "var(--text-muted)" }}>IP mạng:</span>
+            <strong style={{ color: "#6d28d9" }}>{resultData.ipAddress || resultData.clientIp || "127.0.0.1"}</strong>
           </div>
         </div>
 

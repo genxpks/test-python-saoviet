@@ -18,9 +18,23 @@ export async function POST(req: Request) {
     const db = await getDatabase();
     const collection = db.collection("exam_results");
 
+    const forwardedFor = req.headers.get("x-forwarded-for");
+    const realIp = req.headers.get("x-real-ip");
+    const cfIp = req.headers.get("cf-connecting-ip");
+    let detectedIp = cfIp || realIp || (forwardedFor ? forwardedFor.split(",")[0].trim() : null) || "127.0.0.1";
+    if (detectedIp === "::1" || detectedIp === "::ffff:127.0.0.1") detectedIp = "127.0.0.1";
+
+    const now = new Date();
     const resultDoc = {
       ...body,
-      createdAt: new Date()
+      examDate: body.examDate || now.toLocaleDateString("vi-VN"),
+      completedDate: body.completedDate || now.toLocaleDateString("vi-VN"),
+      completedTime: body.completedTime || now.toLocaleTimeString("vi-VN"),
+      examEndTime: body.examEndTime || body.completedTime || now.toLocaleTimeString("vi-VN"),
+      ipAddress: body.ipAddress && body.ipAddress !== "127.0.0.1" ? body.ipAddress : detectedIp,
+      clientIp: body.clientIp || detectedIp,
+      networkDevice: body.networkDevice || req.headers.get("user-agent") || "Web Client",
+      createdAt: now
     };
 
     await collection.insertOne(resultDoc);

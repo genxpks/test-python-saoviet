@@ -179,7 +179,7 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                 Bảng Kiểm Tra Đúng / Sai & Giải Thích Chi Tiết
               </h2>
               <p style={{ fontSize: "0.75rem", color: "rgba(255, 255, 255, 0.85)", margin: "0.15rem 0 0" }}>
-                Học viên: <strong>{resultData.userName}</strong> • Tổng điểm: <strong>{resultData.score}/10.0</strong> ({resultData.passed ? "Đạt Chuẩn Tốt Nghiệp" : "Chưa Đạt"})
+                Học viên: <strong>{resultData.userName}</strong> • Tổng điểm: <strong>{resultData.score}/10.0</strong> ({resultData.passed ? "Đạt Chuẩn Tốt Nghiệp" : "Chưa Đạt"}) • Ngày thi: <strong>{resultData.examDate || resultData.completedDate}</strong> ({resultData.examStartTime || "N/A"} → {resultData.examEndTime || resultData.completedTime || "N/A"}) • IP mạng: <strong>{resultData.ipAddress || resultData.clientIp || "127.0.0.1"}</strong>
               </p>
             </div>
           </div>

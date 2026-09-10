@@ -56,6 +56,9 @@ export async function POST(req: Request) {
       status: body.status || "active",
       enrolledSubjects: body.enrolledSubjects || ["python"],
       totalStudySeconds: body.totalStudySeconds || 0,
+      lastLoginDate: body.lastLoginDate || undefined,
+      lastLoginTime: body.lastLoginTime || undefined,
+      lastLoginIp: body.lastLoginIp || undefined,
       createdDate: body.createdDate || new Date().toISOString().split("T")[0]
     };
 
@@ -111,6 +114,9 @@ export async function PUT(req: Request) {
       if (body.status) updateDoc.status = body.status;
       if (body.enrolledSubjects) updateDoc.enrolledSubjects = body.enrolledSubjects;
       if (body.totalStudySeconds !== undefined) updateDoc.totalStudySeconds = body.totalStudySeconds;
+      if (body.lastLoginDate) updateDoc.lastLoginDate = body.lastLoginDate;
+      if (body.lastLoginTime) updateDoc.lastLoginTime = body.lastLoginTime;
+      if (body.lastLoginIp) updateDoc.lastLoginIp = body.lastLoginIp;
 
       await collection.updateOne(filter, { $set: updateDoc });
     } catch (dbErr: any) {

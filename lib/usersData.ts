@@ -1,4 +1,5 @@
 import { User, UserRole, Branch, Subject, PausedExamState, ExamResult, UserSessionData, StudySessionLog, ExamSettings } from "@/types";
+import { fetchClientNetworkInfo } from "@/lib/networkHelper";
 
 export const DEFAULT_BRANCHES: Branch[] = [
   {
@@ -548,6 +549,23 @@ export function getCurrentUser(): User | null {
   }
 }
 
+export function getUserSession(): UserSessionData | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_SESSION);
+    if (!raw) return null;
+    const session: UserSessionData = JSON.parse(raw);
+    const now = Date.now();
+    if (now > session.expiresAt) {
+      logoutUser();
+      return null;
+    }
+    return session;
+  } catch {
+    return null;
+  }
+}
+
 export function getSessionRemainingSeconds(): number {
   if (typeof window === "undefined") return 0;
   try {
@@ -653,16 +671,62 @@ export function loginUser(username: string, passwordAttempt: string): { success:
   }
 
   const now = Date.now();
+  const nowDate = new Date(now);
+  const loginDate = nowDate.toLocaleDateString("vi-VN");
+  const loginTime = nowDate.toLocaleTimeString("vi-VN");
+  const loginTimeFormatted = `${loginTime} - ${loginDate}`;
+
+  user.lastLoginDate = loginDate;
+  user.lastLoginTime = loginTime;
+
   const session: UserSessionData = {
     user,
     token: `token_${user.id}_${now}`,
     loginTimestamp: now,
+    loginDate,
+    loginTimeFormatted,
     expiresAt: now + SESSION_DURATION_SECONDS * 1000
   };
 
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
     window.dispatchEvent(new Event("saoviet-auth-change"));
+
+    // Cập nhật người dùng vào danh sách local
+    const allUsers = getUsers();
+    const uIdx = allUsers.findIndex(u => u.id === user.id);
+    if (uIdx >= 0) {
+      allUsers[uIdx].lastLoginDate = loginDate;
+      allUsers[uIdx].lastLoginTime = loginTime;
+      saveUsers(allUsers);
+    }
+
+    // Kiểm tra IP mạng client bất đồng bộ và đồng bộ lên server
+    fetchClientNetworkInfo().then(net => {
+      if (net && net.ip) {
+        session.ipAddress = net.ip;
+        user.lastLoginIp = net.ip;
+        localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+
+        const updatedUsers = getUsers();
+        const idx = updatedUsers.findIndex(u => u.id === user.id);
+        if (idx >= 0) {
+          updatedUsers[idx].lastLoginIp = net.ip;
+          saveUsers(updatedUsers);
+        }
+
+        fetch("/api/users", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: user.id,
+            lastLoginDate: loginDate,
+            lastLoginTime: loginTime,
+            lastLoginIp: net.ip
+          })
+        }).catch(() => null);
+      }
+    }).catch(() => null);
   }
 
   return { success: true, user };
@@ -698,15 +762,45 @@ export async function loginUserAsync(username: string, passwordAttempt: string):
         }
         if (validateUserCredentials(retryUser, passwordAttempt)) {
           const now = Date.now();
+          const nowDate = new Date(now);
+          const loginDate = nowDate.toLocaleDateString("vi-VN");
+          const loginTime = nowDate.toLocaleTimeString("vi-VN");
+          const loginTimeFormatted = `${loginTime} - ${loginDate}`;
+
+          retryUser.lastLoginDate = loginDate;
+          retryUser.lastLoginTime = loginTime;
+
           const session: UserSessionData = {
             user: retryUser,
             token: `token_${retryUser.id}_${now}`,
             loginTimestamp: now,
+            loginDate,
+            loginTimeFormatted,
             expiresAt: now + SESSION_DURATION_SECONDS * 1000
           };
+
           if (typeof window !== "undefined") {
             localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
             window.dispatchEvent(new Event("saoviet-auth-change"));
+
+            fetchClientNetworkInfo().then(net => {
+              if (net && net.ip) {
+                session.ipAddress = net.ip;
+                retryUser.lastLoginIp = net.ip;
+                localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+
+                fetch("/api/users", {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    id: retryUser.id,
+                    lastLoginDate: loginDate,
+                    lastLoginTime: loginTime,
+                    lastLoginIp: net.ip
+                  })
+                }).catch(() => null);
+              }
+            }).catch(() => null);
           }
           return { success: true, user: retryUser };
         } else {

@@ -94,6 +94,9 @@ export interface User {
   status?: 'active' | 'locked';
   totalStudySeconds?: number;
   lastStudyDate?: string;
+  lastLoginDate?: string;
+  lastLoginTime?: string;
+  lastLoginIp?: string;
   enrolledSubjects?: string[];
   createdDate: string;
 }
@@ -103,6 +106,13 @@ export interface UserSessionData {
   token: string;
   expiresAt: number;
   loginTimestamp: number;
+  loginTimeFormatted?: string;
+  loginDate?: string;
+  ipAddress?: string;
+  networkInfo?: {
+    ip: string;
+    userAgent?: string;
+  };
 }
 
 export interface PausedExamState {
@@ -147,6 +157,14 @@ export interface ExamResult {
   passed: boolean;
   certificateCode?: string;
   completedDate: string;
+  examDate?: string;                             // Ngày thi (VD: 10/09/2026)
+  examStartTime?: string;                        // Giờ bắt đầu vào làm bài (VD: 11:05:30)
+  examEndTime?: string;                          // Giờ hoàn thành nộp bài (VD: 11:45:12)
+  completedTime?: string;                        // Giờ nộp bài
+  loginTime?: string;                            // Giờ học viên đăng nhập (VD: 11:01:25)
+  ipAddress?: string;                            // Địa chỉ IP mạng máy dự thi (VD: 14.161.28.10)
+  clientIp?: string;                             // IP client
+  networkDevice?: string;                        // Thiết bị / Trình duyệt thí sinh
   questionsDetail?: Question[];                  // Danh sách câu hỏi đề thi
   practicalsDetail?: PracticalProblem[];         // Danh sách bài tự luận code
   userAnswers?: Record<number, any>;             // Đáp án học viên đã chọn
