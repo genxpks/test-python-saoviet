@@ -26,7 +26,7 @@ export default function TechEcosystemLayer() {
     },
     {
       title: "MongoDB Atlas Cloud",
-      desc: "Hệ thống CSDL phân tán quản lý tập trung 4 cơ sở, lưu trữ 120+ câu hỏi và lịch sử học tập tức thời.",
+      desc: "Hệ thống CSDL phân tán quản lý tập trung toàn bộ 6 cơ sở, lưu trữ 120+ câu hỏi và lịch sử học tập tức thời.",
       icon: Database,
       color: "#059669",
       badge: "Real-time DB"
