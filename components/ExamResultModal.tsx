@@ -1,7 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { ExamResult } from "@/types";
-import { Award, Printer, X, Trophy } from "lucide-react";
+import { Award, Printer, X, Trophy, BookOpen, Lock, ShieldCheck } from "lucide-react";
+import ExamReviewSheet from "@/components/exam/ExamReviewSheet";
+import { getExamSettings } from "@/lib/usersData";
 
 interface ExamResultModalProps {
   resultData: ExamResult;
@@ -9,6 +12,9 @@ interface ExamResultModalProps {
 }
 
 export default function ExamResultModal({ resultData, onClose }: ExamResultModalProps) {
+  const [showReview, setShowReview] = useState(false);
+  const examSettings = getExamSettings();
+  const allowReview = examSettings.allowReviewAnswers !== false;
   const finalScore = resultData.score ?? 0;
   const isPassed = resultData.passed ?? (finalScore >= 5.0);
 
@@ -158,6 +164,66 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
           </div>
         )}
 
+        {/* Nút Xem Chi Tiết Đúng / Sai */}
+        {allowReview ? (
+          <button
+            onClick={() => setShowReview(true)}
+            style={{
+              width: "100%",
+              padding: "0.85rem 1rem",
+              borderRadius: "12px",
+              border: "1.5px solid #2563eb",
+              background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+              color: "#1d4ed8",
+              fontWeight: 800,
+              fontSize: "0.92rem",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              marginBottom: "1.2rem",
+              boxShadow: "0 2px 8px rgba(37, 99, 235, 0.15)",
+              transition: "all 0.2s ease"
+            }}
+          >
+            <BookOpen size={18} />
+            <span>🔍 Xem Danh Sách Bài Làm & Kiểm Tra Đúng / Sai (Chi Tiết)</span>
+          </button>
+        ) : (
+          <div style={{
+            padding: "0.75rem 1rem",
+            borderRadius: "10px",
+            background: "#f8fafc",
+            border: "1px dashed #cbd5e1",
+            color: "#64748b",
+            fontSize: "0.82rem",
+            textAlign: "center",
+            marginBottom: "1.2rem"
+          }}>
+            🔒 Quy chế phòng thi: Chức năng xem chi tiết đáp án tạm thời được bảo mật bởi giám thị.
+          </div>
+        )}
+
+        {/* Thông báo trạng thái đóng môn học nếu thi đạt */}
+        {resultData.passed && (
+          <div style={{
+            background: "#ecfdf5",
+            border: "1px solid #a7f3d0",
+            padding: "0.6rem 0.9rem",
+            borderRadius: "8px",
+            fontSize: "0.8rem",
+            color: "#065f46",
+            marginBottom: "1.2rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "6px"
+          }}>
+            <Lock size={15} color="#059669" />
+            <span>Môn học đã hoàn thành và bảo lưu kết quả. Phòng thi đã được đóng lại an toàn.</span>
+          </div>
+        )}
+
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.75rem" }}>
           <button className="btn btn-secondary" onClick={onClose}>
             Đóng Bảng Điểm
@@ -168,6 +234,13 @@ export default function ExamResultModal({ resultData, onClose }: ExamResultModal
           </button>
         </div>
       </div>
+
+      {showReview && (
+        <ExamReviewSheet
+          resultData={resultData}
+          onClose={() => setShowReview(false)}
+        />
+      )}
     </div>
   );
 }

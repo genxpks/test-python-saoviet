@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Question, PracticalProblem, User, PausedExamState, ExamResult } from "@/types";
 import { getQuestionsData, getPracticalsData } from "@/lib/questionsData";
-import { getCurrentUser, DEFAULT_SUBJECTS } from "@/lib/usersData";
+import { getCurrentUser, DEFAULT_SUBJECTS, getExamSettings, setUserStatus, toggleUserSubject } from "@/lib/usersData";
 import QuestionCard from "@/components/QuestionCard";
 import PythonEditor from "@/components/PythonEditor";
 import { PythonEngine } from "@/lib/pythonEngine";
@@ -206,19 +206,50 @@ export default function ExamPage() {
       ? `SV-${currentUser?.branchId === "branch_thuduc" ? "TD" : currentUser?.branchId === "branch_quan1" ? "Q1" : "HCM"}-${Math.floor(100000 + Math.random() * 900000)}`
       : undefined;
 
+    const examSettings = getExamSettings();
+    let willLockSubject = false;
+    let willLockAccount = false;
+
+    // Check policies if user is student
+    if (currentUser && currentUser.role === "student") {
+      if (examSettings.autoLockSubjectOnPass && isPass) {
+        willLockSubject = true;
+        toggleUserSubject(currentUser.id, selectedSubjectId, false);
+      }
+      if (examSettings.autoLockAccountOnSubmit) {
+        willLockAccount = true;
+        setUserStatus(currentUser.id, "locked");
+      }
+    }
+
     const resData: ExamResult = {
       id: `exam_${Date.now()}`,
       userId: currentUser?.id || "anonymous",
       userName: currentUser?.fullName || "Học Viên",
+      studentName: currentUser?.fullName || "Học Viên",
+      studentClass: currentUser?.class || "Python Nâng Cao",
       branchId: currentUser?.branchId || "branch_thuduc",
+      branchName: currentUser?.branchName || "Chi Nhánh Thủ Đức",
       subjectId: selectedSubjectId,
       score: totalFinalScore,
+      totalScore: 10,
       totalQuestions: examQuestions.length + examPracticals.length,
       correctCount: mcqCorrect,
+      mcqCorrect: mcqCorrect,
+      mcqScore: mcqScore,
+      practicalScore: practicalScore,
       timeSpentSeconds: 50 * 60 - timerSeconds,
       passed: isPass,
       certificateCode: certCode,
-      completedDate: new Date().toLocaleDateString("vi-VN")
+      completedDate: new Date().toLocaleDateString("vi-VN"),
+      // Chi tiết bài làm để tra cứu kiểm tra đúng/sai:
+      questionsDetail: examQuestions,
+      practicalsDetail: examPracticals,
+      userAnswers: userAnswers,
+      userPracticalCode: userPracticalCode,
+      practicalResults: practicalResults,
+      subjectLockedAfterExam: willLockSubject,
+      accountLockedAfterExam: willLockAccount
     };
 
     // Save to MongoDB Atlas exam_results collection

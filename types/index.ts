@@ -119,6 +119,13 @@ export interface PausedExamState {
   isUnlocked: boolean;
 }
 
+export interface ExamSettings {
+  autoLockSubjectOnPass: boolean;      // Tự động đóng môn học khi thi Đạt (>= 5.0)
+  autoLockAccountOnSubmit: boolean;    // Tự động khóa tài khoản sau khi nộp bài
+  allowReviewAnswers: boolean;         // Cho phép học viên xem giải thích đúng/sai sau thi
+  passScoreThreshold: number;          // Điểm đạt chuẩn (mặc định: 5.0)
+}
+
 export interface ExamResult {
   id: string;
   userId: string;
@@ -140,6 +147,13 @@ export interface ExamResult {
   passed: boolean;
   certificateCode?: string;
   completedDate: string;
+  questionsDetail?: Question[];                  // Danh sách câu hỏi đề thi
+  practicalsDetail?: PracticalProblem[];         // Danh sách bài tự luận code
+  userAnswers?: Record<number, any>;             // Đáp án học viên đã chọn
+  userPracticalCode?: Record<number, string>;    // Code học viên đã viết
+  practicalResults?: Record<number, any>;        // Kết quả test cases code
+  subjectLockedAfterExam?: boolean;              // Đã đóng môn học sau thi
+  accountLockedAfterExam?: boolean;              // Đã khóa tài khoản sau thi
 }
 
 export interface StudySessionLog {

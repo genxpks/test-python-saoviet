@@ -1,4 +1,4 @@
-import { User, UserRole, Branch, Subject, PausedExamState, ExamResult, UserSessionData, StudySessionLog } from "@/types";
+import { User, UserRole, Branch, Subject, PausedExamState, ExamResult, UserSessionData, StudySessionLog, ExamSettings } from "@/types";
 
 export const DEFAULT_BRANCHES: Branch[] = [
   {
@@ -908,4 +908,98 @@ export function generateStandardPassword(fullName: string, phone: string): strin
 
 export function generateStandardUsername(phone: string): string {
   return phone.replace(/\D/g, "");
+}
+
+// ==========================================
+// EXAM POLICIES & ACCOUNT LOCKING SYSTEM
+// ==========================================
+const STORAGE_KEY_EXAM_SETTINGS = "saoviet_exam_settings_v2";
+
+export const DEFAULT_EXAM_SETTINGS: ExamSettings = {
+  autoLockSubjectOnPass: true,
+  autoLockAccountOnSubmit: false,
+  allowReviewAnswers: true,
+  passScoreThreshold: 5.0
+};
+
+export function getExamSettings(): ExamSettings {
+  if (typeof window === "undefined") return DEFAULT_EXAM_SETTINGS;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_EXAM_SETTINGS);
+    if (!raw) return DEFAULT_EXAM_SETTINGS;
+    return { ...DEFAULT_EXAM_SETTINGS, ...JSON.parse(raw) };
+  } catch {
+    return DEFAULT_EXAM_SETTINGS;
+  }
+}
+
+export function saveExamSettings(settings: ExamSettings): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY_EXAM_SETTINGS, JSON.stringify(settings));
+    window.dispatchEvent(new Event("saoviet-exam-settings-change"));
+  } catch {}
+}
+
+export async function setUserStatus(userId: string, status: 'active' | 'locked'): Promise<boolean> {
+  try {
+    updateUser(userId, { status });
+    const u = getUsers().find(x => x.id === userId);
+    if (u) {
+      await fetch("/api/users", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: u.id, username: u.username, status })
+      });
+    }
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("saoviet-auth-change"));
+    }
+    return true;
+  } catch (err) {
+    console.error("setUserStatus error:", err);
+    return false;
+  }
+}
+
+export async function toggleUserSubject(userId: string, subjectId: string, grant: boolean): Promise<boolean> {
+  try {
+    const users = getUsers();
+    const u = users.find(x => x.id === userId);
+    if (!u) return false;
+
+    let currentSubs = [...(u.enrolledSubjects || ["python"])];
+    if (grant) {
+      if (!currentSubs.includes(subjectId)) currentSubs.push(subjectId);
+    } else {
+      currentSubs = currentSubs.filter(s => s !== subjectId);
+    }
+
+    updateUser(userId, { enrolledSubjects: currentSubs });
+
+    await fetch("/api/users", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: u.id, username: u.username, enrolledSubjects: currentSubs })
+    });
+
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new Event("saoviet-auth-change"));
+    }
+    return true;
+  } catch (err) {
+    console.error("toggleUserSubject error:", err);
+    return false;
+  }
+}
+
+export async function grantExamRetake(userId: string, subjectId: string): Promise<boolean> {
+  try {
+    await setUserStatus(userId, "active");
+    await toggleUserSubject(userId, subjectId, true);
+    return true;
+  } catch (err) {
+    console.error("grantExamRetake error:", err);
+    return false;
+  }
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import { User, Question, PracticalProblem, PausedExamState, ExamResult, Branch, Subject } from "@/types";
+import { User, Question, PracticalProblem, PausedExamState, ExamResult, Branch, Subject, ExamSettings } from "@/types";
 import { 
   getUsers, 
   deleteUser, 
@@ -12,7 +12,13 @@ import {
   DEFAULT_SUBJECTS,
   logoutUser,
   formatStudyDuration,
-  saveUsers
+  saveUsers,
+  getExamSettings,
+  saveExamSettings,
+  setUserStatus,
+  toggleUserSubject,
+  grantExamRetake,
+  DEFAULT_EXAM_SETTINGS
 } from "@/lib/usersData";
 import { 
   getQuestionsData, 
@@ -28,6 +34,7 @@ import PracticalFormModal from "@/components/admin/PracticalFormModal";
 import ExcelQuestionImporter from "@/components/admin/ExcelQuestionImporter";
 import BranchModal from "@/components/admin/BranchModal";
 import SubjectModal from "@/components/admin/SubjectModal";
+import ExamReviewSheet from "@/components/exam/ExamReviewSheet";
 
 import { 
   ShieldCheck, 
@@ -41,6 +48,7 @@ import {
   Trash2, 
   RefreshCw, 
   Lock, 
+  Unlock,
   Download, 
   Sparkles,
   GraduationCap,
@@ -142,10 +150,48 @@ export default function AdminPage() {
   const [showPracticalModal, setShowPracticalModal] = useState(false);
   const [editingPractical, setEditingPractical] = useState<PracticalProblem | null>(null);
 
+  // Settings & Review State
+  const [examSettings, setExamSettings] = useState<ExamSettings>(DEFAULT_EXAM_SETTINGS);
+  const [reviewingResult, setReviewingResult] = useState<ExamResult | null>(null);
+
+  useEffect(() => {
+    setExamSettings(getExamSettings());
+    const onSettingsChange = () => setExamSettings(getExamSettings());
+    window.addEventListener("saoviet-exam-settings-change", onSettingsChange);
+    return () => window.removeEventListener("saoviet-exam-settings-change", onSettingsChange);
+  }, []);
+
+  const handleToggleSetting = (key: keyof ExamSettings) => {
+    const next = { ...examSettings, [key]: !examSettings[key] };
+    setExamSettings(next);
+    saveExamSettings(next);
+  };
+
+  const handleQuickToggleLock = async (userId: string, currentStatus?: 'active' | 'locked') => {
+    const nextStatus = currentStatus === "locked" ? "active" : "locked";
+    await setUserStatus(userId, nextStatus);
+    loadAllData();
+  };
+
+  const handleQuickGrantRetake = async (userId: string, subjectId: string) => {
+    if (confirm("Xác nhận cấp quyền thi lại cho học viên này? Hệ thống sẽ tự động kích hoạt tài khoản và mở lại môn học.")) {
+      await grantExamRetake(userId, subjectId);
+      alert("✅ Đã cấp lại quyền thi cho học viên thành công!");
+      loadAllData();
+    }
+  };
+
+  const handleQuickRevokeSubject = async (userId: string, subjectId: string) => {
+    if (confirm("Xác nhận đóng môn học này của học viên?")) {
+      await toggleUserSubject(userId, subjectId, false);
+      alert("✅ Đã đóng môn học thành công!");
+      loadAllData();
+    }
+  };
+
   useEffect(() => {
     const user = getCurrentUser();
     setCurrentUser(user);
-    // Mặc định cho phép xem tất cả chi nhánh hoặc lọc theo nhu cầu
     setAdminBranchMode("all");
     loadAllData();
 
@@ -2012,6 +2058,27 @@ export default function AdminPage() {
                                 </button>
                                 {u.username !== "admin" && (
                                   <button
+                                    onClick={() => handleQuickToggleLock(u.id, u.status)}
+                                    style={{
+                                      width: "32px",
+                                      height: "32px",
+                                      borderRadius: "8px",
+                                      border: u.status === "locked" ? "1px solid #fed7aa" : "1px solid #e2e8f0",
+                                      background: u.status === "locked" ? "#fff7ed" : "#f8fafc",
+                                      color: u.status === "locked" ? "#ea580c" : "#64748b",
+                                      cursor: "pointer",
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      transition: "all 0.15s"
+                                    }}
+                                    title={u.status === "locked" ? "Tài khoản đang khóa - Bấm để Mở Khóa 1-chạm" : "Tài khoản đang hoạt động - Bấm để Khóa 1-chạm"}
+                                  >
+                                    {u.status === "locked" ? <Lock size={14} color="#ea580c" /> : <Unlock size={14} />}
+                                  </button>
+                                )}
+                                {u.username !== "admin" && (
+                                  <button
                                     onClick={() => handleDeleteUser(u.id)}
                                     style={{
                                       width: "32px",
@@ -2129,9 +2196,234 @@ export default function AdminPage() {
           {/* ========================================================================= */}
           {activeTab === "results" && (
             <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "18px", padding: "1.5rem", boxShadow: "0 2px 6px rgba(0,0,0,0.03)" }}>
-              <h2 style={{ fontSize: "1.2rem", fontWeight: 800, margin: "0 0 1rem", color: "#0f172a" }}>
-                Bảng Điểm & Kết Quả Thi Khảo Thí Online
-              </h2>
+              {/* KHUNG CÀI ĐẶT QUY CHẾ KHẢO THÍ */}
+              <div style={{
+                background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+                border: "1px solid #cbd5e1",
+                borderRadius: "14px",
+                padding: "1.25rem 1.5rem",
+                marginBottom: "1.5rem"
+              }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.85rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "0.6rem" }}>
+                    <div style={{
+                      width: "36px",
+                      height: "36px",
+                      borderRadius: "10px",
+                      background: "#dbeafe",
+                      color: "#1d4ed8",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}>
+                      <ShieldCheck size={20} />
+                    </div>
+                    <div>
+                      <h3 style={{ fontSize: "1rem", fontWeight: 800, color: "#0f172a", margin: 0 }}>
+                        ⚙️ Quy Chế Khảo Thí & Cơ Chế Khóa Tự Động / 1-Chạm
+                      </h3>
+                      <p style={{ fontSize: "0.78rem", color: "#64748b", margin: "0.15rem 0 0" }}>
+                        Cấu hình bảo mật phòng thi, tự động đóng môn học khi đạt hoặc khóa tài khoản chống gian lận
+                      </p>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: "0.75rem", fontWeight: 700, padding: "0.25rem 0.6rem", borderRadius: "8px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#475569" }}>
+                    ⚡ Cập nhật thời gian thực
+                  </span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1rem" }}>
+                  {/* Toggle 1: Tự động đóng môn học khi thi Đạt */}
+                  <div style={{
+                    background: "#ffffff",
+                    border: examSettings.autoLockSubjectOnPass ? "1px solid #86efac" : "1px solid #e2e8f0",
+                    borderRadius: "12px",
+                    padding: "1rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.02)"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "0.8rem", marginBottom: "0.6rem" }}>
+                      <div>
+                        <div style={{ fontSize: "0.86rem", fontWeight: 800, color: "#0f172a" }}>
+                          🔒 Tự động đóng môn khi Đạt (≥ 5.0)
+                        </div>
+                        <p style={{ fontSize: "0.75rem", color: "#64748b", margin: "0.25rem 0 0", lineHeight: 1.4 }}>
+                          Khi học viên nộp bài và đạt điểm chuẩn, môn thi sẽ tự động đóng lại để kết thúc kỳ thi.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSetting("autoLockSubjectOnPass")}
+                        style={{
+                          width: "48px",
+                          height: "26px",
+                          borderRadius: "13px",
+                          background: examSettings.autoLockSubjectOnPass ? "#16a34a" : "#cbd5e1",
+                          border: "none",
+                          cursor: "pointer",
+                          position: "relative",
+                          transition: "all 0.2s",
+                          flexShrink: 0
+                        }}
+                      >
+                        <div style={{
+                          width: "20px",
+                          height: "20px",
+                          borderRadius: "50%",
+                          background: "#ffffff",
+                          position: "absolute",
+                          top: "3px",
+                          left: examSettings.autoLockSubjectOnPass ? "25px" : "3px",
+                          transition: "all 0.2s",
+                          boxShadow: "0 1px 2px rgba(0,0,0,0.2)"
+                        }} />
+                      </button>
+                    </div>
+                    <div style={{ fontSize: "0.72rem", fontWeight: 700, color: examSettings.autoLockSubjectOnPass ? "#15803d" : "#94a3b8" }}>
+                      {examSettings.autoLockSubjectOnPass ? "● Đang BẬT tự động đóng môn" : "○ Đang TẮT (học viên vẫn giữ môn)"}
+                    </div>
+                  </div>
+
+                  {/* Toggle 2: Tự động khóa tài khoản sau khi nộp bài */}
+                  <div style={{
+                    background: "#ffffff",
+                    border: examSettings.autoLockAccountOnSubmit ? "1px solid #fdba74" : "1px solid #e2e8f0",
+                    borderRadius: "12px",
+                    padding: "1rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.02)"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "0.8rem", marginBottom: "0.6rem" }}>
+                      <div>
+                        <div style={{ fontSize: "0.86rem", fontWeight: 800, color: "#0f172a" }}>
+                          🚷 Khóa tài khoản sau khi nộp bài
+                        </div>
+                        <p style={{ fontSize: "0.75rem", color: "#64748b", margin: "0.25rem 0 0", lineHeight: 1.4 }}>
+                          Ngăn học viên đăng nhập lại sau khi thi. Giám thị có thể bấm 1-chạm mở lại bất cứ lúc nào.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSetting("autoLockAccountOnSubmit")}
+                        style={{
+                          width: "48px",
+                          height: "26px",
+                          borderRadius: "13px",
+                          background: examSettings.autoLockAccountOnSubmit ? "#ea580c" : "#cbd5e1",
+                          border: "none",
+                          cursor: "pointer",
+                          position: "relative",
+                          transition: "all 0.2s",
+                          flexShrink: 0
+                        }}
+                      >
+                        <div style={{
+                          width: "20px",
+                          height: "20px",
+                          borderRadius: "50%",
+                          background: "#ffffff",
+                          position: "absolute",
+                          top: "3px",
+                          left: examSettings.autoLockAccountOnSubmit ? "25px" : "3px",
+                          transition: "all 0.2s",
+                          boxShadow: "0 1px 2px rgba(0,0,0,0.2)"
+                        }} />
+                      </button>
+                    </div>
+                    <div style={{ fontSize: "0.72rem", fontWeight: 700, color: examSettings.autoLockAccountOnSubmit ? "#c2410c" : "#94a3b8" }}>
+                      {examSettings.autoLockAccountOnSubmit ? "● Đang BẬT khóa tài khoản tức thì" : "○ Đang TẮT (tài khoản vẫn hoạt động)"}
+                    </div>
+                  </div>
+
+                  {/* Toggle 3: Cho phép xem đáp án & giải thích sau thi */}
+                  <div style={{
+                    background: "#ffffff",
+                    border: examSettings.allowReviewAnswers ? "1px solid #93c5fd" : "1px solid #e2e8f0",
+                    borderRadius: "12px",
+                    padding: "1rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "space-between",
+                    boxShadow: "0 1px 3px rgba(0,0,0,0.02)"
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: "0.8rem", marginBottom: "0.6rem" }}>
+                      <div>
+                        <div style={{ fontSize: "0.86rem", fontWeight: 800, color: "#0f172a" }}>
+                          📋 Học viên xem lại đúng/sai & chi tiết
+                        </div>
+                        <p style={{ fontSize: "0.75rem", color: "#64748b", margin: "0.25rem 0 0", lineHeight: 1.4 }}>
+                          Cho phép học viên xem danh sách câu hỏi đã làm, kiểm tra đúng/sai và lời giải thích logic sau khi nộp.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleSetting("allowReviewAnswers")}
+                        style={{
+                          width: "48px",
+                          height: "26px",
+                          borderRadius: "13px",
+                          background: examSettings.allowReviewAnswers ? "#2563eb" : "#cbd5e1",
+                          border: "none",
+                          cursor: "pointer",
+                          position: "relative",
+                          transition: "all 0.2s",
+                          flexShrink: 0
+                        }}
+                      >
+                        <div style={{
+                          width: "20px",
+                          height: "20px",
+                          borderRadius: "50%",
+                          background: "#ffffff",
+                          position: "absolute",
+                          top: "3px",
+                          left: examSettings.allowReviewAnswers ? "25px" : "3px",
+                          transition: "all 0.2s",
+                          boxShadow: "0 1px 2px rgba(0,0,0,0.2)"
+                        }} />
+                      </button>
+                    </div>
+                    <div style={{ fontSize: "0.72rem", fontWeight: 700, color: examSettings.allowReviewAnswers ? "#1d4ed8" : "#94a3b8" }}>
+                      {examSettings.allowReviewAnswers ? "● Đang BẬT xem lại lời giải chi tiết" : "○ Đang TẮT (chỉ xem điểm số)"}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                <div>
+                  <h2 style={{ fontSize: "1.2rem", fontWeight: 800, margin: 0, color: "#0f172a" }}>
+                    Bảng Điểm & Kết Quả Thi Khảo Thí Online
+                  </h2>
+                  <p style={{ fontSize: "0.82rem", color: "#64748b", margin: "0.2rem 0 0" }}>
+                    Quản lý điểm số, kiểm tra chi tiết bài làm đúng/sai và điều khiển 1-chạm cấp quyền thi lại hoặc khóa tài khoản.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={loadAllData}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    padding: "0.5rem 0.9rem",
+                    borderRadius: "10px",
+                    border: "1px solid #cbd5e1",
+                    background: "#ffffff",
+                    color: "#334155",
+                    fontSize: "0.8rem",
+                    fontWeight: 700,
+                    cursor: "pointer"
+                  }}
+                >
+                  <RefreshCw size={14} />
+                  <span>Tải lại dữ liệu</span>
+                </button>
+              </div>
 
               <div style={{ overflowX: "auto", border: "1px solid #e2e8f0", borderRadius: "12px" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.85rem", background: "#ffffff" }}>
@@ -2142,37 +2434,162 @@ export default function AdminPage() {
                       <th style={{ padding: "0.75rem 1rem" }}>Điểm Số</th>
                       <th style={{ padding: "0.75rem 1rem" }}>Số Câu Đúng</th>
                       <th style={{ padding: "0.75rem 1rem" }}>Thời Gian Làm</th>
-                      <th style={{ padding: "0.75rem 1rem" }}>Trạng Thái</th>
+                      <th style={{ padding: "0.75rem 1rem" }}>Trạng Thái Thi</th>
+                      <th style={{ padding: "0.75rem 1rem", textAlign: "center" }}>Thao Tác Quản Trị (1-Chạm)</th>
                     </tr>
                   </thead>
                   <tbody>
                     {examResults.length > 0 ? (
-                      examResults.map((r, i) => (
-                        <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                          <td style={{ padding: "0.75rem 1rem", fontWeight: 700 }}>{r.studentName}</td>
-                          <td style={{ padding: "0.75rem 1rem", color: "#64748b" }}>{r.branchName || "Thủ Đức"}</td>
-                          <td style={{ padding: "0.75rem 1rem", fontWeight: 900, color: (r.score || 0) >= 8 ? "#15803d" : "#ea580c", fontSize: "1rem" }}>
-                            {r.score} / 10
-                          </td>
-                          <td style={{ padding: "0.75rem 1rem" }}>{r.correctCount} / {r.totalQuestions} câu</td>
-                          <td style={{ padding: "0.75rem 1rem", color: "#64748b" }}>{Math.floor((r.timeSpentSeconds || 0) / 60)} phút</td>
-                          <td style={{ padding: "0.75rem 1rem" }}>
-                            <span style={{
-                              padding: "0.2rem 0.5rem",
-                              borderRadius: "6px",
-                              background: (r.score || 0) >= 5 ? "#ecfdf5" : "#fef2f2",
-                              color: (r.score || 0) >= 5 ? "#15803d" : "#b91c1c",
-                              fontWeight: 700,
-                              fontSize: "0.74rem"
-                            }}>
-                              {(r.score || 0) >= 8 ? "🏆 Xuất Sắc" : (r.score || 0) >= 5 ? "✅ Đạt Yêu Cầu" : "⚠️ Cần Ôn Lại"}
-                            </span>
-                          </td>
-                        </tr>
-                      ))
+                      examResults.map((r, i) => {
+                        const matchedUser = users.find(u => u.id === r.userId || u.username === r.userName);
+                        const userLocked = matchedUser ? matchedUser.status === "locked" : false;
+                        const currentSub = r.subjectId || "python";
+                        const hasSubject = matchedUser?.enrolledSubjects 
+                          ? matchedUser.enrolledSubjects.includes(currentSub)
+                          : true;
+
+                        return (
+                          <tr key={i} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                            <td style={{ padding: "0.75rem 1rem" }}>
+                              <div style={{ fontWeight: 800, color: "#0f172a" }}>{r.studentName || r.userName}</div>
+                              <div style={{ fontSize: "0.75rem", color: "#64748b" }}>
+                                TK: <strong style={{ color: "#2563eb" }}>{r.userName}</strong> {r.studentClass ? `• Lớp ${r.studentClass}` : ""}
+                              </div>
+                            </td>
+                            <td style={{ padding: "0.75rem 1rem", color: "#64748b" }}>
+                              <span style={{ padding: "0.15rem 0.45rem", borderRadius: "6px", background: "#f8fafc", border: "1px solid #e2e8f0", fontSize: "0.75rem", fontWeight: 600 }}>
+                                {r.branchName || "Thủ Đức"}
+                              </span>
+                            </td>
+                            <td style={{ padding: "0.75rem 1rem" }}>
+                              <div style={{ fontWeight: 900, color: (r.score || 0) >= 8 ? "#15803d" : (r.score || 0) >= 5 ? "#2563eb" : "#ea580c", fontSize: "1.05rem" }}>
+                                {r.score} / 10
+                              </div>
+                              <div style={{ fontSize: "0.72rem", color: "#94a3b8" }}>
+                                {r.mcqScore !== undefined ? `TN: ${r.mcqScore}đ | TL: ${r.practicalScore || 0}đ` : ""}
+                              </div>
+                            </td>
+                            <td style={{ padding: "0.75rem 1rem" }}>
+                              <div style={{ fontWeight: 700 }}>{r.correctCount} / {r.totalQuestions} câu</div>
+                              <div style={{ fontSize: "0.72rem", color: "#64748b" }}>{r.completedDate ? new Date(r.completedDate).toLocaleDateString('vi-VN') : ""}</div>
+                            </td>
+                            <td style={{ padding: "0.75rem 1rem", color: "#64748b" }}>
+                              {Math.floor((r.timeSpentSeconds || 0) / 60)} phút {(r.timeSpentSeconds || 0) % 60}s
+                            </td>
+                            <td style={{ padding: "0.75rem 1rem" }}>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                                <span style={{
+                                  padding: "0.2rem 0.5rem",
+                                  borderRadius: "6px",
+                                  background: (r.score || 0) >= 5 ? "#ecfdf5" : "#fef2f2",
+                                  color: (r.score || 0) >= 5 ? "#15803d" : "#b91c1c",
+                                  fontWeight: 700,
+                                  fontSize: "0.74rem",
+                                  display: "inline-block",
+                                  textAlign: "center"
+                                }}>
+                                  {(r.score || 0) >= 8 ? "🏆 Xuất Sắc" : (r.score || 0) >= 5 ? "✅ Đạt Yêu Cầu" : "⚠️ Cần Ôn Lại"}
+                                </span>
+                                {userLocked && (
+                                  <span style={{ fontSize: "0.68rem", color: "#ea580c", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.2rem" }}>
+                                    <Lock size={11} /> TK Đang Khóa
+                                  </span>
+                                )}
+                                {!hasSubject && (
+                                  <span style={{ fontSize: "0.68rem", color: "#dc2626", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.2rem" }}>
+                                    🚫 Đã đóng môn
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td style={{ padding: "0.75rem 1rem", textAlign: "center" }}>
+                              <div style={{ display: "flex", gap: "0.4rem", justifyContent: "center", flexWrap: "wrap" }}>
+                                {/* Nút 1: Xem chi tiết bài làm */}
+                                <button
+                                  type="button"
+                                  onClick={() => setReviewingResult(r)}
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "0.3rem",
+                                    padding: "0.35rem 0.7rem",
+                                    borderRadius: "8px",
+                                    border: "1px solid #bfdbfe",
+                                    background: "#eff6ff",
+                                    color: "#1d4ed8",
+                                    fontWeight: 700,
+                                    fontSize: "0.75rem",
+                                    cursor: "pointer"
+                                  }}
+                                  title="Xem chi tiết toàn bộ danh sách câu hỏi học viên đã làm và đúng/sai"
+                                >
+                                  <Eye size={13} />
+                                  <span>Xem Bài Làm</span>
+                                </button>
+
+                                {/* Nút 2: 1-Chạm Khóa / Mở Khóa Tài Khoản */}
+                                {matchedUser && (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleQuickToggleLock(matchedUser.id, matchedUser.status)}
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: "0.3rem",
+                                      padding: "0.35rem 0.65rem",
+                                      borderRadius: "8px",
+                                      border: userLocked ? "1px solid #86efac" : "1px solid #fed7aa",
+                                      background: userLocked ? "#f0fdf4" : "#fff7ed",
+                                      color: userLocked ? "#15803d" : "#c2410c",
+                                      fontWeight: 700,
+                                      fontSize: "0.75rem",
+                                      cursor: "pointer"
+                                    }}
+                                    title={userLocked ? "Mở khóa tài khoản ngay lập tức" : "Khóa tài khoản 1-chạm để ngăn đăng nhập"}
+                                  >
+                                    {userLocked ? <Unlock size={13} /> : <Lock size={13} />}
+                                    <span>{userLocked ? "Mở TK" : "Khóa TK"}</span>
+                                  </button>
+                                )}
+
+                                {/* Nút 3: 1-Chạm Cấp Thi Lại / Đóng Môn */}
+                                {matchedUser && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (hasSubject) {
+                                        handleQuickRevokeSubject(matchedUser.id, currentSub);
+                                      } else {
+                                        handleQuickGrantRetake(matchedUser.id, currentSub);
+                                      }
+                                    }}
+                                    style={{
+                                      display: "inline-flex",
+                                      alignItems: "center",
+                                      gap: "0.3rem",
+                                      padding: "0.35rem 0.65rem",
+                                      borderRadius: "8px",
+                                      border: hasSubject ? "1px solid #fecaca" : "1px solid #99f6e4",
+                                      background: hasSubject ? "#fef2f2" : "#f0fdfa",
+                                      color: hasSubject ? "#b91c1c" : "#0f766e",
+                                      fontWeight: 700,
+                                      fontSize: "0.75rem",
+                                      cursor: "pointer"
+                                    }}
+                                    title={hasSubject ? "Đóng môn học này khỏi tài khoản" : "Cấp quyền thi lại (Mở TK + Cấp lại môn)"}
+                                  >
+                                    {hasSubject ? <Trash2 size={13} /> : <RefreshCw size={13} />}
+                                    <span>{hasSubject ? "Khóa Môn" : "Cho Thi Lại"}</span>
+                                  </button>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
                     ) : (
                       <tr>
-                        <td colSpan={6} style={{ padding: "2rem", textAlign: "center", color: "#94a3b8" }}>
+                        <td colSpan={7} style={{ padding: "2.5rem", textAlign: "center", color: "#94a3b8" }}>
                           Chưa có lịch sử bài thi nào được nộp gần đây.
                         </td>
                       </tr>
@@ -2247,6 +2664,14 @@ export default function AdminPage() {
           subject={editingSubject}
           onSave={handleSaveSubject}
           onClose={() => { setShowSubjectModal(false); setEditingSubject(null); }}
+        />
+      )}
+
+      {/* MODAL XEM CHI TIẾT BÀI LÀM CỦA HỌC VIÊN */}
+      {reviewingResult && (
+        <ExamReviewSheet
+          resultData={reviewingResult}
+          onClose={() => setReviewingResult(null)}
         />
       )}
     </div>
