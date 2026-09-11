@@ -658,6 +658,76 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                       </div>
                     )}
 
+                    {/* Sequence Order Breakdown */}
+                    {q.type === "sequence_order" && q.items && (
+                      <div style={{ marginBottom: "0.7rem" }}>
+                        <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", marginBottom: "0.35rem" }}>
+                          ĐỐI CHIẾU THỨ TỰ CÁC DÒNG LỆNH:
+                        </div>
+                        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "0.5rem" }}>
+                          {/* Thứ tự học viên đã chọn */}
+                          <div style={{ background: correct ? "#ecfdf5" : "#fef2f2", border: correct ? "1px solid #10b981" : "1px solid #ef4444", borderRadius: "6px", padding: "0.45rem 0.65rem" }}>
+                            <div style={{ fontSize: "0.7rem", fontWeight: 800, color: correct ? "#065f46" : "#991b1b", marginBottom: "0.3rem" }}>
+                              {correct ? "✅ Thứ tự bạn đã xếp (Chính xác):" : "❌ Thứ tự bạn đã xếp (Chưa đúng):"}
+                            </div>
+                            {Array.isArray(uAns) && uAns.length > 0 ? (
+                              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontFamily: "var(--font-mono)", fontSize: "0.74rem" }}>
+                                {uAns.map((itIdx: number, pos: number) => {
+                                  const isPosCorrect = Array.isArray(q.correct_order) && itIdx === q.correct_order[pos];
+                                  return (
+                                    <div key={pos} style={{ padding: "0.2rem 0.4rem", borderRadius: "4px", background: isPosCorrect ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.12)", color: isPosCorrect ? "#065f46" : "#991b1b" }}>
+                                      #{pos + 1}: {q.items![itIdx]}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: "0.72rem", color: "#64748b", fontStyle: "italic" }}>Chưa xếp thứ tự</div>
+                            )}
+                          </div>
+
+                          {/* Thứ tự chuẩn xác */}
+                          {Array.isArray(q.correct_order) && (
+                            <div style={{ background: "#f8fafc", border: "1px solid #cbd5e1", borderRadius: "6px", padding: "0.45rem 0.65rem" }}>
+                              <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#059669", marginBottom: "0.3rem" }}>
+                                💡 Thứ tự đúng chuẩn:
+                              </div>
+                              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem", fontFamily: "var(--font-mono)", fontSize: "0.74rem" }}>
+                                {q.correct_order.map((itIdx: number, pos: number) => (
+                                  <div key={pos} style={{ padding: "0.2rem 0.4rem", borderRadius: "4px", background: "rgba(16, 185, 129, 0.08)", color: "#065f46" }}>
+                                    #{pos + 1}: {q.items![itIdx]}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Matching Pairs Breakdown */}
+                    {q.type === "matching" && Array.isArray(q.pairs) && (
+                      <div style={{ marginBottom: "0.7rem" }}>
+                        <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#64748b", textTransform: "uppercase", marginBottom: "0.35rem" }}>
+                          KẾT QUẢ NỐI CẶP:
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                          {q.pairs.map((p, pIdx) => {
+                            const userMatch = uAns && typeof uAns === "object" ? uAns[p.left] || uAns[pIdx] : "";
+                            const isPairCorrect = userMatch === p.right;
+                            return (
+                              <div key={pIdx} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.35rem 0.65rem", borderRadius: "6px", fontSize: "0.75rem", background: isPairCorrect ? "#ecfdf5" : "#fef2f2", border: isPairCorrect ? "1px solid #10b981" : "1px solid #ef4444" }}>
+                                <span><strong>{p.left}</strong> ➔ <em>{p.right}</em></span>
+                                <span style={{ fontWeight: 800, color: isPairCorrect ? "#059669" : "#dc2626" }}>
+                                  {isPairCorrect ? "✓ Đúng" : `Sai (Bạn chọn: ${userMatch || "Bỏ trống"})`}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Logic Explanation Box */}
                     {q.explanation && (
                       <div style={{

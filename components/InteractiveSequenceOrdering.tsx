@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { Question } from "@/types";
 import {
   GripVertical,
@@ -44,78 +44,86 @@ export default function InteractiveSequenceOrdering({
     [question.correct_order, totalItems]
   );
 
-  // Khởi tạo thứ tự lộn xộn cố định cho mỗi câu hỏi (deterministic scramble)
+  // Khởi tạo thứ tự xáo trộn ban đầu ổn định cho mỗi câu hỏi
   const initialScrambled = useMemo(() => {
     const list = Array.from({ length: totalItems }, (_, i) => i);
-    // Scramble bằng hoán vị luân phiên để chắc chắn khác targetOrder
     if (totalItems <= 1) return list;
     if (totalItems === 4) return [2, 0, 3, 1];
     if (totalItems === 5) return [3, 1, 4, 0, 2];
     if (totalItems === 6) return [4, 1, 5, 0, 3, 2];
-    // Tổng quát: đảo ngược hoặc dịch chuyển
     return [...list.slice(1), list[0]];
   }, [totalItems]);
 
-  // Danh sách các dòng lệnh bên phải (đã đưa vào khung lắp ráp)
+  // Khung bên phải: danh sách index các dòng đã đưa vào lắp ráp
   const [rightItems, setRightItems] = useState<number[]>(() => {
     if (Array.isArray(userAnswer) && userAnswer.length > 0) {
-      return userAnswer.filter(idx => typeof idx === "number" && idx >= 0 && idx < totalItems);
+      return userAnswer.filter((idx): idx is number => typeof idx === "number" && idx >= 0 && idx < totalItems);
     }
     return [];
   });
 
-  // Danh sách các dòng lệnh bên trái (còn lại chưa đưa vào bên phải)
+  // Khung bên trái: danh sách index các dòng còn lại trong kho
   const [leftItems, setLeftItems] = useState<number[]>(() => {
-    const inRight = new Set(
-      Array.isArray(userAnswer) ? userAnswer : []
-    );
+    const inRight = new Set(Array.isArray(userAnswer) ? userAnswer : []);
     return initialScrambled.filter(idx => !inRight.has(idx));
   });
 
-  // Trạng thái kiểm tra & chạy thử
+  // Trạng thái kiểm tra & chạy thử (chế độ ôn luyện)
   const [evaluated, setEvaluated] = useState<boolean>(false);
   const [isCorrect, setIsCorrect] = useState<boolean>(false);
   const [evalErrorMsg, setEvalErrorMsg] = useState<string>("");
   const [showRevealedSolution, setShowRevealedSolution] = useState<boolean>(false);
-  const [draggedItem, setDraggedItem] = useState<{ source: "left" | "right"; index: number } | null>(null);
+
+  // State quản lý kéo thả mượt mà (dùng Ref để không gây giật lag / re-render liên tục)
+  const draggedItemRef = useRef<{ source: "left" | "right"; index: number } | null>(null);
   const [dragOverRightIdx, setDragOverRightIdx] = useState<number | null>(null);
 
-  // Đồng bộ khi chuyển câu hỏi hoặc khi userAnswer thay đổi từ ngoài
+  // Ref lưu giữ đáp án hiện tại để tránh render vòng lặp
+  const currentRightRef = useRef<number[]>(rightItems);
+  currentRightRef.current = rightItems;
+
+  // Đồng bộ khi chuyển câu hỏi hoặc khi userAnswer thay đổi từ bên ngoài
   useEffect(() => {
     if (Array.isArray(userAnswer) && userAnswer.length > 0) {
-      const validRight = userAnswer.filter(idx => typeof idx === "number" && idx >= 0 && idx < totalItems);
-      setRightItems(validRight);
-      const rightSet = new Set(validRight);
-      setLeftItems(initialScrambled.filter(idx => !rightSet.has(idx)));
-      
-      if (validRight.length === totalItems) {
+      const validRight = userAnswer.filter((idx): idx is number => typeof idx === "number" && idx >= 0 && idx < totalItems);
+      // Chỉ set nếu dữ liệu khác với state hiện tại để tránh layout thrashing
+      const isSame = validRight.length === currentRightRef.current.length && 
+                     validRight.every((v, i) => v === currentRightRef.current[i]);
+      if (!isSame) {
+        setRightItems(validRight);
+        const rightSet = new Set(validRight);
+        setLeftItems(initialScrambled.filter(idx => !rightSet.has(idx)));
+      }
+      if (!isExamMode && validRight.length === totalItems) {
         const correct = validRight.every((v, i) => v === targetOrder[i]);
         setIsCorrect(correct);
         setEvaluated(true);
       } else {
         setEvaluated(false);
       }
-    } else {
-      setRightItems([]);
-      setLeftItems(initialScrambled);
-      setEvaluated(false);
-      setIsCorrect(false);
+    } else if (!userAnswer || (Array.isArray(userAnswer) && userAnswer.length === 0)) {
+      if (currentRightRef.current.length > 0) {
+        setRightItems([]);
+        setLeftItems(initialScrambled);
+        setEvaluated(false);
+        setIsCorrect(false);
+      }
     }
     setShowRevealedSolution(false);
-  }, [question.id, initialScrambled, targetOrder, totalItems]);
+  }, [question.id, userAnswer, totalItems, initialScrambled, targetOrder, isExamMode]);
 
-  // Thông báo đáp án ra ngoài
-  const emitAnswer = (newRight: number[]) => {
+  // Thông báo đáp án ra ngoài cho QuestionCard / ExamPage
+  const emitAnswer = useCallback((newRight: number[]) => {
     if (onAnswerChange) {
       onAnswerChange(newRight);
     }
-  };
+  }, [onAnswerChange]);
 
   // ---------------------------------------------------------------------------
-  // THAO TÁC CHUYỂN DÒNG LỆNH: TRÁI -> PHẢI & PHẢI -> TRÁI
+  // THAO TÁC 1-CLICK MƯỢT MÀ (KHÔNG PHỤ THUỘC KÉO THẢ)
   // ---------------------------------------------------------------------------
 
-  // Bấm vào dòng lệnh bên trái để thêm sang bên phải
+  // Chuyển 1 dòng từ bên trái sang bên phải
   const handleAddToRight = (itemIdx: number) => {
     if (rightItems.includes(itemIdx)) return;
     const nextRight = [...rightItems, itemIdx];
@@ -126,7 +134,7 @@ export default function InteractiveSequenceOrdering({
     emitAnswer(nextRight);
   };
 
-  // Bấm nút xóa/hoàn trả dòng lệnh từ bên phải về bên trái
+  // Trả 1 dòng từ bên phải về lại kho bên trái
   const handleRemoveFromRight = (pos: number) => {
     const itemIdx = rightItems[pos];
     const nextRight = rightItems.filter((_, i) => i !== pos);
@@ -137,7 +145,7 @@ export default function InteractiveSequenceOrdering({
     emitAnswer(nextRight);
   };
 
-  // Di chuyển lên / xuống trong khung bên phải
+  // Di chuyển thứ tự dòng lên hoặc xuống
   const handleMoveOrder = (pos: number, dir: number) => {
     const targetPos = pos + dir;
     if (targetPos < 0 || targetPos >= rightItems.length) return;
@@ -150,7 +158,7 @@ export default function InteractiveSequenceOrdering({
     emitAnswer(nextRight);
   };
 
-  // Đặt lại toàn bộ về bên trái
+  // Đặt lại toàn bộ về kho ban đầu
   const handleResetAll = () => {
     setRightItems([]);
     setLeftItems(initialScrambled);
@@ -162,34 +170,57 @@ export default function InteractiveSequenceOrdering({
   };
 
   // ---------------------------------------------------------------------------
-  // XỬ LÝ KÉO THẢ (DRAG & DROP)
+  // XỬ LÝ KÉO THẢ TỐI ƯU (CHỐNG TREO/ĐƠ TRÌNH DUYỆT)
   // ---------------------------------------------------------------------------
 
   const handleDragStartLeft = (e: React.DragEvent, itemIdx: number) => {
-    setDraggedItem({ source: "left", index: itemIdx });
-    e.dataTransfer.setData("text/plain", JSON.stringify({ source: "left", itemIdx }));
+    draggedItemRef.current = { source: "left", index: itemIdx };
+    e.dataTransfer.setData("application/json", JSON.stringify({ source: "left", index: itemIdx }));
     e.dataTransfer.effectAllowed = "move";
   };
 
   const handleDragStartRight = (e: React.DragEvent, pos: number) => {
-    setDraggedItem({ source: "right", index: pos });
-    e.dataTransfer.setData("text/plain", JSON.stringify({ source: "right", pos }));
+    draggedItemRef.current = { source: "right", index: pos };
+    e.dataTransfer.setData("application/json", JSON.stringify({ source: "right", index: pos }));
     e.dataTransfer.effectAllowed = "move";
   };
 
-  const handleDragOverRightContainer = (e: React.DragEvent) => {
+  const handleDragEnd = () => {
+    draggedItemRef.current = null;
+    setDragOverRightIdx(null);
+  };
+
+  const handleDragOverContainer = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = "move";
   };
 
-  const handleDropOnRightContainer = (e: React.DragEvent, targetSlotIdx?: number) => {
+  const handleDragOverItem = (e: React.DragEvent, pos: number) => {
     e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverRightIdx !== pos) {
+      setDragOverRightIdx(pos);
+    }
+  };
+
+  const handleDropOnContainer = (e: React.DragEvent, targetSlotIdx?: number) => {
+    e.preventDefault();
+    e.stopPropagation();
     setDragOverRightIdx(null);
 
-    if (!draggedItem) return;
+    let dragData = draggedItemRef.current;
+    if (!dragData) {
+      try {
+        const raw = e.dataTransfer.getData("application/json");
+        if (raw) dragData = JSON.parse(raw);
+      } catch {}
+    }
 
-    if (draggedItem.source === "left") {
-      const itemIdx = draggedItem.index;
+    if (!dragData) return;
+
+    if (dragData.source === "left") {
+      const itemIdx = dragData.index;
       if (rightItems.includes(itemIdx)) return;
 
       let nextRight = [...rightItems];
@@ -204,8 +235,8 @@ export default function InteractiveSequenceOrdering({
       setLeftItems(nextLeft);
       setEvaluated(false);
       emitAnswer(nextRight);
-    } else if (draggedItem.source === "right") {
-      const fromPos = draggedItem.index;
+    } else if (dragData.source === "right") {
+      const fromPos = dragData.index;
       const toPos = typeof targetSlotIdx === "number" ? targetSlotIdx : rightItems.length - 1;
       if (fromPos === toPos) return;
 
@@ -217,16 +248,16 @@ export default function InteractiveSequenceOrdering({
       emitAnswer(nextRight);
     }
 
-    setDraggedItem(null);
+    draggedItemRef.current = null;
   };
 
   // ---------------------------------------------------------------------------
-  // CHẠY THỬ & KIỂM TRA ĐÚNG / SAI
+  // CHẠY THỬ & KIỂM TRA (DÙNG TRONG CHẾ ĐỘ ÔN LUYỆN)
   // ---------------------------------------------------------------------------
 
   const handleRunAndCheck = () => {
     if (rightItems.length < totalItems) {
-      setEvalErrorMsg(`⚠️ Em cần kéo đủ tất cả ${totalItems} dòng lệnh sang khung bên phải trước khi chạy thử! (Hiện có ${rightItems.length}/${totalItems} dòng)`);
+      setEvalErrorMsg(`⚠️ Em cần đưa đủ tất cả ${totalItems} dòng lệnh sang khung lắp ráp bên phải trước khi chạy thử! (Hiện có ${rightItems.length}/${totalItems} dòng)`);
       setEvaluated(false);
       return;
     }
@@ -240,7 +271,7 @@ export default function InteractiveSequenceOrdering({
 
   return (
     <div style={{ margin: "0.85rem 0" }}>
-      {/* Hướng Dẫn Tương Tác */}
+      {/* Thanh Chỉ Dẫn & Nút Đặt Lại */}
       <div style={{
         display: "flex",
         justifyContent: "space-between",
@@ -256,10 +287,11 @@ export default function InteractiveSequenceOrdering({
         <div style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}>
           <Sparkles size={14} color="#2563eb" />
           <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--text-primary)" }}>
-            Kéo thả hoặc bấm vào dòng lệnh bên trái để sắp xếp sang khung lắp ráp bên phải, sau đó bấm <strong>Chạy Thử</strong>:
+            Bấm nút <strong>[+ Thêm]</strong> hoặc kéo thả các khối lệnh sang khung bên phải theo đúng trình tự logic:
           </span>
         </div>
         <button
+          type="button"
           onClick={handleResetAll}
           style={{
             display: "flex",
@@ -277,12 +309,12 @@ export default function InteractiveSequenceOrdering({
           title="Đưa tất cả dòng lệnh về kho ban đầu"
         >
           <RotateCcw size={12} />
-          <span>Đặt lại</span>
+          <span>Đặt lại ban đầu</span>
         </button>
       </div>
 
       {/* ===================================================================== */}
-      {/* BỐ CỤC CHIA 2 PHẦN: TRÁI (KHO LỘN XỘN) & PHẢI (KHUNG LẮP RÁP CODE) */}
+      {/* BỐ CỤC 2 CỘT: TRÁI (KHO DÒNG LỆNH) & PHẢI (KHUNG LẮP RÁP CODE) */}
       {/* ===================================================================== */}
       <div style={{
         display: "grid",
@@ -290,13 +322,12 @@ export default function InteractiveSequenceOrdering({
         gap: "0.9rem",
         alignItems: "start"
       }}>
-        {/* ---------------- BÊN TRÁI: KHO DÒNG LỆNH CHƯA XẾP ---------------- */}
+        {/* ---------------- BÊN TRÁI: KHO DÒNG LỆNH ---------------- */}
         <div style={{
           background: "var(--surface-subtle)",
           border: "1.5px solid var(--border-medium)",
           borderRadius: "10px",
           padding: "0.75rem 0.85rem",
-          boxShadow: "var(--shadow-subtle)",
           display: "flex",
           flexDirection: "column",
           gap: "0.55rem",
@@ -313,7 +344,7 @@ export default function InteractiveSequenceOrdering({
             <div style={{ display: "flex", alignItems: "center", gap: "0.35rem" }}>
               <Boxes size={16} color="#2563eb" />
               <span style={{ fontWeight: 800, fontSize: "0.84rem", color: "var(--text-primary)" }}>
-                📦 Dữ Kiện & Dòng Lệnh
+                📦 Kho Dòng Lệnh Chưa Xếp
               </span>
             </div>
             <span style={{
@@ -349,9 +380,10 @@ export default function InteractiveSequenceOrdering({
             ) : (
               leftItems.map((itemIdx) => (
                 <div
-                  key={itemIdx}
+                  key={`left-item-${itemIdx}`}
                   draggable={true}
                   onDragStart={(e) => handleDragStartLeft(e, itemIdx)}
+                  onDragEnd={handleDragEnd}
                   onClick={() => handleAddToRight(itemIdx)}
                   style={{
                     display: "flex",
@@ -362,20 +394,9 @@ export default function InteractiveSequenceOrdering({
                     border: "1.5px solid var(--border-medium)",
                     borderRadius: "8px",
                     cursor: "pointer",
-                    transition: "all 0.2s ease",
-                    boxShadow: "0 1px 4px rgba(0,0,0,0.04)"
+                    userSelect: "none"
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = "#2563eb";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow = "0 3px 10px rgba(37, 99, 235, 0.15)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = "var(--border-medium)";
-                    e.currentTarget.style.transform = "none";
-                    e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04)";
-                  }}
-                  title="Bấm hoặc kéo thả sang khung bên phải"
+                  title="Bấm hoặc kéo thả sang khung lắp ráp bên phải"
                 >
                   <GripVertical size={14} color="var(--text-muted)" style={{ cursor: "grab", flexShrink: 0 }} />
                   <span style={{
@@ -389,6 +410,7 @@ export default function InteractiveSequenceOrdering({
                     {items[itemIdx]}
                   </span>
                   <button
+                    type="button"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleAddToRight(itemIdx);
@@ -397,10 +419,10 @@ export default function InteractiveSequenceOrdering({
                       display: "flex",
                       alignItems: "center",
                       gap: "0.2rem",
-                      padding: "0.22rem 0.5rem",
+                      padding: "0.25rem 0.55rem",
                       borderRadius: "5px",
-                      background: "rgba(37, 99, 235, 0.08)",
-                      border: "1px solid rgba(37, 99, 235, 0.25)",
+                      background: "rgba(37, 99, 235, 0.1)",
+                      border: "1px solid rgba(37, 99, 235, 0.3)",
                       color: "#2563eb",
                       fontSize: "0.72rem",
                       fontWeight: 700,
@@ -419,8 +441,8 @@ export default function InteractiveSequenceOrdering({
 
         {/* ---------------- BÊN PHẢI: KHUNG LẮP RÁP THỨ TỰ THỰC THI ---------------- */}
         <div
-          onDragOver={handleDragOverRightContainer}
-          onDrop={(e) => handleDropOnRightContainer(e)}
+          onDragOver={handleDragOverContainer}
+          onDrop={(e) => handleDropOnContainer(e)}
           style={{
             background: "var(--surface-card)",
             border: evaluated
@@ -434,8 +456,7 @@ export default function InteractiveSequenceOrdering({
             display: "flex",
             flexDirection: "column",
             gap: "0.55rem",
-            minHeight: "200px",
-            transition: "all 0.25s ease"
+            minHeight: "200px"
           }}
         >
           {/* Header Bên Phải */}
@@ -487,28 +508,23 @@ export default function InteractiveSequenceOrdering({
                 <Code2 size={24} color="#2563eb" />
                 <span style={{ fontWeight: 700 }}>Khung mã nguồn đang trống</span>
                 <span style={{ fontSize: "0.76rem" }}>
-                  Kéo thả các khối lệnh từ cột bên trái vào đây hoặc bấm nút "Thêm".
+                  Bấm nút <strong>"Thêm"</strong> ở bên trái hoặc kéo thả các khối lệnh vào đây.
                 </span>
               </div>
             ) : (
               rightItems.map((itemIdx, pos) => {
                 const isLineCorrect = evaluated && itemIdx === targetOrder[pos];
                 const isLineWrong = evaluated && itemIdx !== targetOrder[pos];
+                const isHovered = dragOverRightIdx === pos;
 
                 return (
                   <div
-                    key={pos}
+                    key={`right-item-${itemIdx}`}
                     draggable={true}
                     onDragStart={(e) => handleDragStartRight(e, pos)}
-                    onDragOver={(e) => {
-                      e.preventDefault();
-                      setDragOverRightIdx(pos);
-                    }}
-                    onDragLeave={() => setDragOverRightIdx(null)}
-                    onDrop={(e) => {
-                      e.stopPropagation();
-                      handleDropOnRightContainer(e, pos);
-                    }}
+                    onDragEnd={handleDragEnd}
+                    onDragOver={(e) => handleDragOverItem(e, pos)}
+                    onDrop={(e) => handleDropOnContainer(e, pos)}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -518,19 +534,20 @@ export default function InteractiveSequenceOrdering({
                         ? "rgba(16, 185, 129, 0.08)"
                         : isLineWrong
                         ? "rgba(239, 68, 68, 0.08)"
-                        : dragOverRightIdx === pos
-                        ? "rgba(37, 99, 235, 0.1)"
+                        : isHovered
+                        ? "rgba(37, 99, 235, 0.08)"
                         : "var(--surface-subtle)",
                       border: isLineCorrect
                         ? "1.5px solid #10b981"
                         : isLineWrong
                         ? "1.5px solid #ef4444"
-                        : dragOverRightIdx === pos
-                        ? "2px dashed #2563eb"
+                        : isHovered
+                        ? "1.5px solid #2563eb"
                         : "1.5px solid var(--border-medium)",
+                      boxShadow: isHovered ? "0 0 0 2px rgba(37, 99, 235, 0.3)" : "none",
                       borderRadius: "8px",
-                      transition: "all 0.15s ease",
-                      cursor: "grab"
+                      cursor: "grab",
+                      userSelect: "none"
                     }}
                   >
                     {/* Số thứ tự dòng */}
@@ -569,10 +586,14 @@ export default function InteractiveSequenceOrdering({
                     {/* Nút điều hướng thứ tự Lên / Xuống & Nút Xóa */}
                     <div style={{ display: "flex", alignItems: "center", gap: "0.2rem", flexShrink: 0 }}>
                       <button
+                        type="button"
                         disabled={pos === 0}
-                        onClick={() => handleMoveOrder(pos, -1)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMoveOrder(pos, -1);
+                        }}
                         style={{
-                          padding: "0.2rem 0.35rem",
+                          padding: "0.22rem 0.38rem",
                           borderRadius: "5px",
                           border: "1px solid var(--border-medium)",
                           background: "var(--surface-card)",
@@ -584,10 +605,14 @@ export default function InteractiveSequenceOrdering({
                         <ArrowUp size={12} />
                       </button>
                       <button
+                        type="button"
                         disabled={pos === rightItems.length - 1}
-                        onClick={() => handleMoveOrder(pos, 1)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMoveOrder(pos, 1);
+                        }}
                         style={{
-                          padding: "0.2rem 0.35rem",
+                          padding: "0.22rem 0.38rem",
                           borderRadius: "5px",
                           border: "1px solid var(--border-medium)",
                           background: "var(--surface-card)",
@@ -599,9 +624,13 @@ export default function InteractiveSequenceOrdering({
                         <ArrowDown size={12} />
                       </button>
                       <button
-                        onClick={() => handleRemoveFromRight(pos)}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveFromRight(pos);
+                        }}
                         style={{
-                          padding: "0.2rem 0.35rem",
+                          padding: "0.22rem 0.38rem",
                           borderRadius: "5px",
                           border: "1px solid rgba(239, 68, 68, 0.3)",
                           background: "rgba(239, 68, 68, 0.08)",
@@ -620,11 +649,11 @@ export default function InteractiveSequenceOrdering({
 
             {/* Các ô chờ (Placeholders) cho các vị trí còn thiếu */}
             {rightItems.length > 0 && rightItems.length < totalItems && (
-              Array.from({ length: totalItems - rightItems.length }).map((_, placeholderIdx) => {
+              Array.from({ length: Math.max(0, totalItems - rightItems.length) }).map((_, placeholderIdx) => {
                 const slotNum = rightItems.length + placeholderIdx + 1;
                 return (
                   <div
-                    key={`slot-${slotNum}`}
+                    key={`placeholder-slot-${slotNum}`}
                     style={{
                       display: "flex",
                       alignItems: "center",
@@ -650,7 +679,7 @@ export default function InteractiveSequenceOrdering({
                     }}>
                       #{slotNum}
                     </span>
-                    <span>[Chờ kéo thả hoặc bấm thêm dòng lệnh tiếp theo...]</span>
+                    <span>[Chờ thêm dòng lệnh tiếp theo...]</span>
                   </div>
                 );
               })
@@ -660,212 +689,255 @@ export default function InteractiveSequenceOrdering({
       </div>
 
       {/* ===================================================================== */}
-      {/* KHỐI HÀNH ĐỘNG: NÚT BẤM "CHẠY THỬ & KIỂM TRA LOGIC" */}
+      {/* KHỐI TRẠNG THÁI TRONG PHÒNG THI (EXAM MODE) */}
       {/* ===================================================================== */}
-      <div style={{ marginTop: "0.85rem", display: "flex", gap: "0.6rem", alignItems: "center", flexWrap: "wrap" }}>
-        <button
-          onClick={handleRunAndCheck}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.45rem",
-            padding: "0.48rem 1.2rem",
-            borderRadius: "8px",
-            border: "none",
-            background: "linear-gradient(135deg, #059669, #047857)",
-            color: "#ffffff",
-            fontWeight: 800,
-            fontSize: "0.82rem",
-            cursor: "pointer",
-            boxShadow: "0 3px 12px rgba(5, 150, 105, 0.35)",
-            transition: "all 0.2s ease"
-          }}
-        >
-          <Play size={14} fill="#ffffff" />
-          <span>▶️ Chạy Thử & Kiểm Tra Logic (Run Code)</span>
-        </button>
-
-        {evalErrorMsg && (
-          <div style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.35rem",
-            color: "#d97706",
-            fontSize: "0.78rem",
-            fontWeight: 700
-          }}>
-            <AlertTriangle size={14} />
-            <span>{evalErrorMsg}</span>
-          </div>
-        )}
-      </div>
-
-      {/* ===================================================================== */}
-      {/* KẾT QUẢ SAU KHI BẤM CHẠY: BÁO ĐÚNG / SAI & PHÂN TÍCH SƯ PHẠM */}
-      {/* ===================================================================== */}
-      {evaluated && (
-        <div style={{ marginTop: "0.85rem", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
-          {/* BANNER THÀNH CÔNG HOẶC THẤT BẠI */}
-          <div style={{
-            padding: "0.6rem 0.95rem",
-            borderRadius: "8px",
-            background: isCorrect ? "rgba(16, 185, 129, 0.12)" : "rgba(239, 68, 68, 0.08)",
-            border: isCorrect ? "1.5px solid #059669" : "1.5px solid #dc2626",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "0.6rem"
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              {isCorrect ? (
-                <>
-                  <CheckCircle2 size={17} color="#059669" style={{ flexShrink: 0 }} />
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: "0.86rem", color: "#065f46" }}>
-                      HOÀN TOÀN CHÍNH XÁC! THỨ TỰ LOGIC CHUẨN XÁC 100%
-                    </div>
-                    <div style={{ fontSize: "0.76rem", color: "#047857", marginTop: "1px" }}>
-                      Chương trình biên dịch và thực thi tuần tự không gặp bất kỳ lỗi cú pháp hay runtime nào.
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <X size={17} color="#dc2626" style={{ flexShrink: 0 }} />
-                  <div>
-                    <div style={{ fontWeight: 800, fontSize: "0.86rem", color: "#991b1b" }}>
-                      THỨ TỰ CHƯA CHÍNH XÁC! ĐOẠN MÃ XẢY RA LỖI LOGIC
-                    </div>
-                    <div style={{ fontSize: "0.76rem", color: "#b91c1c", marginTop: "1px" }}>
-                      Khi thực thi theo thứ tự này, chương trình sẽ phát sinh lỗi logic hoặc thiếu dữ liệu.
-                    </div>
-                  </div>
-                </>
-              )}
-            </div>
-
-            <div style={{ display: "flex", gap: "0.4rem" }}>
-              {!isCorrect && (
-                <button
-                  onClick={() => setShowRevealedSolution(prev => !prev)}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.3rem",
-                    padding: "0.3rem 0.7rem",
-                    borderRadius: "6px",
-                    border: "1.5px solid var(--border-medium)",
-                    background: "var(--surface-card)",
-                    color: "var(--text-primary)",
-                    fontSize: "0.76rem",
-                    fontWeight: 700,
-                    cursor: "pointer"
-                  }}
-                >
-                  <Eye size={13} />
-                  <span>{showRevealedSolution ? "Ẩn đáp án chuẩn" : "Xem thứ tự chuẩn"}</span>
-                </button>
-              )}
-
-              <button
-                onClick={() => setEvaluated(false)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.3rem",
-                  padding: "0.3rem 0.7rem",
-                  borderRadius: "6px",
-                  border: isCorrect ? "1.5px solid #059669" : "1.5px solid #dc2626",
-                  background: isCorrect ? "#059669" : "#dc2626",
-                  color: "#ffffff",
-                  fontSize: "0.76rem",
-                  fontWeight: 800,
-                  cursor: "pointer"
-                }}
-              >
-                <RotateCcw size={13} />
-                <span>Thử chỉnh lại</span>
-              </button>
-            </div>
-          </div>
-
-          {/* KHUNG GIẢI THÍCH SƯ PHẠM VÌ SAO SAI */}
-          {!isCorrect && (
+      {isExamMode ? (
+        <div style={{ marginTop: "0.75rem" }}>
+          {rightItems.length === totalItems ? (
             <div style={{
-              padding: "0.65rem 0.85rem",
+              display: "flex",
+              alignItems: "center",
+              gap: "0.45rem",
+              padding: "0.5rem 0.85rem",
               borderRadius: "8px",
-              background: "rgba(239, 68, 68, 0.05)",
-              border: "1.5px solid rgba(239, 68, 68, 0.25)",
-              color: "#991b1b",
-              fontSize: "0.8rem",
-              lineHeight: "1.5"
+              background: "rgba(16, 185, 129, 0.1)",
+              border: "1.5px solid #10b981",
+              color: "#065f46",
+              fontSize: "0.82rem",
+              fontWeight: 700
             }}>
-              <div style={{ fontWeight: 800, marginBottom: "0.3rem", display: "flex", alignItems: "center", gap: "0.35rem", color: "#dc2626" }}>
-                <AlertTriangle size={14} />
-                <span>Phân tích vì sao thứ tự hiện tại chưa đúng:</span>
-              </div>
-              <div>
-                {analyzeSequenceOrderFailure(question, rightItems)}
-              </div>
+              <CheckCircle2 size={16} color="#059669" />
+              <span>✅ Đã sắp xếp đầy đủ {totalItems}/{totalItems} dòng lệnh. Thứ tự bài làm đã được lưu tự động.</span>
             </div>
-          )}
-
-          {/* KHUNG TERMINAL MÔ PHỎNG CHẠY THỬ (KHI ĐÚNG) */}
-          {isCorrect && (
+          ) : (
             <div style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.45rem",
+              padding: "0.5rem 0.85rem",
               borderRadius: "8px",
-              overflow: "hidden",
-              border: "1.5px solid #1e293b",
-              background: "#090d16",
-              boxShadow: "0 4px 16px rgba(0,0,0,0.3)"
+              background: "rgba(217, 119, 6, 0.08)",
+              border: "1.5px solid #d97706",
+              color: "#92400e",
+              fontSize: "0.82rem",
+              fontWeight: 700
             }}>
-              <div style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "0.4rem",
-                padding: "0.4rem 0.75rem",
-                background: "#0f172a",
-                borderBottom: "1px solid #1e293b",
-                color: "#94a3b8",
-                fontSize: "0.74rem",
-                fontWeight: 700
-              }}>
-                <Terminal size={13} color="#38bdf8" />
-                <span>🖥️ Cửa Sổ Terminal Thực Thi (Python 3.12 Output)</span>
-              </div>
-              <div style={{
-                padding: "0.65rem 0.85rem",
-                fontFamily: "var(--font-mono)",
-                fontSize: "0.8rem",
-                color: "#34d399",
-                whiteSpace: "pre-wrap",
-                lineHeight: "1.5"
-              }}>
-                <div style={{ color: "#94a3b8", marginBottom: "0.3rem" }}>$ python main.py</div>
-                {getSimulatedExecutionOutput(question)}
-              </div>
-            </div>
-          )}
-
-          {/* HIỂN THỊ ĐÁP ÁN CHUẨN KHI HỌC VIÊN CHỦ ĐỘNG YÊU CẦU HOẶC KHI ĐÚNG */}
-          {(isCorrect || showRevealedSolution) && question.explanation && (
-            <div style={{
-              padding: "0.65rem 0.85rem",
-              borderRadius: "8px",
-              background: "rgba(16, 185, 129, 0.08)",
-              border: "1.5px solid rgba(16, 185, 129, 0.3)",
-              fontSize: "0.8rem",
-              lineHeight: "1.5",
-              color: "var(--text-primary)"
-            }}>
-              <div style={{ fontWeight: 800, color: "#059669", marginBottom: "0.25rem" }}>
-                💡 Quy trình chuẩn & Phân tích giải thuật:
-              </div>
-              <div>{question.explanation}</div>
+              <AlertTriangle size={15} color="#d97706" />
+              <span>⚠️ Đang sắp xếp: Đã đưa vào {rightItems.length}/{totalItems} dòng lệnh. Hãy thêm nốt các dòng còn lại trước khi chuyển câu.</span>
             </div>
           )}
         </div>
+      ) : (
+        /* ===================================================================== */
+        /* KHỐI HÀNH ĐỘNG TRONG CHẾ ĐỘ ÔN LUYỆN (STUDY MODE) */
+        /* ===================================================================== */
+        <>
+          <div style={{ marginTop: "0.85rem", display: "flex", gap: "0.6rem", alignItems: "center", flexWrap: "wrap" }}>
+            <button
+              type="button"
+              onClick={handleRunAndCheck}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.45rem",
+                padding: "0.48rem 1.2rem",
+                borderRadius: "8px",
+                border: "none",
+                background: "linear-gradient(135deg, #059669, #047857)",
+                color: "#ffffff",
+                fontWeight: 800,
+                fontSize: "0.82rem",
+                cursor: "pointer",
+                boxShadow: "0 3px 12px rgba(5, 150, 105, 0.35)",
+                transition: "all 0.2s ease"
+              }}
+            >
+              <Play size={14} fill="#ffffff" />
+              <span>▶️ Chạy Thử & Kiểm Tra Logic (Run Code)</span>
+            </button>
+
+            {evalErrorMsg && (
+              <div style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.35rem",
+                color: "#d97706",
+                fontSize: "0.78rem",
+                fontWeight: 700
+              }}>
+                <AlertTriangle size={14} />
+                <span>{evalErrorMsg}</span>
+              </div>
+            )}
+          </div>
+
+          {/* KẾT QUẢ SAU KHI BẤM CHẠY: BÁO ĐÚNG / SAI & PHÂN TÍCH SƯ PHẠM */}
+          {evaluated && (
+            <div style={{ marginTop: "0.85rem", display: "flex", flexDirection: "column", gap: "0.65rem" }}>
+              <div style={{
+                padding: "0.6rem 0.95rem",
+                borderRadius: "8px",
+                background: isCorrect ? "rgba(16, 185, 129, 0.12)" : "rgba(239, 68, 68, 0.08)",
+                border: isCorrect ? "1.5px solid #059669" : "1.5px solid #dc2626",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                gap: "0.6rem"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  {isCorrect ? (
+                    <>
+                      <CheckCircle2 size={17} color="#059669" style={{ flexShrink: 0 }} />
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: "0.86rem", color: "#065f46" }}>
+                          HOÀN TOÀN CHÍNH XÁC! THỨ TỰ LOGIC CHUẨN XÁC 100%
+                        </div>
+                        <div style={{ fontSize: "0.76rem", color: "#047857", marginTop: "1px" }}>
+                          Chương trình biên dịch và thực thi tuần tự không gặp bất kỳ lỗi cú pháp hay runtime nào.
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <X size={17} color="#dc2626" style={{ flexShrink: 0 }} />
+                      <div>
+                        <div style={{ fontWeight: 800, fontSize: "0.86rem", color: "#991b1b" }}>
+                          THỨ TỰ CHƯA CHÍNH XÁC! ĐOẠN MÃ XẢY RA LỖI LOGIC
+                        </div>
+                        <div style={{ fontSize: "0.76rem", color: "#b91c1c", marginTop: "1px" }}>
+                          Khi thực thi theo thứ tự này, chương trình sẽ phát sinh lỗi logic hoặc thiếu dữ liệu.
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", gap: "0.4rem" }}>
+                  {!isCorrect && (
+                    <button
+                      type="button"
+                      onClick={() => setShowRevealedSolution(prev => !prev)}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.3rem",
+                        padding: "0.3rem 0.7rem",
+                        borderRadius: "6px",
+                        border: "1.5px solid var(--border-medium)",
+                        background: "var(--surface-card)",
+                        color: "var(--text-primary)",
+                        fontSize: "0.76rem",
+                        fontWeight: 700,
+                        cursor: "pointer"
+                      }}
+                    >
+                      <Eye size={13} />
+                      <span>{showRevealedSolution ? "Ẩn đáp án chuẩn" : "Xem thứ tự chuẩn"}</span>
+                    </button>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={() => setEvaluated(false)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.3rem",
+                      padding: "0.3rem 0.7rem",
+                      borderRadius: "6px",
+                      border: isCorrect ? "1.5px solid #059669" : "1.5px solid #dc2626",
+                      background: isCorrect ? "#059669" : "#dc2626",
+                      color: "#ffffff",
+                      fontSize: "0.76rem",
+                      fontWeight: 800,
+                      cursor: "pointer"
+                    }}
+                  >
+                    <RotateCcw size={13} />
+                    <span>Thử chỉnh lại</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* KHUNG PHÂN TÍCH VÌ SAO SAI */}
+              {!isCorrect && (
+                <div style={{
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "8px",
+                  background: "rgba(239, 68, 68, 0.05)",
+                  border: "1.5px solid rgba(239, 68, 68, 0.25)",
+                  color: "#991b1b",
+                  fontSize: "0.8rem",
+                  lineHeight: "1.5"
+                }}>
+                  <div style={{ fontWeight: 800, marginBottom: "0.3rem", display: "flex", alignItems: "center", gap: "0.35rem", color: "#dc2626" }}>
+                    <AlertTriangle size={14} />
+                    <span>Phân tích vì sao thứ tự hiện tại chưa đúng:</span>
+                  </div>
+                  <div>
+                    {analyzeSequenceOrderFailure(question, rightItems)}
+                  </div>
+                </div>
+              )}
+
+              {/* KHUNG TERMINAL MÔ PHỎNG (KHI ĐÚNG) */}
+              {isCorrect && (
+                <div style={{
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  border: "1.5px solid #1e293b",
+                  background: "#090d16",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.3)"
+                }}>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.4rem",
+                    padding: "0.4rem 0.75rem",
+                    background: "#0f172a",
+                    borderBottom: "1px solid #1e293b",
+                    color: "#94a3b8",
+                    fontSize: "0.74rem",
+                    fontWeight: 700
+                  }}>
+                    <Terminal size={13} color="#38bdf8" />
+                    <span>🖥️ Cửa Sổ Terminal Thực Thi (Python 3.12 Output)</span>
+                  </div>
+                  <div style={{
+                    padding: "0.65rem 0.85rem",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "0.8rem",
+                    color: "#34d399",
+                    whiteSpace: "pre-wrap",
+                    lineHeight: "1.5"
+                  }}>
+                    <div style={{ color: "#94a3b8", marginBottom: "0.3rem" }}>$ python main.py</div>
+                    {getSimulatedExecutionOutput(question)}
+                  </div>
+                </div>
+              )}
+
+              {/* HIỂN THỊ ĐÁP ÁN CHUẨN */}
+              {(isCorrect || showRevealedSolution) && question.explanation && (
+                <div style={{
+                  padding: "0.65rem 0.85rem",
+                  borderRadius: "8px",
+                  background: "rgba(16, 185, 129, 0.08)",
+                  border: "1.5px solid rgba(16, 185, 129, 0.3)",
+                  fontSize: "0.8rem",
+                  lineHeight: "1.5",
+                  color: "var(--text-primary)"
+                }}>
+                  <div style={{ fontWeight: 800, color: "#059669", marginBottom: "0.25rem" }}>
+                    💡 Quy trình chuẩn & Phân tích giải thuật:
+                  </div>
+                  <div>{question.explanation}</div>
+                </div>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
