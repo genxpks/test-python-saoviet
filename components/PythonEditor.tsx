@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { PracticalProblem } from "@/types";
 import { PythonEngine, GradeResult } from "@/lib/pythonEngine";
 import VSCodeTerminal from "./VSCodeTerminal";
+import AIMarkdownRenderer from "./AIMarkdownRenderer";
 import { 
   Play, 
   Bot, 
@@ -387,9 +388,14 @@ export default function PythonEditor({
               <X size={16} />
             </button>
           </div>
-          <div style={{ whiteSpace: "pre-wrap", color: "#fae8ff" }}>
-            {aiFeedback}
-          </div>
+          <AIMarkdownRenderer
+            content={aiFeedback}
+            onApplyCode={(newCode) => {
+              setCode(newCode);
+              if (onCodeChange) onCodeChange(newCode);
+            }}
+            applyButtonLabel="Áp Dụng Vào Trình Soạn Thảo"
+          />
         </div>
       )}
 

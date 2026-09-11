@@ -24,8 +24,10 @@ import {
   Lock,
   Play,
   RotateCcw,
-  FileCode
+  FileCode,
+  Bot
 } from "lucide-react";
+import AIMarkdownRenderer from "../AIMarkdownRenderer";
 
 interface ExamReviewSheetProps {
   resultData: ExamResult;
@@ -44,6 +46,8 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
   const [isRunning, setIsRunning] = useState<Record<number, boolean>>({});
   const [gradeResults, setGradeResults] = useState<Record<number, GradeResult>>({});
   const [isGrading, setIsGrading] = useState<Record<number, boolean>>({});
+  const [aiReviewFeedback, setAiReviewFeedback] = useState<Record<number, string>>({});
+  const [isAiReviewing, setIsAiReviewing] = useState<Record<number, boolean>>({});
 
   const questions = resultData.questionsDetail || [];
   const practicals = resultData.practicalsDetail || [];
@@ -65,6 +69,42 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
 
   const collapseAll = () => {
     setExpandedQuestions({});
+  };
+
+  const handleAskAiReview = async (p: PracticalProblem) => {
+    const currentCode = testCodes[p.id] !== undefined ? testCodes[p.id] : (userPracticalCode[p.id] || "");
+    const initialGrade = practicalResults[p.id];
+    setIsAiReviewing(prev => ({ ...prev, [p.id]: true }));
+    setAiReviewFeedback(prev => ({ ...prev, [p.id]: "⏳ Thầy AI đang đối chiếu bài thi của em với bộ test cases và tìm lỗi cụ thể..." }));
+
+    try {
+      const res = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          mode: "review_practical",
+          prompt: "Phân tích bài thi tự luận code của học sinh, chỉ ra chính xác dòng mấy bị sai hoặc thiếu so với đề bài, giải thích lý do test case bị trượt và đưa ra bản sửa hoàn chỉnh.",
+          context: {
+            problem_id: p.id,
+            problem_title: p.title,
+            problem_description: p.description,
+            student_submitted_code: currentCode,
+            solution_code: p.solution_code,
+            initial_grade: initialGrade
+          }
+        })
+      });
+      const data = await res.json();
+      if (data.success && data.reply) {
+        setAiReviewFeedback(prev => ({ ...prev, [p.id]: data.reply }));
+      } else {
+        setAiReviewFeedback(prev => ({ ...prev, [p.id]: "❌ Không thể kết nối tới Thầy AI lúc này. Em hãy thử lại nhé!" }));
+      }
+    } catch (e: any) {
+      setAiReviewFeedback(prev => ({ ...prev, [p.id]: "❌ Lỗi: " + e.message }));
+    } finally {
+      setIsAiReviewing(prev => ({ ...prev, [p.id]: false }));
+    }
   };
 
   const handleRunCode = async (problemId: number) => {
@@ -879,7 +919,32 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                                 <span>TRÌNH SOẠN THẢO & BIÊN DỊCH PYTHON:</span>
                               </div>
 
-                              <div style={{ display: "flex", gap: "0.4rem" }}>
+                              <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                                <button
+                                  type="button"
+                                  disabled={isAiReviewing[p.id]}
+                                  onClick={() => handleAskAiReview(p)}
+                                  className="btn btn-sm"
+                                  style={{
+                                    padding: "0.2rem 0.6rem",
+                                    fontSize: "0.7rem",
+                                    fontWeight: 800,
+                                    borderRadius: "5px",
+                                    background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
+                                    color: "#ffffff",
+                                    border: "1px solid rgba(168, 85, 247, 0.4)",
+                                    boxShadow: "0 2px 8px rgba(124, 58, 237, 0.3)",
+                                    cursor: isAiReviewing[p.id] ? "wait" : "pointer",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "4px"
+                                  }}
+                                  title="Nhờ Thầy AI phân tích bài thi, chỉ ra dòng nào sai và gợi ý sửa"
+                                >
+                                  <Sparkles size={11} />
+                                  <span>{isAiReviewing[p.id] ? "AI Đang Phân Tích..." : "🤖 Thầy AI Chỉ Chỗ Sửa"}</span>
+                                </button>
+
                                 <button
                                   type="button"
                                   onClick={() => handleLoadSolution(p.id, p.solution_code)}
@@ -1134,6 +1199,45 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                                   </div>
                                 );
                               })}
+                            </div>
+                          )}
+
+                          {/* AI REVIEW & FIX SUGGESTION DRAWER */}
+                          {aiReviewFeedback[p.id] && (
+                            <div style={{
+                              background: "linear-gradient(135deg, #1e1b4b, #0f172a)",
+                              border: "1px solid #7c3aed",
+                              borderRadius: "8px",
+                              padding: "0.85rem 1rem",
+                              marginBottom: "0.75rem",
+                              color: "#f3e8ff",
+                              boxShadow: "0 4px 15px rgba(124, 58, 237, 0.2)"
+                            }}>
+                              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.5rem" }}>
+                                <div style={{ display: "flex", alignItems: "center", gap: "6px", fontWeight: 800, color: "#c084fc", fontSize: "0.82rem" }}>
+                                  <Bot size={15} color="#e879f9" />
+                                  <span>PHÂN TÍCH LỖI VÀ CHỈ CHỖ SỬA TỪ THẦY AI:</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => setAiReviewFeedback(prev => {
+                                    const next = { ...prev };
+                                    delete next[p.id];
+                                    return next;
+                                  })}
+                                  style={{ background: "none", border: "none", color: "#e879f9", cursor: "pointer" }}
+                                  title="Đóng bảng nhận xét"
+                                >
+                                  <X size={15} />
+                                </button>
+                              </div>
+                              <AIMarkdownRenderer
+                                content={aiReviewFeedback[p.id]}
+                                onApplyCode={(newCode) => {
+                                  setTestCodes(prev => ({ ...prev, [p.id]: newCode }));
+                                }}
+                                applyButtonLabel="Nạp Vào Editor Để Chạy Thử Ngay"
+                              />
                             </div>
                           )}
 

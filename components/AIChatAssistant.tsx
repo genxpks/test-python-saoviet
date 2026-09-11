@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Bot, Send, X, Sparkles, Terminal, Copy, Check, MessageSquare, ChevronRight } from "lucide-react";
+import AIMarkdownRenderer from "./AIMarkdownRenderer";
 
 export default function AIChatAssistant() {
   const pathname = usePathname();
@@ -215,7 +216,11 @@ export default function AIChatAssistant() {
                   position: "relative"
                 }}
               >
-                <div style={{ whiteSpace: "pre-wrap" }}>{m.text}</div>
+                {m.role === "ai" ? (
+                  <AIMarkdownRenderer content={m.text} />
+                ) : (
+                  <div style={{ whiteSpace: "pre-wrap" }}>{m.text}</div>
+                )}
                 {m.role === "ai" && (
                   <button
                     onClick={() => handleCopy(m.text, idx)}

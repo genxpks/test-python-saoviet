@@ -27,7 +27,9 @@ import {
   KeyRound,
   Trash2,
   RotateCcw,
-  ShieldCheck
+  ShieldCheck,
+  Award,
+  CheckCircle2
 } from "lucide-react";
 
 export default function ExamPage() {
@@ -61,6 +63,7 @@ export default function ExamPage() {
 
   const [timerSeconds, setTimerSeconds] = useState(50 * 60);
   const [showResultModal, setShowResultModal] = useState(false);
+  const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false);
   const [finalScoreData, setFinalScoreData] = useState<ExamResult | null>(null);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -386,9 +389,7 @@ export default function ExamPage() {
   };
 
   const handleManualSubmit = () => {
-    if (confirm("Em có chắc chắn muốn nộp toàn bộ bài thi không?")) {
-      calculateAndShowScore();
-    }
+    setShowSubmitConfirmModal(true);
   };
 
   const calculateAndShowScore = () => {
@@ -1204,6 +1205,157 @@ export default function ExamPage() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {/* Submit Confirmation Modal */}
+        {showSubmitConfirmModal && (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              backgroundColor: "rgba(10, 15, 30, 0.85)",
+              backdropFilter: "blur(6px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 9999,
+              padding: "1rem"
+            }}
+          >
+            <div
+              style={{
+                background: "var(--card-bg, #111827)",
+                border: "1px solid var(--border-color, #374151)",
+                borderRadius: "16px",
+                width: "100%",
+                maxWidth: "500px",
+                boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)",
+                overflow: "hidden",
+                animation: "fadeIn 0.2s ease-out"
+              }}
+            >
+              <div
+                style={{
+                  background: "linear-gradient(135deg, #1e3a8a, #1e40af)",
+                  padding: "1.25rem 1.5rem",
+                  color: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <Award size={24} style={{ color: "#fbbf24" }} />
+                  <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>Xác Nhận Nộp Toàn Bộ Bài Thi</h3>
+                </div>
+                <button
+                  onClick={() => setShowSubmitConfirmModal(false)}
+                  style={{
+                    background: "rgba(255, 255, 255, 0.15)",
+                    border: "none",
+                    borderRadius: "6px",
+                    color: "#fff",
+                    cursor: "pointer",
+                    padding: "4px 8px",
+                    fontSize: "0.9rem"
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div style={{ padding: "1.5rem" }}>
+                <p style={{ margin: "0 0 1rem 0", color: "var(--text-secondary, #9ca3af)", fontSize: "0.9rem" }}>
+                  Em có chắc chắn muốn kết thúc bài thi và nộp kết quả ngay bây giờ không?
+                </p>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
+                    gap: "10px",
+                    background: "rgba(255, 255, 255, 0.03)",
+                    border: "1px solid var(--border-color, rgba(255, 255, 255, 0.1))",
+                    borderRadius: "10px",
+                    padding: "12px",
+                    marginBottom: "1rem"
+                  }}
+                >
+                  <div style={{ textAlign: "center" }}>
+                    <div style={{ fontSize: "0.75rem", color: "var(--text-secondary, #9ca3af)", textTransform: "uppercase", fontWeight: 700 }}>
+                      Trắc nghiệm
+                    </div>
+                    <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#38bdf8", marginTop: "2px" }}>
+                      {examQuestions.filter(q => userAnswers[q.id] !== undefined && userAnswers[q.id] !== null && userAnswers[q.id] !== "").length} / {examQuestions.length}
+                    </div>
+                    <div style={{ fontSize: "0.7rem", color: "var(--text-secondary, #6b7280)" }}>câu đã trả lời</div>
+                  </div>
+
+                  <div style={{ textAlign: "center", borderLeft: "1px solid var(--border-color, rgba(255, 255, 255, 0.1))" }}>
+                    <div style={{ fontSize: "0.75rem", color: "var(--text-secondary, #9ca3af)", textTransform: "uppercase", fontWeight: 700 }}>
+                      Thực hành Code
+                    </div>
+                    <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#10b981", marginTop: "2px" }}>
+                      {examPracticals.filter(p => (userPracticalCode[p.id] || "").trim().length > 0).length} / {examPracticals.length}
+                    </div>
+                    <div style={{ fontSize: "0.7rem", color: "var(--text-secondary, #6b7280)" }}>bài đã viết code</div>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    background: "rgba(245, 158, 11, 0.1)",
+                    border: "1px solid rgba(245, 158, 11, 0.3)",
+                    borderRadius: "8px",
+                    padding: "10px 12px",
+                    marginBottom: "1.25rem",
+                    color: "#f59e0b",
+                    fontSize: "0.82rem"
+                  }}
+                >
+                  <Clock size={16} style={{ flexShrink: 0 }} />
+                  <span>Thời gian còn lại: <strong>{formatTimer(timerSeconds)}</strong>. Sau khi nộp bài, em sẽ không thể thay đổi câu trả lời.</span>
+                </div>
+
+                <div style={{ display: "flex", gap: "10px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowSubmitConfirmModal(false)}
+                    className="btn btn-secondary"
+                    style={{ flex: 1, padding: "0.65rem", fontSize: "0.85rem", fontWeight: 700, justifyContent: "center" }}
+                  >
+                    Quay Lại Làm Tiếp
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSubmitConfirmModal(false);
+                      calculateAndShowScore();
+                    }}
+                    className="btn btn-primary"
+                    style={{
+                      flex: 1.2,
+                      padding: "0.65rem",
+                      fontSize: "0.85rem",
+                      fontWeight: 800,
+                      justifyContent: "center",
+                      gap: "6px",
+                      background: "linear-gradient(135deg, #059669, #047857)",
+                      border: "none",
+                      boxShadow: "0 4px 12px rgba(5, 150, 105, 0.35)"
+                    }}
+                  >
+                    <Award size={16} />
+                    <span>XÁC NHẬN NỘP BÀI</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

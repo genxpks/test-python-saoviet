@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cleanAiText } from "@/lib/aiMarkdownHelper";
 
 // Danh sách các model fallback miễn phí ổn định nhất trên OpenRouter
 const FALLBACK_FREE_MODELS = [
@@ -8,11 +9,7 @@ const FALLBACK_FREE_MODELS = [
 ];
 
 function cleanAiOutput(text: string): string {
-  if (!text) return "";
-  // Xóa thinking process nếu model suy luận xuất ra
-  let cleaned = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
-  cleaned = cleaned.replace(/Here's a thinking process:[\s\S]*?(?:Draft:|Response:|\n\n)/i, "");
-  return cleaned.trim() || text.trim();
+  return cleanAiText(text);
 }
 
 async function callGoogleGemini(apiKey: string, prompt: string, systemInstruction: string, context?: any) {
@@ -109,7 +106,23 @@ Phong cách giảng dạy:
 - Trả lời bằng tiếng Việt chuẩn mực, định dạng Markdown rõ ràng.`;
 
     if (mode === "fix_code") {
-      systemInstruction += `\nNhiệm vụ: Bạn đang giúp học viên sửa lỗi code. Hãy phân tích đoạn code học sinh viết, phát hiện lỗi cú pháp hoặc logic, giải thích nguyên nhân và đưa ra đoạn code sửa chuẩn xác.`;
+      systemInstruction += `\nNhiệm vụ: Bạn đang giúp học viên sửa lỗi code trong bài tập lập trình Python.
+QUY TẮC BẮT BUỘC:
+1. TUYỆT ĐỐI KHÔNG sử dụng các chuỗi ký tự rác như '****' hay '***'. Chỉ dùng in đậm chuẩn '**tiêu đề**' hoặc code inline \`...\`.
+2. Đối chiếu trực tiếp đoạn code học viên vừa nhập (student_code) với đề bài:
+   - 🔍 **Chỉ Rõ Vị Trí Cần Sửa**: Nói rõ dòng số mấy trong code của học viên bị sai/thiếu (Ví dụ: "Dòng 2: \`c = a - b\` đang trừ thay vì cộng").
+   - 💡 **Nguyên Nhân**: Giải thích ngắn gọn nguyên nhân logic.
+   - 🛠️ **Gợi Ý Sửa**: Dòng đó nên sửa thành câu lệnh nào (Ví dụ: "Sửa thành \`c = a + b\`").
+   - 💻 **Mã Nguồn Hoàn Chỉnh Đã Sửa**: Cung cấp toàn bộ đoạn code Python chuẩn xác nhất trong khối \`\`\`python ... \`\`\`. Đảm bảo code sạch, có thể chạy được ngay.`;
+    } else if (mode === "review_practical") {
+      systemInstruction += `\nNhiệm vụ: Học viên vừa thi xong và đang xem lại bài thi tự luận code của mình để học hỏi và rút kinh nghiệm.
+QUY TẮC BẮT BUỘC:
+1. TUYỆT ĐỐI KHÔNG sử dụng ký tự rác '****'.
+2. Phân tích đoạn code học sinh đã nộp lúc thi, đối chiếu với các test cases bị fail:
+   - 🔍 **Vị Trí Dòng Sai**: Chỉ rõ dòng mấy trong bài thi của học sinh bị lỗi (Ví dụ: "Dòng 3: chưa kiểm tra điều kiện chia cho 0").
+   - 💡 **Lý Do Rớt Test Case**: Giải thích tại sao test case không đạt.
+   - 🛠️ **Cách Sửa**: Hướng dẫn cách viết lại.
+   - 💻 **Mã Nguồn Đã Sửa**: Cung cấp code Python hoàn chỉnh trong khối \`\`\`python ... \`\`\`.`;
     } else if (mode === "explain_question") {
       systemInstruction += `\nNhiệm vụ: Bạn đang chữa câu hỏi trắc nghiệm hoặc bài tập lý thuyết. Hãy giải thích cặn kẽ tại sao đáp án đó là đúng, vì sao các phương án khác sai, và bí quyết ghi nhớ kiến thức.`;
     } else if (mode === "review_exam") {

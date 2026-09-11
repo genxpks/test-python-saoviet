@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { getWhyWrongExplanation } from "@/lib/quizFeedbackEngine";
 import InteractiveSequenceOrdering from "./InteractiveSequenceOrdering";
+import AIMarkdownRenderer from "./AIMarkdownRenderer";
 
 interface QuestionCardProps {
   question: Question;
@@ -1310,7 +1311,7 @@ export default function QuestionCard({
               <span>{copied ? "Đã chép" : "Sao chép"}</span>
             </button>
           </div>
-          <div style={{ whiteSpace: "pre-line", color: "var(--text-primary)" }}>{aiExplanation}</div>
+          <AIMarkdownRenderer content={aiExplanation} />
         </div>
       )}
     </div>
