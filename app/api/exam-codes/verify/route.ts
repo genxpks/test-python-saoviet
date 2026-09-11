@@ -1,8 +1,18 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getDatabase } from "@/lib/mongodb";
 
-// Ma hardcode fallback -- van giu de tuong thich nguoc
+// Ma hardcode fallback
 const LEGACY_CODES = ["SAOVIET2026", "PYTHON2026", "SV2026", "SAOVIET", "8888", "110926"];
+
+// Helper dinh dang ngay: dd/mm/yyyy HH:mm
+function fmtDateTime(d: Date): string {
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+}
 
 // POST: Xac thuc ma phong thi
 // Body: { code: string, subjectId?: string, branchId?: string }
@@ -52,10 +62,10 @@ export async function POST(req: Request) {
     const now = new Date();
     const expiry = new Date(found.expiresAt);
     if (now > expiry) {
-      const expStr = expiry.toLocaleString("vi-VN");
+      // FIX: format dd/mm/yyyy HH:mm thay vi toLocaleString
       return NextResponse.json({
         valid: false,
-        message: `Ma phong thi da het han luc ${expStr}. Vui long lien he Giao vien cap ma moi.`,
+        message: `Ma phong thi da het han luc ${fmtDateTime(expiry)}. Vui long lien he Giao vien cap ma moi.`,
       });
     }
 
@@ -75,8 +85,8 @@ export async function POST(req: Request) {
       });
     }
 
-    // 6. Tang usageCount (fire-and-forget, khong block response)
-    col.updateOne({ id: found.id }, { $inc: { usageCount: 1 } }).catch(() => {});
+    // 6. Tang usageCount (fire-and-forget) — BUG-03 FIX: dung _id de chac chan match
+    col.updateOne({ _id: found._id }, { $inc: { usageCount: 1 } }).catch(() => {});
 
     const remaining = Math.round((expiry.getTime() - now.getTime()) / 60000);
     return NextResponse.json({

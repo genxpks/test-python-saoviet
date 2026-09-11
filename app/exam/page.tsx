@@ -34,6 +34,7 @@ export default function ExamPage() {
   const [showPinModal, setShowPinModal] = useState(false);
   const [examAccessCode, setExamAccessCode] = useState("");
   const [accessError, setAccessError] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false); // FLOW-01: loading state khi verify ma
 
   const [examStartTime, setExamStartTime] = useState<string>("");
   const [examStartDate, setExamStartDate] = useState<string>("");
@@ -115,6 +116,7 @@ export default function ExamPage() {
 
       // Xác thực mã qua API (kiểm tra MongoDB + thời hạn)
       let codeValid = false;
+      setIsVerifying(true); // bat loading
       try {
         const verifyRes = await fetch("/api/exam-codes/verify", {
           method: "POST",
@@ -139,6 +141,8 @@ export default function ExamPage() {
           return;
         }
         codeValid = true;
+      } finally {
+        setIsVerifying(false); // tat loading du pass hay fail
       }
 
       if (!codeValid) return;
@@ -495,19 +499,25 @@ export default function ExamPage() {
 
                 <button
                   onClick={handleStartExam}
+                  disabled={isVerifying}
                   className="btn btn-primary"
                   style={{
                     padding: "0.6rem 1.8rem",
                     fontSize: "0.86rem",
                     fontWeight: 800,
                     borderRadius: "9999px",
-                    background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                    background: isVerifying
+                      ? "#94a3b8"
+                      : "linear-gradient(135deg, #2563eb, #1d4ed8)",
                     color: "#ffffff",
-                    boxShadow: "0 3px 14px rgba(37, 99, 235, 0.35)"
+                    boxShadow: isVerifying ? "none" : "0 3px 14px rgba(37, 99, 235, 0.35)",
+                    cursor: isVerifying ? "not-allowed" : "pointer",
+                    opacity: isVerifying ? 0.8 : 1,
+                    transition: "all 0.2s",
                   }}
                 >
                   <BookOpen size={16} />
-                  <span>XÁC NHẬN MÃ & VÀO LÀM BÀI THI</span>
+                  <span>{isVerifying ? "Dang kiem tra ma..." : "XAC NHAN MA & VAO LAM BAI THI"}</span>
                 </button>
               </div>
             </SubjectAccessGate>

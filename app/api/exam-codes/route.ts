@@ -2,13 +2,34 @@ import { NextResponse } from "next/server";
 import { getDatabase } from "@/lib/mongodb";
 import { ExamAccessCode } from "@/types";
 
-// Sinh mã 6 chữ số ngẫu nhiên (không bắt đầu bằng 0)
+// Helper dinh dang ngay: dd/mm/yyyy
+function fmtDate(d: Date): string {
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  return `${dd}/${mm}/${d.getFullYear()}`;
+}
+
+// Sinh ma 6 chu so ngau nhien (khong bat dau bang 0)
 function generateCode(): string {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
-// ── GET: Lấy danh sách mã phòng thi ──────────────────────────────────────────
+// Roles duoc phep quan ly ma phong thi
+const ALLOWED_ROLES = ["admin", "internal_manager", "branch_manager", "teacher"];
+
+// Lay role tu header X-User-Role (admin page truyen vao khi fetch)
+function getRoleFromRequest(req: Request): string {
+  return req.headers.get("X-User-Role") || "";
+}
+
+// GET: Lay danh sach ma phong thi
 export async function GET(req: Request) {
+  // Auth check: chi cho phep cac role quan tri
+  const role = getRoleFromRequest(req);
+  if (!ALLOWED_ROLES.includes(role)) {
+    return NextResponse.json({ success: false, codes: [], error: "Khong co quyen truy cap" }, { status: 403 });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const branchId = searchParams.get("branchId");
@@ -32,8 +53,14 @@ export async function GET(req: Request) {
   }
 }
 
-// ── POST: Tạo mã phòng thi mới ────────────────────────────────────────────────
+// POST: Tao ma phong thi moi
 export async function POST(req: Request) {
+  // Auth check
+  const role = getRoleFromRequest(req);
+  if (!ALLOWED_ROLES.includes(role)) {
+    return NextResponse.json({ success: false, message: "Khong co quyen tao ma" }, { status: 403 });
+  }
+
   try {
     const body = await req.json();
     const {
@@ -47,8 +74,16 @@ export async function POST(req: Request) {
 
     const now = new Date();
     let expiry: Date;
+
     if (expiresAt) {
       expiry = new Date(expiresAt);
+      // BUG-01 FIX: Validate expiresAt khong phai Invalid Date
+      if (isNaN(expiry.getTime())) {
+        return NextResponse.json({ success: false, message: "Thoi gian het han khong hop le" }, { status: 400 });
+      }
+      if (expiry <= now) {
+        return NextResponse.json({ success: false, message: "Thoi gian het han phai sau thoi diem hien tai" }, { status: 400 });
+      }
     } else {
       expiry = new Date(now.getTime() + hoursValid * 60 * 60 * 1000);
     }
@@ -56,13 +91,12 @@ export async function POST(req: Request) {
     const db = await getDatabase();
     const col = db.collection("exam_access_codes");
 
+    // Sinh ma duy nhat — check toi da 10 lan
     let code = generateCode();
-    let attempts = 0;
-    while (attempts < 10) {
+    for (let attempts = 0; attempts < 10; attempts++) {
       const existing = await col.findOne({ code, isActive: true });
       if (!existing) break;
       code = generateCode();
-      attempts++;
     }
 
     const newCode: ExamAccessCode = {
@@ -70,7 +104,7 @@ export async function POST(req: Request) {
       code,
       subjectId,
       branchId,
-      label: label || `Ma thi ${subjectId === "all" ? "Tat ca mon" : subjectId.toUpperCase()} - ${now.toLocaleDateString("vi-VN")}`,
+      label: label || `Ma thi ${subjectId === "all" ? "Tat ca mon" : subjectId.toUpperCase()} - ${fmtDate(now)}`,
       createdBy,
       expiresAt: expiry.toISOString(),
       isActive: true,
@@ -85,8 +119,14 @@ export async function POST(req: Request) {
   }
 }
 
-// ── DELETE: Vô hiệu hoá hoặc xoá mã ─────────────────────────────────────────
+// DELETE: Vo hieu hoa hoac xoa ma
 export async function DELETE(req: Request) {
+  // Auth check
+  const role = getRoleFromRequest(req);
+  if (!ALLOWED_ROLES.includes(role)) {
+    return NextResponse.json({ success: false, message: "Khong co quyen xoa ma" }, { status: 403 });
+  }
+
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");

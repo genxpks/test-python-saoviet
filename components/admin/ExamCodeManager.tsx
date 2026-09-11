@@ -1,11 +1,29 @@
-﻿"use client";
+"use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { ExamAccessCode, Subject, Branch } from "@/types";
 import {
   KeyRound, Plus, Copy, Trash2, RefreshCw, Clock, CheckCircle2,
   XCircle, AlertCircle, Calendar, BookOpen, Building2, Tag, Eye, EyeOff
 } from "lucide-react";
+
+// ─── Helpers định dạng ngày dd/mm/yyyy ─────────────────────────────
+function fmtDate(iso: string): string {
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+function fmtDateTime(iso: string): string {
+  const d = new Date(iso);
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  const hh = String(d.getHours()).padStart(2, "0");
+  const min = String(d.getMinutes()).padStart(2, "0");
+  return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
+}
 
 interface ExamCodeManagerProps {
   subjects: Subject[];
@@ -41,6 +59,11 @@ export default function ExamCodeManager({ subjects, branches, currentUser }: Exa
   const [formBranchId, setFormBranchId] = useState(
     currentUser.role === "admin" ? "all" : currentUser.branchId || "all"
   );
+
+  // LOGIC-02 FIX: Sync formBranchId khi currentUser thay doi
+  useEffect(() => {
+    setFormBranchId(currentUser.role === "admin" ? "all" : currentUser.branchId || "all");
+  }, [currentUser.role, currentUser.branchId]);
   const [formLabel, setFormLabel] = useState("");
   const [formExpiresAt, setFormExpiresAt] = useState(() => {
     // Mặc định: 4 giờ từ bây giờ
@@ -52,11 +75,14 @@ export default function ExamCodeManager({ subjects, branches, currentUser }: Exa
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
 
+  // LOGIC-01 FIX: Dung primitive deps thay vi object de tranh infinite re-render
   const loadCodes = useCallback(async () => {
     setLoading(true);
     try {
       const branchParam = currentUser.role === "admin" ? "" : `?branchId=${currentUser.branchId || "all"}`;
-      const res = await fetch(`/api/exam-codes${branchParam}`);
+      const res = await fetch(`/api/exam-codes${branchParam}`, {
+        headers: { "X-User-Role": currentUser.role },
+      });
       const data = await res.json();
       if (data.success) setCodes(data.codes || []);
     } catch {
@@ -64,7 +90,7 @@ export default function ExamCodeManager({ subjects, branches, currentUser }: Exa
     } finally {
       setLoading(false);
     }
-  }, [currentUser]);
+  }, [currentUser.role, currentUser.branchId]); // primitive deps - stable
 
   useEffect(() => { loadCodes(); }, [loadCodes]);
 
@@ -78,7 +104,10 @@ export default function ExamCodeManager({ subjects, branches, currentUser }: Exa
     try {
       const res = await fetch("/api/exam-codes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-User-Role": currentUser.role,
+        },
         body: JSON.stringify({
           subjectId: formSubjectId,
           branchId: formBranchId,
@@ -93,41 +122,57 @@ export default function ExamCodeManager({ subjects, branches, currentUser }: Exa
         setFormLabel("");
         loadCodes();
       } else {
-        setCreateError(data.message || "Lỗi tạo mã!");
+        setCreateError(data.message || "Loi tao ma!");
       }
     } catch (e: any) {
-      setCreateError("Lỗi kết nối: " + e.message);
+      setCreateError("Loi ket noi: " + e.message);
     } finally {
       setCreating(false);
     }
   };
 
   const handleDeactivate = async (id: string) => {
-    if (!confirm("Vô hiệu hóa mã này? Học viên đang dùng sẽ không thể dùng lại.")) return;
+    if (!confirm("Vo hieu hoa ma nay? Hoc vien dang dung se khong the dung lai.")) return;
     try {
-      await fetch(`/api/exam-codes?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      const res = await fetch(`/api/exam-codes?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+        headers: { "X-User-Role": currentUser.role },
+      });
+      // FLOW-02 FIX: Kiem tra response.ok truoc khi reload
+      if (!res.ok) { alert("Khong the vo hieu hoa ma. Thu lai!"); return; }
       loadCodes();
-    } catch {}
+    } catch { alert("Loi ket noi khi vo hieu hoa ma."); }
   };
 
   const handleHardDelete = async (id: string) => {
-    if (!confirm("Xóa vĩnh viễn mã này?")) return;
+    if (!confirm("Xoa vinh vien ma nay? Khong the phuc hoi!")) return;
     try {
-      await fetch(`/api/exam-codes?id=${encodeURIComponent(id)}&hard=true`, { method: "DELETE" });
+      const res = await fetch(`/api/exam-codes?id=${encodeURIComponent(id)}&hard=true`, {
+        method: "DELETE",
+        headers: { "X-User-Role": currentUser.role },
+      });
+      // FLOW-02 FIX: Kiem tra response.ok
+      if (!res.ok) { alert("Khong the xoa ma. Thu lai!"); return; }
       loadCodes();
-    } catch {}
+    } catch { alert("Loi ket noi khi xoa ma."); }
   };
 
   const handleCopy = (code: string, id: string) => {
-    navigator.clipboard.writeText(code).then(() => {
-      setCopiedId(id);
-      setTimeout(() => setCopiedId(null), 2000);
-    });
+    navigator.clipboard.writeText(code)
+      .then(() => {
+        setCopiedId(id);
+        setTimeout(() => setCopiedId(null), 2000);
+      })
+      .catch(() => alert("Khong the copy. Vui long sao chep thu cong: " + code));
   };
 
-  const visibleCodes = showExpired
-    ? codes
-    : codes.filter(c => c.isActive && new Date(c.expiresAt) > new Date());
+  // LOGIC-04 FIX: useMemo de tranh tinh toan lai moi render
+  const visibleCodes = useMemo(() =>
+    showExpired
+      ? codes
+      : codes.filter(c => c.isActive && new Date(c.expiresAt) > new Date()),
+    [codes, showExpired]
+  );
 
   const card: React.CSSProperties = {
     background: "#ffffff",
@@ -367,7 +412,7 @@ export default function ExamCodeManager({ subjects, branches, currentUser }: Exa
                       <span>GV: {item.createdBy}</span>
                     </div>
                     <div style={{ fontSize: "0.73rem", color: "#94a3b8", marginTop: "0.25rem" }}>
-                      Hết hạn: {new Date(item.expiresAt).toLocaleString("vi-VN")}
+                      Het han: {fmtDateTime(item.expiresAt)} &nbsp;|&nbsp; Tao luc: {fmtDate(item.createdAt)}
                     </div>
                   </div>
 
