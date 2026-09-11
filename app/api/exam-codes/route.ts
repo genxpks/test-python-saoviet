@@ -70,7 +70,14 @@ export async function POST(req: Request) {
       createdBy = "admin",
       expiresAt,
       hoursValid = 4,
+      config,
     } = body;
+
+    const examConfig = {
+      numQuestions: typeof config?.numQuestions === "number" ? Math.max(0, config.numQuestions) : 50,
+      numPracticals: typeof config?.numPracticals === "number" ? Math.max(0, config.numPracticals) : 4,
+      durationMinutes: typeof config?.durationMinutes === "number" ? Math.max(5, config.durationMinutes) : 60,
+    };
 
     const now = new Date();
     let expiry: Date;
@@ -110,6 +117,7 @@ export async function POST(req: Request) {
       isActive: true,
       usageCount: 0,
       createdAt: now.toISOString(),
+      config: examConfig,
     };
 
     await col.insertOne(newCode);

@@ -39,7 +39,19 @@ export async function POST(req: Request) {
 
     // 1. Kiem tra ma hardcode legacy
     if (LEGACY_CODES.includes(cleanCode)) {
-      return NextResponse.json({ valid: true, message: "Ma hop le", source: "legacy" });
+      return NextResponse.json({
+        valid: true,
+        message: "Ma hop le",
+        source: "legacy",
+        examCode: {
+          code: cleanCode,
+          subjectId: "all",
+          branchId: "all",
+          label: "Mã phòng thi chuẩn",
+          expiresAt: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
+          config: { numQuestions: 50, numPracticals: 4, durationMinutes: 60 },
+        },
+      });
     }
 
     // 2. Kiem tra ma trong MongoDB
@@ -99,13 +111,26 @@ export async function POST(req: Request) {
         branchId: found.branchId,
         label: found.label,
         expiresAt: found.expiresAt,
+        config: found.config || { numQuestions: 50, numPracticals: 4, durationMinutes: 60 },
       },
     });
   } catch (error: any) {
     // DB loi: fallback ve legacy codes
     const cleanCode = String(code || "").trim().toUpperCase();
     if (LEGACY_CODES.includes(cleanCode)) {
-      return NextResponse.json({ valid: true, message: "Ma hop le (fallback)", source: "fallback" });
+      return NextResponse.json({
+        valid: true,
+        message: "Ma hop le (fallback)",
+        source: "fallback",
+        examCode: {
+          code: cleanCode,
+          subjectId: "all",
+          branchId: "all",
+          label: "Mã phòng thi fallback",
+          expiresAt: new Date(Date.now() + 4 * 3600 * 1000).toISOString(),
+          config: { numQuestions: 50, numPracticals: 4, durationMinutes: 60 },
+        },
+      });
     }
     return NextResponse.json({
       valid: false,

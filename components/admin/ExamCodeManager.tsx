@@ -72,6 +72,10 @@ export default function ExamCodeManager({ subjects, branches, currentUser }: Exa
     const pad = (n: number) => String(n).padStart(2, "0");
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
   });
+  // Cấu hình cấu trúc đề thi (Mặc định Option C: 50 TN + 4 Code · 60 phút)
+  const [formNumQuestions, setFormNumQuestions] = useState<number>(50);
+  const [formNumPracticals, setFormNumPracticals] = useState<number>(4);
+  const [formDurationMinutes, setFormDurationMinutes] = useState<number>(60);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState("");
 
@@ -114,6 +118,11 @@ export default function ExamCodeManager({ subjects, branches, currentUser }: Exa
           label: formLabel,
           createdBy: currentUser.username,
           expiresAt: expDate.toISOString(),
+          config: {
+            numQuestions: Number(formNumQuestions),
+            numPracticals: Number(formNumPracticals),
+            durationMinutes: Number(formDurationMinutes),
+          },
         }),
       });
       const data = await res.json();
@@ -320,6 +329,111 @@ export default function ExamCodeManager({ subjects, branches, currentUser }: Exa
             </div>
           </div>
 
+          {/* Cấu trúc cấu hình đề thi */}
+          <div style={{ marginTop: "1rem", padding: "0.9rem", background: "#ffffff", borderRadius: "10px", border: "1.5px solid #dbeafe" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.6rem", flexWrap: "wrap", gap: "0.4rem" }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 800, color: "#1e40af", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                ⚙️ Cấu trúc đề thi áp dụng cho mã này:
+              </div>
+              {/* Quick Presets */}
+              <div style={{ display: "flex", gap: "0.35rem", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  onClick={() => { setFormNumQuestions(50); setFormNumPracticals(4); setFormDurationMinutes(60); }}
+                  style={{
+                    padding: "0.25rem 0.55rem", borderRadius: "6px", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer",
+                    border: formNumQuestions === 50 && formNumPracticals === 4 && formDurationMinutes === 60 ? "1.5px solid #2563eb" : "1px solid #cbd5e1",
+                    background: formNumQuestions === 50 && formNumPracticals === 4 && formDurationMinutes === 60 ? "#dbeafe" : "#f8fafc",
+                    color: formNumQuestions === 50 && formNumPracticals === 4 && formDurationMinutes === 60 ? "#1e40af" : "#475569"
+                  }}
+                >
+                  ⭐ Chuẩn: 50 TN + 4 Code (60p)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setFormNumQuestions(30); setFormNumPracticals(3); setFormDurationMinutes(45); }}
+                  style={{
+                    padding: "0.25rem 0.55rem", borderRadius: "6px", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer",
+                    border: formNumQuestions === 30 && formNumPracticals === 3 && formDurationMinutes === 45 ? "1.5px solid #2563eb" : "1px solid #cbd5e1",
+                    background: formNumQuestions === 30 && formNumPracticals === 3 && formDurationMinutes === 45 ? "#dbeafe" : "#f8fafc",
+                    color: formNumQuestions === 30 && formNumPracticals === 3 && formDurationMinutes === 45 ? "#1e40af" : "#475569"
+                  }}
+                >
+                  Rút gọn: 30 TN + 3 Code (45p)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setFormNumQuestions(40); setFormNumPracticals(0); setFormDurationMinutes(40); }}
+                  style={{
+                    padding: "0.25rem 0.55rem", borderRadius: "6px", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer",
+                    border: formNumQuestions === 40 && formNumPracticals === 0 && formDurationMinutes === 40 ? "1.5px solid #2563eb" : "1px solid #cbd5e1",
+                    background: formNumQuestions === 40 && formNumPracticals === 0 && formDurationMinutes === 40 ? "#dbeafe" : "#f8fafc",
+                    color: formNumQuestions === 40 && formNumPracticals === 0 && formDurationMinutes === 40 ? "#1e40af" : "#475569"
+                  }}
+                >
+                  Lý thuyết: 40 TN (40p)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setFormNumQuestions(0); setFormNumPracticals(5); setFormDurationMinutes(60); }}
+                  style={{
+                    padding: "0.25rem 0.55rem", borderRadius: "6px", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer",
+                    border: formNumQuestions === 0 && formNumPracticals === 5 && formDurationMinutes === 60 ? "1.5px solid #2563eb" : "1px solid #cbd5e1",
+                    background: formNumQuestions === 0 && formNumPracticals === 5 && formDurationMinutes === 60 ? "#dbeafe" : "#f8fafc",
+                    color: formNumQuestions === 0 && formNumPracticals === 5 && formDurationMinutes === 60 ? "#1e40af" : "#475569"
+                  }}
+                >
+                  Code: 5 Bài (60p)
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "0.75rem" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#334155", marginBottom: "0.25rem" }}>
+                  Số câu Trắc nghiệm (TN)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="200"
+                  value={formNumQuestions}
+                  onChange={e => setFormNumQuestions(Math.max(0, parseInt(e.target.value) || 0))}
+                  style={{ ...inputStyle, padding: "0.45rem 0.7rem" }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#334155", marginBottom: "0.25rem" }}>
+                  Số bài Thực hành (Code)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="50"
+                  value={formNumPracticals}
+                  onChange={e => setFormNumPracticals(Math.max(0, parseInt(e.target.value) || 0))}
+                  style={{ ...inputStyle, padding: "0.45rem 0.7rem" }}
+                />
+              </div>
+              <div>
+                <label style={{ display: "block", fontSize: "0.75rem", fontWeight: 700, color: "#334155", marginBottom: "0.25rem" }}>
+                  Thời gian làm bài (Phút)
+                </label>
+                <input
+                  type="number"
+                  min="5"
+                  max="300"
+                  value={formDurationMinutes}
+                  onChange={e => setFormDurationMinutes(Math.max(5, parseInt(e.target.value) || 60))}
+                  style={{ ...inputStyle, padding: "0.45rem 0.7rem" }}
+                />
+              </div>
+            </div>
+            <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "0.4rem" }}>
+              💡 Hệ thống sẽ tự động bốc ngẫu nhiên từ kho câu hỏi/bài tập ôn luyện của môn học theo số lượng trên.
+            </div>
+          </div>
+
           {createError && (
             <div style={{ marginTop: "0.75rem", padding: "0.55rem 0.8rem", borderRadius: "8px", background: "#fef2f2", border: "1px solid #fecaca", color: "#b91c1c", fontSize: "0.82rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
               <AlertCircle size={14} /> {createError}
@@ -392,6 +506,19 @@ export default function ExamCodeManager({ subjects, branches, currentUser }: Exa
                       }}>
                         {isInactive ? <XCircle size={11} /> : <CheckCircle2 size={11} />}
                         {!item.isActive ? "Vô hiệu" : expired ? "Hết hạn" : "Đang hoạt động"}
+                      </span>
+                      {/* Structure badge */}
+                      <span style={{
+                        padding: "0.2rem 0.65rem",
+                        borderRadius: "9999px",
+                        fontSize: "0.72rem",
+                        fontWeight: 700,
+                        background: isInactive ? "#f1f5f9" : "#f0fdf4",
+                        color: isInactive ? "#64748b" : "#15803d",
+                        border: `1px solid ${isInactive ? "#e2e8f0" : "#bbf7d0"}`,
+                        display: "flex", alignItems: "center", gap: "0.3rem"
+                      }}>
+                        📝 {item.config?.numQuestions ?? 50} TN · 💻 {item.config?.numPracticals ?? 4} Code · ⏱️ {item.config?.durationMinutes ?? 60}p
                       </span>
                     </div>
 

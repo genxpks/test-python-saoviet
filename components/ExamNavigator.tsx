@@ -79,25 +79,29 @@ export default function ExamNavigator({
       </div>
 
       {/* Part 1: MCQs Grid */}
-      <div style={{ fontSize: "0.76rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "0.35rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
-        <span>Phần 1: Trắc Nghiệm ({questions.length} câu)</span>
-      </div>
+      {questions.length > 0 && (
+        <>
+          <div style={{ fontSize: "0.76rem", fontWeight: 700, color: "var(--text-secondary)", marginBottom: "0.35rem", display: "flex", alignItems: "center", gap: "0.3rem" }}>
+            <span>Phần 1: Trắc Nghiệm ({questions.length} câu)</span>
+          </div>
 
-      <div className="q-grid-matrix">
-        {questions.map((q, idx) => {
-          const isAnswered = userAnswers[q.id] !== undefined;
-          const isCurrent = currentPart === 1 && currentIndex === idx;
-          return (
-            <button
-              key={q.id}
-              className={`q-grid-btn ${isAnswered ? "answered" : ""} ${isCurrent ? "current" : ""}`}
-              onClick={() => onSelectMCQ(idx)}
-            >
-              {idx + 1}
-            </button>
-          );
-        })}
-      </div>
+          <div className="q-grid-matrix">
+            {questions.map((q, idx) => {
+              const isAnswered = userAnswers[q.id] !== undefined;
+              const isCurrent = currentPart === 1 && currentIndex === idx;
+              return (
+                <button
+                  key={q.id}
+                  className={`q-grid-btn ${isAnswered ? "answered" : ""} ${isCurrent ? "current" : ""}`}
+                  onClick={() => onSelectMCQ(idx)}
+                >
+                  {idx + 1}
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
 
       {/* Part 2: Practical Coding Grid */}
       {practicals.length > 0 && (

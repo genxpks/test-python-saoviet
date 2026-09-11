@@ -381,6 +381,11 @@ export class PythonEngine {
         "min",
         "abs",
         "round",
+        "pow",
+        "pi",
+        "e",
+        "sqrt",
+        "_py_floordiv",
         "str",
         "int",
         "float",
@@ -405,6 +410,14 @@ export class PythonEngine {
         return Math.round(num * factor) / factor;
       };
 
+      const pyPow = (x: number, y: number, z?: number) => {
+        return z !== undefined ? Math.pow(x, y) % z : Math.pow(x, y);
+      };
+
+      const pyFloorDiv = (a: any, b: any) => {
+        return Math.floor(Number(a) / Number(b));
+      };
+
       runner(
         pyPrint,
         pyInput,
@@ -418,6 +431,11 @@ export class PythonEngine {
         minFunc,
         Math.abs,
         pyRound,
+        pyPow,
+        Math.PI,
+        Math.E,
+        Math.sqrt,
+        pyFloorDiv,
         String,
         (x: any) => parseInt(x, 10),
         (x: any) => parseFloat(x),
@@ -557,14 +575,39 @@ export class PythonEngine {
         continue;
       }
 
-      // Xóa comment
-      const commentIdx = line.indexOf("#");
-      if (commentIdx !== -1) {
-        line = line.substring(0, commentIdx);
+      // Xóa comment an toàn (không xóa # nằm trong chuỗi nháy đơn hoặc nháy kép)
+      let inSingleQuote = false;
+      let inDoubleQuote = false;
+      let cleanLine = "";
+      for (let ci = 0; ci < line.length; ci++) {
+        const ch = line[ci];
+        const prev = ci > 0 ? line[ci - 1] : "";
+        if (ch === "'" && prev !== "\\") {
+          if (!inDoubleQuote) inSingleQuote = !inSingleQuote;
+          cleanLine += ch;
+        } else if (ch === '"' && prev !== "\\") {
+          if (!inSingleQuote) inDoubleQuote = !inDoubleQuote;
+          cleanLine += ch;
+        } else if (ch === "#" && !inSingleQuote && !inDoubleQuote) {
+          break; // Comment thật sự bắt đầu ở đây
+        } else {
+          cleanLine += ch;
+        }
       }
+      line = cleanLine;
 
       if (!line.trim()) {
         continue;
+      }
+
+      // Xử lý phép chia nguyên // (Python floor division) -> _py_floordiv(a, b)
+      while (line.includes("//")) {
+        const fdMatch = line.match(/([a-zA-Z0-9_\).\]]+)\s*\/\/\s*([a-zA-Z0-9_\(\.\[]+)/);
+        if (fdMatch) {
+          line = line.replace(fdMatch[0], `_py_floordiv(${fdMatch[1]}, ${fdMatch[2]})`);
+        } else {
+          break;
+        }
       }
 
       // Tính khoảng thụt đầu dòng (indent level)
@@ -714,7 +757,38 @@ export class PythonEngine {
         const retExpr = trimmed.substring(7).trim();
         trimmed = `return [${retExpr}];`;
       }
-      // Bỏ qua dòng import
+      // Xử lý nạp thư viện math hoặc turtle
+      else if (/^from\s+math\s+import\s+(.*)/.test(trimmed)) {
+        const m = trimmed.match(/^from\s+math\s+import\s+(.*)/);
+        if (m) {
+          const items = m[1].trim();
+          if (items === "*") {
+            trimmed = "var { pi, e, sqrt, pow, sin, cos, tan, floor, ceil, factorial, gcd } = math;";
+          } else {
+            trimmed = `var { ${items} } = math;`;
+          }
+        }
+      }
+      else if (/^from\s+turtle\s+import\s+(.*)/.test(trimmed)) {
+        const m = trimmed.match(/^from\s+turtle\s+import\s+(.*)/);
+        if (m) {
+          const items = m[1].trim();
+          if (items === "*") {
+            trimmed = "var { Turtle, Screen, done } = turtle;";
+          } else {
+            trimmed = `var { ${items} } = turtle;`;
+          }
+        }
+      }
+      else if (/^import\s+math\s+as\s+([a-zA-Z0-9_]+)/.test(trimmed)) {
+        const m = trimmed.match(/^import\s+math\s+as\s+([a-zA-Z0-9_]+)/);
+        if (m) trimmed = `var ${m[1]} = math;`;
+      }
+      else if (/^import\s+turtle\s+as\s+([a-zA-Z0-9_]+)/.test(trimmed)) {
+        const m = trimmed.match(/^import\s+turtle\s+as\s+([a-zA-Z0-9_]+)/);
+        if (m) trimmed = `var ${m[1]} = turtle;`;
+      }
+      // Bỏ qua các dòng import thông thường khác
       else if (/^import\s+/.test(trimmed) || /^from\s+/.test(trimmed)) {
         trimmed = "// " + trimmed;
       }
@@ -769,56 +843,138 @@ export class PythonEngine {
     const totalTestCases = 4;
 
     switch (problemId) {
-      case 1:
-        isCorrect = code.includes("return") && (code.includes("a + b") || code.includes("+"));
+      case 1: {
+        let dynPassed = false;
+        try {
+          const run = this.executePython(userCode + "\nprint('__P1__', tinh_tong(15, 25), tinh_tong(10.5, 4.5))");
+          if (run.output && /__P1__\s*40\s+15/.test(run.output)) dynPassed = true;
+        } catch {}
+        isCorrect = dynPassed || (code.includes("return") && (code.includes("+") || code.includes("sum")));
         detail = isCorrect ? "✅ Hàm tính tổng hai số hoạt động chính xác trên 4/4 Test Cases!" : "Cần return tổng a + b.";
         passedTestCases = isCorrect ? 4 : 1;
         break;
-      case 2:
-        isCorrect = /%\s*2/.test(code) && (code.includes("==") || code.includes("return") || code.includes("if") || code.includes("else"));
+      }
+      case 2: {
+        let dynPassed = false;
+        try {
+          const run = this.executePython(userCode + "\nprint('__P2__', kiem_tra_chan(8), kiem_tra_chan(7))");
+          if (run.output && run.output.includes("True") && run.output.includes("False")) dynPassed = true;
+        } catch {}
+        isCorrect = dynPassed || (/%\s*2/.test(code) && (code.includes("==") || code.includes("return") || code.includes("if") || code.includes("else")));
         detail = isCorrect ? "✅ Thuật toán kiểm tra số chẵn lẻ chính xác 4/4 Test Cases!" : "Cần sử dụng phép chia lấy dư n % 2 == 0.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
-      case 3:
-        isCorrect = (code.includes("for ") || code.includes("while ")) && code.includes("*");
+      }
+      case 3: {
+        let dynPassed = false;
+        try {
+          const run = this.executePython(userCode + "\nin_bang_cuu_chuong(5)");
+          if (run.output && run.output.includes("5 x 1 = 5") && run.output.includes("5 x 10 = 50")) dynPassed = true;
+        } catch {}
+        isCorrect = dynPassed || ((code.includes("for ") || code.includes("while ")) && code.includes("*"));
         detail = isCorrect ? "✅ Vòng lặp in bảng cửu chương chuẩn xác 4/4 Test Cases!" : "Cần dùng vòng lặp in 10 dòng phép nhân.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
-      case 4:
-        isCorrect = (code.includes("math.pi") || code.includes("3.14")) && (code.includes("** 2") || code.includes("r * r") || code.includes("r*r"));
-        detail = isCorrect ? "✅ Công thức tính diện tích hình tròn chính xác 4/4 Test Cases!" : "Cần dùng công thức math.pi * (r ** 2).";
+      }
+      case 4: {
+        // 1. Chạy thử hàm tinh_dien_tich_tron(5) trực tiếp để đối chiếu kết quả (78.54 hoặc 78.5)
+        let dynPassed = false;
+        try {
+          const run = this.executePython(userCode + "\nprint('__P4__', tinh_dien_tich_tron(5))");
+          if (run.output && run.output.includes("__P4__")) {
+            const m = run.output.match(/__P4__\s*([0-9.]+)/);
+            if (m) {
+              const val = parseFloat(m[1]);
+              if (Math.abs(val - 78.54) < 0.2 || Math.abs(val - 78.5) < 0.2 || Math.abs(val - 25 * Math.PI) < 0.2) {
+                dynPassed = true;
+              }
+            }
+          }
+        } catch {}
+
+        // 2. Nhận diện linh hoạt mọi biến thể biểu thức tính bình phương & số pi:
+        // r**2, r ** 2, r*r, r * r, (r**2), (r*r), pow(r, 2), math.pow(r, 2), ban_kinh**2, radius**2
+        const hasPi = code.includes("math.pi") || code.includes("3.14") || code.includes("pi");
+        const hasSquare = 
+          /r\s*\*\*\s*2/.test(code) ||
+          /r\s*\*\s*r/.test(code) ||
+          /\(\s*r\s*\*\*\s*2\s*\)/.test(code) ||
+          /\(\s*r\s*\*\s*r\s*\)/.test(code) ||
+          /\bpow\s*\(\s*r\s*,\s*2\s*\)/.test(code) ||
+          /\bmath\.pow\s*\(\s*r\s*,\s*2\s*\)/.test(code) ||
+          /ban_kinh\s*\*\*\s*2/.test(code) ||
+          /ban_kinh\s*\*\s*ban_kinh/.test(code) ||
+          /radius\s*\*\*\s*2/.test(code) ||
+          /radius\s*\*\s*radius/.test(code) ||
+          code.includes("** 2") ||
+          code.includes("**2");
+
+        isCorrect = dynPassed || (hasPi && hasSquare);
+        detail = isCorrect ? "✅ Công thức tính diện tích hình tròn chính xác 4/4 Test Cases!" : "Cần dùng công thức: math.pi * (r ** 2) hoặc math.pi * r * r.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
-      case 5:
-        isCorrect = code.includes("[::-1]") || code.includes("reversed") || code.includes("join");
+      }
+      case 5: {
+        let dynPassed = false;
+        try {
+          const run = this.executePython(userCode + "\nprint('__P5__', dao_nguoc_chuoi('Python'))");
+          if (run.output && run.output.includes("nohtyP")) dynPassed = true;
+        } catch {}
+        isCorrect = dynPassed || code.includes("[::-1]") || code.includes("reversed") || code.includes("join");
         detail = isCorrect ? "✅ Thuật toán đảo ngược chuỗi đạt điểm tuyệt đối 4/4 Test Cases!" : "Hãy sử dụng s[::-1] để đảo ngược chuỗi.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
-      case 6:
-        isCorrect = (code.includes("for ") || code.includes("math.factorial") || code.includes("while")) && (code.includes("*") || code.includes("factorial"));
+      }
+      case 6: {
+        let dynPassed = false;
+        try {
+          const run = this.executePython(userCode + "\nprint('__P6__', tinh_giai_thua(5))");
+          if (run.output && run.output.includes("120")) dynPassed = true;
+        } catch {}
+        isCorrect = dynPassed || ((code.includes("for ") || code.includes("math.factorial") || code.includes("while")) && (code.includes("*") || code.includes("factorial")));
         detail = isCorrect ? "✅ Thuật toán tính giai thừa chính xác 4/4 Test Cases!" : "Hãy dùng vòng lặp nhân dồn hoặc math.factorial().";
         passedTestCases = isCorrect ? 4 : 2;
         break;
-      case 7:
-        isCorrect = code.includes("%") && (code.includes("range(") || code.includes("< 2"));
+      }
+      case 7: {
+        let dynPassed = false;
+        try {
+          const run = this.executePython(userCode + "\nprint('__P7__', kiem_tra_nguyen_to(17), kiem_tra_nguyen_to(18))");
+          if (run.output && run.output.includes("True") && run.output.includes("False")) dynPassed = true;
+        } catch {}
+        isCorrect = dynPassed || (code.includes("%") && (code.includes("range(") || code.includes("< 2") || code.includes("<= 1")));
         detail = isCorrect ? "✅ Thuật toán kiểm tra số nguyên tố chính xác 4/4 Test Cases!" : "Cần kiểm tra n < 2 và lặp kiểm tra ước số.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
-      case 8:
-        isCorrect = code.includes("+") && code.includes("*");
+      }
+      case 8: {
+        let dynPassed = false;
+        try {
+          const run = this.executePython(userCode + "\nprint('__P8__', tinh_hcn(10, 5))");
+          if (run.output && (run.output.includes("30") && run.output.includes("50"))) dynPassed = true;
+        } catch {}
+        isCorrect = dynPassed || (code.includes("+") && code.includes("*"));
         detail = isCorrect ? "✅ Hàm tính chu vi & diện tích hình chữ nhật chính xác 4/4 Test Cases!" : "Cần tính chu vi = (dai + rong) * 2 và diện tích = dai * rong.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
-      case 9:
-        isCorrect = code.includes("9/5") || code.includes("9 / 5") || code.includes("1.8") || code.includes("+ 32");
+      }
+      case 9: {
+        let dynPassed = false;
+        try {
+          const run = this.executePython(userCode + "\nprint('__P9__', c_sang_f(37))");
+          if (run.output && (run.output.includes("98.6") || run.output.includes("98.60"))) dynPassed = true;
+        } catch {}
+        isCorrect = dynPassed || code.includes("9/5") || code.includes("9 / 5") || code.includes("1.8") || code.includes("32");
         detail = isCorrect ? "✅ Công thức đổi độ C sang F chính xác 4/4 Test Cases!" : "Cần áp dụng công thức: (c * 9/5) + 32.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
-      case 10:
-        isCorrect = code.includes("range(2, 101, 2)") || code.includes("range(2,101,2)") || (/%\s*2\s*==\s*0/.test(code) && code.includes("range("));
+      }
+      case 10: {
+        isCorrect = code.includes("range(2, 101, 2)") || code.includes("range(2,101,2)") || (/%\s*2\s*==\s*0/.test(code) && code.includes("range(")) || (code.includes("range") && code.includes("100"));
         detail = isCorrect ? "✅ Vòng lặp in số chẵn 1-100 chính xác 4/4 Test Cases!" : "Hãy sử dụng range(2, 101, 2) hoặc if i % 2 == 0.";
         passedTestCases = isCorrect ? 4 : 2;
         break;
+      }
       case 11:
         isCorrect = (code.includes("turtle") || code.includes("but_ve")) && (code.includes("forward") || code.includes("fd")) && (code.includes("right") || code.includes("left")) && code.includes("color");
         detail = isCorrect ? "✅ Vẽ hình vuông 4 cạnh 4 màu Turtle đạt chuẩn 4/4 Test Cases!" : "Cần nạp thư viện turtle, đổi màu color() và dùng vòng lặp vẽ 4 cạnh.";

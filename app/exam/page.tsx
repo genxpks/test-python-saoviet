@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Question, PracticalProblem, User, PausedExamState, ExamResult } from "@/types";
+import { Question, PracticalProblem, User, PausedExamState, ExamResult, ExamConfig } from "@/types";
 import { getQuestionsData, getPracticalsData } from "@/lib/questionsData";
 import { getCurrentUser, getUserSession, DEFAULT_SUBJECTS, getExamSettings, setUserStatus, toggleUserSubject } from "@/lib/usersData";
 import { fetchClientNetworkInfo, getCurrentVNDateTime, formatTimeSpent } from "@/lib/networkHelper";
@@ -35,6 +35,7 @@ export default function ExamPage() {
   const [examAccessCode, setExamAccessCode] = useState("");
   const [accessError, setAccessError] = useState("");
   const [isVerifying, setIsVerifying] = useState(false); // FLOW-01: loading state khi verify ma
+  const [verifiedConfig, setVerifiedConfig] = useState<ExamConfig | null>(null);
 
   const [examStartTime, setExamStartTime] = useState<string>("");
   const [examStartDate, setExamStartDate] = useState<string>("");
@@ -108,6 +109,8 @@ export default function ExamPage() {
 
     const isPrivileged = currentUser.role === "admin" || currentUser.role === "branch_manager" || currentUser.role === "teacher";
 
+    let targetConfig: ExamConfig | null = verifiedConfig;
+
     if (!isPrivileged) {
       if (!cleanCode) {
         setAccessError("⚠️ Vui lòng nhập Mã Phòng Thi do Giáo viên / Giám thị cấp để mở đề thi!");
@@ -130,6 +133,10 @@ export default function ExamPage() {
         const verifyData = await verifyRes.json();
         if (verifyData.valid) {
           codeValid = true;
+          if (verifyData.examCode?.config) {
+            targetConfig = verifyData.examCode.config;
+            setVerifiedConfig(verifyData.examCode.config);
+          }
         } else {
           setAccessError("❌ " + (verifyData.message || "Mã phòng thi không chính xác!"));
           return;
@@ -153,6 +160,11 @@ export default function ExamPage() {
     setExamStartTime(startDT.time);
     setExamStartDate(startDT.date);
 
+    // Cấu hình đề thi: lấy từ mã phòng thi hoặc mặc định Option C (50 TN + 4 Code · 60 phút)
+    const numQ = typeof targetConfig?.numQuestions === "number" ? targetConfig.numQuestions : 50;
+    const numP = typeof targetConfig?.numPracticals === "number" ? targetConfig.numPracticals : 4;
+    const durationMins = typeof targetConfig?.durationMinutes === "number" ? targetConfig.durationMinutes : 60;
+
     let allQ = getQuestionsData();
     let allP = getPracticalsData();
 
@@ -165,17 +177,29 @@ export default function ExamPage() {
       }
     } catch {}
 
-    const shuffledQ = [...allQ].sort(() => Math.random() - 0.5).slice(0, Math.min(50, allQ.length));
-    const shuffledP = [...allP].sort(() => Math.random() - 0.5).slice(0, Math.min(4, allP.length));
+    // Lọc theo môn học đã chọn từ phần ôn luyện
+    const subjectQ = allQ.filter(q => 
+      selectedSubjectId === "all" || !q.subjectId || q.subjectId === "all" || q.subjectId === selectedSubjectId
+    );
+    const subjectP = allP.filter(p => 
+      selectedSubjectId === "all" || !p.subjectId || p.subjectId === "all" || p.subjectId === selectedSubjectId
+    );
+
+    const poolQ = subjectQ.length > 0 ? subjectQ : allQ;
+    const poolP = subjectP.length > 0 ? subjectP : allP;
+
+    // Bốc ngẫu nhiên theo cấu hình số câu
+    const shuffledQ = numQ > 0 ? [...poolQ].sort(() => Math.random() - 0.5).slice(0, Math.min(numQ, poolQ.length)) : [];
+    const shuffledP = numP > 0 ? [...poolP].sort(() => Math.random() - 0.5).slice(0, Math.min(numP, poolP.length)) : [];
 
     setExamQuestions(shuffledQ);
     setExamPracticals(shuffledP);
-    setCurrentPart(1);
+    setCurrentPart(shuffledQ.length > 0 ? 1 : 2);
     setCurrentIndex(0);
     setUserAnswers({});
     setUserPracticalCode({});
     setPracticalResults({});
-    setTimerSeconds(50 * 60);
+    setTimerSeconds(durationMins * 60);
     setIsExamActive(true);
     setIsPaused(false);
   };
@@ -230,21 +254,42 @@ export default function ExamPage() {
       }
     });
 
-    const mcqScore = examQuestions.length > 0 ? (mcqCorrect / examQuestions.length) * 7.0 : 0;
-
+    let mcqScore = 0;
     let practicalScore = 0;
-    examPracticals.forEach((p) => {
-      let pRes = practicalResults[p.id];
-      if (!pRes) {
-        const uCode = userPracticalCode[p.id];
-        if (uCode && uCode.trim().length > 10 && !uCode.startsWith("# Viết mã nguồn")) {
-          pRes = PythonEngine.gradeProblem(p.id, uCode);
+
+    if (examQuestions.length > 0 && examPracticals.length > 0) {
+      // Đề hỗn hợp: 7 điểm trắc nghiệm + 3 điểm bài code thực hành
+      mcqScore = (mcqCorrect / examQuestions.length) * 7.0;
+      let pCount = 0;
+      examPracticals.forEach((p) => {
+        let pRes = practicalResults[p.id];
+        if (!pRes) {
+          const uCode = userPracticalCode[p.id];
+          if (uCode && uCode.trim().length > 10 && !uCode.startsWith("# Viết mã nguồn")) {
+            pRes = PythonEngine.gradeProblem(p.id, uCode);
+          }
         }
-      }
-      if (pRes && pRes.passed) {
-        practicalScore += 3.0 / Math.max(1, examPracticals.length);
-      }
-    });
+        if (pRes && pRes.passed) pCount++;
+      });
+      practicalScore = (pCount / examPracticals.length) * 3.0;
+    } else if (examQuestions.length > 0 && examPracticals.length === 0) {
+      // Đề thi thuần lý thuyết: 100% trắc nghiệm (thang 10 điểm)
+      mcqScore = (mcqCorrect / examQuestions.length) * 10.0;
+    } else if (examPracticals.length > 0 && examQuestions.length === 0) {
+      // Đề thi thuần thực hành: 100% bài code (thang 10 điểm)
+      let pCount = 0;
+      examPracticals.forEach((p) => {
+        let pRes = practicalResults[p.id];
+        if (!pRes) {
+          const uCode = userPracticalCode[p.id];
+          if (uCode && uCode.trim().length > 10 && !uCode.startsWith("# Viết mã nguồn")) {
+            pRes = PythonEngine.gradeProblem(p.id, uCode);
+          }
+        }
+        if (pRes && pRes.passed) pCount++;
+      });
+      practicalScore = (pCount / examPracticals.length) * 10.0;
+    }
 
     const totalFinalScore = Number(Math.min(10, mcqScore + practicalScore).toFixed(2));
     const isPass = totalFinalScore >= 5.0;
@@ -550,7 +595,7 @@ export default function ExamPage() {
                   padding: "0.15rem 0.5rem",
                   borderRadius: "var(--radius-full)"
                 }}>
-                  {currentPart === 1 ? `Phần 1: Trắc Nghiệm (${currentIndex + 1}/50)` : `Phần 2: Tự Luận (${currentIndex + 1}/4)`}
+                  {currentPart === 1 ? `Phần 1: Trắc Nghiệm (${currentIndex + 1}/${examQuestions.length})` : `Phần 2: Tự Luận (${currentIndex + 1}/${examPracticals.length})`}
                 </span>
                 <span style={{
                   fontSize: "0.7rem",
@@ -637,13 +682,15 @@ export default function ExamPage() {
                         onClick={() => {
                           if (currentIndex < examQuestions.length - 1) {
                             setCurrentIndex((prev) => prev + 1);
-                          } else {
+                          } else if (examPracticals.length > 0) {
                             setCurrentPart(2);
                             setCurrentIndex(0);
+                          } else {
+                            handleManualSubmit();
                           }
                         }}
                       >
-                        <span>{currentIndex === examQuestions.length - 1 ? "Sang Phần Tự Luận Code" : "Câu Tiếp Theo"}</span>
+                        <span>{currentIndex === examQuestions.length - 1 ? (examPracticals.length > 0 ? "Sang Phần Tự Luận Code" : "Hoàn Thành & Nộp Bài") : "Câu Tiếp Theo"}</span>
                         <ChevronRight size={15} />
                       </button>
                     </div>
@@ -654,9 +701,11 @@ export default function ExamPage() {
                   <div className="q-card" style={{ padding: "1.1rem 1.25rem" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.45rem", marginBottom: "0.5rem" }}>
                       <span className="q-badge" style={{ background: "rgba(5, 150, 105, 0.1)", color: "var(--brand-emerald)" }}>
-                        TỰ LUẬN BÀI {currentIndex + 1} / 4
+                        TỰ LUẬN BÀI {currentIndex + 1} / {examPracticals.length}
                       </span>
-                      <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Điểm tối đa: 0.75 điểm / bài</span>
+                      <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                        Điểm tối đa: {examQuestions.length > 0 ? (3.0 / Math.max(1, examPracticals.length)).toFixed(2) : (10.0 / Math.max(1, examPracticals.length)).toFixed(2)} điểm / bài
+                      </span>
                     </div>
 
                     <h3 style={{ fontSize: "1.05rem", fontWeight: 800, marginBottom: "0.45rem" }}>

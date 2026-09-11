@@ -48,6 +48,7 @@ export interface Subject {
   totalModules: number;
   isActive: boolean;
   createdDate: string;
+  defaultExamConfig?: ExamConfig;
 }
 
 export type QuestionType = 
@@ -210,6 +211,13 @@ export interface StudySessionLog {
   timestamp: string;
 }
 
+// Cấu trúc cấu hình đề thi (Option C mặc định: 50 TN + 4 Code + 60 phút)
+export interface ExamConfig {
+  numQuestions: number;      // Số câu trắc nghiệm lý thuyết (mặc định: 50)
+  numPracticals: number;     // Số bài code thực hành (mặc định: 4)
+  durationMinutes: number;   // Thời gian làm bài phút (mặc định: 60)
+}
+
 // Mã mở phòng thi 6 số — do Admin/GV cấp, lưu MongoDB
 export interface ExamAccessCode {
   id: string;           // UUID tự sinh
@@ -222,4 +230,6 @@ export interface ExamAccessCode {
   isActive: boolean;    // Có thể tắt thủ công
   usageCount: number;   // Số lần học viên đã dùng
   createdAt: string;    // ISO datetime lúc tạo
+  config?: ExamConfig;  // Cấu hình cấu trúc đề thi riêng cho mã này
 }
+
