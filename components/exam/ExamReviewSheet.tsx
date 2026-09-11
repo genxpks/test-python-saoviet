@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ExamResult, Question, PracticalProblem } from "@/types";
+import { PythonEngine, RunResult, GradeResult } from "@/lib/pythonEngine";
 import { 
   CheckCircle2, 
   XCircle, 
@@ -20,7 +21,10 @@ import {
   BookOpen,
   Info,
   Layers,
-  Lock
+  Lock,
+  Play,
+  RotateCcw,
+  FileCode
 } from "lucide-react";
 
 interface ExamReviewSheetProps {
@@ -34,6 +38,13 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
   const [filter, setFilter] = useState<FilterType>("all");
   const [expandedQuestions, setExpandedQuestions] = useState<Record<number, boolean>>({});
 
+  // State cho bộ chạy build thử & chấm điểm code trực quan
+  const [testCodes, setTestCodes] = useState<Record<number, string>>({});
+  const [runResults, setRunResults] = useState<Record<number, RunResult>>({});
+  const [isRunning, setIsRunning] = useState<Record<number, boolean>>({});
+  const [gradeResults, setGradeResults] = useState<Record<number, GradeResult>>({});
+  const [isGrading, setIsGrading] = useState<Record<number, boolean>>({});
+
   const questions = resultData.questionsDetail || [];
   const practicals = resultData.practicalsDetail || [];
   const userAnswers = resultData.userAnswers || {};
@@ -44,6 +55,7 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
     setExpandedQuestions(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
+
   const expandAll = () => {
     const all: Record<number, boolean> = {};
     questions.forEach(q => { all[q.id] = true; });
@@ -53,6 +65,45 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
 
   const collapseAll = () => {
     setExpandedQuestions({});
+  };
+
+  const handleRunCode = async (problemId: number) => {
+    const code = testCodes[problemId] !== undefined ? testCodes[problemId] : (userPracticalCode[problemId] || "");
+    setIsRunning(prev => ({ ...prev, [problemId]: true }));
+    try {
+      const res = await PythonEngine.runCode(code);
+      setRunResults(prev => ({ ...prev, [problemId]: res }));
+    } finally {
+      setIsRunning(prev => ({ ...prev, [problemId]: false }));
+    }
+  };
+
+  const handleGradeCode = (problemId: number) => {
+    const code = testCodes[problemId] !== undefined ? testCodes[problemId] : (userPracticalCode[problemId] || "");
+    setIsGrading(prev => ({ ...prev, [problemId]: true }));
+    try {
+      const grade = PythonEngine.gradeProblem(problemId, code);
+      setGradeResults(prev => ({ ...prev, [problemId]: grade }));
+    } finally {
+      setIsGrading(prev => ({ ...prev, [problemId]: false }));
+    }
+  };
+
+  const handleLoadSolution = (problemId: number, solutionCode: string) => {
+    setTestCodes(prev => ({ ...prev, [problemId]: solutionCode }));
+  };
+
+  const handleResetSubmitted = (problemId: number) => {
+    setTestCodes(prev => ({ ...prev, [problemId]: userPracticalCode[problemId] || "" }));
+  };
+
+  const handlePrintAll = () => {
+    expandAll();
+    document.body.classList.add("print-review-only");
+    window.print();
+    setTimeout(() => {
+      document.body.classList.remove("print-review-only");
+    }, 1000);
   };
 
   // Helper check MCQ correctness
@@ -186,7 +237,7 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
 
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <button
-              onClick={() => window.print()}
+              onClick={handlePrintAll}
               style={{
                 display: "inline-flex",
                 alignItems: "center",
@@ -200,9 +251,10 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                 fontWeight: 700,
                 cursor: "pointer"
               }}
+              title="In toàn bộ câu hỏi, bài làm và đáp án chi tiết ra A4 / PDF"
             >
               <Printer size={13} />
-              <span>In Bài Làm</span>
+              <span>In Toàn Bộ Bài Thi & Kết Quả (PDF)</span>
             </button>
             <button
               onClick={onClose}
@@ -728,48 +780,317 @@ export default function ExamReviewSheet({ resultData, onClose }: ExamReviewSheet
                       </div>
 
                       {isExpanded && (
-                        <div style={{ padding: "0.75rem 0.95rem", borderTop: "1px solid #e2e8f0", background: "#ffffff" }}>
-                          <p style={{ fontSize: "0.8rem", color: "#475569", marginBottom: "0.65rem", lineHeight: 1.45 }}>
+                        <div style={{ padding: "0.85rem 1rem", borderTop: "1px solid #e2e8f0", background: "#ffffff" }}>
+                          <p style={{ fontSize: "0.82rem", color: "#334155", marginBottom: "0.75rem", lineHeight: 1.5 }}>
                             {p.description}
                           </p>
 
-                          {/* Code comparison */}
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.65rem", marginBottom: "0.65rem" }}>
-                            <div style={{ background: "#0f172a", borderRadius: "6px", padding: "0.65rem", color: "#38bdf8", fontFamily: "var(--font-mono, monospace)", fontSize: "0.74rem" }}>
-                              <div style={{ color: "#94a3b8", fontSize: "0.66rem", fontWeight: 700, marginBottom: "0.25rem" }}>
-                                CODE HỌC VIÊN ĐÃ NỘP:
+                          {/* KHU VỰC CODE EDITOR TƯƠNG TÁC (CHẠY THỬ & CHẤM ĐIỂM) */}
+                          <div style={{
+                            background: "#0f172a",
+                            borderRadius: "8px",
+                            border: "1px solid #1e293b",
+                            overflow: "hidden",
+                            marginBottom: "0.75rem"
+                          }}>
+                            {/* Editor Top Toolbar */}
+                            <div style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                              padding: "0.45rem 0.8rem",
+                              background: "#1e293b",
+                              borderBottom: "1px solid #334155",
+                              flexWrap: "wrap",
+                              gap: "0.4rem"
+                            }}>
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px", color: "#38bdf8", fontSize: "0.74rem", fontWeight: 800 }}>
+                                <FileCode size={14} />
+                                <span>TRÌNH SOẠN THẢO & BIÊN DỊCH PYTHON:</span>
                               </div>
-                              <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                                {codeSubmitted || "# (Không có mã nguồn được nộp)"}
-                              </pre>
+
+                              <div style={{ display: "flex", gap: "0.4rem" }}>
+                                <button
+                                  type="button"
+                                  onClick={() => handleLoadSolution(p.id, p.solution_code)}
+                                  className="btn btn-sm"
+                                  style={{
+                                    padding: "0.2rem 0.55rem",
+                                    fontSize: "0.7rem",
+                                    fontWeight: 700,
+                                    borderRadius: "5px",
+                                    background: "rgba(52, 211, 153, 0.15)",
+                                    color: "#34d399",
+                                    border: "1px solid rgba(52, 211, 153, 0.3)",
+                                    cursor: "pointer",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "3px"
+                                  }}
+                                  title="Nạp code mẫu chuẩn vào ô biên dịch để chạy thử"
+                                >
+                                  <Sparkles size={11} />
+                                  <span>Thử Code Mẫu</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleResetSubmitted(p.id)}
+                                  className="btn btn-sm"
+                                  style={{
+                                    padding: "0.2rem 0.55rem",
+                                    fontSize: "0.7rem",
+                                    fontWeight: 700,
+                                    borderRadius: "5px",
+                                    background: "rgba(148, 163, 184, 0.15)",
+                                    color: "#cbd5e1",
+                                    border: "1px solid rgba(148, 163, 184, 0.3)",
+                                    cursor: "pointer",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "3px"
+                                  }}
+                                  title="Khôi phục lại code học viên đã nộp lúc thi"
+                                >
+                                  <RotateCcw size={11} />
+                                  <span>Khôi Phục Code Nộp</span>
+                                </button>
+                              </div>
                             </div>
 
-                            <div style={{ background: "#0f172a", borderRadius: "6px", padding: "0.65rem", color: "#34d399", fontFamily: "var(--font-mono, monospace)", fontSize: "0.74rem" }}>
-                              <div style={{ color: "#94a3b8", fontSize: "0.66rem", fontWeight: 700, marginBottom: "0.25rem" }}>
-                                MÃ NGUỒN CHUẨN (THAM KHẢO):
-                              </div>
-                              <pre style={{ margin: 0, whiteSpace: "pre-wrap" }}>
-                                {p.solution_code}
-                              </pre>
+                            {/* Code Textarea */}
+                            <textarea
+                              value={testCodes[p.id] !== undefined ? testCodes[p.id] : (codeSubmitted || "")}
+                              onChange={(e) => setTestCodes(prev => ({ ...prev, [p.id]: e.target.value }))}
+                              placeholder="# Viết mã Python tại đây để chạy build thử..."
+                              rows={8}
+                              style={{
+                                width: "100%",
+                                background: "#0a0f1d",
+                                color: "#f8fafc",
+                                fontFamily: "Consolas, 'Courier New', monospace",
+                                fontSize: "0.82rem",
+                                lineHeight: "1.45",
+                                padding: "0.75rem",
+                                border: "none",
+                                outline: "none",
+                                resize: "vertical",
+                                boxSizing: "border-box",
+                                whiteSpace: "pre"
+                              }}
+                            />
+
+                            {/* Action Buttons: Run Code & Test Cases */}
+                            <div style={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              gap: "0.55rem",
+                              padding: "0.5rem 0.8rem",
+                              background: "#1e293b",
+                              borderTop: "1px solid #334155"
+                            }}>
+                              <button
+                                type="button"
+                                disabled={isRunning[p.id]}
+                                onClick={() => handleRunCode(p.id)}
+                                className="btn btn-sm"
+                                style={{
+                                  background: isRunning[p.id] ? "#475569" : "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                                  color: "#ffffff",
+                                  padding: "0.35rem 0.85rem",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 800,
+                                  borderRadius: "6px",
+                                  border: "none",
+                                  cursor: isRunning[p.id] ? "not-allowed" : "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "5px",
+                                  boxShadow: "0 2px 6px rgba(37, 99, 235, 0.3)"
+                                }}
+                              >
+                                <Play size={13} fill="#ffffff" />
+                                <span>{isRunning[p.id] ? "Đang chạy..." : "▶️ Chạy Build Thử Code"}</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                disabled={isGrading[p.id]}
+                                onClick={() => handleGradeCode(p.id)}
+                                className="btn btn-sm"
+                                style={{
+                                  background: isGrading[p.id] ? "#475569" : "linear-gradient(135deg, #059669, #047857)",
+                                  color: "#ffffff",
+                                  padding: "0.35rem 0.85rem",
+                                  fontSize: "0.75rem",
+                                  fontWeight: 800,
+                                  borderRadius: "6px",
+                                  border: "none",
+                                  cursor: isGrading[p.id] ? "not-allowed" : "pointer",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "5px",
+                                  boxShadow: "0 2px 6px rgba(5, 150, 105, 0.3)"
+                                }}
+                              >
+                                <CheckCircle2 size={13} />
+                                <span>{isGrading[p.id] ? "Đang chấm..." : "🧪 Chấm Điểm & Kiểm Tra Test Cases"}</span>
+                              </button>
                             </div>
                           </div>
 
-                          {/* Test Cases Results */}
-                          {pRes && pRes.testCaseResults && pRes.testCaseResults.length > 0 && (
-                            <div style={{ background: "#f8fafc", padding: "0.55rem 0.75rem", borderRadius: "6px", border: "1px solid #e2e8f0", fontSize: "0.74rem" }}>
-                              <div style={{ fontWeight: 800, color: "#334155", marginBottom: "0.3rem" }}>
-                                KẾT QUẢ CHẠY TEST CASES:
+                          {/* CONSOLE STDOUT RESULT */}
+                          {runResults[p.id] && (
+                            <div style={{
+                              background: "#020617",
+                              border: "1px solid #1e293b",
+                              borderRadius: "8px",
+                              padding: "0.65rem 0.85rem",
+                              marginBottom: "0.75rem"
+                            }}>
+                              <div style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                fontSize: "0.7rem",
+                                fontWeight: 800,
+                                color: "#94a3b8",
+                                marginBottom: "0.35rem",
+                                borderBottom: "1px solid #1e293b",
+                                paddingBottom: "0.25rem"
+                              }}>
+                                <span style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                                  <Terminal size={12} color="#38bdf8" />
+                                  <span>CONSOLE OUTPUT (Thời gian: {runResults[p.id].executionTimeMs}ms)</span>
+                                </span>
+                                <span style={{ color: runResults[p.id].success ? "#34d399" : "#f87171" }}>
+                                  {runResults[p.id].success ? "SUCCESS" : "ERROR"}
+                                </span>
                               </div>
-                              {pRes.testCaseResults.map((tc: any, tIdx: number) => (
-                                <div key={tIdx} style={{ display: "flex", gap: "0.75rem", marginBottom: "0.2rem", color: tc.passed ? "#15803d" : "#b91c1c" }}>
-                                  <span>Test #{tIdx + 1}: {tc.passed ? "✅ PASS" : "❌ FAIL"}</span>
-                                  <span>Đầu vào: <code>{tc.input || "None"}</code></span>
-                                  <span>Kỳ vọng: <code>{tc.expected}</code></span>
-                                  <span>Thực tế: <code>{tc.actual}</code></span>
+                              <pre style={{
+                                margin: 0,
+                                color: runResults[p.id].success ? "#38bdf8" : "#fca5a5",
+                                fontFamily: "Consolas, 'Courier New', monospace",
+                                fontSize: "0.78rem",
+                                whiteSpace: "pre-wrap",
+                                maxHeight: "180px",
+                                overflowY: "auto"
+                              }}>
+                                {runResults[p.id].output}
+                              </pre>
+
+                              {/* Đồ họa rùa Turtle SVG nếu có */}
+                              {runResults[p.id].turtleCanvasSvg && (
+                                <div style={{ marginTop: "0.6rem", borderTop: "1px solid #1e293b", paddingTop: "0.5rem" }}>
+                                  <div style={{ fontSize: "0.7rem", fontWeight: 800, color: "#34d399", marginBottom: "0.3rem" }}>
+                                    🎨 BẢNG VẼ ĐỒ HỌA RÙA (TURTLE CANVAS):
+                                  </div>
+                                  <div 
+                                    style={{ background: "#ffffff", borderRadius: "6px", padding: "6px", display: "flex", justifyContent: "center" }}
+                                    dangerouslySetInnerHTML={{ __html: runResults[p.id].turtleCanvasSvg || "" }}
+                                  />
                                 </div>
-                              ))}
+                              )}
                             </div>
                           )}
+
+                          {/* TEST CASES COMPARISON TABLE */}
+                          {(gradeResults[p.id] || (pRes && pRes.testCaseResults && pRes.testCaseResults.length > 0)) && (
+                            <div style={{
+                              background: "#f8fafc",
+                              padding: "0.65rem 0.85rem",
+                              borderRadius: "8px",
+                              border: "1px solid #e2e8f0",
+                              fontSize: "0.75rem",
+                              marginBottom: "0.75rem"
+                            }}>
+                              <div style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                fontWeight: 800,
+                                color: "#334155",
+                                marginBottom: "0.4rem"
+                              }}>
+                                <span>KẾT QUẢ KIỂM THỬ ĐÚNG / SAI (TEST CASES):</span>
+                                {gradeResults[p.id] && (
+                                  <span style={{
+                                    fontSize: "0.7rem",
+                                    padding: "2px 7px",
+                                    borderRadius: "4px",
+                                    background: gradeResults[p.id].passed ? "#dcfce7" : "#fee2e2",
+                                    color: gradeResults[p.id].passed ? "#15803d" : "#b91c1c"
+                                  }}>
+                                    {gradeResults[p.id].feedback || (gradeResults[p.id].passed ? "Đạt toàn bộ test cases" : "Chưa đạt test cases")}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Chi tiết test case từ kết quả chấm mới nhất hoặc kết quả bài thi ban đầu */}
+                              {(gradeResults[p.id]?.details || pRes?.testCaseResults || []).map((tc: any, tIdx: number) => {
+                                const isPassed = tc.passed;
+                                return (
+                                  <div 
+                                    key={tIdx} 
+                                    style={{
+                                      display: "grid",
+                                      gridTemplateColumns: "85px 1fr 1fr 1fr",
+                                      gap: "0.5rem",
+                                      padding: "0.35rem 0.5rem",
+                                      borderRadius: "5px",
+                                      marginBottom: "0.25rem",
+                                      background: isPassed ? "rgba(34, 197, 94, 0.08)" : "rgba(239, 68, 68, 0.08)",
+                                      border: isPassed ? "1px solid #bbf7d0" : "1px solid #fecaca",
+                                      alignItems: "center"
+                                    }}
+                                  >
+                                    <span style={{ fontWeight: 800, color: isPassed ? "#15803d" : "#b91c1c" }}>
+                                      {isPassed ? "✅ PASS" : "❌ FAIL"} #{tIdx + 1}
+                                    </span>
+                                    <div>
+                                      <span style={{ color: "#64748b", fontSize: "0.68rem" }}>Đầu vào: </span>
+                                      <code style={{ background: "#ffffff", padding: "1px 4px", borderRadius: "3px" }}>{tc.input || "None"}</code>
+                                    </div>
+                                    <div>
+                                      <span style={{ color: "#64748b", fontSize: "0.68rem" }}>Kỳ vọng: </span>
+                                      <code style={{ background: "#ffffff", padding: "1px 4px", borderRadius: "3px" }}>{tc.expected}</code>
+                                    </div>
+                                    <div>
+                                      <span style={{ color: "#64748b", fontSize: "0.68rem" }}>Thực tế: </span>
+                                      <code style={{ background: "#ffffff", padding: "1px 4px", borderRadius: "3px", color: isPassed ? "#15803d" : "#b91c1c" }}>
+                                        {tc.actual || "None"}
+                                      </code>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          {/* MÃ NGUỒN MẪU THAM KHẢO */}
+                          <div style={{
+                            background: "#f1f5f9",
+                            borderRadius: "6px",
+                            padding: "0.55rem 0.8rem",
+                            border: "1px solid #cbd5e1"
+                          }}>
+                            <div style={{ fontSize: "0.72rem", fontWeight: 800, color: "#475569", marginBottom: "0.25rem" }}>
+                              💡 MÃ NGUỒN CHUẨN THAM KHẢO:
+                            </div>
+                            <pre style={{
+                              margin: 0,
+                              color: "#047857",
+                              fontFamily: "Consolas, 'Courier New', monospace",
+                              fontSize: "0.76rem",
+                              whiteSpace: "pre-wrap",
+                              background: "#ffffff",
+                              padding: "0.5rem 0.65rem",
+                              borderRadius: "4px",
+                              border: "1px solid #e2e8f0"
+                            }}>
+                              {p.solution_code}
+                            </pre>
+                          </div>
                         </div>
                       )}
                     </div>

@@ -146,15 +146,26 @@ export interface UserSessionData {
 export interface PausedExamState {
   examId: string;
   userId: string;
+  userName?: string;
   subjectId: string;
   branchId: string;
+  currentPart?: 1 | 2;
   currentQuestionIndex: number;
   userAnswers: Record<number, any>;
+  userPracticalCode?: Record<number, string>;
+  practicalResults?: Record<number, any>;
+  examQuestions?: Question[];
+  examPracticals?: PracticalProblem[];
   remainingSeconds: number;
+  totalDurationSeconds?: number;
   pausedAt: string;
+  pausedDate?: string;
   pausedBy: 'student' | 'teacher';
-  reason: string;
-  isUnlocked: boolean;
+  reason?: string;
+  isUnlocked?: boolean;
+  originalCode?: string;
+  resumeCodeUsed?: string;
+  clientIp?: string;
 }
 
 export interface ExamSettings {

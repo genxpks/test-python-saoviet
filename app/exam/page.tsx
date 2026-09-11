@@ -9,7 +9,7 @@ import QuestionCard from "@/components/QuestionCard";
 import PythonEditor from "@/components/PythonEditor";
 import { PythonEngine } from "@/lib/pythonEngine";
 import ExamNavigator from "@/components/ExamNavigator";
-import PinUnlockModal from "@/components/PinUnlockModal";
+import ExamPauseModal from "@/components/exam/ExamPauseModal";
 import ExamResultModal from "@/components/ExamResultModal";
 import AuthGate from "@/components/AuthGate";
 import SubjectAccessGate from "@/components/SubjectAccessGate";
@@ -23,7 +23,11 @@ import {
   ChevronRight, 
   Code2,
   Globe,
-  Wifi
+  Wifi,
+  KeyRound,
+  Trash2,
+  RotateCcw,
+  ShieldCheck
 } from "lucide-react";
 
 export default function ExamPage() {
@@ -31,7 +35,12 @@ export default function ExamPage() {
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("python");
   const [isExamActive, setIsExamActive] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [showPinModal, setShowPinModal] = useState(false);
+  const [showPauseModal, setShowPauseModal] = useState(false);
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [pausedExam, setPausedExam] = useState<PausedExamState | null>(null);
+  const [resumeCodeInput, setResumeCodeInput] = useState("");
+  const [resumeError, setResumeError] = useState("");
+  const [isResuming, setIsResuming] = useState(false);
   const [examAccessCode, setExamAccessCode] = useState("");
   const [accessError, setAccessError] = useState("");
   const [isVerifying, setIsVerifying] = useState(false); // FLOW-01: loading state khi verify ma
@@ -73,6 +82,36 @@ export default function ExamPage() {
       window.removeEventListener("storage", updateUser);
     };
   }, []);
+
+  const checkPausedExam = async (userId?: string, subjectId?: string) => {
+    const uid = userId || currentUser?.id;
+    const sid = subjectId || selectedSubjectId;
+    if (!uid) return;
+
+    let foundPaused: PausedExamState | null = null;
+    try {
+      const res = await fetch(`/api/pause?userId=${encodeURIComponent(uid)}&subjectId=${encodeURIComponent(sid)}`);
+      const data = await res.json();
+      if (data && data.success && data.paused) {
+        foundPaused = data.paused;
+      }
+    } catch {}
+
+    if (!foundPaused && typeof window !== "undefined") {
+      try {
+        const localData = localStorage.getItem(`SAOVIET_PAUSED_EXAM_${uid}_${sid}`);
+        if (localData) foundPaused = JSON.parse(localData);
+      } catch {}
+    }
+
+    setPausedExam(foundPaused);
+  };
+
+  useEffect(() => {
+    if (currentUser?.id) {
+      checkPausedExam(currentUser.id, selectedSubjectId);
+    }
+  }, [currentUser?.id, selectedSubjectId]);
 
   useEffect(() => {
     if (isExamActive && !isPaused) {
@@ -204,11 +243,142 @@ export default function ExamPage() {
     setIsPaused(false);
   };
 
-  const handlePauseExam = () => {
+  const handlePauseExam = async () => {
     if (!isExamActive || !currentUser) return;
     setIsPaused(true);
-    setShowPinModal(true);
+    setShowPauseModal(true);
+
+    const nowDT = getCurrentVNDateTime();
+    const pauseState: PausedExamState = {
+      examId: `exam_${Date.now()}`,
+      userId: currentUser.id,
+      userName: currentUser.fullName,
+      subjectId: selectedSubjectId,
+      branchId: currentUser.branchId || "branch_thuduc",
+      currentPart,
+      currentQuestionIndex: currentIndex,
+      userAnswers,
+      userPracticalCode,
+      practicalResults,
+      examQuestions,
+      examPracticals,
+      remainingSeconds: timerSeconds,
+      totalDurationSeconds: 60 * 60,
+      pausedAt: `${nowDT.date} ${nowDT.time}`,
+      pausedDate: nowDT.date,
+      pausedBy: "student",
+      reason: "Học viên tạm dừng bài thi để tiếp tục sau",
+      isUnlocked: false,
+      originalCode: examAccessCode,
+      clientIp: clientNetworkIp
+    };
+
+    // Tự động lưu lên MongoDB
+    try {
+      await fetch("/api/pause", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(pauseState)
+      });
+    } catch {}
+
+    // Lưu dự phòng LocalStorage
+    try {
+      localStorage.setItem(`SAOVIET_PAUSED_EXAM_${currentUser.id}_${selectedSubjectId}`, JSON.stringify(pauseState));
+    } catch {}
+
+    setPausedExam(pauseState);
   };
+
+  const handleResumeWithCode = async (code: string): Promise<{ success: boolean; message?: string }> => {
+    const cleanCode = code.trim().toUpperCase();
+    if (!cleanCode) {
+      return { success: false, message: "Vui lòng nhập Mã Phòng Thi Mới (Mã v2) hoặc PIN Giám Thị!" };
+    }
+
+    // 1. PIN giám thị (8888 hoặc PIN của user)
+    const isTeacherPin = cleanCode === "8888" || (currentUser?.pin && cleanCode === currentUser.pin.trim().toUpperCase());
+    let valid = isTeacherPin;
+
+    if (!valid) {
+      try {
+        const verifyRes = await fetch("/api/exam-codes/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code: cleanCode,
+            subjectId: selectedSubjectId,
+            branchId: currentUser?.branchId || "all"
+          })
+        });
+        const verifyData = await verifyRes.json();
+        if (verifyData && verifyData.valid) {
+          valid = true;
+        } else {
+          return { success: false, message: verifyData?.message || "Mã phòng thi không chính xác hoặc đã hết hạn!" };
+        }
+      } catch {
+        const LEGACY_CODES = ["SAOVIET2026", "PYTHON2026", "SV2026", "SAOVIET", "8888", "110926"];
+        if (LEGACY_CODES.includes(cleanCode)) {
+          valid = true;
+        } else {
+          return { success: false, message: "Không thể kết nối xác thực mã lúc này. Vui lòng hỏi Giáo viên." };
+        }
+      }
+    }
+
+    if (valid) {
+      // Khôi phục bài thi từ pausedExam
+      const state = pausedExam;
+      if (state) {
+        if (state.examQuestions && state.examQuestions.length > 0) {
+          setExamQuestions(state.examQuestions);
+        }
+        if (state.examPracticals && state.examPracticals.length > 0) {
+          setExamPracticals(state.examPracticals);
+        }
+        if (state.userAnswers) setUserAnswers(state.userAnswers);
+        if (state.userPracticalCode) setUserPracticalCode(state.userPracticalCode);
+        if (state.practicalResults) setPracticalResults(state.practicalResults);
+        if (typeof state.remainingSeconds === "number") setTimerSeconds(state.remainingSeconds);
+        if (state.currentPart) setCurrentPart(state.currentPart);
+        if (typeof state.currentQuestionIndex === "number") setCurrentIndex(state.currentQuestionIndex);
+      }
+
+      setIsExamActive(true);
+      setIsPaused(false);
+      setShowPauseModal(false);
+      setShowResumeModal(false);
+      return { success: true };
+    }
+
+    return { success: false, message: "Mã phòng thi không hợp lệ!" };
+  };
+
+  const handleSaveAndExit = () => {
+    setIsExamActive(false);
+    setIsPaused(false);
+    setShowPauseModal(false);
+    if (currentUser) {
+      checkPausedExam(currentUser.id, selectedSubjectId);
+    }
+  };
+
+  const handleCancelPausedExam = async () => {
+    if (!currentUser) return;
+    if (confirm("Em có chắc chắn muốn hủy bài thi đang tạm dừng không? Toàn bộ câu trả lời và code đã làm trước đó sẽ bị xóa để làm đề mới.")) {
+      try {
+        await fetch(`/api/pause?userId=${encodeURIComponent(currentUser.id)}&subjectId=${encodeURIComponent(selectedSubjectId)}`, {
+          method: "DELETE"
+        });
+      } catch {}
+      try {
+        localStorage.removeItem(`SAOVIET_PAUSED_EXAM_${currentUser.id}_${selectedSubjectId}`);
+      } catch {}
+      setPausedExam(null);
+    }
+  };
+
 
   const handleAutoSubmit = () => {
     alert("Đã hết giờ làm bài! Hệ thống tự động chấm điểm bài thi.");
@@ -366,6 +536,17 @@ export default function ExamPage() {
       }).catch(() => null);
     } catch {}
 
+    // Xóa bài thi tạm dừng khi đã nộp bài thành công
+    if (currentUser) {
+      try {
+        fetch(`/api/pause?userId=${encodeURIComponent(currentUser.id)}&subjectId=${encodeURIComponent(selectedSubjectId)}`, {
+          method: "DELETE"
+        }).catch(() => null);
+        localStorage.removeItem(`SAOVIET_PAUSED_EXAM_${currentUser.id}_${selectedSubjectId}`);
+      } catch {}
+      setPausedExam(null);
+    }
+
     setFinalScoreData(resData);
     setShowResultModal(true);
   };
@@ -432,6 +613,94 @@ export default function ExamPage() {
             </div>
 
             <SubjectAccessGate subjectId={selectedSubjectId}>
+              {/* BANNER THÔNG BÁO BÀI THI ĐANG TẠM DỪNG / BẢO LƯU */}
+              {pausedExam && (
+                <div style={{
+                  maxWidth: "640px",
+                  margin: "0 auto 1.2rem auto",
+                  background: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
+                  border: "2px solid #f59e0b",
+                  borderRadius: "14px",
+                  padding: "1.1rem 1.3rem",
+                  textAlign: "left",
+                  boxShadow: "0 6px 18px rgba(245, 158, 11, 0.15)"
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.45rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "7px", color: "#b45309", fontWeight: 800, fontSize: "0.92rem" }}>
+                      <Pause size={18} />
+                      <span>BÀI THI ĐANG ĐƯỢC TẠM DỪNG (TIẾN TRÌNH BẢO LƯU)</span>
+                    </div>
+                    <span style={{
+                      background: "#fef3c7",
+                      color: "#92400e",
+                      border: "1px solid #fde68a",
+                      padding: "2px 8px",
+                      borderRadius: "9999px",
+                      fontSize: "0.72rem",
+                      fontWeight: 800
+                    }}>
+                      Lưu lúc: {pausedExam.pausedAt || pausedExam.pausedDate || "Gần đây"}
+                    </span>
+                  </div>
+
+                  <p style={{ fontSize: "0.82rem", color: "#78350f", margin: "0 0 0.8rem 0", lineHeight: "1.5" }}>
+                    Hệ thống nhận diện em có một bài thi môn <strong>{currentSubject.name}</strong> đang được lưu lại. 
+                    Thời gian làm bài còn lại: <strong style={{ color: "#d97706", fontFamily: "var(--font-mono, monospace)" }}>{formatTimer(pausedExam.remainingSeconds)}</strong>. 
+                    Tiến độ: <strong>{Object.keys(pausedExam.userAnswers || {}).length}/{pausedExam.examQuestions?.length || 50} câu trắc nghiệm</strong> và <strong>{Object.keys(pausedExam.userPracticalCode || {}).length}/{pausedExam.examPracticals?.length || 4} bài tự luận</strong>.
+                  </p>
+
+                  <div style={{ display: "flex", gap: "0.65rem", flexWrap: "wrap" }}>
+                    <button
+                      onClick={() => {
+                        setResumeCodeInput("");
+                        setResumeError("");
+                        setShowResumeModal(true);
+                      }}
+                      className="btn btn-primary btn-sm"
+                      style={{
+                        background: "linear-gradient(135deg, #d97706, #b45309)",
+                        color: "#ffffff",
+                        padding: "0.48rem 1.15rem",
+                        fontSize: "0.82rem",
+                        fontWeight: 800,
+                        borderRadius: "8px",
+                        border: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        boxShadow: "0 2px 8px rgba(217, 119, 6, 0.35)",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <KeyRound size={15} />
+                      <span>TIẾP TỤC BÀI THI NÀY (NHẬP MÃ V2)</span>
+                    </button>
+
+                    <button
+                      onClick={handleCancelPausedExam}
+                      className="btn btn-secondary btn-sm"
+                      style={{
+                        background: "#ffffff",
+                        color: "#b91c1c",
+                        border: "1.5px solid #fca5a5",
+                        padding: "0.48rem 0.95rem",
+                        fontSize: "0.78rem",
+                        fontWeight: 700,
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "5px"
+                      }}
+                      title="Hủy kết quả cũ và bắt đầu làm đề thi mới hoàn toàn"
+                    >
+                      <Trash2 size={14} />
+                      <span>Hủy Bài Tạm Dừng & Thi Mới</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="q-card" style={{ padding: "1.3rem 1.6rem", textAlign: "center", maxWidth: "640px", margin: "0 auto", border: "1.5px solid var(--border-light)", background: "var(--surface-card)", boxShadow: "var(--shadow-card)" }}>
                 <div style={{
                   width: "44px",
@@ -448,6 +717,7 @@ export default function ExamPage() {
                 }}>
                   <Clock size={22} />
                 </div>
+
 
                 <h1 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "0.35rem", color: "var(--text-primary)", fontFamily: "var(--font-heading)" }}>
                   Kỳ Thi Đánh Giá Chuẩn Đầu Ra: {currentSubject.name}
@@ -782,17 +1052,160 @@ export default function ExamPage() {
           </div>
         )}
 
-        {showPinModal && (
-          <PinUnlockModal
-            onSuccess={() => {
-              setIsPaused(false);
-              setShowPinModal(false);
-            }}
+        {/* MODAL TẠM DỪNG BÀI THI & MỞ KHÓA TẠI CHỖ HOẶC THOÁT RA */}
+        {showPauseModal && (
+          <ExamPauseModal
+            remainingSeconds={timerSeconds}
+            subjectName={currentSubject.name}
+            subjectId={selectedSubjectId}
+            branchId={currentUser?.branchId || "branch_thuduc"}
+            answeredCount={Object.keys(userAnswers).length + Object.keys(userPracticalCode).length}
+            totalQuestions={examQuestions.length + examPracticals.length}
+            onResumeWithCode={handleResumeWithCode}
+            onSaveAndExit={handleSaveAndExit}
             onCancel={() => {
-              setShowPinModal(false);
-              setIsExamActive(false);
+              setIsPaused(false);
+              setShowPauseModal(false);
             }}
           />
+        )}
+
+        {/* MODAL TIẾP TỤC BÀI THI TẠM DỪNG BẰNG MÃ V2 KHI VÀO LẠI PHÒNG THI */}
+        {showResumeModal && pausedExam && (
+          <div style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(15, 23, 42, 0.7)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1050,
+            padding: "1rem"
+          }}>
+            <div style={{
+              background: "var(--surface-card, #ffffff)",
+              borderRadius: "16px",
+              border: "1.5px solid var(--border-medium, #cbd5e1)",
+              boxShadow: "0 20px 40px rgba(0, 0, 0, 0.25)",
+              maxWidth: "480px",
+              width: "100%",
+              padding: "1.5rem 1.6rem"
+            }}>
+              <div style={{ textAlign: "center", marginBottom: "1.2rem" }}>
+                <div style={{
+                  width: "50px",
+                  height: "50px",
+                  background: "linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(14, 165, 233, 0.15))",
+                  color: "#2563eb",
+                  borderRadius: "14px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 0.75rem",
+                  border: "1px solid rgba(37, 99, 235, 0.3)"
+                }}>
+                  <KeyRound size={24} />
+                </div>
+
+                <h3 style={{ fontSize: "1.25rem", fontWeight: 800, color: "var(--text-primary, #0f172a)", margin: 0 }}>
+                  Mở Khóa Tiếp Tục Bài Thi
+                </h3>
+                <p style={{ fontSize: "0.82rem", color: "var(--text-secondary, #64748b)", margin: "0.25rem 0 0" }}>
+                  Môn thi: <strong>{currentSubject.name}</strong> • Còn lại: <strong>{formatTimer(pausedExam.remainingSeconds)}</strong>
+                </p>
+              </div>
+
+              <form onSubmit={async (e) => {
+                e.preventDefault();
+                setIsResuming(true);
+                setResumeError("");
+                const res = await handleResumeWithCode(resumeCodeInput);
+                if (!res.success) {
+                  setResumeError(res.message || "Mã phòng thi không chính xác hoặc đã hết hạn!");
+                }
+                setIsResuming(false);
+              }}>
+                <div style={{ marginBottom: "1rem" }}>
+                  <label style={{ display: "block", fontSize: "0.8rem", fontWeight: 700, color: "#334155", marginBottom: "0.4rem" }}>
+                    🔑 Nhập Mã Phòng Thi Mới (Mã v2) do Giám Thị cấp hôm nay:
+                  </label>
+                  <input
+                    type="text"
+                    value={resumeCodeInput}
+                    onChange={(e) => {
+                      setResumeCodeInput(e.target.value);
+                      setResumeError("");
+                    }}
+                    placeholder="Nhập mã v2 (VD: SAOVIET2026, PYTHON2026 hoặc 8888)"
+                    autoFocus
+                    style={{
+                      width: "100%",
+                      padding: "0.55rem 0.85rem",
+                      borderRadius: "8px",
+                      border: "1.5px solid var(--border-medium, #cbd5e1)",
+                      background: "var(--surface-card, #ffffff)",
+                      color: "var(--text-primary, #0f172a)",
+                      fontSize: "0.95rem",
+                      fontWeight: 800,
+                      textAlign: "center",
+                      letterSpacing: "0.05em",
+                      outline: "none"
+                    }}
+                  />
+                  <div style={{ fontSize: "0.72rem", color: "#64748b", marginTop: "0.3rem" }}>
+                    (Học viên liên hệ Giáo viên/Giám thị phòng máy để nhận Mã phòng thi mới để mở khóa thi tiếp)
+                  </div>
+                </div>
+
+                {resumeError && (
+                  <div style={{
+                    background: "#fef2f2",
+                    border: "1px solid #fecdd3",
+                    color: "#b91c1c",
+                    padding: "0.5rem 0.75rem",
+                    borderRadius: "7px",
+                    fontSize: "0.78rem",
+                    fontWeight: 600,
+                    marginBottom: "1rem",
+                    textAlign: "center"
+                  }}>
+                    {resumeError}
+                  </div>
+                )}
+
+                <div style={{ display: "flex", gap: "0.6rem" }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowResumeModal(false)}
+                    className="btn btn-secondary"
+                    style={{ flex: 1, padding: "0.55rem", fontSize: "0.8rem", fontWeight: 700, justifyContent: "center" }}
+                  >
+                    Đóng
+                  </button>
+
+                  <button
+                    type="submit"
+                    disabled={isResuming}
+                    className="btn btn-primary"
+                    style={{
+                      flex: 2,
+                      padding: "0.55rem",
+                      fontSize: "0.82rem",
+                      fontWeight: 800,
+                      justifyContent: "center",
+                      gap: "6px",
+                      background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                      boxShadow: "0 2px 6px rgba(37, 99, 235, 0.3)"
+                    }}
+                  >
+                    <ShieldCheck size={15} />
+                    <span>{isResuming ? "Đang xác thực..." : "XÁC NHẬN & TIẾP TỤC THI"}</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
 
         {showResultModal && finalScoreData && (
