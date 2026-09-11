@@ -95,7 +95,7 @@ export function getAccessibleBranchIds(actor: User, allBranchIds: string[]): str
 }
 
 // ─── Quyền truy cập TAB trong admin panel ────────────────────────
-export type AdminTab = "questions" | "practicals" | "users" | "subjects" | "branches" | "results" | "settings";
+export type AdminTab = "questions" | "practicals" | "users" | "subjects" | "branches" | "results" | "settings" | "exam_codes";
 
 export const TAB_ACCESS: Record<AdminTab, UserRole[]> = {
   questions:   ["admin", "internal_manager"],           // Ngân hàng câu hỏi
@@ -105,6 +105,7 @@ export const TAB_ACCESS: Record<AdminTab, UserRole[]> = {
   branches:    ["admin"],                               // Quản lý chi nhánh (chỉ admin)
   results:     ["admin", "internal_manager", "branch_manager", "teacher"], // Kết quả thi
   settings:    ["admin"],                               // Cấu hình hệ thống (chỉ admin)
+  exam_codes:  ["admin", "internal_manager", "branch_manager", "teacher"], // Mã phòng thi
 };
 
 export function canAccessTab(actor: User, tab: AdminTab): boolean {

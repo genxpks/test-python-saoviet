@@ -209,3 +209,17 @@ export interface StudySessionLog {
   durationSeconds: number;
   timestamp: string;
 }
+
+// Mã mở phòng thi 6 số — do Admin/GV cấp, lưu MongoDB
+export interface ExamAccessCode {
+  id: string;           // UUID tự sinh
+  code: string;         // Mã 6 chữ số, VD: "482931"
+  subjectId: string;    // Môn học áp dụng: "python" | "all" | ...
+  branchId: string;     // Chi nhánh: "all" = toàn hệ thống
+  label: string;        // Ghi chú: "Lớp Python chiều T2 CN Bình Thạnh"
+  createdBy: string;    // Username người tạo
+  expiresAt: string;    // ISO datetime: "2026-09-11T18:30:00+07:00"
+  isActive: boolean;    // Có thể tắt thủ công
+  usageCount: number;   // Số lần học viên đã dùng
+  createdAt: string;    // ISO datetime lúc tạo
+}

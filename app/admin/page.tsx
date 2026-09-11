@@ -36,6 +36,7 @@ import BranchModal from "@/components/admin/BranchModal";
 import SubjectModal from "@/components/admin/SubjectModal";
 import ExamReviewSheet from "@/components/exam/ExamReviewSheet";
 import TeacherSubjectAssignModal from "@/components/admin/TeacherSubjectAssignModal";
+import ExamCodeManager from "@/components/admin/ExamCodeManager";
 import { canAccessAdminPanel, canDeleteUser, canEditUser, canAccessTab, filterUsersForActor, getCreatableRoles, getRoleColor, getRoleLabel } from "@/lib/rbac";
 
 import { 
@@ -104,7 +105,7 @@ function getAvatarGradient(name: string): string {
   return gradients[Math.abs(hash) % gradients.length];
 }
 
-type AdminTab = "questions" | "practicals" | "users" | "subjects" | "branches" | "results";
+type AdminTab = "questions" | "practicals" | "users" | "subjects" | "branches" | "results" | "exam_codes";
 
 export default function AdminPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -604,7 +605,8 @@ export default function AdminPage() {
               { id: "subjects", label: "Môn Học & Ngân Hàng Đề", count: subjects.length, icon: Code2 },
               { id: "users", label: "Phân Cấp Tài Khoản", count: filteredUsers.length, icon: Users },
               { id: "branches", label: "Cơ Sở & Phòng Lab", count: branches.length, icon: Building2 },
-              { id: "results", label: "Kết Quả Khảo Thí", count: examResults.length, icon: GraduationCap }
+              { id: "results", label: "Kết Quả Khảo Thí", count: examResults.length, icon: GraduationCap },
+              { id: "exam_codes", label: "Mã Phòng Thi", count: 0, icon: KeyRound }
             ]
               // — Lọc tab theo RBAC —
               .filter(tab => canAccessTab(currentUser, tab.id as any))
@@ -815,6 +817,7 @@ export default function AdminPage() {
                   {activeTab === "users" && "Phân Cấp Tài Khoản"}
                   {activeTab === "branches" && "Cơ Sở & Phòng Lab"}
                   {activeTab === "results" && "Kết Quả Khảo Thí"}
+                  {activeTab === "exam_codes" && "Mã Phòng Thi"}
                 </span>
               </div>
               <h1 style={{ fontSize: "1.18rem", fontWeight: 900, color: "#0f172a", margin: 0, letterSpacing: "-0.01em" }}>
@@ -2702,6 +2705,23 @@ export default function AdminPage() {
                   </tbody>
                 </table>
               </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB: MÃ PHÒNG THI (Exam Access Codes) */}
+          {/* ========================================================================= */}
+          {activeTab === "exam_codes" && currentUser && (
+            <div style={{ background: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "14px", padding: "1.25rem 1.5rem", boxShadow: "0 1px 4px rgba(0,0,0,0.02)" }}>
+              <ExamCodeManager
+                subjects={subjects}
+                branches={branches}
+                currentUser={{
+                  username: currentUser.username,
+                  branchId: currentUser.branchId,
+                  role: currentUser.role,
+                }}
+              />
             </div>
           )}
 

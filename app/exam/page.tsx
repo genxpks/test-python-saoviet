@@ -99,9 +99,11 @@ export default function ExamPage() {
     }
 
     const cleanCode = examAccessCode.trim().toUpperCase();
-    const validCodes = ["SAOVIET2026", "PYTHON2026", "SV2026", "SAOVIET", "8888", "110926"];
-    if (currentUser.pin) validCodes.push(currentUser.pin.trim().toUpperCase());
-    if (currentUser.class) validCodes.push(currentUser.class.trim().toUpperCase());
+
+    // Mã cứng legacy — fallback khi API không khả dụng
+    const LEGACY_CODES = ["SAOVIET2026", "PYTHON2026", "SV2026", "SAOVIET", "8888", "110926"];
+    if (currentUser.pin) LEGACY_CODES.push(currentUser.pin.trim().toUpperCase());
+    if (currentUser.class) LEGACY_CODES.push(currentUser.class.trim().toUpperCase());
 
     const isPrivileged = currentUser.role === "admin" || currentUser.role === "branch_manager" || currentUser.role === "teacher";
 
@@ -110,10 +112,36 @@ export default function ExamPage() {
         setAccessError("⚠️ Vui lòng nhập Mã Phòng Thi do Giáo viên / Giám thị cấp để mở đề thi!");
         return;
       }
-      if (!validCodes.includes(cleanCode)) {
-        setAccessError("❌ Mã phòng thi không chính xác! Vui lòng hỏi Giáo viên / Giám thị để nhận mã thi.");
-        return;
+
+      // Xác thực mã qua API (kiểm tra MongoDB + thời hạn)
+      let codeValid = false;
+      try {
+        const verifyRes = await fetch("/api/exam-codes/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            code: cleanCode,
+            subjectId: selectedSubjectId,
+            branchId: currentUser.branchId || "all",
+          }),
+        });
+        const verifyData = await verifyRes.json();
+        if (verifyData.valid) {
+          codeValid = true;
+        } else {
+          setAccessError("❌ " + (verifyData.message || "Mã phòng thi không chính xác!"));
+          return;
+        }
+      } catch {
+        // Fallback: nếu API lỗi, thử mã cứng legacy
+        if (!LEGACY_CODES.includes(cleanCode)) {
+          setAccessError("❌ Mã phòng thi không chính xác! Vui lòng hỏi Giáo viên / Giám thị để nhận mã thi.");
+          return;
+        }
+        codeValid = true;
       }
+
+      if (!codeValid) return;
     }
 
     setAccessError("");
