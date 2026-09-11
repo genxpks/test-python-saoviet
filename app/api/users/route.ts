@@ -24,10 +24,19 @@ export async function GET(req: Request) {
       users = await collection.find({}).sort({ createdDate: -1, _id: -1 }).toArray();
     }
 
-    return NextResponse.json({ success: true, count: users.length, users });
+    const safeUsers = users.map((u: any) => {
+      const { password, pin, ...safe } = u;
+      return safe;
+    });
+
+    return NextResponse.json({ success: true, count: safeUsers.length, users: safeUsers });
   } catch (error: any) {
     console.error("❌ MongoDB GET users error:", error);
-    return NextResponse.json({ success: true, users: DEFAULT_USERS, isFallback: true, error: error.message });
+    const safeFallback = DEFAULT_USERS.map((u: any) => {
+      const { password, pin, ...safe } = u;
+      return safe;
+    });
+    return NextResponse.json({ success: true, users: safeFallback, isFallback: true, error: error.message });
   }
 }
 

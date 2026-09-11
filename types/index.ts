@@ -32,7 +32,7 @@ export interface Branch {
   address: string;
   phone: string;
   managerName?: string;
-  defaultTeacherPin: string;
+  defaultTeacherPin?: string;
   createdDate: string;
 }
 

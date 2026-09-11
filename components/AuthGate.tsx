@@ -95,11 +95,11 @@ export default function AuthGate({
     setIsLoggingIn(true);
     setLoginError("");
     try {
-      const res = await loginUserAsync("0937482673", "123456");
+      const demo = DEFAULT_USERS.find(u => u.role === "student") || DEFAULT_USERS[0];
+      const res = await loginUserAsync(demo.username, "123456");
       if (res.success && res.user) {
         setCurrentUser(res.user);
       } else {
-        const demo = DEFAULT_USERS.find(u => u.role === "student") || DEFAULT_USERS[0];
         setCurrentUser(demo);
       }
     } catch (e) {
@@ -345,7 +345,7 @@ export default function AuthGate({
           color: "var(--text-muted)",
           fontWeight: 600
         }}>
-          💡 Mẹo: Mật khẩu mặc định = Tên + SĐT (VD: nam0937482673)
+          💡 Thí sinh / Học viên đăng nhập bằng thông tin do Trung tâm hoặc Giám thị cung cấp.
         </div>
       </div>
     </div>

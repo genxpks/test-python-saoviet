@@ -9,7 +9,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 475A Điện Biên Phủ, Phường 25, Quận Bình Thạnh, TP.HCM",
     phone: "0904.567.890",
     managerName: "Quản Lý Bình Thạnh",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -19,7 +18,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 512 Huỳnh Tấn Phát, Phường Bình Thuận, Quận 7, TP.HCM",
     phone: "0905.123.456",
     managerName: "Quản Lý Quận 7",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -29,7 +27,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 135 Kinh Dương Vương, Phường An Lạc, Quận Bình Tân, TP.HCM",
     phone: "0906.234.567",
     managerName: "Quản Lý Bình Tân",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -39,7 +36,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 186 Tô Ký, Phường Tân Chánh Hiệp, Quận 12, TP.HCM",
     phone: "0907.345.678",
     managerName: "Quản Lý Quận 12",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -49,7 +45,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Khu Đô Thị ĐHQG TP.HCM / Đường số 9, P. Linh Tây, TP. Thủ Đức",
     phone: "0901.234.567",
     managerName: "Quản Lý Thủ Đức",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -59,7 +54,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 268 Lý Thường Kiệt, Phường 14, Quận Tân Bình, TP.HCM",
     phone: "0908.456.789",
     managerName: "Quản Lý Tân Bình",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -69,7 +63,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 234 Đại Lộ Bình Dương, Phường Phú Hòa, TP. Thủ Dầu Một, Bình Dương",
     phone: "0909.567.890",
     managerName: "Quản Lý Thủ Dầu Một",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -79,7 +72,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 88 Cách Mạng Tháng 8, Phường Lái Thiêu, TP. Thuận An, Bình Dương",
     phone: "0910.678.901",
     managerName: "Quản Lý Thuận An",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -89,7 +81,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 168 Nguyễn An Ninh, Phường Dĩ An, TP. Dĩ An, Bình Dương",
     phone: "0911.789.012",
     managerName: "Quản Lý Dĩ An",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -99,7 +90,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Đường ĐT 746, Phường Uyên Hưng, TP. Tân Uyên, Bình Dương",
     phone: "0912.890.123",
     managerName: "Quản Lý Tân Uyên",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -109,7 +99,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 56 Đồng Khởi, Phường Tân Hiệp, TP. Biên Hòa, Đồng Nai",
     phone: "0913.901.234",
     managerName: "Quản Lý Biên Hòa",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -119,7 +108,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 12 Khu Phước Hải, Thị Trấn Long Thành, Huyện Long Thành, Đồng Nai",
     phone: "0914.012.345",
     managerName: "Quản Lý Long Thành",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   },
   {
@@ -129,7 +117,6 @@ export const DEFAULT_BRANCHES: Branch[] = [
     address: "Số 207 Lê Hồng Phong, Phường 8, TP. Vũng Tàu, Bà Rịa - Vũng Tàu",
     phone: "0915.123.456",
     managerName: "Quản Lý Vũng Tàu",
-    defaultTeacherPin: "8888",
     createdDate: "2026-08-29"
   }
 ];
@@ -231,26 +218,22 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "admin",
     username: "admin",
-    password: "",
     fullName: "Tổng Quản Trị Viên (Super Admin)",
     role: "admin",
     phone: "0901888999",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
     createdDate: "2026-08-29"
   },
-  // ── QUẢN LÝ NỘI BỘ (internal_manager) ──────────────────────────────
+  
   {
     id: "im_hcm",
     username: "noidbo.hcm@saoviet",
-    password: "NoidBo@HCM2026",
     fullName: "Nguyễn Hoàng Minh — Quản Lý Nội Bộ TP.HCM",
     role: "internal_manager",
     phone: "0903111222",
     email: "noidbo.hcm@saoviet",
-    pin: "9999",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: [],
@@ -259,29 +242,25 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "im_mien_nam",
     username: "noidbo.mn@saoviet",
-    password: "NoidBo@MienNam2026",
     fullName: "Trần Thị Kim Anh — Quản Lý Nội Bộ Miền Nam",
     role: "internal_manager",
     phone: "0903222333",
     email: "noidbo.mn@saoviet",
-    pin: "9999",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: [],
     createdDate: "2026-08-29"
   },
-  // ── QUẢN LÝ CHI NHÁNH (branch_manager) ──────────────────────────────
+  
   {
     id: "bm_binhthanh",
     username: "binhthanh@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Bình Thạnh",
     role: "branch_manager",
     branchId: "branch_binhthanh",
     branchName: "Chi Nhánh Bình Thạnh",
     phone: "0904567890",
     email: "binhthanh@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -290,14 +269,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_quan7",
     username: "quan7@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Quận 7",
     role: "branch_manager",
     branchId: "branch_quan7",
     branchName: "Chi Nhánh Quận 7",
     phone: "0905123456",
     email: "quan7@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -306,14 +283,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_binhtan",
     username: "binhtan@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Bình Tân",
     role: "branch_manager",
     branchId: "branch_binhtan",
     branchName: "Chi Nhánh Bình Tân",
     phone: "0906234567",
     email: "binhtan@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -322,14 +297,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_quan12",
     username: "quan12@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Quận 12",
     role: "branch_manager",
     branchId: "branch_quan12",
     branchName: "Chi Nhánh Quận 12",
     phone: "0907345678",
     email: "quan12@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -338,14 +311,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_thuduc",
     username: "thuduc@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Thủ Đức",
     role: "branch_manager",
     branchId: "branch_thuduc",
     branchName: "Chi Nhánh TP. Thủ Đức",
     phone: "0901234567",
     email: "thuduc@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -354,14 +325,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_tanbinh",
     username: "tanbinh@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Tân Bình",
     role: "branch_manager",
     branchId: "branch_tanbinh",
     branchName: "Chi Nhánh Tân Bình",
     phone: "0908456789",
     email: "tanbinh@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -370,14 +339,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_thudaumot",
     username: "thudaumot@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Thủ Dầu Một",
     role: "branch_manager",
     branchId: "branch_thudaumot",
     branchName: "Chi Nhánh Thủ Dầu Một",
     phone: "0909567890",
     email: "thudaumot@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -386,14 +353,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_thuanan",
     username: "thuanan@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Thuận An",
     role: "branch_manager",
     branchId: "branch_thuanan",
     branchName: "Chi Nhánh Thuận An",
     phone: "0910678901",
     email: "thuanan@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -402,14 +367,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_dian",
     username: "dian@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Dĩ An",
     role: "branch_manager",
     branchId: "branch_dian",
     branchName: "Chi Nhánh Dĩ An",
     phone: "0911789012",
     email: "dian@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -418,14 +381,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_tanuyen",
     username: "tanuyen@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Tân Uyên",
     role: "branch_manager",
     branchId: "branch_tanuyen",
     branchName: "Chi Nhánh Tân Uyên",
     phone: "0912890123",
     email: "tanuyen@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -434,14 +395,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_bienhoa",
     username: "bienhoa@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Biên Hòa",
     role: "branch_manager",
     branchId: "branch_bienhoa",
     branchName: "Chi Nhánh Biên Hòa",
     phone: "0913901234",
     email: "bienhoa@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -450,14 +409,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_longthanh",
     username: "longthanh@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Long Thành",
     role: "branch_manager",
     branchId: "branch_longthanh",
     branchName: "Chi Nhánh Long Thành",
     phone: "0914012345",
     email: "longthanh@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -466,14 +423,12 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "bm_vungtau",
     username: "vungtau@saoviet",
-    password: "saoviet@2026",
     fullName: "Quản Lý Chi Nhánh Vũng Tàu",
     role: "branch_manager",
     branchId: "branch_vungtau",
     branchName: "Chi Nhánh Vũng Tàu",
     phone: "0915123456",
     email: "vungtau@saoviet",
-    pin: "8888",
     status: "active",
     totalStudySeconds: 0,
     enrolledSubjects: ["python", "c", "cpp", "csharp", "java", "typescript", "web_basic"],
@@ -493,7 +448,6 @@ export const DEFAULT_USERS: User[] = [
   {
     id: "student_kiet",
     username: "0977266020",
-    password: "Kiet0977266020",
     fullName: "Nguyễn Tuấn Kiệt",
     role: "student",
     branchId: "branch_thuduc",
@@ -615,44 +569,25 @@ export function validateUserCredentials(user: User, passwordAttempt: string): bo
   const cleanAttempt = passwordAttempt.trim();
   const lowerAttempt = cleanAttempt.toLowerCase();
   
-  // 1. Direct password match or case-insensitive match
   if (user.password && (user.password === cleanAttempt || user.password.toLowerCase() === lowerAttempt)) {
     return true;
   }
   
-  // 2. Admin super password
-  if (user.role === "admin" && (cleanAttempt === "saoviet@admin2026" || cleanAttempt === "admin" || !user.password)) {
-    return true;
-  }
-  
-  // 3. Student standard password (e.g. Dat0987654321, dat0987654321, Đạt0987654321)
+  // Học viên ngoại tuyến: Khớp theo Tên + SĐT
   if (user.role === "student") {
     const expectedPass = generateDefaultStudentPassword(user.fullName, user.phone || user.username);
     if (cleanAttempt === expectedPass || lowerAttempt === expectedPass.toLowerCase()) {
       return true;
     }
-    // Also support First Name + clean Phone with accented first name
     const parts = user.fullName.trim().split(/\s+/);
     const rawFirst = parts[parts.length - 1] || "";
     const cleanPhone = (user.phone || user.username || "").replace(/\D/g, "");
     if (cleanPhone && `${rawFirst}${cleanPhone}`.toLowerCase() === lowerAttempt) {
       return true;
     }
-    // Also allow student to login with just their Phone number as password
     if (cleanPhone && cleanAttempt === cleanPhone) {
       return true;
     }
-  }
-  
-  // 4. Default global passwords
-  if (
-    cleanAttempt === "saoviet@2026" ||
-    cleanAttempt === "saoviet2026" ||
-    cleanAttempt === "123456" ||
-    lowerAttempt === "saoviet@2026" ||
-    lowerAttempt === "saoviet2026"
-  ) {
-    return true;
   }
   
   return false;
@@ -763,84 +698,56 @@ export function loginUser(username: string, passwordAttempt: string): { success:
 }
 
 export async function loginUserAsync(username: string, passwordAttempt: string): Promise<{ success: boolean; user?: User; message?: string }> {
-  // 1. Try local login first
-  const localRes = loginUser(username, passwordAttempt);
-  if (localRes.success) {
-    return localRes;
+  // 1. Xác thực bảo mật qua API máy chủ
+  try {
+    const res = await fetch("/api/users/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password: passwordAttempt })
+    });
+    const data = await res.json();
+    if (data && data.success && data.user) {
+      const user: User = data.user;
+      const now = Date.now();
+      const nowDate = new Date(now);
+      const loginDate = nowDate.toLocaleDateString("vi-VN");
+      const loginTime = nowDate.toLocaleTimeString("vi-VN");
+      const loginTimeFormatted = `${loginTime} - ${loginDate}`;
+
+      const session: UserSessionData = {
+        user,
+        token: data.token || `token_${user.id}_${now}`,
+        loginTimestamp: now,
+        loginDate,
+        loginTimeFormatted,
+        expiresAt: now + SESSION_DURATION_SECONDS * 1000
+      };
+
+      if (typeof window !== "undefined") {
+        localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
+        window.dispatchEvent(new Event("saoviet-auth-change"));
+
+        const allUsers = getUsers();
+        const uIdx = allUsers.findIndex(u => u.id === user.id);
+        if (uIdx >= 0) {
+          allUsers[uIdx] = { ...allUsers[uIdx], ...user };
+        } else {
+          allUsers.push(user);
+        }
+        saveUsers(allUsers);
+      }
+      return { success: true, user };
+    }
+    if (data && data.message) {
+      return { success: false, message: data.message };
+    }
+  } catch (err) {
+    // 2. Chế độ ngoại tuyến (Offline fallback)
+    const localRes = loginUser(username, passwordAttempt);
+    if (localRes.success) return localRes;
   }
 
-  // 2. If user not found locally, fetch latest users from server API
-  try {
-    const res = await fetch("/api/users");
-    const data = await res.json();
-    if (data && data.success && Array.isArray(data.users) && data.users.length > 0) {
-      const currentLocals = getUsers();
-      const userMap = new Map<string, User>();
-      data.users.forEach((u: User) => {
-        if (u.username) userMap.set(u.username.toLowerCase(), u);
-      });
-      currentLocals.forEach((u: User) => {
-        if (u.username) userMap.set(u.username.toLowerCase(), u);
-      });
-      const merged = Array.from(userMap.values());
-      saveUsers(merged);
-
-      const retryUser = findUserByUsernameOrPhone(username, merged);
-      if (retryUser) {
-        if (retryUser.status === "locked") {
-          return { success: false, message: "Tài khoản đang bị tạm khóa. Vui lòng liên hệ Quản lý chi nhánh." };
-        }
-        if (validateUserCredentials(retryUser, passwordAttempt)) {
-          const now = Date.now();
-          const nowDate = new Date(now);
-          const loginDate = nowDate.toLocaleDateString("vi-VN");
-          const loginTime = nowDate.toLocaleTimeString("vi-VN");
-          const loginTimeFormatted = `${loginTime} - ${loginDate}`;
-
-          retryUser.lastLoginDate = loginDate;
-          retryUser.lastLoginTime = loginTime;
-
-          const session: UserSessionData = {
-            user: retryUser,
-            token: `token_${retryUser.id}_${now}`,
-            loginTimestamp: now,
-            loginDate,
-            loginTimeFormatted,
-            expiresAt: now + SESSION_DURATION_SECONDS * 1000
-          };
-
-          if (typeof window !== "undefined") {
-            localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
-            window.dispatchEvent(new Event("saoviet-auth-change"));
-
-            fetchClientNetworkInfo().then(net => {
-              if (net && net.ip) {
-                session.ipAddress = net.ip;
-                retryUser.lastLoginIp = net.ip;
-                localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify(session));
-
-                fetch("/api/users", {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    id: retryUser.id,
-                    lastLoginDate: loginDate,
-                    lastLoginTime: loginTime,
-                    lastLoginIp: net.ip
-                  })
-                }).catch(() => null);
-              }
-            }).catch(() => null);
-          }
-          return { success: true, user: retryUser };
-        } else {
-          return { success: false, message: "Mật khẩu không chính xác. Định dạng mặc định: Tên + SĐT (VD: Thien0937482673)" };
-        }
-      }
-    }
-  } catch (e) {}
-
-  return localRes;
+  return { success: false, message: "Sai tên đăng nhập hoặc mật khẩu!" };
 }
 
 export function logoutUser(): void {
@@ -946,9 +853,10 @@ export function addUser(user: Partial<User>): { success: boolean; user?: User; m
 export function verifyTeacherPin(pin: string): boolean {
   if (!pin) return false;
   const clean = pin.trim();
-  if (clean === "8888") return true;
   const user = getCurrentUser();
-  if (user && user.pin && user.pin === clean) return true;
+  if (user && (user.role === "admin" || user.role === "branch_manager" || user.role === "teacher")) {
+    if (user.pin && user.pin === clean) return true;
+  }
   return false;
 }
 

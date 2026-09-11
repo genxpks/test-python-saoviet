@@ -29,8 +29,15 @@ import {
   RotateCcw,
   ShieldCheck,
   Award,
-  CheckCircle2
+  CheckCircle2,
+  WifiOff
 } from "lucide-react";
+import { 
+  saveExamAutoSave, 
+  getExamAutoSave, 
+  clearExamAutoSave, 
+  ExamAutoSaveData 
+} from "@/lib/examAutoSaveHelper";
 
 export default function ExamPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -65,6 +72,12 @@ export default function ExamPage() {
   const [showResultModal, setShowResultModal] = useState(false);
   const [showSubmitConfirmModal, setShowSubmitConfirmModal] = useState(false);
   const [finalScoreData, setFinalScoreData] = useState<ExamResult | null>(null);
+
+  // Tính năng Ngoại Tuyến, Auto-Save & Bảo Mật Phòng Thi
+  const [isNetworkOnline, setIsNetworkOnline] = useState(true);
+  const [lastAutoSavedTime, setLastAutoSavedTime] = useState<string>("");
+  const [detectedAutoSave, setDetectedAutoSave] = useState<ExamAutoSaveData | null>(null);
+  const [securityWarning, setSecurityWarning] = useState<string>("");
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -136,6 +149,181 @@ export default function ExamPage() {
     };
   }, [isExamActive, isPaused]);
 
+  // 1. Lắng nghe trạng thái mạng Online / Offline
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setIsNetworkOnline(navigator.onLine);
+      const handleOnline = () => setIsNetworkOnline(true);
+      const handleOffline = () => setIsNetworkOnline(false);
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("offline", handleOffline);
+      return () => {
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
+      };
+    }
+  }, []);
+
+  // 2. Chế độ bảo vệ phòng thi: Chống mở F12, Inspect, Chuột phải và BeforeUnload snapshot
+  useEffect(() => {
+    if (!isExamActive) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Chặn F12
+      if (e.key === "F12") {
+        e.preventDefault();
+        e.stopPropagation();
+        setSecurityWarning("⚠️ Chế độ thi bảo mật: Đã vô hiệu hóa phím F12.");
+        setTimeout(() => setSecurityWarning(""), 3500);
+        return false;
+      }
+      // Chặn Ctrl+Shift+I / J / C
+      if (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "i" || e.key === "J" || e.key === "j" || e.key === "C" || e.key === "c")) {
+        e.preventDefault();
+        e.stopPropagation();
+        setSecurityWarning("⚠️ Chế độ thi bảo mật: Đã khóa tổ hợp phím Inspect Element.");
+        setTimeout(() => setSecurityWarning(""), 3500);
+        return false;
+      }
+      // Chặn Ctrl+U
+      if (e.ctrlKey && (e.key === "u" || e.key === "U")) {
+        e.preventDefault();
+        e.stopPropagation();
+        setSecurityWarning("⚠️ Chế độ thi bảo mật: Đã khóa tính năng xem mã nguồn trang.");
+        setTimeout(() => setSecurityWarning(""), 3500);
+        return false;
+      }
+    };
+
+    const handleContextMenu = (e: MouseEvent) => {
+      e.preventDefault();
+      setSecurityWarning("⚠️ Chế độ thi bảo mật: Đã khóa menu chuột phải.");
+      setTimeout(() => setSecurityWarning(""), 3500);
+      return false;
+    };
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (currentUser?.id && examQuestions.length > 0) {
+        const nowDT = getCurrentVNDateTime();
+        saveExamAutoSave({
+          examId: `exam_${currentUser.id}`,
+          userId: currentUser.id,
+          userName: currentUser.fullName,
+          subjectId: selectedSubjectId,
+          branchId: currentUser.branchId,
+          examAccessCode,
+          currentPart,
+          currentIndex,
+          userAnswers,
+          userPracticalCode,
+          practicalResults,
+          examQuestions,
+          examPracticals,
+          remainingSeconds: timerSeconds,
+          totalDurationSeconds: 60 * 60,
+          savedTimestamp: Date.now(),
+          savedDateTimeText: `${nowDT.date} ${nowDT.time}`
+        });
+      }
+      e.preventDefault();
+      e.returnValue = "Bài thi đang diễn ra. Bạn có chắc chắn muốn rời đi?";
+      return e.returnValue;
+    };
+
+    window.addEventListener("keydown", handleKeyDown, true);
+    window.addEventListener("contextmenu", handleContextMenu);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true);
+      window.removeEventListener("contextmenu", handleContextMenu);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isExamActive, currentUser, selectedSubjectId, examAccessCode, currentPart, currentIndex, userAnswers, userPracticalCode, practicalResults, examQuestions, examPracticals, timerSeconds]);
+
+  // 3. Tự động lưu tiến độ thi liên tục (Offline Safe & Sync Server)
+  useEffect(() => {
+    if (!isExamActive || isPaused || !currentUser?.id || examQuestions.length === 0) return;
+
+    const nowDT = getCurrentVNDateTime();
+    const saveSnapshot = () => {
+      const payload: ExamAutoSaveData = {
+        examId: `exam_${currentUser.id}`,
+        userId: currentUser.id,
+        userName: currentUser.fullName,
+        subjectId: selectedSubjectId,
+        branchId: currentUser.branchId,
+        examAccessCode,
+        currentPart,
+        currentIndex,
+        userAnswers,
+        userPracticalCode,
+        practicalResults,
+        examQuestions,
+        examPracticals,
+        remainingSeconds: timerSeconds,
+        totalDurationSeconds: 60 * 60,
+        savedTimestamp: Date.now(),
+        savedDateTimeText: `${nowDT.date} ${nowDT.time}`
+      };
+
+      saveExamAutoSave(payload);
+      setLastAutoSavedTime(nowDT.time);
+
+      if (navigator.onLine) {
+        fetch("/api/pause", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...payload,
+            pausedAt: `${nowDT.date} ${nowDT.time}`,
+            pausedDate: nowDT.date,
+            pausedBy: "autosave",
+            reason: "Hệ thống tự động lưu bài thi định kỳ",
+            isUnlocked: true
+          })
+        }).catch(() => null);
+      }
+    };
+
+    saveSnapshot();
+    const interval = setInterval(saveSnapshot, 5000);
+    return () => clearInterval(interval);
+  }, [isExamActive, isPaused, userAnswers, userPracticalCode, practicalResults, currentPart, currentIndex, timerSeconds]);
+
+  // 4. Phát hiện bài thi chưa hoàn thành do đơ máy / mất mạng khi tải trang
+  useEffect(() => {
+    if (!isExamActive && currentUser?.id) {
+      const autoSave = getExamAutoSave(currentUser.id, selectedSubjectId);
+      if (autoSave && autoSave.examQuestions && autoSave.examQuestions.length > 0 && autoSave.remainingSeconds > 0) {
+        setDetectedAutoSave(autoSave);
+      }
+    }
+  }, [currentUser?.id, selectedSubjectId, isExamActive]);
+
+  const handleRestoreFromAutoSave = () => {
+    if (!detectedAutoSave) return;
+    setExamQuestions(detectedAutoSave.examQuestions || []);
+    setExamPracticals(detectedAutoSave.examPracticals || []);
+    setUserAnswers(detectedAutoSave.userAnswers || {});
+    setUserPracticalCode(detectedAutoSave.userPracticalCode || {});
+    setPracticalResults(detectedAutoSave.practicalResults || {});
+    setTimerSeconds(detectedAutoSave.remainingSeconds || 60 * 60);
+    setCurrentPart(detectedAutoSave.currentPart || 1);
+    setCurrentIndex(detectedAutoSave.currentIndex || 0);
+    if (detectedAutoSave.examAccessCode) setExamAccessCode(detectedAutoSave.examAccessCode);
+
+    setIsExamActive(true);
+    setIsPaused(false);
+    setDetectedAutoSave(null);
+  };
+
+  const handleDiscardAutoSave = () => {
+    if (!currentUser) return;
+    clearExamAutoSave(currentUser.id, selectedSubjectId);
+    setDetectedAutoSave(null);
+  };
+
   const handleStartExam = async () => {
     if (!currentUser) {
       alert("Vui lòng đăng nhập tài khoản học viên trước khi bắt đầu thi!");
@@ -143,14 +331,7 @@ export default function ExamPage() {
     }
 
     const cleanCode = examAccessCode.trim().toUpperCase();
-
-    // Mã cứng legacy — fallback khi API không khả dụng
-    const LEGACY_CODES = ["SAOVIET2026", "PYTHON2026", "SV2026", "SAOVIET", "8888", "110926"];
-    if (currentUser.pin) LEGACY_CODES.push(currentUser.pin.trim().toUpperCase());
-    if (currentUser.class) LEGACY_CODES.push(currentUser.class.trim().toUpperCase());
-
     const isPrivileged = currentUser.role === "admin" || currentUser.role === "branch_manager" || currentUser.role === "teacher";
-
     let targetConfig: ExamConfig | null = verifiedConfig;
 
     if (!isPrivileged) {
@@ -159,9 +340,8 @@ export default function ExamPage() {
         return;
       }
 
-      // Xác thực mã qua API (kiểm tra MongoDB + thời hạn)
       let codeValid = false;
-      setIsVerifying(true); // bat loading
+      setIsVerifying(true);
       try {
         const verifyRes = await fetch("/api/exam-codes/verify", {
           method: "POST",
@@ -180,18 +360,14 @@ export default function ExamPage() {
             setVerifiedConfig(verifyData.examCode.config);
           }
         } else {
-          setAccessError("❌ " + (verifyData.message || "Mã phòng thi không chính xác!"));
+          setAccessError("❌ " + (verifyData.message || "Mã phòng thi không chính xác hoặc đã hết hạn!"));
           return;
         }
       } catch {
-        // Fallback: nếu API lỗi, thử mã cứng legacy
-        if (!LEGACY_CODES.includes(cleanCode)) {
-          setAccessError("❌ Mã phòng thi không chính xác! Vui lòng hỏi Giáo viên / Giám thị để nhận mã thi.");
-          return;
-        }
-        codeValid = true;
+        setAccessError("❌ Không thể kết nối máy chủ xác thực mã. Vui lòng kiểm tra mạng hoặc liên hệ Giám thị.");
+        return;
       } finally {
-        setIsVerifying(false); // tat loading du pass hay fail
+        setIsVerifying(false);
       }
 
       if (!codeValid) return;
@@ -299,8 +475,8 @@ export default function ExamPage() {
       return { success: false, message: "Vui lòng nhập Mã Phòng Thi Mới (Mã v2) hoặc PIN Giám Thị!" };
     }
 
-    // 1. PIN giám thị (8888 hoặc PIN của user)
-    const isTeacherPin = cleanCode === "8888" || (currentUser?.pin && cleanCode === currentUser.pin.trim().toUpperCase());
+    // PIN của tài khoản cán bộ coi thi hoặc xác thực qua API
+    const isTeacherPin = !!(currentUser?.pin && cleanCode === currentUser.pin.trim().toUpperCase());
     let valid = isTeacherPin;
 
     if (!valid) {
@@ -321,12 +497,7 @@ export default function ExamPage() {
           return { success: false, message: verifyData?.message || "Mã phòng thi không chính xác hoặc đã hết hạn!" };
         }
       } catch {
-        const LEGACY_CODES = ["SAOVIET2026", "PYTHON2026", "SV2026", "SAOVIET", "8888", "110926"];
-        if (LEGACY_CODES.includes(cleanCode)) {
-          valid = true;
-        } else {
-          return { success: false, message: "Không thể kết nối xác thực mã lúc này. Vui lòng hỏi Giáo viên." };
-        }
+        return { success: false, message: "Không thể kết nối xác thực mã lúc này. Vui lòng kiểm tra mạng hoặc hỏi Giám thị." };
       }
     }
 
@@ -537,13 +708,14 @@ export default function ExamPage() {
       }).catch(() => null);
     } catch {}
 
-    // Xóa bài thi tạm dừng khi đã nộp bài thành công
+    // Xóa bài thi tạm dừng và bản lưu tự động khi đã nộp bài thành công
     if (currentUser) {
       try {
         fetch(`/api/pause?userId=${encodeURIComponent(currentUser.id)}&subjectId=${encodeURIComponent(selectedSubjectId)}`, {
           method: "DELETE"
         }).catch(() => null);
         localStorage.removeItem(`SAOVIET_PAUSED_EXAM_${currentUser.id}_${selectedSubjectId}`);
+        clearExamAutoSave(currentUser.id, selectedSubjectId);
       } catch {}
       setPausedExam(null);
     }
@@ -564,8 +736,8 @@ export default function ExamPage() {
     <AuthGate
       mode="exam"
       subjectId={selectedSubjectId}
-      pageTitle="Phòng Thi Trực Tuyến 50 Phút"
-      pageDescription="Học viên vui lòng đăng nhập bằng SĐT và Mật khẩu (Tên+SĐT) để làm bài thi có giám sát."
+      pageTitle="Phòng Thi Trực Tuyến Có Giám Sát"
+      pageDescription="Học viên vui lòng đăng nhập bằng tài khoản được cấp để tham gia làm bài thi."
     >
       <div style={{ maxWidth: "1100px", margin: "0 auto", padding: "1rem 0.5rem" }}>
         {!isExamActive ? (
@@ -614,6 +786,80 @@ export default function ExamPage() {
             </div>
 
             <SubjectAccessGate subjectId={selectedSubjectId}>
+              {/* BANNER TỰ ĐỘNG KHÔI PHỤC KHI BỊ SỰ CỐ / ĐƠ MÁY / MẤT MẠNG */}
+              {detectedAutoSave && !isExamActive && (
+                <div style={{
+                  maxWidth: "640px",
+                  margin: "0 auto 1.2rem auto",
+                  background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+                  border: "2px solid #2563eb",
+                  borderRadius: "14px",
+                  padding: "1.2rem 1.4rem",
+                  textAlign: "left",
+                  boxShadow: "0 8px 24px rgba(37, 99, 235, 0.18)"
+                }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "0.5rem" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", color: "#1e40af", fontWeight: 800, fontSize: "0.98rem" }}>
+                      <RotateCcw size={20} color="#2563eb" />
+                      <span>PHÁT HIỆN BÀI THI BỊ GIÁN ĐOẠN (MẤT MẠNG HOẶC SỰ CỐ MÁY)</span>
+                    </div>
+                    <span style={{
+                      background: "#2563eb",
+                      color: "#ffffff",
+                      padding: "2px 8px",
+                      borderRadius: "9999px",
+                      fontSize: "0.72rem",
+                      fontWeight: 800
+                    }}>
+                      Tự động lưu: {detectedAutoSave.savedDateTimeText || "Gần đây"}
+                    </span>
+                  </div>
+
+                  <p style={{ fontSize: "0.84rem", color: "#1e3a8a", margin: "0 0 0.85rem 0", lineHeight: "1.5" }}>
+                    Hệ thống đã tự động lưu trữ an toàn toàn bộ bài làm của em:
+                    <strong> {Object.keys(detectedAutoSave.userAnswers || {}).length} câu trắc nghiệm</strong>,
+                    <strong> {Object.keys(detectedAutoSave.userPracticalCode || {}).filter(k => !!detectedAutoSave.userPracticalCode[Number(k)]).length} bài thực hành code</strong>.
+                    Thời gian còn lại: <strong>{formatTimer(detectedAutoSave.remainingSeconds)}</strong>.
+                  </p>
+
+                  <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
+                    <button
+                      onClick={handleRestoreFromAutoSave}
+                      className="btn btn-primary"
+                      style={{
+                        flex: 2,
+                        padding: "0.6rem 1rem",
+                        fontSize: "0.85rem",
+                        fontWeight: 800,
+                        background: "linear-gradient(135deg, #2563eb, #1d4ed8)",
+                        boxShadow: "0 3px 10px rgba(37, 99, 235, 0.35)",
+                        justifyContent: "center",
+                        gap: "6px"
+                      }}
+                    >
+                      <ShieldCheck size={16} />
+                      <span>⚡ KHÔI PHỤC BÀI THI & LÀM TIẾP NGAY</span>
+                    </button>
+
+                    <button
+                      onClick={handleDiscardAutoSave}
+                      className="btn btn-secondary"
+                      style={{
+                        flex: 1,
+                        padding: "0.6rem 0.8rem",
+                        fontSize: "0.78rem",
+                        fontWeight: 700,
+                        justifyContent: "center",
+                        color: "#dc2626"
+                      }}
+                    >
+                      <Trash2 size={14} />
+                      <span>Hủy & Thi Mới</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* BANNER THÔNG BÁO BÀI THI ĐANG TẠM DỪNG / BẢO LƯU */}
               {pausedExam && (
                 <div style={{
@@ -882,7 +1128,55 @@ export default function ExamPage() {
                   <Globe size={11} color="#2563eb" />
                   <span>IP: <strong>{clientNetworkIp || "127.0.0.1"}</strong></span>
                 </span>
+
+                {/* Badge trạng thái lưu & kết nối mạng */}
+                <div style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "5px",
+                  fontSize: "0.72rem",
+                  padding: "0.15rem 0.5rem",
+                  borderRadius: "6px",
+                  background: isNetworkOnline ? "rgba(16, 185, 129, 0.12)" : "rgba(245, 158, 11, 0.18)",
+                  border: isNetworkOnline ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid rgba(245, 158, 11, 0.4)"
+                }}>
+                  {isNetworkOnline ? (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "#10b981", fontWeight: 700 }}>
+                      <span style={{ width: "7px", height: "7px", borderRadius: "50%", backgroundColor: "#10b981" }}></span>
+                      <span>{lastAutoSavedTime ? `Đã tự lưu ${lastAutoSavedTime}` : "Tự động lưu an toàn"}</span>
+                    </span>
+                  ) : (
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "4px", color: "#d97706", fontWeight: 800 }}>
+                      <WifiOff size={12} />
+                      <span>Ngoại tuyến (Đã lưu vào máy)</span>
+                    </span>
+                  )}
+                </div>
               </div>
+
+              {/* Toast thông báo chống gian lận phòng thi */}
+              {securityWarning && (
+                <div style={{
+                  position: "fixed",
+                  top: "20px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  background: "#b91c1c",
+                  color: "#ffffff",
+                  padding: "10px 22px",
+                  borderRadius: "9999px",
+                  fontSize: "0.85rem",
+                  fontWeight: 800,
+                  zIndex: 99999,
+                  boxShadow: "0 8px 30px rgba(185, 28, 28, 0.5)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px"
+                }}>
+                  <AlertCircle size={17} />
+                  <span>{securityWarning}</span>
+                </div>
+              )}
 
               <div style={{ display: "flex", alignItems: "center", gap: "0.9rem" }}>
                 <div style={{
