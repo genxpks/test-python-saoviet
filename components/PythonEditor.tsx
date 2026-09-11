@@ -210,9 +210,14 @@ export default function PythonEditor({
 
   const handleSubmit = () => {
     const res = PythonEngine.gradeProblem(problem.id, code);
-    setGradeStatus(res);
-    if (onSubmitGrade) onSubmitGrade(res);
-    alert(`✅ Đã nộp bài ${problem.id}!\nĐánh giá: ${res.feedback}\nĐiểm hệ thống: ${res.score}/10`);
+    if (isExamMode) {
+      if (onSubmitGrade) onSubmitGrade(res);
+      alert(`✅ Đã lưu bài làm câu ${problem.id} vào hệ thống thi.`);
+    } else {
+      setGradeStatus(res);
+      if (onSubmitGrade) onSubmitGrade(res);
+      alert(`✅ Đã nộp bài ${problem.id}!\nĐánh giá: ${res.feedback}\nĐiểm hệ thống: ${res.score}/10`);
+    }
   };
 
   // Line numbers calculation
@@ -228,26 +233,28 @@ export default function PythonEditor({
             <FileCode2 size={15} />
             <span>main.py</span>
           </div>
-          <button
-            onClick={handleLoadTemplate}
-            style={{
-              background: "rgba(56, 189, 248, 0.12)",
-              border: "1px solid rgba(56, 189, 248, 0.3)",
-              color: "#38bdf8",
-              fontSize: "0.75rem",
-              padding: "0.2rem 0.6rem",
-              borderRadius: "6px",
-              cursor: "pointer",
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "4px",
-              fontWeight: 700
-            }}
-            title="Tải khung hàm mẫu gợi ý (nếu cần trợ giúp)"
-          >
-            <Lightbulb size={12} />
-            <span>Xem Gợi Ý Khung Hàm</span>
-          </button>
+          {!isExamMode && (
+            <button
+              onClick={handleLoadTemplate}
+              style={{
+                background: "rgba(56, 189, 248, 0.12)",
+                border: "1px solid rgba(56, 189, 248, 0.3)",
+                color: "#38bdf8",
+                fontSize: "0.75rem",
+                padding: "0.2rem 0.6rem",
+                borderRadius: "6px",
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+                fontWeight: 700
+              }}
+              title="Tải khung hàm mẫu gợi ý (nếu cần trợ giúp)"
+            >
+              <Lightbulb size={12} />
+              <span>Xem Gợi Ý Khung Hàm</span>
+            </button>
+          )}
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
@@ -316,27 +323,29 @@ export default function PythonEditor({
             <span>{isRunning ? "Đang chạy..." : "▶️ Chạy Thử / Build (F5)"}</span>
           </button>
 
-          {/* AI Chấm Điểm Thông Minh Button */}
-          <button
-            onClick={handleGradeWithAI}
-            disabled={isAiGrading}
-            className="btn btn-sm"
-            style={{
-              background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
-              color: "#ffffff",
-              fontWeight: 800,
-              border: "1px solid rgba(168, 85, 247, 0.5)",
-              boxShadow: "0 2px 10px rgba(124, 58, 237, 0.35)",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              cursor: isAiGrading ? "wait" : "pointer"
-            }}
-            title="Dùng AI kiểm tra tính đúng đắn của code (chấp nhận mọi cách đặt tên hàm)"
-          >
-            <Sparkles size={14} />
-            <span>{isAiGrading ? "AI Đang Chấm..." : "🤖 Chấm Điểm Bằng AI"}</span>
-          </button>
+          {/* AI Chấm Điểm Thông Minh Button (Chỉ hiện trong chế độ ôn luyện) */}
+          {!isExamMode && (
+            <button
+              onClick={handleGradeWithAI}
+              disabled={isAiGrading}
+              className="btn btn-sm"
+              style={{
+                background: "linear-gradient(135deg, #7c3aed, #6d28d9)",
+                color: "#ffffff",
+                fontWeight: 800,
+                border: "1px solid rgba(168, 85, 247, 0.5)",
+                boxShadow: "0 2px 10px rgba(124, 58, 237, 0.35)",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                cursor: isAiGrading ? "wait" : "pointer"
+              }}
+              title="Dùng AI kiểm tra tính đúng đắn của code (chấp nhận mọi cách đặt tên hàm)"
+            >
+              <Sparkles size={14} />
+              <span>{isAiGrading ? "AI Đang Chấm..." : "🤖 Chấm Điểm Bằng AI"}</span>
+            </button>
+          )}
 
           {!isExamMode && (
             <button className="btn btn-ai btn-sm" onClick={handleAskAI} disabled={isAiLoading}>
@@ -356,8 +365,8 @@ export default function PythonEditor({
         </button>
       </div>
 
-      {/* AI Feedback Panel */}
-      {aiFeedback && (
+      {/* AI Feedback Panel (Chỉ hiển thị khi không phải phòng thi) */}
+      {!isExamMode && aiFeedback && (
         <div style={{
           background: "linear-gradient(135deg, #1e1b4b, #0f172a)",
           color: "#f5d0fe",
@@ -384,8 +393,8 @@ export default function PythonEditor({
         </div>
       )}
 
-      {/* Auto Grade Notification */}
-      {gradeStatus && (
+      {/* Auto Grade Notification (Chỉ hiển thị khi không phải phòng thi) */}
+      {!isExamMode && gradeStatus && (
         <div style={{
           background: gradeStatus.passed ? "rgba(16, 185, 129, 0.15)" : "rgba(239, 68, 68, 0.15)",
           color: gradeStatus.passed ? "#34d399" : "#fca5a5",

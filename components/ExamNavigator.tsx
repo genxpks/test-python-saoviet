@@ -25,7 +25,7 @@ export default function ExamNavigator({
   onSelectPractical
 }: ExamNavigatorProps) {
   const answeredMCQCount = Object.keys(userAnswers).length;
-  const answeredPracticalCount = Object.keys(practicalResults).filter(k => practicalResults[Number(k)]?.passed).length;
+  const answeredPracticalCount = Object.keys(practicalResults).length;
   const totalAnswered = answeredMCQCount + answeredPracticalCount;
   const totalQuestions = questions.length + practicals.length;
   const progressPercent = totalQuestions > 0 ? Math.round((totalAnswered / totalQuestions) * 100) : 0;
@@ -111,7 +111,7 @@ export default function ExamNavigator({
           </div>
           <div className="q-grid-matrix" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
             {practicals.map((p, idx) => {
-              const isGraded = practicalResults[p.id]?.passed;
+              const isGraded = practicalResults[p.id] !== undefined;
               const isCurrent = currentPart === 2 && currentIndex === idx;
               return (
                 <button

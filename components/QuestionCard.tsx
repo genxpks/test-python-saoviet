@@ -52,7 +52,7 @@ export default function QuestionCard({
     userAnswer !== undefined && userAnswer !== null ? String(userAnswer) : ""
   );
   const [fillChecked, setFillChecked] = useState<boolean>(
-    userAnswer !== undefined && userAnswer !== null && userAnswer !== ""
+    !isExamMode && (userAnswer !== undefined && userAnswer !== null && userAnswer !== "")
   );
 
   // 2. MULTIPLE CHOICE STATES
@@ -60,7 +60,7 @@ export default function QuestionCard({
     Array.isArray(userAnswer) ? userAnswer : []
   );
   const [multiChecked, setMultiChecked] = useState<boolean>(
-    Array.isArray(userAnswer) && userAnswer.length > 0
+    !isExamMode && (Array.isArray(userAnswer) && userAnswer.length > 0)
   );
 
   // 3. SEQUENCE ORDER STATES
@@ -97,17 +97,17 @@ export default function QuestionCard({
   useEffect(() => {
     setLocalAnswer(userAnswer);
     setFillInput(userAnswer !== undefined && userAnswer !== null ? String(userAnswer) : "");
-    setFillChecked(userAnswer !== undefined && userAnswer !== null && userAnswer !== "");
+    setFillChecked(!isExamMode && userAnswer !== undefined && userAnswer !== null && userAnswer !== "");
     setMultiSelected(Array.isArray(userAnswer) ? userAnswer : []);
-    setMultiChecked(Array.isArray(userAnswer) && userAnswer.length > 0);
+    setMultiChecked(!isExamMode && Array.isArray(userAnswer) && userAnswer.length > 0);
     setOrder(
       Array.isArray(userAnswer) && userAnswer.length > 0 
         ? userAnswer 
         : Array.from({ length: question.items?.length || 0 }, (_, i) => i)
     );
-    setOrderChecked(Array.isArray(userAnswer) && userAnswer.length > 0);
+    setOrderChecked(!isExamMode && Array.isArray(userAnswer) && userAnswer.length > 0);
     setPairs(typeof userAnswer === "object" && userAnswer !== null && !Array.isArray(userAnswer) ? userAnswer : {});
-    setMatchingChecked(typeof userAnswer === "object" && userAnswer !== null && Object.keys(userAnswer).length > 0);
+    setMatchingChecked(!isExamMode && typeof userAnswer === "object" && userAnswer !== null && Object.keys(userAnswer).length > 0);
 
     const hasAns = userAnswer !== undefined && userAnswer !== null && userAnswer !== "" && 
       (Array.isArray(userAnswer) ? userAnswer.length > 0 : true);
@@ -865,7 +865,7 @@ export default function QuestionCard({
                 fontSize: "0.85rem",
                 color: "var(--text-primary)",
                 background: "var(--surface-card)",
-                border: fillChecked 
+                border: (!isExamMode && fillChecked) 
                   ? (fillInput.trim().toLowerCase() === String(question.correct_answer).trim().toLowerCase() ? "2px solid #10b981" : "2px solid #ef4444")
                   : "1.5px solid var(--border-medium)",
                 padding: "0.45rem 0.8rem",

@@ -26,7 +26,7 @@ export default function AIChatAssistant() {
   }, [messages, isOpen]);
 
   // Disable & Hide AI completely in Exam mode
-  if (pathname === "/exam") {
+  if (pathname === "/exam" || pathname?.startsWith("/exam")) {
     return null;
   }
 
