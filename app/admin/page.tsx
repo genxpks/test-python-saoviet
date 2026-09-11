@@ -128,6 +128,7 @@ export default function AdminPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [practicals, setPracticals] = useState<PracticalProblem[]>([]);
   const [examResults, setExamResults] = useState<ExamResult[]>([]);
+  const [examCodes, setExamCodes] = useState<any[]>([]); // Ma phong thi active
 
   const [adminBranchMode, setAdminBranchMode] = useState<string>("all");
   const [selectedSubjectId, setSelectedSubjectId] = useState("all");
@@ -225,12 +226,15 @@ export default function AdminPage() {
     setPracticals(getPracticalsData());
 
     try {
-      const [resB, resS, resQ, resU, resE] = await Promise.all([
+      const [resB, resS, resQ, resU, resE, resEC] = await Promise.all([
         fetch("/api/branches").then(r => r.json()).catch(() => null),
         fetch("/api/subjects").then(r => r.json()).catch(() => null),
         fetch("/api/questions").then(r => r.json()).catch(() => null),
         fetch("/api/users").then(r => r.json()).catch(() => null),
-        fetch("/api/exams").then(r => r.json()).catch(() => null)
+        fetch("/api/exams").then(r => r.json()).catch(() => null),
+        fetch("/api/exam-codes?activeOnly=true", {
+          headers: { "X-User-Role": currentUser?.role || "admin" }
+        }).then(r => r.json()).catch(() => null),
       ]);
 
       if (resB?.success && resB.branches?.length > 0) setBranches(resB.branches);
@@ -254,6 +258,7 @@ export default function AdminPage() {
         setUsers(getUsers());
       }
       if (resE?.success && resE.results?.length > 0) setExamResults(resE.results);
+      if (resEC?.success && Array.isArray(resEC.codes)) setExamCodes(resEC.codes);
     } catch {
       setUsers(getUsers());
     }
@@ -606,7 +611,7 @@ export default function AdminPage() {
               { id: "users", label: "Phân Cấp Tài Khoản", count: filteredUsers.length, icon: Users },
               { id: "branches", label: "Cơ Sở & Phòng Lab", count: branches.length, icon: Building2 },
               { id: "results", label: "Kết Quả Khảo Thí", count: examResults.length, icon: GraduationCap },
-              { id: "exam_codes", label: "Mã Phòng Thi", count: 0, icon: KeyRound }
+              { id: "exam_codes", label: "Mã Phòng Thi", count: examCodes.filter(c => c.isActive && new Date(c.expiresAt) > new Date()).length, icon: KeyRound }
             ]
               // — Lọc tab theo RBAC —
               .filter(tab => canAccessTab(currentUser, tab.id as any))
